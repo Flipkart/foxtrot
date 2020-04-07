@@ -33,9 +33,11 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.Lists;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
-import org.junit.Before;
+import lombok.SneakyThrows;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.GetIndexResponse;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -56,11 +58,8 @@ public class FilterActionTest extends ActionTest {
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .prepareRefresh("*")
-                .execute()
-                .actionGet();
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
     }
 
     public void testQueryException() throws FoxtrotException {
@@ -761,6 +760,7 @@ public class FilterActionTest extends ActionTest {
 
     @SuppressWarnings("deprecation")
     @Test
+    @SneakyThrows
     public void testMissingIndicesQuery() throws FoxtrotException {
         final ObjectMapper mapper = getMapper();
         List<Document> documents = TestUtils.getQueryDocumentsDifferentDate(mapper, new Date(2014 - 1900, 4, 1).getTime());
@@ -768,17 +768,13 @@ public class FilterActionTest extends ActionTest {
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         for(Document document : documents) {
             getElasticsearchConnection().getClient()
-                    .admin()
                     .indices()
-                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
-                    .execute()
-                    .actionGet();
+                    .refresh(new RefreshRequest(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp())),
+                             RequestOptions.DEFAULT);
         }
         GetIndexResponse response = getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .getIndex(new GetIndexRequest())
-                .actionGet();
+                .get(new GetIndexRequest("*"), RequestOptions.DEFAULT);
         // Find all indices returned for this table name.. (using regex to match)
         assertEquals(3, Arrays.stream(response.getIndices())
                 .filter(index -> index.matches(".*-" + TestUtils.TEST_TABLE_NAME + "-.*"))

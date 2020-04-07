@@ -22,7 +22,7 @@ import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.annotations.VisibleForTesting;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.ActionRequest;
 
 /**
  * Created by rishabh.goyal on 02/05/14.
@@ -57,7 +57,7 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(NonCacheableActionRequest parameter) throws FoxtrotException {
+    public ActionRequest getRequestBuilder(NonCacheableActionRequest parameter) throws FoxtrotException {
         return null;
     }
 

@@ -8,6 +8,7 @@ import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
+import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
@@ -43,6 +44,7 @@ import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.google.common.cache.CacheBuilderSpec;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -65,8 +67,10 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -120,6 +124,12 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
+    public TranslatorConfig getTranslatorConfig(FoxtrotServerConfiguration configuration){
+        return configuration.getTranslatorConfig();
+    }
+
+    @Provides
+    @Singleton
     public ClusterConfig clusterConfig(FoxtrotServerConfiguration configuration) {
         return configuration.getCluster();
     }
@@ -128,16 +138,16 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public CardinalityConfig cardinalityConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getCardinality()
-               ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
-               : configuration.getCardinality();
+                ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
+                : configuration.getCardinality();
     }
 
     @Provides
     @Singleton
     public EsIndexOptimizationConfig esIndexOptimizationConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getEsIndexOptimizationConfig()
-               ? new EsIndexOptimizationConfig()
-               : configuration.getEsIndexOptimizationConfig();
+                ? new EsIndexOptimizationConfig()
+                : configuration.getEsIndexOptimizationConfig();
     }
 
     @Provides
@@ -150,8 +160,8 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ConsoleHistoryConfig consoleHistoryConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getConsoleHistoryConfig()
-               ? new ConsoleHistoryConfig()
-               : configuration.getConsoleHistoryConfig();
+                ? new ConsoleHistoryConfig()
+                : configuration.getConsoleHistoryConfig();
     }
 
     @Provides
@@ -236,7 +246,7 @@ public class FoxtrotModule extends AbstractModule {
     }
 
     @Provides
-    @com.google.inject.Singleton
+    @Singleton
     public JwtConsumer provideJwtConsumer(AuthConfig config) {
         final JwtConfig jwtConfig = config.getJwt();
         final byte[] secretKey = jwtConfig.getPrivateKey().getBytes(StandardCharsets.UTF_8);
@@ -265,4 +275,12 @@ public class FoxtrotModule extends AbstractModule {
                 authenticator,
                 CacheBuilderSpec.parse(authConfig.getJwt().getAuthCachePolicy()));
     }
+
+    @Provides
+    @Singleton
+    public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
+        return Objects.nonNull(configuration.getElasticsearchTuningConfig())
+                ? configuration.getElasticsearchTuningConfig() : new ElasticsearchTuningConfig();
+    }
+
 }

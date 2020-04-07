@@ -6,18 +6,22 @@ import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.ExistsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +34,13 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = true)
 public class CountAction extends Action<CountRequest> {
 
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
     public CountAction(CountRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
+
 
     @Override
     public void preprocess() {
@@ -41,7 +48,7 @@ public class CountAction extends Action<CountRequest> {
         // Null field implies complete doc count
         if (getParameter().getField() != null) {
             Filter existsFilter = new ExistsFilter(getParameter().getField());
-            if (!getParameter().getFilters().contains(existsFilter)){
+            if (!getParameter().getFilters().contains(existsFilter)) {
                 getParameter().getFilters()
                         .add(new ExistsFilter(getParameter().getField()));
             }
@@ -58,88 +65,98 @@ public class CountAction extends Action<CountRequest> {
         preprocess();
         long filterHashKey = 0L;
         CountRequest request = getParameter();
-        if(null != request.getFilters()) {
-            for(Filter filter : request.getFilters()) {
+        if (null != request.getFilters()) {
+            for (Filter filter : request.getFilters()) {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
 
-        filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode());
-        filterHashKey += 31 * (request.getField() != null ? request.getField()
-                .hashCode() : "COLUMN".hashCode());
+        filterHashKey += 31 * (request.isDistinct()
+                               ? "TRUE".hashCode()
+                               : "FALSE".hashCode());
+        filterHashKey += 31 * (request.getField() != null
+                               ? request.getField()
+                                       .hashCode()
+                               : "COLUMN".hashCode());
         return String.format("count-%s-%d", request.getTable(), filterHashKey);
     }
 
     @Override
     public void validateImpl(CountRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
-        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
-        if(parameter.isDistinct() && CollectionUtils.isNullOrEmpty(parameter.getField())) {
+        if (parameter.isDistinct() && CollectionUtils.isNullOrEmpty(parameter.getField())) {
             validationErrors.add("field name cannot be null or empty");
         }
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
 
     @Override
     public ActionResponse execute(CountRequest parameter) {
-        SearchRequestBuilder query = getRequestBuilder(parameter);
+        SearchRequest request = getRequestBuilder(parameter);
 
         try {
-            SearchResponse response = query.execute()
-                    .actionGet(getGetQueryTimeout());
+            SearchResponse response = getConnection()
+                    .getClient()
+                    .search(request, RequestOptions.DEFAULT);
             return getResponse(response, parameter);
-        } catch (ElasticsearchException e) {
+        }
+        catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
 
         }
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(CountRequest parameter) {
-        if(parameter.isDistinct()) {
-            SearchRequestBuilder query;
+    public SearchRequest getRequestBuilder(CountRequest parameter) {
+        if (parameter.isDistinct()) {
             try {
-                query = getConnection().getClient()
-                        .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                        .setIndicesOptions(Utils.indicesOptions())
-                        .setSize(QUERY_SIZE)
-                        .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                        .addAggregation(Utils.buildCardinalityAggregation(parameter.getField()));
-                return query;
-            } catch (Exception e) {
+                return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                                .indicesOptions(Utils.indicesOptions())
+                                .source(new SearchSourceBuilder()
+                                    .size(QUERY_SIZE)
+                                    .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
+                                    .aggregation(Utils.buildCardinalityAggregation(parameter.getField(),
+                                                                          parameter.accept(new CountPrecisionThresholdVisitorAdapter(
+                                                                                  elasticsearchTuningConfig.getPrecisionThreshold())))))
+                                ;
+            }
+            catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
-        } else {
-            SearchRequestBuilder requestBuilder;
+        }
+        else {
             try {
-                requestBuilder = getConnection().getClient()
-                        .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                        .setIndicesOptions(Utils.indicesOptions())
-                        .setSize(QUERY_SIZE)
-                        .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()));
-            } catch (Exception e) {
+                return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                        .indicesOptions(Utils.indicesOptions())
+                        .source(new SearchSourceBuilder()
+                               .size(QUERY_SIZE)
+                               .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters())));
+            }
+            catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
-            return requestBuilder;
         }
     }
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, CountRequest parameter) {
-        if(parameter.isDistinct()) {
-            Aggregations aggregations = ((SearchResponse)response).getAggregations();
+        if (parameter.isDistinct()) {
+            Aggregations aggregations = ((SearchResponse) response).getAggregations();
             Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
-            if(cardinality == null) {
+            if (cardinality == null) {
                 return new CountResponse(0);
-            } else {
+            }
+            else {
                 return new CountResponse(cardinality.getValue());
             }
-        } else {
-            return new CountResponse(((SearchResponse)response).getHits()
+        }
+        else {
+            return new CountResponse(((SearchResponse) response).getHits()
                                              .getTotalHits());
         }
 

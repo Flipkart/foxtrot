@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.server.auth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.auth.User;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
@@ -14,6 +13,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.support.WriteRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.engine.VersionConflictEngineException;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -59,21 +59,20 @@ public class ESAuthStore implements AuthStore {
     public Optional<User> getUser(String userId) {
         val getResp = connection.getClient()
                 .get(new GetRequest(USERS_INDEX)
-                             .id(userId))
-                .actionGet();
+                             .id(userId), RequestOptions.DEFAULT);
         if (!getResp.isExists()) {
             return Optional.empty();
         }
         return Optional.of(mapper.readValue(getResp.getSourceAsString(), User.class));
     }
 
+    @SneakyThrows
     @Override
     public boolean deleteUser(String id) {
         return connection.getClient()
                 .delete(new DeleteRequest(USERS_INDEX)
                                 .id(id)
-                                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE))
-                .actionGet()
+                                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
                 .status() == RestStatus.OK;
     }
 
@@ -106,8 +105,7 @@ public class ESAuthStore implements AuthStore {
                                    .id(userId)
                                    .type("TOKEN")
                                    .create(true)
-                                   .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE))
-                    .actionGet()
+                                   .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
                     .status();
             if (saveStatus != RestStatus.OK) {
                 log.error("ES save status for token for user {} is: {}", userId, saveStatus);
@@ -125,8 +123,7 @@ public class ESAuthStore implements AuthStore {
     public Optional<Token> getToken(String tokenId) {
         val getResp = connection.getClient()
                 .get(new GetRequest(TOKENS_INDEX)
-                             .id(tokenId))
-                .actionGet();
+                             .id(tokenId), RequestOptions.DEFAULT);
         if (!getResp.isExists()) {
             return Optional.empty();
         }
@@ -139,8 +136,8 @@ public class ESAuthStore implements AuthStore {
         val getResp = connection.getClient()
                 .search(new SearchRequest(TOKENS_INDEX)
                              .searchType(SearchType.QUERY_THEN_FETCH)
-                        .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("userId", userId))))
-                .actionGet();
+                        .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("userId", userId))),
+                        RequestOptions.DEFAULT);
         final SearchHits hits = getResp.getHits();
         if (hits.totalHits <= 0) {
             return Optional.empty();
@@ -149,25 +146,26 @@ public class ESAuthStore implements AuthStore {
     }
 
     @Override
+    @SneakyThrows
     public boolean deleteToken(String tokenId) {
         return connection.getClient()
                 .delete(new DeleteRequest(TOKENS_INDEX)
                                 .id(tokenId)
-                                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE))
-                .actionGet()
+                                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
                 .status() == RestStatus.OK;
     }
 
 
-    private RestStatus saveUser(User user, DocWriteRequest.OpType opType) throws JsonProcessingException {
+    @SneakyThrows
+    private RestStatus saveUser(User user, DocWriteRequest.OpType opType) {
         return connection.getClient()
                 .index(new IndexRequest(USERS_INDEX)
                                .source(mapper.writeValueAsString(user), XContentType.JSON)
                                .id(user.getId())
                                .type("USER")
                                .opType(opType)
-                               .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE))
-                .actionGet()
+                               .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
+                       RequestOptions.DEFAULT)
                 .status();
     }
 }

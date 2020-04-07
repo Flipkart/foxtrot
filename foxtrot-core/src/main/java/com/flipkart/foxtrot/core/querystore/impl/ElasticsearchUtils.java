@@ -22,7 +22,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.joda.time.DateTime;
@@ -239,12 +240,15 @@ public class ElasticsearchUtils {
                 .endObject();
     }
 
-    public static void initializeMappings(Client client) {
+    public static void initializeMappings(RestHighLevelClient client) {
         PutIndexTemplateRequest templateRequest = getClusterTemplateMapping();
-        client.admin()
-                .indices()
-                .putTemplate(templateRequest)
-                .actionGet();
+        try {
+            client.indices()
+                    .putTemplate(templateRequest, RequestOptions.DEFAULT);
+        }
+        catch (IOException e) {
+            logger.error("Error occurred: ", e);
+        }
     }
 
 

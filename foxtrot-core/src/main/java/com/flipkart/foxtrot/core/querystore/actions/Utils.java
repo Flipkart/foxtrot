@@ -19,16 +19,16 @@ import org.elasticsearch.search.aggregations.*;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
+import org.elasticsearch.search.aggregations.metrics.avg.ParsedAvg;
 import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.max.InternalMax;
-import org.elasticsearch.search.aggregations.metrics.min.InternalMin;
+import org.elasticsearch.search.aggregations.metrics.max.ParsedMax;
+import org.elasticsearch.search.aggregations.metrics.min.ParsedMin;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.elasticsearch.search.aggregations.metrics.stats.InternalStats;
-import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
-import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
-import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
+import org.elasticsearch.search.aggregations.metrics.stats.ParsedStats;
+import org.elasticsearch.search.aggregations.metrics.stats.extended.ParsedExtendedStats;
+import org.elasticsearch.search.aggregations.metrics.sum.ParsedSum;
+import org.elasticsearch.search.aggregations.metrics.valuecount.ParsedValueCount;
 import org.joda.time.DateTimeZone;
 
 import java.util.*;
@@ -42,6 +42,7 @@ public class Utils {
 
     private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
     private static final double DEFAULT_COMPRESSION = 100.0;
+    private static final int PRECISION_THRESHOLD = 500;
     private static final String COUNT = "count";
     private static final String AVG = "avg";
     private static final String SUM = "sum";
@@ -53,33 +54,40 @@ public class Utils {
     private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES
             = EnumSet.of(FieldType.INTEGER, FieldType.LONG, FieldType.FLOAT, FieldType.DOUBLE);
 
-    private Utils() {}
+    private Utils() {
+    }
 
-    public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields, Set<AggregationBuilder> subAggregations) {
+    public static TermsAggregationBuilder buildTermsAggregation(
+            List<ResultSort> fields,
+            Set<AggregationBuilder> subAggregations, int aggregationSize) {
         TermsAggregationBuilder rootBuilder = null;
         TermsAggregationBuilder termsBuilder = null;
-        for(ResultSort nestingField : fields) {
+        for (ResultSort nestingField : fields) {
             String field = nestingField.getField();
             BucketOrder bucketOrder = BucketOrder.key(nestingField.getOrder() != ResultSort.Order.desc);
-            if(null == termsBuilder) {
+            if (null == termsBuilder) {
                 termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
-            } else {
+            }
+            else {
                 TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
                 termsBuilder.subAggregation(tempBuilder);
                 termsBuilder = tempBuilder;
             }
-            termsBuilder.size(QUERY_SIZE);
-            if(null == rootBuilder) {
+            if (0 == aggregationSize) {
+                aggregationSize = QUERY_SIZE;
+            }
+            termsBuilder.size(aggregationSize);
+            if (null == rootBuilder) {
                 rootBuilder = termsBuilder;
             }
         }
-        if(!CollectionUtils.isNullOrEmpty(subAggregations)) {
+        if (!CollectionUtils.isNullOrEmpty(subAggregations)) {
             assert termsBuilder != null;
-            for(AggregationBuilder aggregationBuilder : subAggregations) {
+            for (AggregationBuilder aggregationBuilder : subAggregations) {
                 termsBuilder.subAggregation(aggregationBuilder);
             }
         }
@@ -91,12 +99,12 @@ public class Utils {
 
         boolean anyExtendedStat = stats == null || stats.stream()
                 .anyMatch(Stat::isExtended);
-        if(anyExtendedStat) {
+        if (anyExtendedStat) {
             return AggregationBuilders.extendedStats(metricKey)
                     .field(storedFieldName(field));
         }
 
-        if(stats.size() > 1) {
+        if (stats.size() > 1) {
             return AggregationBuilders.stats(metricKey)
                     .field(storedFieldName(field));
         }
@@ -151,16 +159,21 @@ public class Utils {
         });
     }
 
-    public static AbstractAggregationBuilder buildPercentileAggregation(String field, Collection<Double> inputPercentiles) {
+    public static AbstractAggregationBuilder buildPercentileAggregation(
+            String field,
+            Collection<Double> inputPercentiles) {
         return buildPercentileAggregation(field, inputPercentiles, DEFAULT_COMPRESSION);
     }
 
-    public static AbstractAggregationBuilder buildPercentileAggregation(String field, Collection<Double> inputPercentiles,
-                                                                        double compression) {
-        double[] percentiles = inputPercentiles != null ? inputPercentiles.stream()
-                .mapToDouble(x -> x)
-                .toArray() : DEFAULT_PERCENTILES;
-        if(compression == 0.0) {
+    public static AbstractAggregationBuilder buildPercentileAggregation(
+            String field, Collection<Double> inputPercentiles,
+            double compression) {
+        double[] percentiles = inputPercentiles != null
+                               ? inputPercentiles.stream()
+                                       .mapToDouble(x -> x)
+                                       .toArray()
+                               : DEFAULT_PERCENTILES;
+        if (compression == 0.0) {
             compression = DEFAULT_COMPRESSION;
         }
         String metricKey = getPercentileAggregationKey(field);
@@ -170,7 +183,9 @@ public class Utils {
                 .compression(compression);
     }
 
-    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(String field, DateHistogramInterval interval) {
+    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(
+            String field,
+            DateHistogramInterval interval) {
         String metricKey = getDateHistogramKey(field);
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(0)
@@ -179,10 +194,14 @@ public class Utils {
                 .dateHistogramInterval(interval);
     }
 
-    public static CardinalityAggregationBuilder buildCardinalityAggregation(String field) {
+    public static CardinalityAggregationBuilder buildCardinalityAggregation(String field, int precisionThreshold) {
+        if (0 == precisionThreshold) {
+            precisionThreshold = PRECISION_THRESHOLD;
+        }
         return AggregationBuilders.cardinality(Utils.sanitizeFieldForAggregation(field))
-                .precisionThreshold(500)
+                .precisionThreshold(precisionThreshold)
                 .field(storedFieldName(field));
+
     }
 
     public static String sanitizeFieldForAggregation(String field) {
@@ -190,7 +209,7 @@ public class Utils {
     }
 
     public static String storedFieldName(String field) {
-        if("_timestamp".equalsIgnoreCase(field)) {
+        if ("_timestamp".equalsIgnoreCase(field)) {
             return ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME;
         }
         return field;
@@ -234,7 +253,7 @@ public class Utils {
         return IndicesOptions.lenientExpandOpen();
     }
 
-    public static Map<String, Number> createStatsResponse(InternalExtendedStats extendedStats) {
+    public static Map<String, Number> createStatsResponse(ParsedExtendedStats extendedStats) {
         Map<String, Number> stats = Maps.newHashMap();
         stats.put(AVG, extendedStats.getAvg());
         stats.put(SUM, extendedStats.getSum());
@@ -247,7 +266,7 @@ public class Utils {
         return stats;
     }
 
-    public static Map<String, Number> createStatsResponse(InternalStats internalStats) {
+    public static Map<String, Number> createStatsResponse(ParsedStats internalStats) {
         Map<String, Number> stats = Maps.newHashMap();
         stats.put(AVG, internalStats.getAvg());
         stats.put(SUM, internalStats.getSum());
@@ -257,58 +276,68 @@ public class Utils {
         return stats;
     }
 
-    public static Map<String, Number> createStatResponse(InternalMax statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedMax statAggregation) {
         return ImmutableMap.of(MAX, statAggregation.getValue());
     }
 
-    public static Map<String, Number> createStatResponse(InternalMin statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedMin statAggregation) {
         return ImmutableMap.of(MIN, statAggregation.getValue());
     }
 
-    public static Map<String, Number> createStatResponse(InternalAvg statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedAvg statAggregation) {
         return ImmutableMap.of(AVG, statAggregation.getValue());
     }
 
-    public static Map<String, Number> createStatResponse(InternalSum statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedSum statAggregation) {
         return ImmutableMap.of(SUM, statAggregation.getValue());
     }
 
-    public static Map<String, Number> createStatResponse(InternalValueCount statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedValueCount statAggregation) {
         return ImmutableMap.of(COUNT, statAggregation.getValue());
     }
 
     public static Map<Number, Number> createPercentilesResponse(Percentiles internalPercentiles) {
         Map<Number, Number> percentiles = Maps.newHashMap();
-        for(Percentile percentile : internalPercentiles) {
+        for (Percentile percentile : internalPercentiles) {
             percentiles.put(percentile.getPercent(), percentile.getValue());
         }
         return percentiles;
     }
 
     public static double ensurePositive(long number) {
-        return number <= 0.0 ? 0.0 : number;
+        return number <= 0.0
+               ? 0.0
+               : number;
     }
 
 
     public static double ensureOne(long number) {
-        return number <= 0 ? 1 : number;
+        return number <= 0
+               ? 1
+               : number;
     }
 
     public static Map<String, Number> toStats(Aggregation statAggregation) {
-        if(statAggregation instanceof InternalExtendedStats) {
-            return Utils.createStatsResponse((InternalExtendedStats)statAggregation);
-        } else if(statAggregation instanceof InternalStats) {
-            return Utils.createStatsResponse((InternalStats)statAggregation);
-        } else if(statAggregation instanceof InternalMax) {
-            return Utils.createStatResponse((InternalMax)statAggregation);
-        } else if(statAggregation instanceof InternalMin) {
-            return Utils.createStatResponse((InternalMin)statAggregation);
-        } else if(statAggregation instanceof InternalAvg) {
-            return Utils.createStatResponse((InternalAvg)statAggregation);
-        } else if(statAggregation instanceof InternalSum) {
-            return Utils.createStatResponse((InternalSum)statAggregation);
-        } else if(statAggregation instanceof InternalValueCount) {
-            return Utils.createStatResponse((InternalValueCount)statAggregation);
+        if (statAggregation instanceof ParsedExtendedStats) {
+            return Utils.createStatsResponse((ParsedExtendedStats) statAggregation);
+        }
+        else if (statAggregation instanceof ParsedStats) {
+            return Utils.createStatsResponse((ParsedStats) statAggregation);
+        }
+        else if (statAggregation instanceof ParsedMax) {
+            return Utils.createStatResponse((ParsedMax) statAggregation);
+        }
+        else if (statAggregation instanceof ParsedMin) {
+            return Utils.createStatResponse((ParsedMin) statAggregation);
+        }
+        else if (statAggregation instanceof ParsedAvg) {
+            return Utils.createStatResponse((ParsedAvg) statAggregation);
+        }
+        else if (statAggregation instanceof ParsedSum) {
+            return Utils.createStatResponse((ParsedSum) statAggregation);
+        }
+        else if (statAggregation instanceof ParsedValueCount) {
+            return Utils.createStatResponse((ParsedValueCount) statAggregation);
         }
         return new HashMap<>();
     }

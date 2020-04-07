@@ -20,7 +20,10 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -29,7 +32,8 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,29 +54,26 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
         connection.start();
 
         ClusterHealthResponse clusterHealth = connection.getClient()
-                .admin()
                 .cluster()
-                .health(new ClusterHealthRequest())
-                .actionGet();
+                .health(new ClusterHealthRequest(), RequestOptions.DEFAULT);
         int numDataNodes = clusterHealth.getNumberOfDataNodes();
         int numReplicas = (numDataNodes < 2) ? 0 : 1;
 
         logger.info("# data nodes: {}, Setting replica count to: {}", numDataNodes, numReplicas);
 
-        createMetaIndex(connection, "consoles", numReplicas);
-        createMetaIndex(connection, "consoles_v2", numReplicas);
-        createMetaIndex(connection, "table-meta", numReplicas);
-        createMetaIndex(connection, "consoles_history", numReplicas);
+        createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX, numReplicas);
+        createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX_V2, numReplicas);
+        createMetaIndex(connection, TableMapStore.TABLE_META_INDEX, numReplicas);
+        createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX_HISTORY, numReplicas);
+        createMetaIndex(connection, FqlStoreServiceImpl.FQL_STORE_INDEX, numReplicas);
         createMetaIndex(connection, "user-meta", numReplicas);
         createMetaIndex(connection, "tokens", numReplicas);
 
         logger.info("Creating mapping");
         PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
-        PutIndexTemplateResponse response = connection.getClient()
-                .admin()
+        AcknowledgedResponse response = connection.getClient()
                 .indices()
-                .putTemplate(putIndexTemplateRequest)
-                .actionGet();
+                .putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT);
         logger.info("Created mapping: {}", response.isAcknowledged());
 
         logger.info("Creating hbase table");
@@ -90,10 +91,8 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().index(indexName)
                     .settings(settings);
             CreateIndexResponse response = connection.getClient()
-                    .admin()
                     .indices()
-                    .create(createIndexRequest)
-                    .actionGet();
+                    .create(createIndexRequest, RequestOptions.DEFAULT);
             logger.info("'{}' creation acknowledged: {}", indexName, response.isAcknowledged());
             if(!response.isAcknowledged()) {
                 logger.error("Index {} could not be created.", indexName);

@@ -28,19 +28,22 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -111,36 +114,32 @@ public class FilterAction extends Action<Query> {
 
     @Override
     public ActionResponse execute(Query parameter) {
-        SearchRequestBuilder search = getRequestBuilder(parameter);
+        SearchRequest search = getRequestBuilder(parameter);
         try {
             logger.info("Search: {}", search);
-            SearchResponse response = search.execute()
-                    .actionGet(getGetQueryTimeout());
+            SearchResponse response = getConnection()
+                .getClient()
+                .search(search);
             return getResponse(response, parameter);
-        } catch (ElasticsearchException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(Query parameter) {
-        SearchRequestBuilder search;
-        try {
-            search = getConnection().getClient()
-                    .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                    .setSearchType(SearchType.QUERY_THEN_FETCH)
-                    .setFrom(parameter.getFrom())
-                    .addSort(Utils.storedFieldName(parameter.getSort()
-                                                           .getField()), ResultSort.Order.desc == parameter.getSort()
-                            .getOrder() ? SortOrder.DESC : SortOrder.ASC)
-                    .setSize(parameter.getLimit());
-        } catch (Exception e) {
-            throw FoxtrotExceptions.queryCreationException(parameter, e);
-        }
-        return search;
+    public SearchRequest getRequestBuilder(Query parameter) {
+        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                .indicesOptions(Utils.indicesOptions())
+                .types(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                .searchType(SearchType.QUERY_THEN_FETCH)
+                .source(new SearchSourceBuilder()
+                                .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
+                                .size(parameter.getLimit())
+                                .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
+                                .from(parameter.getFrom())
+                                .sort(Utils.storedFieldName(parameter.getSort().getField()),
+                                      ResultSort.Order.desc == parameter.getSort().getOrder()
+                                      ? SortOrder.DESC : SortOrder.ASC));
     }
 
     @Override

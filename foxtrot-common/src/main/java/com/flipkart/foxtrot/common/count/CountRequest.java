@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.common.count;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
+import com.flipkart.foxtrot.common.enums.CountPrecision;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,6 +29,8 @@ public class CountRequest extends ActionRequest {
     private String field;
 
     private boolean isDistinct;
+
+    private CountPrecision precision;
 
     public CountRequest() {
         super(Opcodes.COUNT);
