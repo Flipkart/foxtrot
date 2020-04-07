@@ -43,7 +43,7 @@ public class Auth {
     public Response provisionUser(@NotNull @Valid final CreateUserRequest createUserRequest) {
         val user = new User(createUserRequest.getId(), createUserRequest.getRoles(), createUserRequest.getTables(),
                             new Date(), new Date());
-        return Response.ok(authProvider.get().provision(user)).build();
+        return Response.ok(authProvider.get().provisionUser(user)).build();
     }
 
     @GET

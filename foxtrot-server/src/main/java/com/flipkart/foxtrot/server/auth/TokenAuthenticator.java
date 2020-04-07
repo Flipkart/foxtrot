@@ -33,6 +33,7 @@ public class TokenAuthenticator implements Authenticator<JwtContext, UserPrincip
             log.debug("Authentication is disabled");
             return Optional.of(UserPrincipal.DEFAULT);
         }
+        log.debug("Auth called");
         final String userId;
         final String tokenId;
         try {

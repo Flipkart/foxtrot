@@ -6,6 +6,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
@@ -15,7 +16,6 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.engine.VersionConflictEngineException;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHits;
@@ -32,8 +32,10 @@ import java.util.function.UnaryOperator;
  */
 @Slf4j
 public class ESAuthStore implements AuthStore {
-    private static final String USERS_INDEX = "user-meta";
-    private static final String TOKENS_INDEX = "tokens";
+    public static final String USERS_INDEX = "user-meta";
+    public static final String TOKENS_INDEX = "tokens";
+    private static final String TOKEN_TYPE = "TOKEN";
+    private static final String USER_TYPE = "USER";
 
     private final ElasticsearchConnection connection;
     private final ObjectMapper mapper;
@@ -46,9 +48,9 @@ public class ESAuthStore implements AuthStore {
 
     @Override
     @SneakyThrows
-    public Optional<User> provision(User user) {
+    public Optional<User> provisionUser(User user) {
         val status = saveUser(user, DocWriteRequest.OpType.CREATE);
-        if (status != RestStatus.OK) {
+        if (status != RestStatus.CREATED) {
             return Optional.empty();
         }
         return getUser(user.getId());
@@ -58,8 +60,7 @@ public class ESAuthStore implements AuthStore {
     @SneakyThrows
     public Optional<User> getUser(String userId) {
         val getResp = connection.getClient()
-                .get(new GetRequest(USERS_INDEX)
-                             .id(userId), RequestOptions.DEFAULT);
+                .get(new GetRequest(USERS_INDEX, USER_TYPE, userId), RequestOptions.DEFAULT);
         if (!getResp.isExists()) {
             return Optional.empty();
         }
@@ -70,8 +71,7 @@ public class ESAuthStore implements AuthStore {
     @Override
     public boolean deleteUser(String id) {
         return connection.getClient()
-                .delete(new DeleteRequest(USERS_INDEX)
-                                .id(id)
+                .delete(new DeleteRequest(USERS_INDEX, USER_TYPE, id)
                                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
                 .status() == RestStatus.OK;
     }
@@ -85,7 +85,7 @@ public class ESAuthStore implements AuthStore {
             return false;
         }
         final User updatedUser = mutator.apply(user);
-        return saveUser(updatedUser, DocWriteRequest.OpType.UPDATE) == RestStatus.OK;
+        return saveUser(updatedUser, DocWriteRequest.OpType.INDEX) == RestStatus.OK;
     }
 
     @Override
@@ -102,16 +102,16 @@ public class ESAuthStore implements AuthStore {
                     .index(new IndexRequest(TOKENS_INDEX)
                                    .source(mapper.writeValueAsString(new Token(tokenId, tokenType, userId, expiry)),
                                            XContentType.JSON)
-                                   .id(userId)
-                                   .type("TOKEN")
+                                   .id(tokenId)
+                                   .type(TOKEN_TYPE)
                                    .create(true)
                                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
                     .status();
-            if (saveStatus != RestStatus.OK) {
+            if (saveStatus != RestStatus.CREATED) {
                 log.error("ES save status for token for user {} is: {}", userId, saveStatus);
                 return Optional.empty();
             }
-        } catch (VersionConflictEngineException v) {
+        } catch (ElasticsearchException v) {
             log.warn("A valid token exists exists already.. for id: {}", userId);
             return getTokenForUser(userId);
         }
@@ -122,8 +122,7 @@ public class ESAuthStore implements AuthStore {
     @SneakyThrows
     public Optional<Token> getToken(String tokenId) {
         val getResp = connection.getClient()
-                .get(new GetRequest(TOKENS_INDEX)
-                             .id(tokenId), RequestOptions.DEFAULT);
+                .get(new GetRequest(TOKENS_INDEX, TOKEN_TYPE, tokenId), RequestOptions.DEFAULT);
         if (!getResp.isExists()) {
             return Optional.empty();
         }
@@ -135,8 +134,10 @@ public class ESAuthStore implements AuthStore {
     public Optional<Token> getTokenForUser(String userId) {
         val getResp = connection.getClient()
                 .search(new SearchRequest(TOKENS_INDEX)
-                             .searchType(SearchType.QUERY_THEN_FETCH)
-                        .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("userId", userId))),
+                                .searchType(SearchType.QUERY_THEN_FETCH)
+                                .types(TOKEN_TYPE)
+                                .source(new SearchSourceBuilder().query(
+                                        QueryBuilders.termQuery("userId", userId))),
                         RequestOptions.DEFAULT);
         final SearchHits hits = getResp.getHits();
         if (hits.totalHits <= 0) {
@@ -149,8 +150,7 @@ public class ESAuthStore implements AuthStore {
     @SneakyThrows
     public boolean deleteToken(String tokenId) {
         return connection.getClient()
-                .delete(new DeleteRequest(TOKENS_INDEX)
-                                .id(tokenId)
+                .delete(new DeleteRequest(TOKENS_INDEX, TOKEN_TYPE, tokenId)
                                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
                 .status() == RestStatus.OK;
     }
@@ -162,7 +162,7 @@ public class ESAuthStore implements AuthStore {
                 .index(new IndexRequest(USERS_INDEX)
                                .source(mapper.writeValueAsString(user), XContentType.JSON)
                                .id(user.getId())
-                               .type("USER")
+                               .type(USER_TYPE)
                                .opType(opType)
                                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
                        RequestOptions.DEFAULT)

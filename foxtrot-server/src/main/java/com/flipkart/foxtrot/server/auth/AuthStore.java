@@ -14,7 +14,7 @@ import java.util.function.UnaryOperator;
  *
  */
 public interface AuthStore {
-    Optional<User> provision(final User user);
+    Optional<User> provisionUser(final User user);
 
     Optional<User> getUser(final String userId);
 
