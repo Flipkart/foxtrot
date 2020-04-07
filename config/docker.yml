@@ -34,6 +34,14 @@ logging:
   level: INFO
   loggers:
     com.flipkart.foxtrot.core.querystore.actions: DEBUG
+    org.apache.hadoop.hbase.zookeeper: WARN
+    org.apache.zookeeper: WARN
+    org.apache.hadoop.hbase.client: WARN
+  appenders:
+    - type: console
+      threshold: TRACE
+      timeZone: IST
+      logFormat: "%(%-5level) [%date] %X{TRACE-ID} [%thread] [%logger{0}]: %message%n"
 
 cardinality:
   enabled: true
