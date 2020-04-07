@@ -46,6 +46,8 @@ cardinality:
 elasticsearchTuningConfig:
   precisionThreshold: 500
   aggregationSize: 10000
+  scrollSize: 100
+  scrollTimeInSeconds: 120
 
 esIndexOptimizationConfig:
   active: true
@@ -61,3 +63,9 @@ deletionconfig:
   active: false
   interval: 86400
   initialdelay: 60
+
+swagger:
+  resourcePackage: com.flipkart.foxtrot.server.resources
+  title: Foxtrot
+  description: A store abstraction and analytics system for real-time event data.
+  uriPrefix: "/foxtrot"

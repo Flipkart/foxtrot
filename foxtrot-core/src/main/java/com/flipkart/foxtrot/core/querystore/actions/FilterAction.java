@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -30,7 +31,9 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -53,9 +56,11 @@ import java.util.concurrent.TimeUnit;
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
+    private ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     public FilterAction(Query parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -114,32 +119,51 @@ public class FilterAction extends Action<Query> {
 
     @Override
     public ActionResponse execute(Query parameter) {
-        SearchRequest search = getRequestBuilder(parameter);
+        List<String> ids = new ArrayList<>();
         try {
-            logger.info("Search: {}", search);
-            SearchResponse response = getConnection()
-                .getClient()
-                .search(search);
-            return getResponse(response, parameter);
-        } catch (IOException e) {
+            SearchRequest searchRequest = getRequestBuilder(parameter);
+            SearchResponse searchResponse = getConnection().getClient().search(searchRequest, RequestOptions.DEFAULT);
+            String scrollId = searchResponse.getScrollId();
+
+            SearchHits searchHits = (searchResponse).getHits();
+            for(SearchHit searchHit : searchHits) {
+                ids.add(searchHit.getId());
+            }
+            while(ids.size() < parameter.getLimit()){
+                SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollId);
+                scrollRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
+                SearchResponse searchScrollResponse = getConnection().getClient().scroll(scrollRequest, RequestOptions.DEFAULT);
+                scrollId = searchScrollResponse.getScrollId();
+                SearchHits hits = searchScrollResponse.getHits();
+                for(SearchHit searchHit : hits) {
+                    ids.add(searchHit.getId());
+                }
+            }
+            if (ids.size() > parameter.getLimit()){
+                ids = new ArrayList<>(ids.subList(0, parameter.getLimit()));
+            }
+            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), ids.size());
+        }catch (IOException e){
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
     @Override
     public SearchRequest getRequestBuilder(Query parameter) {
-        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+        SearchRequest searchRequest = new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                 .indicesOptions(Utils.indicesOptions())
                 .types(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                 .searchType(SearchType.QUERY_THEN_FETCH)
                 .source(new SearchSourceBuilder()
                                 .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
-                                .size(parameter.getLimit())
+                                .size(elasticsearchTuningConfig.getScrollSize())
                                 .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                                 .from(parameter.getFrom())
                                 .sort(Utils.storedFieldName(parameter.getSort().getField()),
                                       ResultSort.Order.desc == parameter.getSort().getOrder()
                                       ? SortOrder.DESC : SortOrder.ASC));
+        searchRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
+        return searchRequest;
     }
 
     @Override

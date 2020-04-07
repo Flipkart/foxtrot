@@ -17,4 +17,10 @@ public class ElasticsearchTuningConfig {
     private int precisionThreshold = 500;
 
     private int aggregationSize = 10000;
+
+    @Builder.Default
+    private int scrollSize = 100;
+
+    @Builder.Default
+    private int scrollTimeInSeconds = 120;
 }
