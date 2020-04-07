@@ -30,6 +30,19 @@ import java.util.List;
  */
 @NoArgsConstructor
 public class ElasticsearchConfig implements Serializable {
+    public ConnectionType getConnectionType() {
+        return connectionType;
+    }
+
+    public void setConnectionType(ConnectionType connectionType) {
+        this.connectionType = connectionType;
+    }
+
+    public enum ConnectionType {
+        HTTP,
+        HTTPS
+    }
+
     public static final long DEFAULT_TIMEOUT = 10000L;
     @Valid
     @NotNull
@@ -43,6 +56,8 @@ public class ElasticsearchConfig implements Serializable {
     private String tableNamePrefix = "foxtrot";
     private long getQueryTimeout;
     private Integer port;
+    @NotNull
+    private ConnectionType connectionType;
 
     public List<String> getHosts() {
         return hosts;

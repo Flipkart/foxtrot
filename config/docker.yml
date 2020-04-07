@@ -12,6 +12,7 @@ elasticsearch:
   cluster: ${ELASTICSEARCH_CLUSTER_NAME}
   tableNamePrefix: ${ELASTICSEARCH_TABLE_NAME_PREFIX}
   port: ${ELASTICSEARCH_PORT}
+  connectionType: ${ELASTICSEARCH_PROTOCOL}
 
 hbase:
   secure : false

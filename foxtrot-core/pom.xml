@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.flipkart.foxtrot</groupId>
         <artifactId>foxtrot</artifactId>
-        <version>6.3.1-7</version>
+        <version>6.3.1-8</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -142,8 +142,8 @@
         <!-- Elasticsearch -->
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
-            <artifactId>transport</artifactId>
-            <version>6.0.1</version>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>6.8.8</version>
         </dependency>
 
         <dependency>
