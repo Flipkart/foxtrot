@@ -39,15 +39,14 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
@@ -61,6 +60,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -368,36 +368,33 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public NodesStatsResponse getNodeStats() {
-
-        /*NodesStatsRequest nodesStatsRequest = new NodesStatsRequest();
-        nodesStatsRequest.clear()
-                .jvm(true)
-                .os(true)
-                .fs(true)
-                .indices(true)
-                .process(true)
-                .breaker(true);
-        return connection.getClient()
-                .cluster()
-                .
-                .nodesStats(nodesStatsRequest)
-                .actionGet();*/
-        return null;
+    public JsonNode getNodeStats() {
+        try {
+            return mapper.readTree(new InputStreamReader(connection.getClient()
+                                                              .getLowLevelClient()
+                                                              .performRequest(new Request("GET", "/_nodes/stats"))
+                                                              .getEntity()
+                                                              .getContent()));
+        }
+        catch (IOException e) {
+            logger.error("Error finding node stats", e);
+        }
+        return mapper.createObjectNode();
     }
 
     @Override
-    public IndicesStatsResponse getIndicesStats() {
-        /*return connection.getClient()
-                .admin()
-                .indices()
-                .prepareStats(ElasticsearchUtils.getAllIndicesPattern())
-                .clear()
-                .setDocs(true)
-                .setStore(true)
-                .execute()
-                .get();*/
-        return null;
+    public JsonNode getIndicesStats() {
+        try {
+            return mapper.readTree(new InputStreamReader(connection.getClient()
+                                                                 .getLowLevelClient()
+                                                                 .performRequest(new Request("GET", "/_stats"))
+                                                                 .getEntity()
+                                                                 .getContent()));
+        }
+        catch (IOException e) {
+            logger.error("Error finding node stats", e);
+        }
+        return mapper.createObjectNode();
     }
 
     @Override

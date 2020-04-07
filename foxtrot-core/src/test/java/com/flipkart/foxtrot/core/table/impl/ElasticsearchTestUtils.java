@@ -70,6 +70,7 @@ public class ElasticsearchTestUtils {
                 elasticsearchConfig = new ElasticsearchConfig();
                 elasticsearchConfig.setHosts(Collections.singletonList(configuration.getHost()));
                 elasticsearchConfig.setPort(mappedPort);
+                elasticsearchConfig.setConnectionType(ElasticsearchConfig.ConnectionType.HTTP);
                 elasticsearchConfig.setCluster("elasticsearch");
                 elasticsearchConfig.setTableNamePrefix("foxtrot");
             } catch (Exception e) {
