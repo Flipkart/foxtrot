@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core.querystore.impl;
 import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.spi.properties.GroupProperty;
 import com.marathon.hazelcast.servicediscovery.MarathonDiscoveryStrategyFactory;
 import io.dropwizard.lifecycle.Managed;
 import org.slf4j.Logger;
@@ -84,10 +85,10 @@ public class HazelcastConnection implements Managed {
                         .setName("foxtrot");
                 hzConfig.getGroupConfig()
                         .setPassword("foxtrot");
-                /*hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED, "true");
-                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED, "true");
-                hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "true");
-                hzConfig.setProperty(GroupProperty.SOCKET_BIND_ANY, "true");*/
+                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED.getName(), "true");
+                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED.getName(), "true");
+                hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY.getName(), "true");
+                hzConfig.setProperty(GroupProperty.SOCKET_BIND_ANY.getName(), "true");
 
                 NetworkConfig networkConfig = hzConfig.getNetworkConfig();
                 networkConfig.setPublicAddress(System.getenv("HOST") + ":" + System.getenv("PORT_5701"));
