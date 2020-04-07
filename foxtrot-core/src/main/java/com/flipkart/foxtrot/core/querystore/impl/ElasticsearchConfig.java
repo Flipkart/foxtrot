@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -29,7 +28,7 @@ import java.util.List;
  * Time: 12:28 AM
  */
 @NoArgsConstructor
-public class ElasticsearchConfig implements Serializable {
+public class ElasticsearchConfig {
     public ConnectionType getConnectionType() {
         return connectionType;
     }

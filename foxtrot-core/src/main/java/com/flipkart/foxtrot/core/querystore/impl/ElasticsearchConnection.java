@@ -29,7 +29,6 @@ import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.Serializable;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -38,7 +37,7 @@ import java.io.Serializable;
  */
 @Singleton
 @Order(5)
-public class ElasticsearchConnection implements Managed, Serializable {
+public class ElasticsearchConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConnection.class.getSimpleName());
     @Getter
     private final ElasticsearchConfig config;

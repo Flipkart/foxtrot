@@ -56,13 +56,14 @@ public class HazelcastConnection implements Managed {
                 final String hostName = InetAddress.getLocalHost()
                         .getCanonicalHostName();
                 hzConfig.setInstanceName(String.format("foxtrot-%s-%d", hostName, System.currentTimeMillis()));
-                SimpleClusterDiscoveryConfig simpleClusterDiscoveryConfig = (SimpleClusterDiscoveryConfig)clusterConfig.getDiscovery();
-                if(simpleClusterDiscoveryConfig.isDisableMulticast()) {
+                SimpleClusterDiscoveryConfig simpleClusterDiscoveryConfig = (SimpleClusterDiscoveryConfig) clusterConfig
+                        .getDiscovery();
+                if (simpleClusterDiscoveryConfig.isDisableMulticast()) {
                     hzConfig.getNetworkConfig()
                             .getJoin()
                             .getMulticastConfig()
                             .setEnabled(false);
-                    for(String member : simpleClusterDiscoveryConfig.getMembers()) {
+                    for (String member : simpleClusterDiscoveryConfig.getMembers()) {
                         hzConfig.getNetworkConfig()
                                 .getJoin()
                                 .getTcpIpConfig()
@@ -76,7 +77,7 @@ public class HazelcastConnection implements Managed {
                 break;
             case FOXTROT_MARATHON:
                 MarathonClusterDiscoveryConfig marathonClusterDiscoveryConfig =
-                        (MarathonClusterDiscoveryConfig)clusterConfig.getDiscovery();
+                        (MarathonClusterDiscoveryConfig) clusterConfig.getDiscovery();
                 String appId = marathonClusterDiscoveryConfig.getApp()
                         .replace("/", "")
                         .trim();
@@ -107,7 +108,7 @@ public class HazelcastConnection implements Managed {
                 discoveryConfig.addDiscoveryStrategyConfig(discoveryStrategyConfig);
                 break;
             case FOXTROT_AWS:
-                AwsClusterDiscoveryConfig awsClusterDiscoveryConfig = (AwsClusterDiscoveryConfig)clusterConfig.getDiscovery();
+                AwsClusterDiscoveryConfig awsClusterDiscoveryConfig = (AwsClusterDiscoveryConfig) clusterConfig.getDiscovery();
                 NetworkConfig hazelcastConfigNetworkConfig = hzConfig.getNetworkConfig();
                 JoinConfig hazelcastConfigNetworkConfigJoin = hazelcastConfigNetworkConfig.getJoin();
                 hazelcastConfigNetworkConfigJoin.getTcpIpConfig()
