@@ -139,7 +139,7 @@ public class FilterAction extends Action<Query> {
                 scrollId = searchScrollResponse.getScrollId();
                 SearchHits hits = searchScrollResponse.getHits();
                 if (hits.getHits().length == 0){
-                    return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), ids.size());
+                    return getResponse(parameter, searchHits, ids);
                 }
                 for(SearchHit searchHit : hits) {
                     ids.add(searchHit.getId());
@@ -148,7 +148,7 @@ public class FilterAction extends Action<Query> {
             if (ids.size() > parameter.getLimit()){
                 ids = new ArrayList<>(ids.subList(0, parameter.getLimit()));
             }
-            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), ids.size());
+            return getResponse(parameter, searchHits, ids);
         }catch (IOException e){
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
@@ -164,7 +164,6 @@ public class FilterAction extends Action<Query> {
                                 .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
                                 .size(elasticsearchTuningConfig.getScrollSize())
                                 .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                                .from(parameter.getFrom())
                                 .sort(Utils.storedFieldName(parameter.getSort().getField()),
                                       ResultSort.Order.desc == parameter.getSort().getOrder()
                                       ? SortOrder.DESC : SortOrder.ASC));
@@ -179,6 +178,13 @@ public class FilterAction extends Action<Query> {
         for(SearchHit searchHit : searchHits) {
             ids.add(searchHit.getId());
         }
+        if(ids.isEmpty()) {
+            return new QueryResponse(Collections.<Document>emptyList(), 0);
+        }
+        return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.getTotalHits());
+    }
+
+    private QueryResponse getResponse(Query parameter, SearchHits searchHits, List<String> ids){
         if(ids.isEmpty()) {
             return new QueryResponse(Collections.<Document>emptyList(), 0);
         }
