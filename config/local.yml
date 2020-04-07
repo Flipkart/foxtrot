@@ -63,9 +63,3 @@ deletionconfig:
   active: false
   interval: 86400
   initialdelay: 60
-
-swagger:
-  resourcePackage: com.flipkart.foxtrot.server.resources
-  title: Foxtrot
-  description: A store abstraction and analytics system for real-time event data.
-  uriPrefix: "/foxtrot"
