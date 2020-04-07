@@ -11,8 +11,8 @@ elasticsearch:
   - ${ELASTICSEARCH_HOST}
   cluster: ${ELASTICSEARCH_CLUSTER_NAME}
   tableNamePrefix: ${ELASTICSEARCH_TABLE_NAME_PREFIX}
-  port: 9200
-  connectionType: HTTP
+  port: ${ELASTICSEARCH_PORT}
+  connectionType: ${ELASTICSEARCH_PROTOCOL}
 
 hbase:
   secure : false
