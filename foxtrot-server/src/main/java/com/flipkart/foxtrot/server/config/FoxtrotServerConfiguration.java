@@ -28,6 +28,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import io.dropwizard.Configuration;
 import lombok.Builder;
 import lombok.Data;
@@ -77,6 +78,9 @@ public class FoxtrotServerConfiguration extends Configuration {
     private GandalfConfiguration gandalfConfiguration;
 
     private ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    @Builder.Default
+    private TranslatorConfig translatorConfig = new TranslatorConfig();
 
     @Valid
     @Builder.Default

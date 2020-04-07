@@ -26,8 +26,9 @@ import static com.flipkart.foxtrot.sql.fqlstore.FqlStore.TITLE_FIELD;
  ***/
 @Singleton
 public class FqlStoreServiceImpl implements FqlStoreService {
+    public static final String FQL_STORE_INDEX = "fql-store";
+
     private static final Logger logger = LoggerFactory.getLogger(FqlStore.class);
-    private static final String FQL_STORE_INDEX = "fql-store";
 
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper objectMapper;

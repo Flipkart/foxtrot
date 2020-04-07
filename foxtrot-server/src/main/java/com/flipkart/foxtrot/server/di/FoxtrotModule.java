@@ -42,6 +42,7 @@ import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -102,6 +103,12 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ElasticsearchConfig esConfig(FoxtrotServerConfiguration configuration) {
         return configuration.getElasticsearch();
+    }
+
+    @Provides
+    @Singleton
+    public TranslatorConfig getTranslatorConfig(FoxtrotServerConfiguration configuration){
+        return configuration.getTranslatorConfig();
     }
 
     @Provides
