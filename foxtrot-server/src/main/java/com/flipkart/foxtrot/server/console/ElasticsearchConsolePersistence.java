@@ -54,7 +54,7 @@ import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 
 @Singleton
 public class ElasticsearchConsolePersistence implements ConsolePersistence {
-    public static final String INDEX_HISTORY = "consoles_history";
+    public static final String INDEX_HISTORY = "consoles_v2";
     public static final String INDEX_V2 = "consoles_v2";
     public static final String INDEX = "consoles";
 
@@ -154,7 +154,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
 
     @Override
     public void saveV2(ConsoleV2 console, boolean newConsole) {
-        preProcess(console, newConsole);
+        //preProcess(console, newConsole);
         try {
             connection.getClient()
                     .index(new IndexRequest(INDEX_V2)
