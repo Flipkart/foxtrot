@@ -30,7 +30,6 @@ import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.Serializable;
-import java.net.InetAddress;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
