@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.KubernetesClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.querystore.impl.MarathonClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.querystore.impl.SimpleClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.util.MetricUtil;
@@ -113,6 +114,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.registerSubtypes(new NamedType(SimpleClusterDiscoveryConfig.class, "foxtrot_simple"));
         objectMapper.registerSubtypes(new NamedType(MarathonClusterDiscoveryConfig.class, "foxtrot_marathon"));
+        objectMapper.registerSubtypes(new NamedType(KubernetesClusterDiscoveryConfig.class, "foxtrot_kubernetes"));
     }
 
     private SwaggerBundleConfiguration getSwaggerBundleConfiguration() {

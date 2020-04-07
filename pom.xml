@@ -11,7 +11,7 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-7</version>
+    <version>6.3.1-8</version>
 
     <scm>
         <connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
