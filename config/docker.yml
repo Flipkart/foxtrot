@@ -32,7 +32,7 @@ cacheConfig:
   timeToLiveSeconds: 15
 
 logging:
-  level: DEBUG
+  level: INFO
   loggers:
     com.flipkart.foxtrot.core.querystore.actions: DEBUG
     org.apache.hadoop.hbase.zookeeper: WARN

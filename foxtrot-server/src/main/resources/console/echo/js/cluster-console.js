@@ -103,7 +103,7 @@ EventBus.addEventListener('hosts_loaded', function (event, data) {
 
         host.diskTotal = bytesToSize(node.fs.total.total_in_bytes);
         host.diskUsed = bytesToSize(node.fs.total.total_in_bytes - node.fs.total.free_in_bytes);
-        host.diskUsedPercent = toPercentage(node.fs.total_in_bytes - node.fs.total.free_in_bytes, node.fs.total.total_in_bytes);
+        host.diskUsedPercent = toPercentage(node.fs.total.total_in_bytes - node.fs.total.free_in_bytes, node.fs.total.total_in_bytes);
 
         host.jvmTotal = bytesToSize(node.jvm.mem.heap_committed_in_bytes);
         host.jvmUsed = bytesToSize(node.jvm.mem.heap_used_in_bytes);
