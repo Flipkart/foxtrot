@@ -80,7 +80,7 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>3.11</version>
+            <version>3.11.7</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

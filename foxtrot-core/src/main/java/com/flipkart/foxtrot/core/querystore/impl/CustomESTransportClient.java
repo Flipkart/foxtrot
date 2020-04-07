@@ -3,6 +3,8 @@ package com.flipkart.foxtrot.core.querystore.impl;
 import com.google.common.collect.ImmutableList;
 import io.netty.util.ThreadDeathWatcher;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.SuppressForbidden;
 import org.elasticsearch.common.network.NetworkModule;
@@ -14,7 +16,8 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
-public class CustomESTransportClient extends TransportClient {
+public class CustomESTransportClient extends TransportClient
+{
 
 
     static {

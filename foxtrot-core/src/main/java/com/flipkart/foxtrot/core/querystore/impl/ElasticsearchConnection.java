@@ -27,6 +27,7 @@ import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.Serializable;
 import java.net.InetAddress;
 
 /**
@@ -36,7 +37,7 @@ import java.net.InetAddress;
  */
 @Singleton
 @Order(5)
-public class ElasticsearchConnection implements Managed {
+public class ElasticsearchConnection implements Managed, Serializable {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConnection.class.getSimpleName());
     private final ElasticsearchConfig config;
     private Client client;
