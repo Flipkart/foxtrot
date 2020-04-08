@@ -35,19 +35,19 @@ public class QueryResponse extends ActionResponse {
     private long totalHits;
 
     private String scrollId;
-    private boolean scrollResponse;
+    private boolean moreDataAvailable;
 
     public QueryResponse() {
         super(Opcodes.QUERY);
     }
 
     @Builder
-    public QueryResponse(List<Document> documents, long totalHits, String scrollId, boolean scrollResponse) {
+    public QueryResponse(List<Document> documents, long totalHits, String scrollId, boolean moreDataAvailable) {
         super(Opcodes.QUERY);
         this.documents = documents;
         this.totalHits = totalHits;
         this.scrollId = scrollId;
-        this.scrollResponse = scrollResponse;
+        this.moreDataAvailable = moreDataAvailable;
     }
 
     @Override

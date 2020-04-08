@@ -127,25 +127,15 @@ public class FilterAction extends Action<Query> {
         if (parameter.isScrollRequest()) {
             return executeScrollRequest(parameter);
         }
-        else {
-            return executeRequest(parameter);
-        }
+        return executeRequest(parameter);
     }
 
     @Override
     public SearchRequest getRequestBuilder(Query parameter) {
-        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                .indicesOptions(Utils.indicesOptions())
-                .types(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                .searchType(SearchType.QUERY_THEN_FETCH)
-                .source(new SearchSourceBuilder()
-                                .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
-                                .size(parameter.getLimit())
-                                .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                                .from(parameter.getFrom())
-                                .sort(Utils.storedFieldName(parameter.getSort().getField()),
-                                      ResultSort.Order.desc == parameter.getSort().getOrder()
-                                      ? SortOrder.DESC : SortOrder.ASC));
+        SearchRequest searchRequest = getSearchRequest(parameter);
+        //Adding from here since from isn't supported in scroll request
+        searchRequest.source().from(parameter.getFrom());
+        return searchRequest;
     }
 
     @Override
@@ -172,7 +162,13 @@ public class FilterAction extends Action<Query> {
 
 
     private SearchRequest getScrollRequestBuilder(Query parameter) {
-        SearchRequest searchRequest = new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+        SearchRequest searchRequest = getSearchRequest(parameter);
+        searchRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
+        return searchRequest;
+    }
+
+    private SearchRequest getSearchRequest(Query parameter) {
+        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                 .indicesOptions(Utils.indicesOptions())
                 .types(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                 .searchType(SearchType.QUERY_THEN_FETCH)
@@ -183,8 +179,6 @@ public class FilterAction extends Action<Query> {
                                 .sort(Utils.storedFieldName(parameter.getSort().getField()),
                                       ResultSort.Order.desc == parameter.getSort().getOrder()
                                       ? SortOrder.DESC : SortOrder.ASC));
-        searchRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
-        return searchRequest;
     }
 
     private ActionResponse executeScrollRequest(Query parameter) {
@@ -229,7 +223,7 @@ public class FilterAction extends Action<Query> {
                     .builder()
                     .documents(Collections.emptyList())
                     .totalHits(0)
-                    .scrollResponse(true)
+                    .moreDataAvailable(false)
                     .build();
         }
         return QueryResponse
@@ -238,7 +232,7 @@ public class FilterAction extends Action<Query> {
                                    .getAll(parameter.getTable(), ids, true))
                 .totalHits(totalHits)
                 .scrollId(scrollId)
-                .scrollResponse(true)
+                .moreDataAvailable(StringUtils.isNotEmpty(scrollId) ? true : false)
                 .build();
     }
 

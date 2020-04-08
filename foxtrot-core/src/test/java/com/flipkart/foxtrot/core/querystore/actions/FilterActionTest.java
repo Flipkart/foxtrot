@@ -33,7 +33,6 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.Lists;
-import com.sun.tools.javac.util.Assert;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
@@ -810,7 +809,7 @@ public class FilterActionTest extends ActionTest {
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
         compare(documents, actualResponse.getDocuments());
 
-        Assert.checkNonNull(actualResponse.getScrollId());
+        assertNotNull(actualResponse.getScrollId());
 
         query.setScrollId(actualResponse.getScrollId());
         actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));

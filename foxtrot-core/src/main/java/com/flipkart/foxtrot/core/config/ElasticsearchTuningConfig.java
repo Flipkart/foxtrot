@@ -18,8 +18,6 @@ public class ElasticsearchTuningConfig {
 
     private int aggregationSize = 10000;
 
-    private int scrollSize = 100;
-
     private int scrollTimeInSeconds = 120;
 
     private int documentsLimitAllowed = 10000;
