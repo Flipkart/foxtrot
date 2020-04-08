@@ -21,4 +21,6 @@ public class ElasticsearchTuningConfig {
     private int scrollSize = 100;
 
     private int scrollTimeInSeconds = 120;
+
+    private int documentsLimitAllowed = 10000;
 }

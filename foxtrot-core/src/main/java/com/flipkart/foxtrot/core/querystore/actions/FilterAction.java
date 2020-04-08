@@ -112,6 +112,11 @@ public class FilterAction extends Action<Query> {
             validationErrors.add("limit must be positive integer");
         }
 
+        if (parameter.getLimit() >= elasticsearchTuningConfig.getDocumentsLimitAllowed()){
+            validationErrors.add(String.format("Limit more than %s is not supported",
+                                               elasticsearchTuningConfig.getDocumentsLimitAllowed()));
+        }
+
         if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
