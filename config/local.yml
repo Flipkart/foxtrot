@@ -12,6 +12,8 @@ elasticsearch:
   cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
+  connectionType: HTTP
+  port: 9200
 
 hbase:
   secure : false
@@ -46,6 +48,8 @@ cardinality:
 elasticsearchTuningConfig:
   precisionThreshold: 500
   aggregationSize: 10000
+  scrollSize: 100
+  scrollTimeInSeconds: 120
 
 esIndexOptimizationConfig:
   active: true

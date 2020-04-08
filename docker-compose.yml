@@ -61,3 +61,4 @@ services:
      - GOOGLE_CLIENT_ID=dummy
      - GOOGLE_CLIENT_SECRET=dummy
      - GOOGLE_SECURE_ENDPOINT=false
+     - DISCOVERY_TYPE=foxtrot_simple

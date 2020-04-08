@@ -111,14 +111,11 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         this.cardinalityConfig = cardinalityConfig;
 
         hazelcastConnection.getHazelcastConfig()
-                .getMapConfigs()
-                .put(DATA_MAP, tableMapConfig());
+                .addMapConfig(tableMapConfig());
         hazelcastConnection.getHazelcastConfig()
-                .getMapConfigs()
-                .put(FIELD_MAP, fieldMetaMapConfig());
+                .addMapConfig(fieldMetaMapConfig());
         hazelcastConnection.getHazelcastConfig()
-                .getMapConfigs()
-                .put(CARDINALITY_FIELD_MAP, cardinalityFieldMetaMapConfig());
+                .addMapConfig(cardinalityFieldMetaMapConfig());
     }
 
     private static <K, V> Collector<Map.Entry<K, V>, ?, List<Map<K, V>>> mapSize(int limit) {
@@ -179,6 +176,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     private MapConfig tableMapConfig() {
         MapConfig mapConfig = new MapConfig();
+        mapConfig.setName(DATA_MAP);
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_TABLE_CACHE);
@@ -199,6 +197,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     private MapConfig fieldMetaMapConfig() {
         MapConfig mapConfig = new MapConfig();
+        mapConfig.setName(FIELD_MAP);
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CACHE);
@@ -214,6 +213,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     private MapConfig cardinalityFieldMetaMapConfig() {
         MapConfig mapConfig = new MapConfig();
+        mapConfig.setName(CARDINALITY_FIELD_MAP);
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);

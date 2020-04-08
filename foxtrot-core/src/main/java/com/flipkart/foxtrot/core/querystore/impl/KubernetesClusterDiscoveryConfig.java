@@ -1,5 +1,5 @@
 /**
- * Copyright 2014 Flipkart Internet Pvt. Ltd.
+ * Copyright 2016 Flipkart Internet Pvt. Ltd.
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,21 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-public enum ClusterDiscoveryType {
-    FOXTROT_SIMPLE,
-    FOXTROT_MARATHON,
-    FOXTROT_AWS,
-    FOXTROT_KUBERNETES
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class KubernetesClusterDiscoveryConfig extends ClusterDiscoveryConfig {
+
+
+    @JsonProperty
+    private boolean disableMulticast = false;
+
+    public KubernetesClusterDiscoveryConfig() {
+        super(ClusterDiscoveryType.FOXTROT_KUBERNETES);
+    }
+
 }
