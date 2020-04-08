@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -40,6 +41,7 @@ import java.util.concurrent.ExecutionException;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/clusterhealth")
 @Singleton
+@PermitAll
 public class ClusterHealthResource {
     private final QueryStore queryStore;
 

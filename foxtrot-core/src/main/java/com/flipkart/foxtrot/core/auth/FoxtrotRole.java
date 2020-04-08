@@ -9,7 +9,9 @@ import lombok.Getter;
 public enum FoxtrotRole {
     INGEST(Value.INGEST),
     CONSOLE(Value.CONSOLE),
-    QUERY(Value.QUERY);
+    QUERY(Value.QUERY),
+    SYSADMIN(Value.SYSADMIN),
+    ;
 
     FoxtrotRole(String value) {
         this.value = value;
@@ -19,6 +21,7 @@ public enum FoxtrotRole {
         public static final String INGEST = "INGEST";
         public static final String CONSOLE = "CONSOLE";
         public static final String QUERY = "QUERY";
+        public static final String SYSADMIN = "SYSADMIN";
     }
 
     private final String value;

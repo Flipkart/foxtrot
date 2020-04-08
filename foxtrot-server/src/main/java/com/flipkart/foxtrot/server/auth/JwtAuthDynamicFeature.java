@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.server.auth;
 
-import com.github.toastshaman.dropwizard.auth.jwt.JwtAuthFilter;
 import io.dropwizard.auth.*;
 import io.dropwizard.setup.Environment;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
@@ -17,18 +16,21 @@ import javax.ws.rs.ext.Provider;
 public class JwtAuthDynamicFeature extends AuthDynamicFeature {
     @Inject
     public JwtAuthDynamicFeature(
+            AuthConfig authConfig,
             JwtConsumer jwtConsumer,
             Authorizer<UserPrincipal> authorizer,
             Authenticator<JwtContext, UserPrincipal> authenticator,
             Environment environment) {
-        super(new JwtAuthFilter.Builder<UserPrincipal>()
+        super(new JwtAuthFilter.Builder()
+                .setAuthConfig(authConfig)
                 .setJwtConsumer(jwtConsumer)
+                .setCookieName("token")
                 .setPrefix("Bearer")
                 .setRealm("realm")
                 .setAuthenticator(authenticator)
                 .setAuthorizer(authorizer)
                 .setUnauthorizedHandler(new DefaultUnauthorizedHandler())
-             .buildAuthFilter());
+                .buildAuthFilter());
         if(null != environment) {
             environment.jersey().register(new AuthValueFactoryProvider.Binder<>(UserPrincipal.class));
             environment.jersey().register(RolesAllowedDynamicFeature.class);

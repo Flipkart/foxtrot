@@ -11,7 +11,7 @@ import java.util.Set;
  */
 @Getter
 public enum TokenType {
-    DYNAMIC(EnumSet.of(FoxtrotRole.QUERY, FoxtrotRole.CONSOLE)),
+    DYNAMIC(EnumSet.of(FoxtrotRole.QUERY, FoxtrotRole.CONSOLE, FoxtrotRole.SYSADMIN)),
     STATIC(EnumSet.of(FoxtrotRole.QUERY, FoxtrotRole.INGEST)),
     SYSTEM(EnumSet.allOf(FoxtrotRole.class));
 

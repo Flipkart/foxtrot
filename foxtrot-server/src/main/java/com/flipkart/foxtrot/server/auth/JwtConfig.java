@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.server.auth;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.dropwizard.util.Duration;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -24,6 +25,8 @@ public class JwtConfig {
     @NotEmpty
     @NotNull
     private String authCachePolicy = "maximumSize=10000, expireAfterAccess=10m";
+
+    private Duration sessionDuration = Duration.days(30);
 
     @VisibleForTesting
     public JwtConfig(String privateKey, String issuerId) {

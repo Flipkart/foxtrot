@@ -54,6 +54,7 @@ import java.util.ArrayList;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/analytics")
 @Singleton
+@RolesAllowed(FoxtrotRole.Value.QUERY)
 public class AnalyticsResource {
 
     private final QueryExecutor queryExecutor;
@@ -99,7 +100,6 @@ public class AnalyticsResource {
     @Path("/download")
     @Timed
     @ApiOperation("downloadAnalytics")
-    @RolesAllowed(FoxtrotRole.Value.QUERY)
     public StreamingOutput download(@Valid final ActionRequest actionRequest) {
         ActionResponse actionResponse = queryExecutor.execute(actionRequest);
         Flattener flattener = new Flattener(objectMapper, actionRequest, new ArrayList<>());

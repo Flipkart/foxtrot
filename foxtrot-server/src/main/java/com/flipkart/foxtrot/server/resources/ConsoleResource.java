@@ -33,6 +33,7 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/consoles")
 @Singleton
+@RolesAllowed({FoxtrotRole.Value.QUERY, FoxtrotRole.Value.CONSOLE})
 public class ConsoleResource {
 
     private ConsolePersistence consolePersistence;

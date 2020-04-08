@@ -36,15 +36,21 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.auth.*;
+import com.flipkart.foxtrot.server.auth.authprovider.AuthProvider;
+import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProvider;
+import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProviderConfig;
+import com.flipkart.foxtrot.server.auth.sessionstore.DistributedSessionDataStore;
+import com.flipkart.foxtrot.server.auth.sessionstore.SessionDataStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
+import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
-import com.google.common.cache.CacheBuilderSpec;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
+import com.google.common.cache.CacheBuilderSpec;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -67,7 +73,6 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -108,6 +113,10 @@ public class FoxtrotModule extends AbstractModule {
                 .to(ESAuthStore.class);
         bind(new TypeLiteral<Authorizer<UserPrincipal>>() {})
                 .to(RoleAuthorizer.class);
+        bind(AuthProvider.class)
+                .to(GoogleAuthProvider.class);
+        bind(SessionDataStore.class)
+                .to(DistributedSessionDataStore.class);
     }
 
     @Provides
@@ -162,6 +171,14 @@ public class FoxtrotModule extends AbstractModule {
         return null == configuration.getConsoleHistoryConfig()
                 ? new ConsoleHistoryConfig()
                 : configuration.getConsoleHistoryConfig();
+    }
+
+    @Provides
+    @Singleton
+    public SessionCleanupConfig sessionCleanupConfig(FoxtrotServerConfiguration configuration) {
+        return null == configuration.getSessionCleanupConfig()
+                ? new SessionCleanupConfig()
+                : configuration.getSessionCleanupConfig();
     }
 
     @Provides
@@ -243,6 +260,12 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public AuthConfig authConfig(FoxtrotServerConfiguration serverConfiguration) {
         return serverConfiguration.getAuth();
+    }
+
+    @Provides
+    @Singleton
+    public GoogleAuthProviderConfig googleAuthProviderConfig(FoxtrotServerConfiguration configuration) {
+        return (GoogleAuthProviderConfig)configuration.getAuth().getProvider();
     }
 
     @Provides

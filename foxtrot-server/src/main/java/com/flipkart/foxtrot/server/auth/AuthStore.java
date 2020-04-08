@@ -2,12 +2,14 @@ package com.flipkart.foxtrot.server.auth;
 
 import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.auth.User;
+import io.dropwizard.util.Duration;
 import lombok.SneakyThrows;
 import lombok.val;
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.UnaryOperator;
 
 /**
@@ -26,7 +28,7 @@ public interface AuthStore {
         return updateUser(userId, user -> {
             val roles = user.getRoles() == null ? new HashSet<FoxtrotRole>() : user.getRoles();
             roles.add(role);
-            return new User(userId, roles, user.getTables(), user.getCreated(), new Date());
+            return new User(userId, roles, user.getTables(), user.isSystemUser(), user.getCreated(), new Date());
         });
     }
 
@@ -34,7 +36,7 @@ public interface AuthStore {
         return updateUser(userId, user -> {
             val roles = user.getRoles() == null ? new HashSet<FoxtrotRole>() : user.getRoles();
             roles.remove(role);
-            return new User(userId, roles, user.getTables(), user.getCreated(), new Date());
+            return new User(userId, roles, user.getTables(), user.isSystemUser(), user.getCreated(), new Date());
         });
     }
 
@@ -42,7 +44,7 @@ public interface AuthStore {
         return updateUser(userId, user -> {
             val tables = user.getTables() == null ? new HashSet<String>() : user.getTables();
             tables.add(table);
-            return new User(userId, user.getRoles(), tables, user.getCreated(), new Date());
+            return new User(userId, user.getRoles(), tables, user.isSystemUser(), user.getCreated(), new Date());
         });
     }
 
@@ -50,11 +52,15 @@ public interface AuthStore {
         return updateUser(userId, user -> {
             val tables = user.getTables() == null ? new HashSet<String>() : user.getTables();
             tables.remove(table);
-            return new User(userId, user.getRoles(), tables, user.getCreated(), new Date());
+            return new User(userId, user.getRoles(), tables, user.isSystemUser(), user.getCreated(), new Date());
         });
     }
 
-    Optional<Token> provisionToken(final String userId, TokenType tokenType, Date expiry);
+    default Optional<Token> provisionToken(final String userId, TokenType tokenType, Date expiry) {
+        return provisionToken(userId, UUID.randomUUID().toString(), tokenType, expiry);
+    }
+
+    Optional<Token> provisionToken(final String userId, String tokenId, TokenType tokenType, Date expiry);
 
     Optional<Token> getToken(final String tokenId);
 
@@ -62,4 +68,6 @@ public interface AuthStore {
     Optional<Token> getTokenForUser(String userId);
 
     boolean deleteToken(final String tokenId);
+
+    boolean deleteExpiredTokens(Date date, Duration sessionDuration);
 }

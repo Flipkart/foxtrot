@@ -19,4 +19,5 @@ public class CreateUserRequest {
     @NotEmpty
     Set<FoxtrotRole> roles;
     Set<String> tables;
+    boolean isSystem;
 }

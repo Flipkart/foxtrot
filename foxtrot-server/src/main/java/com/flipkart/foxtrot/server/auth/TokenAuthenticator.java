@@ -29,7 +29,7 @@ public class TokenAuthenticator implements Authenticator<JwtContext, UserPrincip
 
     @Override
     public Optional<UserPrincipal> authenticate(JwtContext jwtContext) throws AuthenticationException {
-        if(config.isDisabled()) {
+        if(!config.isEnabled()) {
             log.debug("Authentication is disabled");
             return Optional.of(UserPrincipal.DEFAULT);
         }

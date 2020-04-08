@@ -1,7 +1,9 @@
 package com.flipkart.foxtrot.server.utils;
 
+import com.flipkart.foxtrot.server.auth.AuthConfig;
 import com.flipkart.foxtrot.server.auth.JwtConfig;
 import com.flipkart.foxtrot.server.auth.Token;
+import io.dropwizard.util.Duration;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -37,5 +39,12 @@ public class AuthUtils {
         jws.setKey(new HmacKey(secretKey));
         jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.HMAC_SHA512);
         return jws.getCompactSerialization();
+    }
+
+    public static Duration sessionDuration(AuthConfig authConfig) {
+        final Duration dynamicSessionDuration = authConfig.getJwt().getSessionDuration();
+        return dynamicSessionDuration != null
+                ? dynamicSessionDuration
+                : Duration.days(30);
     }
 }

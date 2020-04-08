@@ -11,6 +11,7 @@ import io.swagger.annotations.Api;
 import lombok.val;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
@@ -27,6 +28,7 @@ import java.util.Date;
 @Path("/v1/auth")
 @Produces(MediaType.APPLICATION_JSON)
 @Api("Auth related APIs. DO NOT expose these for public access.")
+@RolesAllowed(FoxtrotRole.Value.SYSADMIN)
 public class Auth {
     private final Provider<AuthStore> authProvider;
     private final AuthConfig authConfig;
@@ -42,7 +44,7 @@ public class Auth {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response provisionUser(@NotNull @Valid final CreateUserRequest createUserRequest) {
         val user = new User(createUserRequest.getId(), createUserRequest.getRoles(), createUserRequest.getTables(),
-                            new Date(), new Date());
+                            createUserRequest.isSystem(), new Date(), new Date());
         return Response.ok(authProvider.get().provisionUser(user)).build();
     }
 

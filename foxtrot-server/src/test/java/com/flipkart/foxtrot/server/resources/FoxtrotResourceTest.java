@@ -152,7 +152,7 @@ public abstract class FoxtrotResourceTest {
             analyticsLoader.start();
             TestUtils.registerActions(analyticsLoader, mapper);
         } catch (Exception e) {
-            log.error("Error in intialization", e);
+            log.error("Error in initialization", e);
             Assert.fail();
         }
         ExecutorService executorService = Executors.newFixedThreadPool(1);

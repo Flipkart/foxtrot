@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
+import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
@@ -64,8 +65,13 @@ public class FoxtrotServerConfiguration extends Configuration {
     private CardinalityConfig cardinality;
     @Valid
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
+
+    @Valid
+    private SessionCleanupConfig sessionCleanupConfig;
+
     @Valid
     private ConsoleHistoryConfig consoleHistoryConfig;
+
     private EmailConfig emailConfig;
     private CacheConfig cacheConfig;
 
