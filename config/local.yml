@@ -8,16 +8,17 @@ server:
 
 elasticsearch:
   hosts:
-  - stg-els601.phonepe.nm2
+  - localhost
   cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
+  connectionType: HTTP
   port: 9200
 
 hbase:
-  secure: false
+  secure : false
   tableName: foxtrot
-  hbaseZookeeperQuorum: stg-dwhxenial002-stg-cloud005.phonepe.nm2:2181
+  hbaseZookeeperQuorum: localhost:2181
   hbaseZookeeperClientPort: 2181
   seggregatedTablePrefix: foxtrot-
   hbaseZookeeperZnodeParent: /hbase-unsecure
@@ -47,6 +48,7 @@ cardinality:
 elasticsearchTuningConfig:
   precisionThreshold: 500
   aggregationSize: 10000
+  scrollTimeInSeconds: 120
 
 esIndexOptimizationConfig:
   active: true
