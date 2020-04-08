@@ -33,13 +33,13 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.Lists;
+import com.sun.tools.javac.util.Assert;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
@@ -598,7 +598,6 @@ public class FilterActionTest extends ActionTest {
     }
 
     @Test
-    @Ignore
     public void testQueryPagination() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
@@ -751,10 +750,11 @@ public class FilterActionTest extends ActionTest {
         equalsFilter.setValue("ios");
         query.setFilters(Lists.<Filter>newArrayList(equalsFilter));
 
+        query.setFrom(1);
         query.setLimit(1);
 
         List<Document> documents = new ArrayList<Document>();
-        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, getMapper()));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, getMapper()));
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
         compare(documents, actualResponse.getDocuments());
     }
@@ -795,6 +795,30 @@ public class FilterActionTest extends ActionTest {
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
         assertEquals(documents.size(), actualResponse.getDocuments()
                 .size());
+    }
+
+    @Test
+    public void testScrollResponse() throws FoxtrotException, JsonProcessingException {
+        Query query = new Query();
+        query.setTable(TestUtils.TEST_TABLE_NAME);
+
+        query.setScrollRequest(true);
+        query.setLimit(1);
+
+        List<Document> documents = new ArrayList<>();
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, getMapper()));
+        QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
+        compare(documents, actualResponse.getDocuments());
+
+        Assert.checkNonNull(actualResponse.getScrollId());
+
+        query.setScrollId(actualResponse.getScrollId());
+        actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
+
+        List<Document> secondScrollRequestDocs = new ArrayList<>();
+        secondScrollRequestDocs.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, getMapper()));
+        compare(secondScrollRequestDocs, actualResponse.getDocuments());
+
     }
 
 
