@@ -179,7 +179,8 @@ public class ESAuthStore implements AuthStore {
                                        .setDocTypes(TOKEN_TYPE)
                                        .setIndicesOptions(Utils.indicesOptions())
                                        .setQuery(QueryBuilders.rangeQuery("expiry")
-                                                         .lt(oldestValidDate.getTime())), RequestOptions.DEFAULT)
+                                                         .lt(oldestValidDate.getTime()))
+                                        .setRefresh(true), RequestOptions.DEFAULT)
                 .getDeleted();
         log.info("Deleted {} expired tokens", deletedCount);
         return true;
@@ -204,7 +205,8 @@ public class ESAuthStore implements AuthStore {
         return connection.getClient()
                 .deleteByQuery(new DeleteByQueryRequest(TOKENS_INDEX)
                                        .setDocTypes(TOKEN_TYPE)
-                                       .setQuery(QueryBuilders.termQuery("userId", userId)),
+                                       .setQuery(QueryBuilders.termQuery("userId", userId))
+                                       .setRefresh(true),
                                RequestOptions.DEFAULT)
                 .getDeleted();
     }
