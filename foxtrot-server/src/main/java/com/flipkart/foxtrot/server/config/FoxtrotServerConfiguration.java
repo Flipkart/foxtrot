@@ -23,9 +23,11 @@ import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
+import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
+import com.flipkart.foxtrot.server.auth.AuthConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
@@ -63,8 +65,13 @@ public class FoxtrotServerConfiguration extends Configuration {
     private CardinalityConfig cardinality;
     @Valid
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
+
+    @Valid
+    private SessionCleanupConfig sessionCleanupConfig;
+
     @Valid
     private ConsoleHistoryConfig consoleHistoryConfig;
+
     private EmailConfig emailConfig;
     private CacheConfig cacheConfig;
 
@@ -85,6 +92,10 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     @Builder.Default
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
+
+    @Valid
+    @NotNull
+    private AuthConfig auth;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();

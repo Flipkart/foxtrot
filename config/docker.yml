@@ -67,3 +67,21 @@ consoleHistoryConfig:
   interval: 86400
   initialDelay: 10
 
+sessionCleanupConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10
+
+auth:
+  enabled: ${AUTH_ENABLED}
+  jwt:
+    issuerId: foxtrot-server
+    privateKey: "6/Qh1eLvF7cGJEgH1wIMYErIpi0d8Kqt5wHKw/o5iFbhfziKiux03HfFihO2+f5FKpsjk1D7UmgdAWQsY966WkyAsyo22m4g+C+rNCwMUD/UM2qop7JZBDEkgWpwK8jpxOTpYUnaNsiBaBsadoZCQ+Ns/d8RrS7QPAW+1PETbdFfo+fPW0/Sm8RUmMKkc9jJ6bhuSpFH3q/bWoyPZnj7geYQQIkgmQv9jXaszw=="
+    sessionDuration: 1h
+
+  provider:
+    type: OAUTH_GOOGLE
+    clientId: ${GOOGLE_CLIENT_ID}
+    clientSecret: ${GOOGLE_CLIENT_SECRET}
+    server: ${GOOGLE_CALLBACK_HOST_PORT}
+    secureEndpoint: ${GOOGLE_SECURE_ENDPOINT}
