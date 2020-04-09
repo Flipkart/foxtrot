@@ -45,7 +45,7 @@ public class JwtAuthFilter extends AuthFilter<JwtContext, UserPrincipal> {
 
     @Override
     public void filter(final ContainerRequestContext requestContext) throws IOException {
-        LOGGER.info("AUTH Called");
+        LOGGER.debug("AUTH Called");
         if(!authConfig.isEnabled()) {
             updateContext(requestContext, UserPrincipal.DEFAULT);
             return;
@@ -70,7 +70,6 @@ public class JwtAuthFilter extends AuthFilter<JwtContext, UserPrincipal> {
         }
 
         throw new JWTAuthenticationFailure();
-//        throw new WebApplicationException(unauthorizedHandler.buildResponse(prefix, realm));
     }
 
     private void updateContext(ContainerRequestContext requestContext, UserPrincipal principal) {

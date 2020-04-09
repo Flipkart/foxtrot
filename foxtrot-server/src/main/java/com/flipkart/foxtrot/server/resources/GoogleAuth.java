@@ -46,14 +46,14 @@ public class GoogleAuth {
         final String sessionId = UUID.randomUUID().toString();
         final String redirectionURL = authProvider.get()
                 .redirectionURL(sessionId);
-        log.info("Redirection uri: {}", redirectionURL);
+        log.debug("Redirection uri: {}", redirectionURL);
         final String cookieReferrerUrl = null == cookieReferrer ? null : cookieReferrer.getValue();
         val source = Strings.isNullOrEmpty(cookieReferrerUrl) ?  referrer : cookieReferrerUrl;
-        log.info("Call source: {} Referrer: {} Redirection: {}", source, referrer, cookieReferrerUrl);
+        log.debug("Call source: {} Referrer: {} Redirection: {}", source, referrer, cookieReferrerUrl);
         if(!Strings.isNullOrEmpty(source)) {
             sessionDataStore.get()
                     .put(sessionId, source);
-            log.info("Saved: {} against session: {}", source, sessionId);
+            log.debug("Saved: {} against session: {}", source, sessionId);
         }
         return Response.seeOther(URI.create(redirectionURL))
                 .cookie(
@@ -98,9 +98,9 @@ public class GoogleAuth {
             sessionDataStore.get()
                     .delete(token.getId());
         }
-        log.info("Got: {} against session: {}", existingReferrer, authCode);
+        log.debug("Got: {} against session: {}", existingReferrer, authCode);
         final String finalRedirect = Strings.isNullOrEmpty((String)existingReferrer) ? "/" : (String)existingReferrer;
-        log.info("Will be redirecting to: {}. Existing: {}", finalRedirect, existingReferrer);
+        log.debug("Will be redirecting to: {}. Existing: {}", finalRedirect, existingReferrer);
         return Response.seeOther(URI.create(finalRedirect))
                 .cookie(new NewCookie("token",
                                       AuthUtils.createJWT(token, authConfig.getJwt()),

@@ -12,7 +12,7 @@
     <artifactId>foxtrot-server</artifactId>
 
     <properties>
-        <dropwizard.jwt.auth.version>1.2.2-0</dropwizard.jwt.auth.version>
+        <jose4j.version>0.7.0</jose4j.version>
     </properties>
     
     <dependencies>
@@ -61,7 +61,7 @@
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
-            <version>0.7.0</version>
+            <version>${jose4j.version}</version>
         </dependency>
         <!-- Internal -->
         <dependency>
