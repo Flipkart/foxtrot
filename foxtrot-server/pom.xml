@@ -57,20 +57,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j -->
         <dependency>
-            <groupId>com.github.toastshaman</groupId>
-            <artifactId>dropwizard-auth-jwt</artifactId>
-            <version>${dropwizard.jwt.auth.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.dropwizard</groupId>
-                    <artifactId>dropwizard-bom</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.dropwizard</groupId>
-                    <artifactId>dropwizard-auth</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.bitbucket.b_c</groupId>
+            <artifactId>jose4j</artifactId>
+            <version>0.7.0</version>
         </dependency>
         <!-- Internal -->
         <dependency>
