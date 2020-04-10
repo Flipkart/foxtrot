@@ -71,7 +71,7 @@
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
         <lombok.version>1.16.16</lombok.version>
         <project.version>6.3.1-2</project.version>
-        <test.container.version>1.0.4</test.container.version>
+        <es.container.version>1.0.4</es.container.version>
         <gandalf.version>1.2.30</gandalf.version>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
@@ -328,16 +328,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.phonepe.testcontainer</groupId>
-            <artifactId>testcontainer-commons</artifactId>
-            <version>${test.container.version}</version>
+            <groupId>io.appform.testcontainer</groupId>
+            <artifactId>junit-testcontainer-commons</artifactId>
+            <version>${es.container.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.phonepe.testcontainer</groupId>
-            <artifactId>testcontainer-elasticsearch</artifactId>
-            <version>${test.container.version}</version>
+            <groupId>io.appform.testcontainer</groupId>
+            <artifactId>junit-testcontainer-elasticsearch</artifactId>
+            <version>${es.container.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
