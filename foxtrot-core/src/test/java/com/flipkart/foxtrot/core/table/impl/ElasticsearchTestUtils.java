@@ -15,15 +15,15 @@ package com.flipkart.foxtrot.core.table.impl;
  * limitations under the License.
  */
 
-import static com.phonepe.testcontainer.commons.ContainerUtils.containerLogsConsumer;
-import static com.phonepe.testcontainer.elasticsearch.utils.ElasticsearchContainerUtils.getCompositeWaitStrategy;
-import static com.phonepe.testcontainer.elasticsearch.utils.ElasticsearchContainerUtils.getJavaOpts;
+import static io.appform.testcontainers.commons.ContainerUtils.containerLogsConsumer;
+import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContainerUtils.getCompositeWaitStrategy;
+import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContainerUtils.getJavaOpts;
 
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import java.util.Collections;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.phonepe.testcontainer.elasticsearch.config.ElasticsearchContainerConfiguration;
+import io.appform.testcontainers.elasticsearch.config.ElasticsearchContainerConfiguration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;

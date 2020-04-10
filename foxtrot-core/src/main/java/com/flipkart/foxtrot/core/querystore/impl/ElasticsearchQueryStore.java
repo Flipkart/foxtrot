@@ -232,11 +232,13 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             }
         } catch (JsonProcessingException e) {
+            logger.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents, e.getMessage());
             logger.error("Error while saving documents to table: {}", table, e);
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            logger.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents, e.getMessage());
             logger.error("Error while saving documents to table: {}", table, e);
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -244,6 +246,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .interrupt();
             throw FoxtrotExceptions.createExecutionException(table, e);
         } catch (Exception e) {
+            logger.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents, e.getMessage());
             logger.error("Error while saving documents to table: {}", table, e);
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
