@@ -62,3 +62,5 @@ services:
      - GOOGLE_CLIENT_SECRET=dummy
      - GOOGLE_SECURE_ENDPOINT=false
      - DISCOVERY_TYPE=foxtrot_simple
+     - SWAGGER_SCHEME="http"
+     - PRIVATE_KEY="6/Qh1eLvF7cGJEgH1wIMYErIpi0d8Kqt5wHKw/o5iFbhfziKiux03HfFihO2+f5FKpsjk1D7UmgdAWQsY966WkyAsyo22m4g+C+rNCwMUD/UM2qop7JZBDEkgWpwK8jpxOTpYUnaNsiBaBsadoZCQ+Ns/d8RrS7QPAW+1PETbdFfo+fPW0/Sm8RUmMKkc9jJ6bhuSpFH3q/bWoyPZnj7geYQQIkgmQv9jXaszw=="

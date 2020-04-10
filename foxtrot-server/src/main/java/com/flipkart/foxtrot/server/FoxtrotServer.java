@@ -26,6 +26,7 @@ import com.flipkart.foxtrot.core.querystore.impl.SimpleClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.di.FoxtrotModule;
+import com.google.common.base.Strings;
 import com.google.inject.Stage;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -63,11 +64,20 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             }
         });
 
-        final SwaggerBundleConfiguration swaggerBundleConfiguration = getSwaggerBundleConfiguration();
-
         bootstrap.addBundle(new SwaggerBundle<FoxtrotServerConfiguration>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(FoxtrotServerConfiguration configuration) {
+                final SwaggerBundleConfiguration swaggerBundleConfiguration = new SwaggerBundleConfiguration();
+                swaggerBundleConfiguration.setTitle("Foxtrot");
+                swaggerBundleConfiguration.setResourcePackage("com.flipkart.foxtrot.server.resources");
+                swaggerBundleConfiguration.setUriPrefix("/foxtrot");
+                swaggerBundleConfiguration.setDescription("A store abstraction and analytics system for real-time event data.");
+                if(!Strings.isNullOrEmpty(configuration.getSwaggerHost())) {
+                    swaggerBundleConfiguration.setHost(configuration.getSwaggerHost());
+                }
+                if(!Strings.isNullOrEmpty(configuration.getSwaggerScheme())) {
+                    swaggerBundleConfiguration.setSchemes(new String[] {configuration.getSwaggerScheme()});
+                }
                 return swaggerBundleConfiguration;
             }
         });
@@ -115,15 +125,6 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         objectMapper.registerSubtypes(new NamedType(SimpleClusterDiscoveryConfig.class, "foxtrot_simple"));
         objectMapper.registerSubtypes(new NamedType(MarathonClusterDiscoveryConfig.class, "foxtrot_marathon"));
         objectMapper.registerSubtypes(new NamedType(KubernetesClusterDiscoveryConfig.class, "foxtrot_kubernetes"));
-    }
-
-    private SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
-        final SwaggerBundleConfiguration swaggerBundleConfiguration = new SwaggerBundleConfiguration();
-        swaggerBundleConfiguration.setTitle("Foxtrot");
-        swaggerBundleConfiguration.setResourcePackage("com.flipkart.foxtrot.server.resources");
-        swaggerBundleConfiguration.setUriPrefix("/foxtrot");
-        swaggerBundleConfiguration.setDescription("A store abstraction and analytics system for real-time event data.");
-        return swaggerBundleConfiguration;
     }
 
 }
