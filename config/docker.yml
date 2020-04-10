@@ -6,6 +6,8 @@ server:
     - type: http
       port: 17001
 
+swaggerScheme: ${SWAGGER_SCHEME}
+
 elasticsearch:
   hosts:
   - ${ELASTICSEARCH_HOST}
@@ -76,7 +78,7 @@ auth:
   enabled: ${AUTH_ENABLED}
   jwt:
     issuerId: foxtrot-server
-    privateKey: "6/Qh1eLvF7cGJEgH1wIMYErIpi0d8Kqt5wHKw/o5iFbhfziKiux03HfFihO2+f5FKpsjk1D7UmgdAWQsY966WkyAsyo22m4g+C+rNCwMUD/UM2qop7JZBDEkgWpwK8jpxOTpYUnaNsiBaBsadoZCQ+Ns/d8RrS7QPAW+1PETbdFfo+fPW0/Sm8RUmMKkc9jJ6bhuSpFH3q/bWoyPZnj7geYQQIkgmQv9jXaszw=="
+    privateKey: ${PRIVATE_HEY}
     sessionDuration: 1h
 
   provider:
