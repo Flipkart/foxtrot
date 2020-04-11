@@ -79,7 +79,7 @@ auth:
   jwt:
     issuerId: foxtrot-server
     privateKey: ${PRIVATE_KEY}
-    sessionDuration: 1h
+    sessionDuration: 15d
 
   provider:
     type: OAUTH_GOOGLE
