@@ -58,6 +58,7 @@ import com.google.inject.TypeLiteral;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.Authorizer;
 import io.dropwizard.auth.CachingAuthenticator;
+import io.dropwizard.auth.CachingAuthorizer;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
@@ -111,8 +112,6 @@ public class FoxtrotModule extends AbstractModule {
         bind(new TypeLiteral<List<HealthCheck>>() {}).toProvider(HealthcheckListProvider.class);
         bind(AuthStore.class)
                 .to(ESAuthStore.class);
-        bind(new TypeLiteral<Authorizer<UserPrincipal>>() {})
-                .to(RoleAuthorizer.class);
         bind(AuthProvider.class)
                 .to(GoogleAuthProvider.class);
         bind(SessionDataStore.class)
@@ -297,6 +296,17 @@ public class FoxtrotModule extends AbstractModule {
                 environment.metrics(),
                 authenticator,
                 CacheBuilderSpec.parse(authConfig.getJwt().getAuthCachePolicy()));
+    }
+
+    @Provides
+    @Singleton
+    public Authorizer<UserPrincipal> authorizer(
+            final Environment environment,
+            final RoleAuthorizer authorizer,
+            final AuthConfig authConfig) {
+        return new CachingAuthorizer<>(environment.metrics(),
+                                       authorizer,
+                                       CacheBuilderSpec.parse(authConfig.getJwt().getAuthCachePolicy()));
     }
 
     @Provides
