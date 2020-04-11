@@ -78,7 +78,7 @@ auth:
   enabled: ${AUTH_ENABLED}
   jwt:
     issuerId: foxtrot-server
-    privateKey: ${PRIVATE_HEY}
+    privateKey: ${PRIVATE_KEY}
     sessionDuration: 1h
 
   provider:
