@@ -4,11 +4,11 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
+import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.email.EmailConfig;
@@ -102,8 +102,7 @@ public abstract class ActionTest {
                 mapper, cardinalityConfig);
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
-                elasticsearchConnection,
-                cacheManager, mapper);
+                elasticsearchConnection, cacheManager, mapper, new ElasticsearchTuningConfig());
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
 

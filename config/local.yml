@@ -43,6 +43,10 @@ cardinality:
   initialDelay: 6
   maxCardinality: 20000
 
+elasticsearchTuningConfig:
+  precisionThreshold: 500
+  aggregationSize: 10000
+
 esIndexOptimizationConfig:
   active: true
   interval: 86400

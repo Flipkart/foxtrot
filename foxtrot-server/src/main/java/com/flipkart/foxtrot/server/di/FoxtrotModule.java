@@ -8,6 +8,7 @@ import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
+import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
@@ -52,6 +53,7 @@ import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -60,14 +62,16 @@ import com.google.inject.name.Names;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
+import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import javax.inject.Singleton;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
-import org.apache.hadoop.conf.Configuration;
 
 
 /**
@@ -122,6 +126,12 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ElasticsearchConfig esConfig(FoxtrotServerConfiguration configuration) {
         return configuration.getElasticsearch();
+    }
+
+    @Provides
+    @Singleton
+    public TranslatorConfig getTranslatorConfig(FoxtrotServerConfiguration configuration){
+        return configuration.getTranslatorConfig();
     }
 
     @Provides
@@ -254,4 +264,12 @@ public class FoxtrotModule extends AbstractModule {
     public ServerFactory serverFactory(FoxtrotServerConfiguration configuration) {
         return configuration.getServerFactory();
     }
+
+    @Provides
+    @Singleton
+    public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
+        return Objects.nonNull(configuration.getElasticsearchTuningConfig())
+                ? configuration.getElasticsearchTuningConfig() : new ElasticsearchTuningConfig();
+    }
+
 }
