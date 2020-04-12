@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.responseprocessors.Flattener;
+import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -92,7 +93,7 @@ public class AnalyticsResource {
     public StreamingOutput download(@Valid final ActionRequest actionRequest) {
         ActionResponse actionResponse = queryExecutor.execute(actionRequest);
         Flattener flattener = new Flattener(objectMapper, actionRequest, new ArrayList<>());
-        actionResponse.accept(flattener);
-        return output -> FlatToCsvConverter.convert(flattener.getFlatRepresentation(), new OutputStreamWriter(output));
+        FlatRepresentation flatRepresentation = actionResponse.accept(flattener);
+        return output -> FlatToCsvConverter.convert(flatRepresentation, new OutputStreamWriter(output));
     }
 }
