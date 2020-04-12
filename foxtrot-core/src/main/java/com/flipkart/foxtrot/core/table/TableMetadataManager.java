@@ -15,7 +15,6 @@ package com.flipkart.foxtrot.core.table;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import io.dropwizard.lifecycle.Managed;
-
 import java.util.List;
 
 /**

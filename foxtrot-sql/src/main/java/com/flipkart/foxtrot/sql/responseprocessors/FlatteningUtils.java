@@ -7,10 +7,13 @@ import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.flipkart.foxtrot.sql.responseprocessors.model.MetaData;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.Strings;
-
-import java.util.*;
 
 @Slf4j
 public class FlatteningUtils {

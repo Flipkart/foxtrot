@@ -1,9 +1,8 @@
 package com.foxtrot.flipkart.translator.config;
 
 import com.google.common.collect.Lists;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 /***
  Created by mudit.g on Apr, 2019

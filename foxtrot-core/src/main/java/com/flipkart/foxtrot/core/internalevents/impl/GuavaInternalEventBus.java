@@ -5,14 +5,11 @@ import com.flipkart.foxtrot.core.internalevents.InternalEventBusConsumer;
 import com.flipkart.foxtrot.core.internalevents.InternalSystemEvent;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.Subscribe;
-
-import javax.inject.Singleton;
 import java.util.concurrent.Executors;
 
 /**
  *
  */
-@Singleton
 public class GuavaInternalEventBus implements InternalEventBus {
 
     private final AsyncEventBus eventBus;

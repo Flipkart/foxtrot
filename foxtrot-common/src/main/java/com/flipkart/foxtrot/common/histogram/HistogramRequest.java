@@ -18,13 +18,12 @@ import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.enums.CountPrecision;
 import com.flipkart.foxtrot.common.query.Filter;
+import java.util.List;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 21/03/14 Time: 12:06 AM

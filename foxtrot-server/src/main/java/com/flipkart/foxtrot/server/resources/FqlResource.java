@@ -17,13 +17,16 @@ import com.phonepe.gandalf.models.user.UserDetails;
 import io.dropwizard.primer.auth.annotation.Authorize;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStreamWriter;
 import java.util.List;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.StreamingOutput;
+import lombok.extern.slf4j.Slf4j;
 
 @Path("/v1/fql")
 @Api(value = "/v1/fql")

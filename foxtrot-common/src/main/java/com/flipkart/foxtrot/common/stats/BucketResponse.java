@@ -1,9 +1,8 @@
 package com.flipkart.foxtrot.common.stats;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.util.List;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class BucketResponse<T> {
 

@@ -70,7 +70,6 @@
         <dropwizard.version>1.0.6</dropwizard.version>
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
         <lombok.version>1.16.16</lombok.version>
-        <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <es.container.version>1.0.4</es.container.version>
         <guava.version>24.1.1-jre</guava.version>
         <gandalf.version>1.2.30</gandalf.version>
@@ -173,11 +172,6 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>1.7.21</version>
-            </dependency>
-            <dependency>
-                <groupId>ru.vyarus</groupId>
-                <artifactId>dropwizard-guicey</artifactId>
-                <version>${dropwizard.guicey.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>

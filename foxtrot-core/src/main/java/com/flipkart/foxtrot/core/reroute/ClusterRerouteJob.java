@@ -2,13 +2,12 @@ package com.flipkart.foxtrot.core.reroute;
 
 import com.flipkart.foxtrot.core.jobs.BaseJobManager;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import java.time.Instant;
+import java.util.concurrent.ScheduledExecutorService;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Instant;
-import java.util.concurrent.ScheduledExecutorService;
 
 /***
  Created by mudit.g on Sep, 2019

@@ -7,10 +7,9 @@ import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.general.MissingFilter;
 import com.flipkart.foxtrot.sql.query.FqlActionQuery;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
 
 public class ParseTest {
 

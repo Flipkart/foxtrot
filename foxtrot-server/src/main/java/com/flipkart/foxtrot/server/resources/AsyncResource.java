@@ -18,11 +18,12 @@ import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -34,12 +35,10 @@ import javax.ws.rs.core.Response;
 @Path("/v1/async")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/async")
-@Singleton
 public class AsyncResource {
 
     private CacheManager cacheManager;
 
-    @Inject
     public AsyncResource(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }

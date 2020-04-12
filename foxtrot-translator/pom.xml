@@ -21,11 +21,6 @@
             <artifactId>dropwizard-core</artifactId>
             <version>${dropwizard.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ru.vyarus</groupId>
-            <artifactId>dropwizard-guicey</artifactId>
-            <version>4.0.1</version>
-        </dependency>
 
         <!---HBase-->
         <dependency>

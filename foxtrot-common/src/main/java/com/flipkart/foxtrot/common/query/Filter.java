@@ -16,18 +16,27 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.query.general.*;
-import com.flipkart.foxtrot.common.query.numeric.*;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.general.ExistsFilter;
+import com.flipkart.foxtrot.common.query.general.InFilter;
+import com.flipkart.foxtrot.common.query.general.MissingFilter;
+import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
+import com.flipkart.foxtrot.common.query.general.NotInFilter;
+import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.query.string.WildCardFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import javax.validation.constraints.NotNull;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)

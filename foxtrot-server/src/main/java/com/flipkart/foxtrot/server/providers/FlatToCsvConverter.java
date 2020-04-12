@@ -3,7 +3,6 @@ package com.flipkart.foxtrot.server.providers;
 import au.com.bytecode.opencsv.CSVWriter;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FieldHeader;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;

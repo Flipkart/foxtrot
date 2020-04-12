@@ -16,23 +16,24 @@ import com.flipkart.foxtrot.server.console.Console;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import java.util.List;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 @Path("/v1/consoles")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/consoles")
-@Singleton
 public class ConsoleResource {
 
     private ConsolePersistence consolePersistence;
 
-    @Inject
     public ConsoleResource(ConsolePersistence consolePersistence) {
         this.consolePersistence = consolePersistence;
     }

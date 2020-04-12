@@ -28,18 +28,21 @@ import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
+import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
-import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import io.dropwizard.Configuration;
 import io.dropwizard.primer.model.PrimerBundleConfiguration;
 import io.dropwizard.riemann.RiemannConfig;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import lombok.*;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.ToString;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)

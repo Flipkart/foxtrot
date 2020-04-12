@@ -1,10 +1,9 @@
 package com.foxtrot.flipkart.translator.config;
 
 import com.google.common.collect.Maps;
-import lombok.Data;
-
 import java.util.List;
 import java.util.Map;
+import lombok.Data;
 
 /***
  Created by nitish.goyal on 28/08/19

@@ -1,9 +1,16 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
-import com.flipkart.foxtrot.common.stats.*;
+import com.flipkart.foxtrot.common.stats.AnalyticsRequestFlags;
+import com.flipkart.foxtrot.common.stats.BucketResponse;
+import com.flipkart.foxtrot.common.stats.Stat;
+import com.flipkart.foxtrot.common.stats.StatsRequest;
+import com.flipkart.foxtrot.common.stats.StatsResponse;
+import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -13,6 +20,11 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfi
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -21,14 +33,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * Created by rishabh.goyal on 02/08/14.

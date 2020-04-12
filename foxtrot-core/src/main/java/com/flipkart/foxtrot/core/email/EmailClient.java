@@ -2,21 +2,25 @@ package com.flipkart.foxtrot.core.email;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.mail.*;
-import javax.mail.internet.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.InternetHeaders;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /***
  Created by nitish.goyal on 06/10/18
  ***/
-@Singleton
 public class EmailClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailClient.class);
@@ -24,7 +28,6 @@ public class EmailClient {
     private final EmailConfig emailConfig;
     private final Session session;
 
-    @Inject
     public EmailClient(EmailConfig emailConfig) {
         this.emailConfig = emailConfig;
         Properties mailProps = new Properties();

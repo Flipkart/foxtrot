@@ -5,10 +5,9 @@ import com.flipkart.foxtrot.common.Document;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TableSegregationConfig;
 import com.google.common.collect.Maps;
-import lombok.extern.slf4j.Slf4j;
-
-import javax.inject.Inject;
 import java.util.Map;
+import javax.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 
 /***
  Created by nitish.goyal on 28/08/19
@@ -20,7 +19,6 @@ public class TableTranslator {
     private final Map<String, TableSegregationConfig> tableVsSegregationConfig = Maps.newHashMap();
     private final Map<String, String> eventTypeVsNewTable = Maps.newHashMap();
 
-    @Inject
     public TableTranslator(SegregationConfiguration segregationConfiguration) {
         if(segregationConfiguration != null) {
             segregationConfiguration.getTableSegregationConfigs().forEach(tableSegregationConfig -> {

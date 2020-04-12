@@ -2,7 +2,11 @@ package com.flipkart.foxtrot.gandalf.manager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.TableV2;
-import com.flipkart.foxtrot.gandalf.exception.*;
+import com.flipkart.foxtrot.gandalf.exception.AuthTokenException;
+import com.flipkart.foxtrot.gandalf.exception.EndpointNotFoundException;
+import com.flipkart.foxtrot.gandalf.exception.PermissionCreationException;
+import com.flipkart.foxtrot.gandalf.exception.UserNotFoundException;
+import com.flipkart.foxtrot.gandalf.exception.UserPermissionAdditionException;
 import com.phonepe.gandalf.models.authn.UserGroupNamespace;
 import com.phonepe.gandalf.models.authn.requests.LoginRequest;
 import com.phonepe.gandalf.models.authn.requests.PasswordLoginRequest;
@@ -15,11 +19,14 @@ import com.phonepe.gandalf.models.user.User;
 import com.phonepe.platform.http.Endpoint;
 import com.phonepe.platform.http.OkHttpUtils;
 import com.phonepe.platform.http.ServiceEndpointProvider;
-import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
-
 import java.util.Optional;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 @Slf4j
 public class GandalfManager {

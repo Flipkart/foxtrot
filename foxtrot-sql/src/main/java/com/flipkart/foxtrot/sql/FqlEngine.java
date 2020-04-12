@@ -18,10 +18,9 @@ import com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.google.common.collect.Lists;
 import com.phonepe.gandalf.models.user.UserDetails;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class FqlEngine {
 

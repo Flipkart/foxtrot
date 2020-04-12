@@ -11,11 +11,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.sematext.hbase.ds.AbstractRowKeyDistributor;
 import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.hbase.util.Bytes;
-
-import javax.inject.Inject;
-import java.util.List;
 
 /**
  * Created by santanu.s on 24/11/15.

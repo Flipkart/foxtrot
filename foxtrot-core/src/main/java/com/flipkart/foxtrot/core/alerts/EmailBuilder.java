@@ -8,7 +8,6 @@ import com.flipkart.foxtrot.core.internalevents.InternalSystemEventVisitor;
 import com.flipkart.foxtrot.core.internalevents.events.QueryProcessed;
 import com.flipkart.foxtrot.core.internalevents.events.QueryProcessingError;
 import com.google.common.base.CaseFormat;
-
 import java.util.Collections;
 
 /**

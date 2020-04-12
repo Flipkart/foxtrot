@@ -15,6 +15,11 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -28,19 +33,14 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import io.dropwizard.jackson.Jackson;
-import org.junit.Assert;
-
-import org.junit.Test;
-
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.junit.Assert.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Created by rishabh.goyal on 29/04/14.

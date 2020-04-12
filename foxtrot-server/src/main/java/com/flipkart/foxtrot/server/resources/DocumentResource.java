@@ -22,9 +22,7 @@ import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.exception.BadRequestException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.exception.StoreExecutionException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.server.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.TableTranslator;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
@@ -46,8 +44,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)

@@ -12,9 +12,6 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.server.ServerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.util.Collection;
@@ -22,6 +19,8 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClusterManager implements Managed {
 

@@ -2,9 +2,8 @@ package com.flipkart.foxtrot.core.email.messageformatting.impl;
 
 import com.flipkart.foxtrot.core.email.messageformatting.EmailBodyBuilder;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang3.text.StrSubstitutor;
-
 import java.util.Map;
+import org.apache.commons.lang3.text.StrSubstitutor;
 
 /**
  *
