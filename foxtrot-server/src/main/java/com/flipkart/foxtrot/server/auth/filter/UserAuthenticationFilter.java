@@ -114,7 +114,7 @@ public class UserAuthenticationFilter implements Filter {
             int space = header.indexOf(' ');
             if (space > 0) {
                 final String method = header.substring(0, space);
-                if ("Bearer ".equalsIgnoreCase(method)) {
+                if ("Bearer".equalsIgnoreCase(method)) {
                     final String rawToken = header.substring(space + 1);
                     return Optional.of(rawToken);
                 }
