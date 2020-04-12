@@ -1,13 +1,12 @@
-package com.flipkart.foxtrot.core.querystore;
+package com.foxtrot.flipkart.translator;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.util.Utils;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.IdentityKeyDistributor;
-import com.flipkart.foxtrot.core.querystore.actions.Constants;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
+import com.foxtrot.flipkart.translator.utils.Constants;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -27,24 +26,23 @@ public class DocumentTranslator {
     private final AbstractRowKeyDistributor keyDistributor;
     private String rawKeyVersion;
 
-    @Inject
-    public DocumentTranslator(HbaseConfig hbaseConfig) {
-        if (CollectionUtils.isNullOrEmpty(hbaseConfig.getRawKeyVersion()) || hbaseConfig.getRawKeyVersion()
+    public DocumentTranslator(TranslatorConfig translatorConfig) {
+        if (CollectionUtils.isNullOrEmpty(translatorConfig.getRawKeyVersion()) || translatorConfig.getRawKeyVersion()
                 .equalsIgnoreCase("1.0")) {
             this.keyDistributor = new IdentityKeyDistributor();
             this.rawKeyVersion = "1.0";
-        } else if (hbaseConfig.getRawKeyVersion()
+        } else if (translatorConfig.getRawKeyVersion()
                 .equalsIgnoreCase("2.0")) {
             this.keyDistributor = new RowKeyDistributorByHashPrefix(
                     new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32));
             this.rawKeyVersion = "2.0";
-        } else if (hbaseConfig.getRawKeyVersion()
+        } else if (translatorConfig.getRawKeyVersion()
                 .equalsIgnoreCase("3.0")) {
             this.keyDistributor = new RowKeyDistributorByHashPrefix(
                     new RowKeyDistributorByHashPrefix.OneByteSimpleHash(256));
             this.rawKeyVersion = "3.0";
         } else {
-            throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, hbaseConfig.getRawKeyVersion()));
+            throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, translatorConfig.getRawKeyVersion()));
         }
     }
 
@@ -79,6 +77,16 @@ public class DocumentTranslator {
         return document;
     }
 
+    public Document translateBack(final Document inDocument) {
+        Document document = new Document();
+        document.setId(inDocument.getMetadata() != null ? inDocument.getMetadata()
+                .getId() : inDocument.getId());
+        document.setTimestamp(inDocument.getTimestamp());
+        document.setData(inDocument.getData());
+        document.setDate(Utils.getDate(inDocument.getTimestamp()));
+        return document;
+    }
+
     public DocumentMetadata metadata(final Table table, final Document inDocument) {
         final String rowKey = generateScalableKey(rawStorageIdFromDocument(table, inDocument));
         DocumentMetadata metadata = new DocumentMetadata();
@@ -88,10 +96,6 @@ public class DocumentTranslator {
         return metadata;
     }
 
-    @VisibleForTesting
-    public String generateScalableKey(String id) {
-        return new String(keyDistributor.getDistributedKey(Bytes.toBytes(id)));
-    }
 
     public String rawStorageIdFromDocument(final Table table, final Document document) {
         switch (rawKeyVersion) {
@@ -100,27 +104,21 @@ public class DocumentTranslator {
             case "2.0":
             case "3.0":
                 return String.format("%s:%020d:%s:%s", table.getName(), document.getTimestamp(), document.getId(),
-                        Constants.rawKeyVersionToSuffixMap.get(rawKeyVersion));
+                                    Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get(rawKeyVersion)
+                                    );
             default:
                 throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, rawKeyVersion));
         }
     }
 
-    public Document translateBack(final Document inDocument) {
-        Document document = new Document();
-        document.setId(inDocument.getMetadata() != null
-                ? inDocument.getMetadata()
-                .getId()
-                : inDocument.getId());
-        document.setTimestamp(inDocument.getTimestamp());
-        document.setData(inDocument.getData());
-        document.setDate(Utils.getDate(inDocument.getTimestamp()));
-        return document;
+    @VisibleForTesting
+    public String generateScalableKey(String id) {
+        return new String(keyDistributor.getDistributedKey(Bytes.toBytes(id)));
     }
 
     public String rawStorageIdFromDocumentId(Table table, String id) {
-        if (id.endsWith(Constants.rawKeyVersionToSuffixMap.get("2.0")) || id
-                .endsWith(Constants.rawKeyVersionToSuffixMap.get("3.0"))) {
+        if (id.endsWith(Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("2.0")) || id
+                .endsWith(Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("3.0"))) {
             return id;
         }
 

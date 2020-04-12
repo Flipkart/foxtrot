@@ -140,14 +140,14 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             l.get(l.size() - 1)
                     .put(e.getKey(), e.getValue());
         }, (l1, l2) -> {
-            if (l1.isEmpty()) {
+            if(l1.isEmpty()) {
                 return l2;
             }
-            if (l2.isEmpty()) {
+            if(l2.isEmpty()) {
                 return l1;
             }
-            if (l1.get(l1.size() - 1)
-                    .size() < limit) {
+            if(l1.get(l1.size() - 1)
+                       .size() < limit) {
                 Map<K, V> map = l1.get(l1.size() - 1);
                 ListIterator<Map<K, V>> mapsIte = l2.listIterator(l2.size());
                 processMap(limit, map, mapsIte);
@@ -387,8 +387,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         int subListSize;
         if (cardinalityConfig == null || cardinalityConfig.getSubListSize() == 0) {
             subListSize = ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE;
-        }
-        else {
+        } else {
             subListSize = cardinalityConfig.getSubListSize();
         }
 
@@ -736,9 +735,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         public int compare(FieldMetadata o1, FieldMetadata o2) {
             if (o1 == null && o2 == null) {
                 return 0;
-            } else if(o1 == null) {
+            } else if (o1 == null) {
                 return -1;
-            } else if(o2 == null) {
+            } else if (o2 == null) {
                 return 1;
             } else {
                 return o1.getField()

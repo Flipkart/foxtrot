@@ -35,7 +35,7 @@ import org.junit.Test;
 public class CacheHitTest extends ActionTest {
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         super.setup();
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);

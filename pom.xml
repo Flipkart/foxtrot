@@ -12,7 +12,7 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-57</version>
+    <version>6.3.1-64</version>
 
     <parent>
         <groupId>com.phonepe</groupId>
@@ -160,9 +160,10 @@
 
     <modules>
         <module>foxtrot-common</module>
+        <module>foxtrot-translator</module>
         <module>foxtrot-core</module>
-        <module>foxtrot-server</module>
         <module>foxtrot-sql</module>
+        <module>foxtrot-server</module>
         <module>foxtrot-gandalf</module>
     </modules>
 
@@ -193,16 +194,6 @@
     </repositories>
 
     <profiles>
-        <profile>
-            <id>ant</id>
-        </profile>
-        <profile>
-            <id>integration-test</id>
-            <properties>
-                <skip.integration.tests>false</skip.integration.tests>
-                <skip.unit.tests>true</skip.unit.tests>
-            </properties>
-        </profile>
         <profile>
             <id>lombok-needs-tools-jar</id>
             <activation>
@@ -359,6 +350,25 @@
                     <artifactId>sisu-guice</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.appform.testcontainer</groupId>
+            <artifactId>junit-testcontainer-commons</artifactId>
+            <version>${es.container.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.appform.testcontainer</groupId>
+            <artifactId>junit-testcontainer-elasticsearch</artifactId>
+            <version>${es.container.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.0.2</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.phonepe.gandalf</groupId>

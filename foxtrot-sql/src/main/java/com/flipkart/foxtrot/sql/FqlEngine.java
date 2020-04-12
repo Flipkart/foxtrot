@@ -106,10 +106,10 @@ public class FqlEngine {
                     throw FoxtrotExceptions.createAuthorizationException(fqlActionQuery.getActionRequest(),
                                                                          new Exception("User not Authorised"));
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw FoxtrotExceptions.createAuthorizationException(fqlActionQuery.getActionRequest(), e);
             }
+
             try {
                 String query = mapper.writeValueAsString(fqlActionQuery.getActionRequest());
                 logger.info("Generated query: {}", query);

@@ -57,7 +57,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                 .actionGet();
         resources = ResourceTestRule.builder()
                 .setMapper(getMapper())
-                .addResource(new AnalyticsResource(getQueryExecutor(), new QueryConfig()))
+                .addResource(new AnalyticsResource(getQueryExecutor(), getMapper(), new QueryConfig()))
                 .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .build();
     }

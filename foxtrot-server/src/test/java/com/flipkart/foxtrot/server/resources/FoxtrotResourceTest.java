@@ -144,8 +144,7 @@ public abstract class FoxtrotResourceTest {
                 cardinalityConfig);
         try {
             tableMetadataManager.start();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
         tableMetadataManager.save(Table.builder()

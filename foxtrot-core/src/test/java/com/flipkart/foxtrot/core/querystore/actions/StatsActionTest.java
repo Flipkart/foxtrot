@@ -46,7 +46,7 @@ import org.junit.Test;
 public class StatsActionTest extends ActionTest {
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         super.setup();
         List<Document> documents = TestUtils.getStatsDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);

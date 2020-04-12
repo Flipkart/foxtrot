@@ -53,7 +53,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
 
     @Rule
     public ResourceTestRule resources = ResourceTestRule.builder()
-            .addResource(new DocumentResource(getQueryStore(), new SegregationConfiguration()))
+            .addResource(new DocumentResource(getQueryStore(), new TableTranslator(new SegregationConfiguration())))
             .addProvider(new FoxtrotExceptionMapper(getMapper()))
             .setMapper(objectMapper)
             .build();

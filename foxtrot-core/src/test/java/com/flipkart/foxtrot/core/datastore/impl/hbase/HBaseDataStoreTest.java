@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
@@ -34,7 +37,7 @@ import com.flipkart.foxtrot.core.exception.BadRequestException;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.StoreConnectionException;
-import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
+import com.foxtrot.flipkart.translator.DocumentTranslator;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.io.IOException;
@@ -78,14 +81,14 @@ public class HBaseDataStoreTest {
         when(hbaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(tableInterface);
         when(hbaseTableConnection.getHbaseConfig()).thenReturn(new HbaseConfig());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                                            new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1())
+                                            new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1())
         );
     }
 
     @Test
     public void testSaveSingle() throws Exception {
         // rawKeyVersion 1.0
-        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1());
+        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
         Document expectedDocument = new Document();
         expectedDocument.setId(UUID.randomUUID()
@@ -97,7 +100,7 @@ public class HBaseDataStoreTest {
         validateSave(v1FormatKey(expectedDocument.getId()), expectedDocument);
 
         // rawKeyVersion 2.0
-        documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2());
+        documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
         expectedDocument = new Document();
         expectedDocument.setId(UUID.randomUUID()
@@ -143,8 +146,7 @@ public class HBaseDataStoreTest {
         try {
             hbaseDataStore.save(TEST_APP, document);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
     }
@@ -156,8 +158,7 @@ public class HBaseDataStoreTest {
         try {
             hbaseDataStore.save(TEST_APP, document);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
     }
@@ -179,8 +180,7 @@ public class HBaseDataStoreTest {
         try {
             hbaseDataStore.save(TEST_APP, document);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
     }
@@ -195,8 +195,7 @@ public class HBaseDataStoreTest {
         try {
             hbaseDataStore.save(TEST_APP, document);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.STORE_CONNECTION_ERROR, ex.getCode());
         }
     }
@@ -213,7 +212,7 @@ public class HBaseDataStoreTest {
 
     @Test
     public void testSaveBulk() throws Exception {
-        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1());
+        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
 
         List<Document> documents = Lists.newArrayList();
@@ -235,8 +234,7 @@ public class HBaseDataStoreTest {
         try {
             hbaseDataStore.saveAll(TEST_APP, documents);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
     }
@@ -247,8 +245,7 @@ public class HBaseDataStoreTest {
         try {
             hbaseDataStore.saveAll(TEST_APP, documents);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
     }
@@ -263,8 +260,7 @@ public class HBaseDataStoreTest {
         try {
             hbaseDataStore.saveAll(TEST_APP, documents);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
     }
@@ -279,8 +275,7 @@ public class HBaseDataStoreTest {
         try {
             hbaseDataStore.saveAll(TEST_APP, documents);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
     }
@@ -296,8 +291,7 @@ public class HBaseDataStoreTest {
         try {
             hbaseDataStore.saveAll(TEST_APP, documents);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.STORE_CONNECTION_ERROR, ex.getCode());
         }
     }
@@ -318,7 +312,9 @@ public class HBaseDataStoreTest {
         // rawKeyVersion 1.0 with no metadata stored in the system (This will happen for documents which were indexed
         // before rawKey versioning came into place)
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                                            new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1()));
+                new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1())
+        );
+
         String id = UUID.randomUUID()
                 .toString();
         long timestamp = System.currentTimeMillis();
@@ -332,7 +328,9 @@ public class HBaseDataStoreTest {
 
         // rawKeyVersion 1.0
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                                            new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1()));
+                                            new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1())
+        );
+
         id = UUID.randomUUID()
                 .toString();
         data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
@@ -344,7 +342,7 @@ public class HBaseDataStoreTest {
         compare(expectedDocument, actualDocument);
 
         // rawKeyVersion 2.0
-        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2());
+        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
 
         id = UUID.randomUUID()
@@ -367,8 +365,7 @@ public class HBaseDataStoreTest {
             hbaseDataStore.get(TEST_APP, UUID.randomUUID()
                     .toString());
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.DOCUMENT_NOT_FOUND, ex.getCode());
         }
     }
@@ -390,8 +387,7 @@ public class HBaseDataStoreTest {
         try {
             hbaseDataStore.get(TEST_APP, id);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.STORE_CONNECTION_ERROR, ex.getCode());
         }
     }
@@ -441,7 +437,7 @@ public class HBaseDataStoreTest {
 
     @Test
     public void testV2GetBulk() throws Exception {
-        DocumentTranslator translator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2());
+        DocumentTranslator translator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2());
 
         Map<String, Document> idValues = Maps.newHashMap();
         List<String> ids = Lists.newArrayList();
@@ -476,8 +472,7 @@ public class HBaseDataStoreTest {
         try {
             hbaseDataStore.getAll(TEST_APP, null);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
     }

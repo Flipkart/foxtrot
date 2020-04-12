@@ -77,8 +77,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
                         break;
                     }
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOGGER.error("Error occurred while calculating cardinality {}", e);
             }
         }, new LockConfiguration(cardinalityConfig.getJobName(), lockAtMostUntil));

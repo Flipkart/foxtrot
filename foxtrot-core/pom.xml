@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.flipkart.foxtrot</groupId>
         <artifactId>foxtrot</artifactId>
-        <version>6.3.1-63</version>
+        <version>6.3.1-64</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -138,6 +138,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>20.0</version>
+        </dependency>
+
         <!-- Zookeeper -->
         <dependency>
             <groupId>org.apache.zookeeper</groupId>
@@ -200,6 +206,11 @@
             <artifactId>foxtrot-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.flipkart.foxtrot</groupId>
+            <artifactId>foxtrot-translator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Reflections for scanning classpath to get analytics providers-->
         <dependency>
@@ -238,6 +249,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
     </dependencies>
 

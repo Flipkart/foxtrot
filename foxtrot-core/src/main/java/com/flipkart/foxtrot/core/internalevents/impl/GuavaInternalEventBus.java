@@ -11,7 +11,6 @@ import javax.inject.Singleton;
 /**
  *
  */
-@Singleton
 public class GuavaInternalEventBus implements InternalEventBus {
 
     private final AsyncEventBus eventBus;

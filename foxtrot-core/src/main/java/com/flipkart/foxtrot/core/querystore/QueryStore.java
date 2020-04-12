@@ -14,15 +14,12 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.core.exception.BadRequestException;
-import com.flipkart.foxtrot.core.exception.StoreExecutionException;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
-
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
+import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)

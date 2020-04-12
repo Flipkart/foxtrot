@@ -55,6 +55,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import ru.vyarus.dropwizard.guice.GuiceBundle;
 
+
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 15/03/14
@@ -75,12 +76,11 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         if (localConfig) {
             bootstrap.setConfigurationSourceProvider(
                     new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
-                                                   new EnvironmentVariableSubstitutor()));
-        }
-        else {
+                            new EnvironmentVariableSubstitutor()));
+        } else {
             bootstrap.setConfigurationSourceProvider(
                     new SubstitutingSourceProvider(new RoseyConfigSourceProvider("platform", "foxtrot"),
-                                                   new EnvironmentVariableSubstitutor()));
+                            new EnvironmentVariableSubstitutor()));
         }
         bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
         bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
@@ -188,6 +188,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                                                               "/",
                                                               "/index.html");
         }
+        ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
 
     }
 

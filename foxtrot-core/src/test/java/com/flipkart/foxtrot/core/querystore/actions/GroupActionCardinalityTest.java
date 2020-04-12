@@ -23,7 +23,7 @@ import org.junit.Test;
 public class GroupActionCardinalityTest extends ActionTest {
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         super.setup();
         List<Document> documents = TestUtils.getGroupDocumentsForEstimation(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
@@ -48,9 +48,9 @@ public class GroupActionCardinalityTest extends ActionTest {
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("android"));
+                .containsKey("android"));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("ios"));
+                .containsKey("ios"));
     }
 
     @Test
@@ -62,9 +62,9 @@ public class GroupActionCardinalityTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
 
         Assert.assertTrue(response.getResult()
-                                  .containsKey("android"));
+                .containsKey("android"));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("ios"));
+                .containsKey("ios"));
     }
 
     @Test
@@ -75,7 +75,7 @@ public class GroupActionCardinalityTest extends ActionTest {
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("0"));
+                .containsKey("0"));
     }
 
     @Test
@@ -86,6 +86,6 @@ public class GroupActionCardinalityTest extends ActionTest {
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("0"));
+                .containsKey("0"));
     }
 }

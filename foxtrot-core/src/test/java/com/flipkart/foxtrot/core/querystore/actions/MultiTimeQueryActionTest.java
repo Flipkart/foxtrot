@@ -34,7 +34,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class MultiTimeQueryActionTest extends ActionTest {
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         super.setup();
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
