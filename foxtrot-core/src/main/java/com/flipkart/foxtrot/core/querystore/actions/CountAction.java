@@ -8,6 +8,7 @@ import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.ExistsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -27,7 +28,7 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
  * Created by rishabh.goyal on 02/11/14.
  */
 
-@AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = true)
 public class CountAction extends Action<CountRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
@@ -42,8 +43,11 @@ public class CountAction extends Action<CountRequest> {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
         // Null field implies complete doc count
         if (getParameter().getField() != null) {
-            getParameter().getFilters()
-                    .add(new ExistsFilter(getParameter().getField()));
+            Filter existsFilter = new ExistsFilter(getParameter().getField());
+            if (!getParameter().getFilters().contains(existsFilter)){
+                getParameter().getFilters()
+                        .add(new ExistsFilter(getParameter().getField()));
+            }
         }
     }
 
@@ -63,6 +67,7 @@ public class CountAction extends Action<CountRequest> {
 
     @Override
     public String getRequestCacheKey() {
+        preprocess();
         long filterHashKey = 0L;
         CountRequest request = getParameter();
         for (Filter filter : com.collections.CollectionUtils.nullSafeList(request.getFilters())) {
@@ -109,7 +114,8 @@ public class CountAction extends Action<CountRequest> {
                         .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                         .addAggregation(Utils.buildCardinalityAggregation(
-                                parameter.getField(), elasticsearchTuningConfig.getPrecisionThreshold()));
+                                parameter.getField(), parameter.accept(new CountPrecisionThresholdVisitorAdapter(
+                                        elasticsearchTuningConfig.getPrecisionThreshold()))));
                 return query;
             }
             catch (Exception e) {

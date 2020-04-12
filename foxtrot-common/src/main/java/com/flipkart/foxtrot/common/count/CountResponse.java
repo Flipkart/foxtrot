@@ -11,6 +11,10 @@ public class CountResponse extends ActionResponse {
 
     private long count;
 
+    public CountResponse() {
+        super(Opcodes.COUNT);
+    }
+
     public CountResponse(long count) {
         super(Opcodes.COUNT);
         this.count = count;

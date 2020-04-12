@@ -15,20 +15,25 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import static com.flipkart.foxtrot.core.exception.FoxtrotExceptions.ERROR_DELIMITER;
+
 import com.codahale.metrics.annotation.Timed;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.core.exception.BadRequestException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.StoreExecutionException;
 import com.flipkart.foxtrot.core.config.SegregationConfiguration;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import java.util.Objects;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -40,6 +45,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:55 PM
@@ -118,13 +125,37 @@ public class DocumentResource {
     @ApiOperation("Save list of documents")
     public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = preProcessSaveDocuments(table, documents);
+
+        // Catch all StoreExecutionException and append error messages to a list
+        // keep track of any BadRequestException,
+        // throw it if it's thrown for any batch and if no StoreExecutionException was thrown
+        List<String> exceptionMessages = new ArrayList<>();
+        BadRequestException badRequestException = null;
+
         for (Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
-            queryStore.save(entry.getKey(), entry.getValue());
-            if (!entry.getKey()
-                    .equals(table) && tablesToBeDuplicated != null && tablesToBeDuplicated.contains(entry.getKey())) {
-                queryStore.save(table, entry.getValue());
+            try {
+                queryStore.save(entry.getKey(), entry.getValue());
+                if (!entry.getKey()
+                        .equals(table) && tablesToBeDuplicated != null && tablesToBeDuplicated
+                        .contains(entry.getKey())) {
+                    queryStore.save(table, entry.getValue());
+                }
+            } catch (BadRequestException e) {
+                badRequestException = e;
+            } catch (Exception e) {
+                exceptionMessages.add(Objects.nonNull(e.getCause())
+                        ? e.getCause().getMessage()
+                        : e.getMessage());
             }
         }
+
+        if (!exceptionMessages.isEmpty()) {
+            String exceptionMessage = String.join(ERROR_DELIMITER, exceptionMessages);
+            throw FoxtrotExceptions.createExecutionException(table, new RuntimeException(exceptionMessage));
+        } else if (Objects.nonNull(badRequestException)) {
+            throw badRequestException;
+        }
+
         return Response.created(URI.create("/" + table))
                 .build();
     }
@@ -144,14 +175,12 @@ public class DocumentResource {
                 if (tableVsDocuments.containsKey(tableName)) {
                     tableVsDocuments.get(tableName)
                             .add(document);
-                }
-                else {
+                } else {
                     List<Document> tableDocuments = Lists.newArrayList(document);
                     tableVsDocuments.put(tableName, tableDocuments);
                 }
             }
-        }
-        else {
+        } else {
             tableVsDocuments.put(table, documents);
         }
         return tableVsDocuments;

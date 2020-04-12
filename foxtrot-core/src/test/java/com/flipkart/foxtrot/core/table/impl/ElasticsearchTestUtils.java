@@ -23,6 +23,8 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import io.appform.testcontainers.elasticsearch.config.ElasticsearchContainerConfiguration;
 import java.util.Collections;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import io.appform.testcontainers.elasticsearch.config.ElasticsearchContainerConfiguration;
 import lombok.Getter;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;

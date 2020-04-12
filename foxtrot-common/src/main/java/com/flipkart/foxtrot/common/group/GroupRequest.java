@@ -15,7 +15,10 @@ package com.flipkart.foxtrot.common.group;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
+import com.flipkart.foxtrot.common.enums.CountPrecision;
 import com.flipkart.foxtrot.common.query.Filter;
+import lombok.Getter;
+import lombok.Setter;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -24,6 +27,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 21/03/14 Time: 4:52 PM
  */
+@Getter
+@Setter
 public class GroupRequest extends ActionRequest {
 
     @NotNull
@@ -37,6 +42,8 @@ public class GroupRequest extends ActionRequest {
     private List<String> nesting;
 
     private String consoleId;
+
+    private CountPrecision precision;
 
     public GroupRequest() {
         super(Opcodes.GROUP);

@@ -16,15 +16,21 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.enums.CountPrecision;
 import com.flipkart.foxtrot.common.query.Filter;
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 30/03/14
  * Time: 2:30 PM
  */
+@Getter
+@Setter
 public class TrendRequest extends ActionRequest {
 
     private String table;
@@ -38,6 +44,8 @@ public class TrendRequest extends ActionRequest {
     private List<String> values;
 
     private String uniqueCountOn;
+
+    private CountPrecision precision;
 
     public TrendRequest() {
         super(Opcodes.TREND);

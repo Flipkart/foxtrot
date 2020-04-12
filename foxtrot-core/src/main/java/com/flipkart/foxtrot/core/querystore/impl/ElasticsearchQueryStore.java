@@ -22,8 +22,10 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.BadRequestException;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.StoreExecutionException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -45,6 +47,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequest;
@@ -83,6 +86,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
  * Time: 12:27 AM
  */
 @Data
+@Slf4j
 @Singleton
 public class ElasticsearchQueryStore implements QueryStore {
 
@@ -244,11 +248,13 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             }
         } catch (JsonProcessingException e) {
+            log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents, e.getMessage());
             logger.error("Error while saving documents to table: {}", table, e);
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents, e.getMessage());
             logger.error("Error while saving documents to table: {}", table, e);
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -256,6 +262,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .interrupt();
             throw FoxtrotExceptions.createExecutionException(table, e);
         } catch (Exception e) {
+            log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents, e.getMessage());
             logger.error("Error while saving documents to table: {}", table, e);
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));

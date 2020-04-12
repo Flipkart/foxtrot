@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /***
  Created by nitish.goyal on 22/08/18
  ***/
-@AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class, cacheable = true)
 public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiQueryAction.class);
@@ -57,6 +57,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     @Override
     public String getRequestCacheKey() {
+        createActions(getParameter());
         return processForSubQueries(getParameter(), (action, request) -> action.getRequestCacheKey());
     }
 
