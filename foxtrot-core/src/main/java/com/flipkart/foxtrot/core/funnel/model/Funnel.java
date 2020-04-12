@@ -1,5 +1,8 @@
 package com.flipkart.foxtrot.core.funnel.model;
 
+import static com.collections.CollectionUtils.nullAndEmptySafeValueList;
+import static com.collections.CollectionUtils.nullSafeMap;
+
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus;
