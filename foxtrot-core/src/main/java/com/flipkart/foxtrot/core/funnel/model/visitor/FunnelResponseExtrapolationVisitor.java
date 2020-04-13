@@ -126,7 +126,7 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
 
         List<Count> extrapolationFactors = computeExtrapolationFactors(trendRequest.getTable(),
                 trendRequest.getTimestamp(), trendRequest.getPeriod());
-        
+
         if (CollectionUtils.isNotEmpty(trendResponse.getTrends())) {
             trendResponse.getTrends().values().forEach(
                     counts -> {
@@ -144,6 +144,8 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
 
     public ActionResponse visit(CountResponse countResponse) {
         long extrapolationFactor = computeExtrapolationFactor();
+        log.info("Extrapolation factor : {}, original count :{}, extrapolated count : {}", extrapolationFactor,
+                countResponse.getCount(), countResponse.getCount() * extrapolationFactor);
         countResponse.setCount(countResponse.getCount() * extrapolationFactor);
         return countResponse;
     }
@@ -266,6 +268,8 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
 
         long baseEventCountForFunnelId = getBaseEventCountForFunnelId(funnelId, table);
 
+        log.info("Total Base event count : {}, Base event count for funnel id : {}", totalBaseEventCount,
+                baseEventCountForFunnelId);
         if (baseEventCountForFunnelId != 0) {
             return (long) ((double) totalBaseEventCount / baseEventCountForFunnelId);
         }
