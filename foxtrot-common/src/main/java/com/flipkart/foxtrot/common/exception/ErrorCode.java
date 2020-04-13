@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.core.exception;
+package com.flipkart.foxtrot.common.exception;
 
 /**
  * Created by rishabh.goyal on 19/12/15.

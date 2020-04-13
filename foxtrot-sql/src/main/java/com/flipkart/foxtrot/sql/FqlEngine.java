@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;

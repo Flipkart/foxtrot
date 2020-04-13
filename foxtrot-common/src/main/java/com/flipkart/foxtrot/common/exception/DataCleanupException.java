@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.core.exception;
+package com.flipkart.foxtrot.common.exception;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
@@ -8,12 +8,12 @@ import lombok.Getter;
  * Created by rishabh.goyal on 19/12/15.
  */
 @Getter
-public class ServerException extends FoxtrotException {
+public class DataCleanupException extends FoxtrotException {
 
     private final String message;
 
-    protected ServerException(String message, Throwable cause) {
-        super(ErrorCode.EXECUTION_EXCEPTION, cause);
+    protected DataCleanupException(String message, Throwable cause) {
+        super(ErrorCode.DATA_CLEANUP_ERROR, cause);
         this.message = message;
     }
 

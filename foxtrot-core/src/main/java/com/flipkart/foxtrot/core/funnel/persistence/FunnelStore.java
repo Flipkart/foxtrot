@@ -1,6 +1,6 @@
 package com.flipkart.foxtrot.core.funnel.persistence;
 
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
 import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
 import com.flipkart.foxtrot.core.funnel.model.Funnel;

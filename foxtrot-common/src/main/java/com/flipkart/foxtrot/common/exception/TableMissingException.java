@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.core.exception;
+package com.flipkart.foxtrot.common.exception;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
@@ -8,12 +8,12 @@ import lombok.Getter;
  * Created by rishabh.goyal on 19/12/15.
  */
 @Getter
-public class TableExistsException extends FoxtrotException {
+public class TableMissingException extends FoxtrotException {
 
     private final String table;
 
-    protected TableExistsException(String table) {
-        super(ErrorCode.TABLE_ALREADY_EXISTS);
+    protected TableMissingException(String table) {
+        super(ErrorCode.TABLE_NOT_FOUND);
         this.table = table;
     }
 
@@ -24,3 +24,4 @@ public class TableExistsException extends FoxtrotException {
         return map;
     }
 }
+

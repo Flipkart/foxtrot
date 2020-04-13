@@ -22,7 +22,7 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;

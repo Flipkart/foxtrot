@@ -18,7 +18,7 @@ import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import java.util.ArrayList;

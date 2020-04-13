@@ -5,7 +5,7 @@ import static com.flipkart.foxtrot.sql.fqlstore.FqlStore.TITLE_FIELD;
 
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.core.exception.FqlPersistenceException;
+import com.flipkart.foxtrot.common.exception.FqlPersistenceException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import java.util.ArrayList;
 import java.util.List;

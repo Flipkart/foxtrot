@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.core.exception;
+package com.flipkart.foxtrot.common.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.google.common.collect.Maps;

@@ -2,7 +2,7 @@ package com.flipkart.foxtrot.core.funnel.persistence;
 
 import static com.collections.CollectionUtils.nullAndEmptySafeValueList;
 import static com.collections.CollectionUtils.nullSafeMap;
-import static com.flipkart.foxtrot.core.exception.ErrorCode.EXECUTION_EXCEPTION;
+import static com.flipkart.foxtrot.common.exception.ErrorCode.EXECUTION_EXCEPTION;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.APPROVAL_DATE;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.DELETED;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.END_PERCENTAGE;
@@ -14,7 +14,7 @@ import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.DOT;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.TYPE;
 
 import com.collections.CollectionUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
 import com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes;
@@ -29,7 +29,7 @@ import com.flipkart.foxtrot.core.funnel.services.PreProcessFilter;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
-import com.flipkart.foxtrot.core.util.JsonUtils;
+import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.google.inject.Inject;
 import java.lang.reflect.Field;
 import java.util.ArrayList;

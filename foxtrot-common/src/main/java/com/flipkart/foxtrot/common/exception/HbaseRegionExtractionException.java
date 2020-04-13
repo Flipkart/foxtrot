@@ -1,13 +1,13 @@
-package com.flipkart.foxtrot.core.exception;
+package com.flipkart.foxtrot.common.exception;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
 
-public class HbaseRegionMergeException extends FoxtrotException {
+public class HbaseRegionExtractionException extends FoxtrotException {
     private final String message;
 
-    public HbaseRegionMergeException(String message, Throwable cause) {
-        super(ErrorCode.HBASE_REGIONS_MERGE_FAILURE, message, cause);
+    public HbaseRegionExtractionException(String message, Throwable cause) {
+        super(ErrorCode.HBASE_REGIONS_EXTRACTION_FAILURE, message, cause);
         this.message = message;
     }
 

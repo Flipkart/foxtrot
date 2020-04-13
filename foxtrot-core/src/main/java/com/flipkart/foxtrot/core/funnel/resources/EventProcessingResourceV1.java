@@ -1,7 +1,7 @@
 package com.flipkart.foxtrot.core.funnel.resources;
 
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.funnel.model.request.EventProcessingRequest;
 import com.flipkart.foxtrot.core.funnel.model.response.EventProcessingResponseV1;
 import com.flipkart.foxtrot.core.funnel.model.response.EventProcessingResponseV2;

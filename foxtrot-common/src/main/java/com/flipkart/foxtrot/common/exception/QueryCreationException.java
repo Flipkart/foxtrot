@@ -1,20 +1,20 @@
-package com.flipkart.foxtrot.core.exception;
+package com.flipkart.foxtrot.common.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import lombok.Getter;
 
-/***
- Created by mudit.g on Mar, 2019
- ***/
+/**
+ * Created by rishabh.goyal on 19/12/15.
+ */
 @Getter
-public class AuthorizationException extends FoxtrotException {
+public class QueryCreationException extends FoxtrotException {
 
     private final ActionRequest actionRequest;
 
-    protected AuthorizationException(ActionRequest actionRequest, Throwable cause) {
-        super(ErrorCode.AUTHORIZATION_EXCEPTION, cause);
+    protected QueryCreationException(ActionRequest actionRequest, Throwable cause) {
+        super(ErrorCode.MALFORMED_QUERY, cause);
         this.actionRequest = actionRequest;
     }
 

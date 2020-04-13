@@ -42,8 +42,7 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         }
         if (node.isObject()) {
             handleObjectNode(table, documentId, (ObjectNode) node);
-        }
-        else if (node.isArray()) {
+        } else if (node.isArray()) {
             handleArrayNode(table, documentId, null, (ArrayNode) node);
         }
     }

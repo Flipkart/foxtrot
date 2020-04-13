@@ -25,7 +25,7 @@ import static org.mockito.Mockito.doThrow;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import com.foxtrot.flipkart.translator.TableTranslator;

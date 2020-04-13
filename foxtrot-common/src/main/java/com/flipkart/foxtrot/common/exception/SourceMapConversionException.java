@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.core.exception;
+package com.flipkart.foxtrot.common.exception;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
@@ -6,12 +6,12 @@ import java.util.Map;
 /***
  Created by mudit.g on May, 2019
  ***/
-public class PortExtractionException extends FoxtrotException {
+public class SourceMapConversionException extends FoxtrotException {
 
     private final String message;
 
-    public PortExtractionException(String message) {
-        super(ErrorCode.PORT_EXTRACTION_ERROR, message);
+    public SourceMapConversionException(String message, Throwable cause) {
+        super(ErrorCode.SOURCE_MAP_CONVERSION_FAILURE, message, cause);
         this.message = message;
     }
 

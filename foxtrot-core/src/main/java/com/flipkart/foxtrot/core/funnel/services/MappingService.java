@@ -2,10 +2,9 @@ package com.flipkart.foxtrot.core.funnel.services;
 
 
 import com.collections.CollectionUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.util.JsonUtils;
+import com.flipkart.foxtrot.common.util.JsonUtils;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;

@@ -25,7 +25,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.MarathonClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.querystore.impl.SimpleClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.util.MetricUtil;
-import com.flipkart.foxtrot.core.util.SerDe;
+import com.flipkart.foxtrot.common.util.SerDe;
 import com.flipkart.foxtrot.server.di.FoxtrotModule;
 import com.google.inject.Stage;
 import com.phonepe.gandalf.client.GandalfBundle;

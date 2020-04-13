@@ -15,15 +15,13 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
-import static com.flipkart.foxtrot.core.exception.FoxtrotExceptions.ERROR_DELIMITER;
+import static com.flipkart.foxtrot.common.exception.FoxtrotExceptions.ERROR_DELIMITER;
 
 import com.codahale.metrics.annotation.Timed;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.core.exception.BadRequestException;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.exception.StoreExecutionException;
-import com.flipkart.foxtrot.core.config.SegregationConfiguration;
+import com.flipkart.foxtrot.common.exception.BadRequestException;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.foxtrot.flipkart.translator.TableTranslator;
 import com.google.common.collect.Lists;

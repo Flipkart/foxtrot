@@ -1,6 +1,6 @@
 package com.flipkart.foxtrot.core.common;
 
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import java.util.TimerTask;
 import net.javacrumbs.shedlock.core.SchedulerLock;

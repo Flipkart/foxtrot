@@ -27,7 +27,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;

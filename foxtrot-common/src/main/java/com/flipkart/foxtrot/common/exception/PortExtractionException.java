@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.core.exception;
+package com.flipkart.foxtrot.common.exception;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
@@ -6,12 +6,12 @@ import java.util.Map;
 /***
  Created by mudit.g on May, 2019
  ***/
-public class FqlPersistenceException extends FoxtrotException {
+public class PortExtractionException extends FoxtrotException {
 
     private final String message;
 
-    public FqlPersistenceException(String message, Throwable cause) {
-        super(ErrorCode.FQL_PERSISTENCE_EXCEPTION, message, cause);
+    public PortExtractionException(String message) {
+        super(ErrorCode.PORT_EXTRACTION_ERROR, message);
         this.message = message;
     }
 

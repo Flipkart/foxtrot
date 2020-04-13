@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.core.exception;
+package com.flipkart.foxtrot.common.exception;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
@@ -6,17 +6,17 @@ import java.util.Map;
 /***
  Created by mudit.g on May, 2019
  ***/
-public class TableMapStoreException extends FoxtrotException {
+public class FqlParsingException extends FoxtrotException {
 
     private final String message;
 
-    public TableMapStoreException(String message, Throwable cause) {
-        super(ErrorCode.TABLE_MAP_STORE_ERROR, message, cause);
+    public FqlParsingException(String message, Throwable cause) {
+        super(ErrorCode.FQL_PARSE_ERROR, message, cause);
         this.message = message;
     }
 
-    public TableMapStoreException(String message) {
-        super(ErrorCode.TABLE_MAP_STORE_ERROR, message);
+    public FqlParsingException(String message) {
+        super(ErrorCode.FQL_PARSE_ERROR, message);
         this.message = message;
     }
 

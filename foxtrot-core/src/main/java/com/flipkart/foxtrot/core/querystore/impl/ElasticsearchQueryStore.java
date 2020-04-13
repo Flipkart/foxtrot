@@ -8,7 +8,7 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import static com.flipkart.foxtrot.core.exception.FoxtrotExceptions.ERROR_DELIMITER;
+import static com.flipkart.foxtrot.common.exception.FoxtrotExceptions.ERROR_DELIMITER;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
@@ -23,8 +23,8 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;

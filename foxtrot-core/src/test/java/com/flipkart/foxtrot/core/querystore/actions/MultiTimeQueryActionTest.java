@@ -15,7 +15,7 @@ import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import io.dropwizard.util.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;

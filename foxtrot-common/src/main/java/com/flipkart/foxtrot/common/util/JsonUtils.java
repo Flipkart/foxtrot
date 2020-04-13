@@ -1,11 +1,11 @@
-package com.flipkart.foxtrot.core.util;
+package com.flipkart.foxtrot.common.util;
 
-import static com.flipkart.foxtrot.core.exception.ErrorCode.DESERIALIZATION_ERROR;
-import static com.flipkart.foxtrot.core.exception.ErrorCode.SERIALIZATION_ERROR;
+import static com.flipkart.foxtrot.common.exception.ErrorCode.DESERIALIZATION_ERROR;
+import static com.flipkart.foxtrot.common.exception.ErrorCode.SERIALIZATION_ERROR;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.flipkart.foxtrot.core.exception.SerDeException;
+import com.flipkart.foxtrot.common.exception.SerDeException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

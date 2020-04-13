@@ -9,7 +9,7 @@ import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
