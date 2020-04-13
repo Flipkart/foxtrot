@@ -242,11 +242,10 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
             Optional<Filter> funnelIdFilter = actionRequest.getFilters().stream()
                     .filter(filter -> (filter instanceof EqualsFilter)
                             && (filter.getField().equals(FUNNEL_ID_QUERY_FIELD))
-                            && ((EqualsFilter) filter).getValue() instanceof String
                     )
                     .findFirst();
             if (funnelIdFilter.isPresent()) {
-                funnelId = Long.parseLong((String) (((EqualsFilter) funnelIdFilter.get()).getValue()));
+                funnelId = Long.parseLong((((EqualsFilter) funnelIdFilter.get()).getValue()).toString());
             }
         } catch (NumberFormatException ex) {
             log.error("Error while extracting funnel id from action request : {} ", actionRequest, ex);
