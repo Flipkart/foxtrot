@@ -3,16 +3,15 @@ package com.flipkart.foxtrot.core.common;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import io.dropwizard.lifecycle.Managed;
+import java.time.Instant;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import net.javacrumbs.shedlock.provider.hazelcast.HazelcastLockProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Instant;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by rishabh.goyal on 07/07/14.
@@ -51,8 +50,7 @@ public class DataDeletionManager implements Managed {
                                          new LockConfiguration("dataDeletion", lockAtMostUntil));
             }, config.getInitialDelay(), config.getInterval(), TimeUnit.SECONDS);
             logger.info("Scheduled data deletion Job");
-        }
-        else {
+        } else {
             logger.info("Not scheduling data deletion Job");
         }
         logger.info("Started Deletion Manager");

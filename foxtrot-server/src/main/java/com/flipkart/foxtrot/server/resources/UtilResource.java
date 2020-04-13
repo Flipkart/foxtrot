@@ -16,7 +16,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;

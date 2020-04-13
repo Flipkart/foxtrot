@@ -13,6 +13,9 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.search.MultiSearchRequestBuilder;
@@ -21,10 +24,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.glassfish.hk2.api.MultiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /***
  Created by nitish.goyal on 22/08/18

@@ -1,22 +1,31 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.common.estimation.*;
+import com.flipkart.foxtrot.common.estimation.CardinalityEstimationData;
+import com.flipkart.foxtrot.common.estimation.EstimationDataVisitor;
+import com.flipkart.foxtrot.common.estimation.FixedEstimationData;
+import com.flipkart.foxtrot.common.estimation.PercentileEstimationData;
+import com.flipkart.foxtrot.common.estimation.TermHistogramEstimationData;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -26,7 +35,11 @@ import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotInFilter;
-import com.flipkart.foxtrot.common.query.numeric.*;
+import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
@@ -43,6 +56,16 @@ import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchException;
@@ -54,16 +77,10 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.Interval;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
-
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 27/03/14 Time: 7:16 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 27/03/14
+ * Time: 7:16 PM
  */
 @AnalyticsProvider(opcode = "group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
 @Slf4j
@@ -123,8 +140,7 @@ public class GroupAction extends Action<GroupRequest> {
 
         if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
             validationErrors.add("at least one grouping parameter is required");
-        }
-        else {
+        } else {
             validationErrors.addAll(parameter.getNesting()
                                             .stream()
                                             .filter(CollectionUtils::isNullOrEmpty)
@@ -153,8 +169,7 @@ public class GroupAction extends Action<GroupRequest> {
             SearchResponse response = query.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        }
-        catch (ElasticsearchException e) {
+        } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -170,8 +185,7 @@ public class GroupAction extends Action<GroupRequest> {
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(aggregation);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return query;
@@ -245,8 +259,8 @@ public class GroupAction extends Action<GroupRequest> {
 
                         @Override
                         public Long visit(CardinalityEstimationData cardinalityEstimationData) {
-                            return (cardinalityEstimationData.getCardinality() * estimatedDocCountAfterFilters) /
-                                    cardinalityEstimationData.getCount();
+                            return (long)(((double)(cardinalityEstimationData.getCardinality() * estimatedDocCountAfterFilters))
+                                    / cardinalityEstimationData.getCount());
                         }
 
                         @Override
@@ -307,8 +321,7 @@ public class GroupAction extends Action<GroupRequest> {
                      tableFieldMapping,
                      parameter.toString());
             return 1.0;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -332,9 +345,8 @@ public class GroupAction extends Action<GroupRequest> {
         //This is done because we only store docs for last maxDays. Sometimes, we get startTime starting from 1970 year
         if (days > maxDays) {
             return currentDocCount * maxDays;
-        }
-        else {
-            return (long) (currentDocCount * days);
+        } else {
+            return (long)(currentDocCount * days);
         }
     }
 
@@ -725,12 +737,10 @@ public class GroupAction extends Action<GroupRequest> {
                     Cardinality cardinality = bucket.getAggregations()
                             .get(key);
                     levelCount.put(String.valueOf(bucket.getKey()), cardinality.getValue());
-                }
-                else {
+                } else {
                     levelCount.put(String.valueOf(bucket.getKey()), bucket.getDocCount());
                 }
-            }
-            else {
+            } else {
                 levelCount.put(String.valueOf(bucket.getKey()), getMap(remainingFields, bucket.getAggregations()));
             }
         }
@@ -756,8 +766,7 @@ public class GroupAction extends Action<GroupRequest> {
                 }
 
                 probability = estimateProbability(fieldMappings, parameter);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("Error running estimation", e);
             }
 
@@ -767,8 +776,7 @@ public class GroupAction extends Action<GroupRequest> {
                          probability, content);
                 throw FoxtrotExceptions.createCardinalityOverflow(
                         parameter, content, parameter.getNesting().get(0), probability);
-            }
-            else {
+            } else {
                 log.info("Allowing group by with probability {} for query: {}", probability, parameter);
             }
         }

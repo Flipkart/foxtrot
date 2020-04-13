@@ -4,6 +4,12 @@ import com.flipkart.foxtrot.common.hbase.HRegionData;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.HbaseRegionExtractionException;
 import com.flipkart.foxtrot.core.exception.HbaseRegionMergeException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -14,8 +20,6 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.RegionLocator;
 import org.apache.hadoop.hbase.util.RegionSizeCalculator;
-
-import java.util.*;
 
 @Slf4j
 public class HbaseRegions {

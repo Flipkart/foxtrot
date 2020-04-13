@@ -15,6 +15,10 @@
  */
 package com.flipkart.foxtrot.core;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.Document;
@@ -25,17 +29,27 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
+import com.foxtrot.flipkart.translator.DocumentTranslator;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
+import java.util.Vector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
@@ -47,12 +61,6 @@ import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static org.mockito.Mockito.*;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -75,7 +83,7 @@ public class TestUtils {
         doReturn(new HbaseConfig()).when(tableConnection)
                 .getHbaseConfig();
         HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper(),
-                                                           new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2())
+                                                           new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2())
         );
         hBaseDataStore = spy(hBaseDataStore);
         return hBaseDataStore;
@@ -83,7 +91,7 @@ public class TestUtils {
 
     public static DataStore getDataStore(HbaseTableConnection tableConnection) throws FoxtrotException {
         HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper(),
-                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2())
+                new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2())
         );
         hBaseDataStore = spy(hBaseDataStore);
         return hBaseDataStore;
@@ -126,16 +134,16 @@ public class TestUtils {
     }
 
 
-    public static HbaseConfig createHBaseConfigWithRawKeyV1() {
-        HbaseConfig hbaseConfig = new HbaseConfig();
-        hbaseConfig.setRawKeyVersion("1.0");
-        return hbaseConfig;
+    public static TranslatorConfig createTranslatorConfigWithRawKeyV1() {
+        TranslatorConfig translatorConfig = new TranslatorConfig();
+        translatorConfig.setRawKeyVersion("1.0");
+        return translatorConfig;
     }
 
-    public static HbaseConfig createHBaseConfigWithRawKeyV2() {
-        HbaseConfig hbaseConfig = new HbaseConfig();
-        hbaseConfig.setRawKeyVersion("2.0");
-        return hbaseConfig;
+    public static TranslatorConfig createTranslatorConfigWithRawKeyV2() {
+        TranslatorConfig translatorConfig = new TranslatorConfig();
+        translatorConfig.setRawKeyVersion("2.0");
+        return translatorConfig;
     }
 
     public static HbaseConfig createHBaseConfigWithRawKeyV3() {
@@ -145,11 +153,11 @@ public class TestUtils {
     }
 
     public static Document translatedDocumentWithRowKeyVersion1(Table table, Document document) {
-        return new DocumentTranslator(createHBaseConfigWithRawKeyV1()).translate(table, document);
+        return new DocumentTranslator(createTranslatorConfigWithRawKeyV1()).translate(table, document);
     }
 
     public static Document translatedDocumentWithRowKeyVersion2(Table table, Document document) {
-        return new DocumentTranslator(createHBaseConfigWithRawKeyV2()).translate(table, document);
+        return new DocumentTranslator(createTranslatorConfigWithRawKeyV2()).translate(table, document);
     }
 
     public static List<Document> getQueryDocuments(ObjectMapper mapper) {

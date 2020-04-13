@@ -6,13 +6,11 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-
 import java.util.List;
 
 /**
  * Created by rishabh.goyal on 05/12/15.
  */
-
 public class FoxtrotTableManager implements TableManager {
 
     private final TableMetadataManager metadataManager;
@@ -24,7 +22,6 @@ public class FoxtrotTableManager implements TableManager {
         this.queryStore = queryStore;
         this.dataStore = dataStore;
     }
-
 
     @Override
     public void save(Table table) {

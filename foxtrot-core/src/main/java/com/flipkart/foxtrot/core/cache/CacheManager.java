@@ -6,7 +6,6 @@ import java.util.Map;
 /**
  * Created by rishabh.goyal on 26/12/15.
  */
-
 public class CacheManager {
 
     private final Map<String, Cache> cacheMap = new HashMap<>();

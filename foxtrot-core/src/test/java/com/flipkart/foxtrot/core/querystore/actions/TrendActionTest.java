@@ -15,6 +15,9 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Period;
@@ -29,14 +32,13 @@ import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * Created by rishabh.goyal on 29/04/14.
@@ -44,7 +46,7 @@ import static org.junit.Assert.fail;
 public class TrendActionTest extends ActionTest {
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         super.setup();
         List<Document> documents = TestUtils.getTrendDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
@@ -72,8 +74,7 @@ public class TrendActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(trendRequest);
             fail("Should have thrown exception");
-        }
-        catch (FoxtrotException e) {
+        } catch (FoxtrotException e) {
             assertEquals(ErrorCode.MALFORMED_QUERY, e.getCode());
         }
     }
@@ -114,8 +115,7 @@ public class TrendActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(trendRequest);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
@@ -154,8 +154,7 @@ public class TrendActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(trendRequest);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
@@ -190,9 +189,9 @@ public class TrendActionTest extends ActionTest {
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("android"));
+                .get("android"));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("ios"));
+                .get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -230,9 +229,9 @@ public class TrendActionTest extends ActionTest {
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("android"));
+                .get("android"));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("ios"));
+                .get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -266,9 +265,9 @@ public class TrendActionTest extends ActionTest {
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("android"));
+                .get("android"));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("ios"));
+                .get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -297,7 +296,7 @@ public class TrendActionTest extends ActionTest {
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("android"));
+                .get("android"));
         assertEquals(expectedResponse, actualResponse);
     }
 

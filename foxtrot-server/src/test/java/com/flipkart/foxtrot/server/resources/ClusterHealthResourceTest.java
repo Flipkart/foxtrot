@@ -13,6 +13,9 @@
 
 package com.flipkart.foxtrot.server.resources;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
@@ -21,18 +24,14 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
 
 /**
  * Created by swapnil on 25/01/16.
@@ -61,10 +60,8 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
                 .target("/v1/clusterhealth")
                 .request()
                 .get(JsonNode.class);
-        Assert.assertEquals(1, response.get("numberOfNodes")
-                .asInt());
-        Assert.assertNotNull(response.get("indices")
-                                     .has("table-meta"));
+        Assert.assertTrue(response.get("numberOfNodes").asInt() > 0);
+        Assert.assertTrue(response.get("indices").has("table-meta"));
     }
 
     @Test
@@ -73,8 +70,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
                 .target("/v1/clusterhealth/nodestats")
                 .request()
                 .get(JsonNode.class);
-        Assert.assertEquals(1, response.path("nodesMap")
-                .size());
+        Assert.assertTrue(response.path("nodesMap").size() > 0);
     }
 
     @Ignore

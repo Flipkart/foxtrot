@@ -12,17 +12,23 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import com.hazelcast.config.*;
+import com.hazelcast.config.AwsConfig;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.DiscoveryConfig;
+import com.hazelcast.config.DiscoveryStrategyConfig;
+import com.hazelcast.config.InMemoryFormat;
+import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.GroupProperty;
 import com.marathon.hazelcast.servicediscovery.MarathonDiscoveryStrategyFactory;
 import io.dropwizard.lifecycle.Managed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -32,6 +38,8 @@ import java.net.UnknownHostException;
 public class HazelcastConnection implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
+
+    public static final String HEALTHCHECK_MAP = "healthCheck";
 
     private HazelcastInstance hazelcast;
     private Config hazelcastConfig;
@@ -129,8 +137,15 @@ public class HazelcastConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting Hazelcast Instance");
+        configureHealthcheck();
         hazelcast = Hazelcast.newHazelcastInstance(hazelcastConfig);
         logger.info("Started Hazelcast Instance");
+    }
+
+    private void configureHealthcheck() {
+        MapConfig mapConfig = new MapConfig(HEALTHCHECK_MAP);
+        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        hazelcastConfig.addMapConfig(mapConfig);
     }
 
     @Override

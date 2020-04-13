@@ -1,11 +1,10 @@
 package com.flipkart.foxtrot.core.email;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 /***
  Created by nitish.goyal on 06/10/18

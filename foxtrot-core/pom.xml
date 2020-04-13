@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.flipkart.foxtrot</groupId>
         <artifactId>foxtrot</artifactId>
-        <version>6.3.1-63</version>
+        <version>6.3.1-64</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,7 +14,6 @@
     <properties>
         <hbase.version>1.2.1</hbase.version>
         <zookeeper.version>3.4.14</zookeeper.version>
-        <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <sonar.exclusions>**com/flipkart/foxtrot/core/querystore/impl/ElasticsearchConnection*
         </sonar.exclusions>
     </properties>
@@ -26,9 +25,9 @@
             <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
-            <groupId>ru.vyarus</groupId>
-            <artifactId>dropwizard-guicey</artifactId>
-            <version>${dropwizard.guicey.version}</version>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jmx</artifactId>
+            <version>4.1.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -122,6 +121,10 @@
                     <groupId>com.google.inject</groupId>
                 </exclusion>
                 <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.inject.extensions</groupId>
                     <artifactId>guice-servlet</artifactId>
                 </exclusion>
@@ -196,6 +199,11 @@
             <artifactId>foxtrot-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.flipkart.foxtrot</groupId>
+            <artifactId>foxtrot-translator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Reflections for scanning classpath to get analytics providers-->
         <dependency>
@@ -230,6 +238,11 @@
                     <artifactId>log4j</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
     </dependencies>
 

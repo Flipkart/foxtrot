@@ -11,15 +11,13 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.CardinalityOverflowException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Tests cardinality estimation
@@ -28,7 +26,7 @@ import java.util.List;
 public class GroupActionEstimationTest extends ActionTest {
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         super.setup();
         List<Document> documents = TestUtils.getGroupDocumentsForEstimation(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
@@ -53,9 +51,9 @@ public class GroupActionEstimationTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
 
         Assert.assertTrue(response.getResult()
-                                  .containsKey("android"));
+                .containsKey("android"));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("ios"));
+                .containsKey("ios"));
     }
 
 
@@ -77,19 +75,19 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("deviceId"));
         groupRequest.setFilters(ImmutableList.of(BetweenFilter.builder()
-                                                         .field("_timestamp")
-                                                         .temporal(true)
-                                                         .from(1397658117000L)
-                                                         .to(1397658117000L + 2 * 60000)
-                                                         .build()));
+                .field("_timestamp")
+                .temporal(true)
+                .from(1397658117000L)
+                .to(1397658117000L + 2 * 60000)
+                .build()));
 
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(groupRequest));
+                .writeValueAsString(groupRequest));
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(response));
+                .writeValueAsString(response));
         Assert.assertFalse(response.getResult()
-                                  .isEmpty());
+                .isEmpty());
     }
 
 
@@ -100,17 +98,17 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("deviceId"));
         groupRequest.setFilters(ImmutableList.of(EqualsFilter.builder()
-                                                         .field("os")
-                                                         .value("ios")
-                                                         .build()));
+                .field("os")
+                .value("ios")
+                .build()));
 
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(groupRequest));
+                .writeValueAsString(groupRequest));
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(response));
+                .writeValueAsString(response));
         Assert.assertFalse(response.getResult()
-                                   .isEmpty());
+                .isEmpty());
     }
 
     @Ignore
@@ -120,9 +118,9 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("deviceId"));
         groupRequest.setFilters(ImmutableList.of(GreaterThanFilter.builder()
-                                                         .field("value")
-                                                         .value(10)
-                                                         .build()));
+                .field("value")
+                .value(10)
+                .build()));
         getQueryExecutor().execute(groupRequest);
     }
 
@@ -133,16 +131,16 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("deviceId"));
         groupRequest.setFilters(ImmutableList.of(LessThanFilter.builder()
-                                                         .field("value")
-                                                         .value(30)
-                                                         .build()));
+                .field("value")
+                .value(30)
+                .build()));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(groupRequest));
+                .writeValueAsString(groupRequest));
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(response));
+                .writeValueAsString(response));
         Assert.assertFalse(response.getResult()
-                                   .isEmpty());
+                .isEmpty());
     }
 
     // High cardinality field queries with filters including small subset are allowed
@@ -151,11 +149,11 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("deviceId"));
         groupRequest.setFilters(ImmutableList.of(LessThanFilter.builder()
-                                                         .field("value")
-                                                         .value(80)
-                                                         .build()));
+                .field("value")
+                .value(80)
+                .build()));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(groupRequest));
+                .writeValueAsString(groupRequest));
         getQueryExecutor().execute(groupRequest);
     }
 

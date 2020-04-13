@@ -39,8 +39,8 @@ public class EmailBuilderTest {
         final Email email = emailBuilder.visit(error);
         Assert.assertEquals("Blocked query as it might have screwed up the cluster", email.getSubject());
         Assert.assertEquals(
-                "Blocked Query: {\"opcode\":\"group\",\"filters\":[],\"table\":\"test-table\"," +
-                        "\"uniqueCountOn\":null,\"nesting\":[\"os\",\"deviceId\"],\"consoleId\":null}\n" +
+                "Blocked Query: {\"opcode\":\"group\",\"filters\":[],\"bypassCache\":false,\"table\":\"test-table\"," +
+                        "\"uniqueCountOn\":null,\"nesting\":[\"os\",\"deviceId\"],\"consoleId\":null,\"precision\":null}\n" +
                         "Suspect field: deviceId\n" +
                         "Probability of screwing up the cluster: 0.75",
                 email.getContent());

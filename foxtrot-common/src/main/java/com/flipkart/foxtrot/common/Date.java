@@ -12,12 +12,11 @@ package com.flipkart.foxtrot.common;
  * specific language governing permissions and limitations under the License.
  */
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.joda.time.DateTime;
-
-import java.io.Serializable;
 
 /***
  Created by nitish.goyal on 29/11/18

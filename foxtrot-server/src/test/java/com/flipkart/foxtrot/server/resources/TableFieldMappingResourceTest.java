@@ -12,6 +12,15 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.TableFieldMapping;
@@ -19,22 +28,18 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import java.util.concurrent.TimeUnit;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
 
 /**
  * Created by rishabh.goyal on 06/05/14.
@@ -61,7 +66,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
     @Test
     public void testGet() throws Exception {
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
-        Thread.sleep(500);
+        await().pollDelay(500, TimeUnit.MILLISECONDS).until(() -> true);
 
         Set<FieldMetadata> mappings = new HashSet<>();
         mappings.add(FieldMetadata.builder()
@@ -138,7 +143,6 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         }
     }
 
-    @Ignore
     @Test
     public void testGetTableWithNoDocument() throws Exception {
         TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<>());
@@ -147,7 +151,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                 .request()
                 .get(TableFieldMapping.class);
         assertEquals(request.getTable(), response.getTable());
-        assertNull(response.getMappings());
+        assertNotNull(response.getMappings());
     }
 
     @Test
@@ -156,7 +160,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                 .initializeTable(any(String.class));
 
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
-        Thread.sleep(500);
+        await().pollDelay(500, TimeUnit.MILLISECONDS).until(() -> true);
 
         Map<String, TableFieldMapping> response = resources.client()
                 .target("/v1/tables/fields")

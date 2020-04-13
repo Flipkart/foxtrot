@@ -3,9 +3,8 @@ package com.flipkart.foxtrot.common.query;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.ResponseVisitor;
-import lombok.Data;
-
 import java.util.Map;
+import lombok.Data;
 
 /***
  Created by mudit.g on Jan, 2019

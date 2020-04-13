@@ -4,6 +4,7 @@ package com.flipkart.foxtrot.core.table.impl;
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
@@ -21,24 +22,20 @@ import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContain
 
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import java.util.Collections;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import io.appform.testcontainers.elasticsearch.config.ElasticsearchContainerConfiguration;
+import java.util.Collections;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
-import java.util.Collections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 import org.testcontainers.containers.GenericContainer;
+
 /***
  Created by nitish.goyal on 02/08/18
  ***/
+@Slf4j
 public class ElasticsearchTestUtils {
-
-    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchTestUtils.class.getSimpleName());
 
     /**
      * Class to make sure we run the server only once.
@@ -46,7 +43,7 @@ public class ElasticsearchTestUtils {
     private static class ElasticsearchContainerHolder {
 
         @SuppressWarnings("unused")
-        static int loadContainer = 0;
+        private static boolean containerLoaded;
 
         @Getter
         private static ElasticsearchConfig elasticsearchConfig;
@@ -60,7 +57,7 @@ public class ElasticsearchTestUtils {
                         .withEnv("cluster.name", "elasticsearch")
                         .withEnv("discovery.type", "single-node")
                         .withEnv("ES_JAVA_OPTS", getJavaOpts(configuration))
-                        .withLogConsumer(containerLogsConsumer(logger))
+                        .withLogConsumer(containerLogsConsumer(log))
                         .waitingFor(getCompositeWaitStrategy(configuration))
                         .withStartupTimeout(configuration.getTimeoutDuration());
                 esContainer.start();
@@ -73,14 +70,15 @@ public class ElasticsearchTestUtils {
                 elasticsearchConfig.setCluster("elasticsearch");
                 elasticsearchConfig.setTableNamePrefix("foxtrot");
             } catch (Exception e) {
-                logger.error("Error in initializing es test container , error :", e);
+                log.error("Error in initializing es test container , error :", e);
+                throw e;
             }
         }
     }
 
-    public static ElasticsearchConnection getConnection() throws Exception {
+    public static synchronized ElasticsearchConnection getConnection() throws Exception {
         // To make sure we load class which will start the server.
-        ElasticsearchContainerHolder.loadContainer = 1;
+        ElasticsearchContainerHolder.containerLoaded = true;
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(
                 ElasticsearchContainerHolder.getElasticsearchConfig());
         elasticsearchConnection.start();
@@ -96,9 +94,9 @@ public class ElasticsearchTestUtils {
                     .indices()
                     .delete(deleteIndexRequest)
                     .get();
-            logger.info("Delete index response: {}", deleteIndexResponse);
+            log.info("Delete index response: {}", deleteIndexResponse);
         } catch (Exception e) {
-            logger.error("Index Cleanup failed", e);
+            log.error("Index Cleanup failed", e);
         }
     }
 }

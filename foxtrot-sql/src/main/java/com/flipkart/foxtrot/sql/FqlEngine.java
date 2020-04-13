@@ -18,10 +18,9 @@ import com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.google.common.collect.Lists;
 import com.phonepe.gandalf.models.user.UserDetails;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class FqlEngine {
 
@@ -102,15 +101,14 @@ public class FqlEngine {
                     throw FoxtrotExceptions.createAuthorizationException(fqlActionQuery.getActionRequest(),
                                                                          new Exception("User not Authorised"));
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw FoxtrotExceptions.createAuthorizationException(fqlActionQuery.getActionRequest(), e);
             }
+
             try {
                 String query = mapper.writeValueAsString(fqlActionQuery.getActionRequest());
                 logger.info("Generated query: {}", query);
-            }
-            catch (JsonProcessingException e) {
+            } catch (JsonProcessingException e) {
                 //ignoring the exception as it is coming while logging.
                 logger.error("Error in serializing action request.", e);
             }

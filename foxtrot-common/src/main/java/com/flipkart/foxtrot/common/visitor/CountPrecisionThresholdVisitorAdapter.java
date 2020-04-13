@@ -4,7 +4,6 @@ import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
-
 import java.util.Objects;
 
 public class CountPrecisionThresholdVisitorAdapter extends ActionRequestVisitorAdapter<Integer> {

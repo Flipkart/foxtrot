@@ -7,15 +7,13 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.CardinalityOverflowException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.Lists;
+import java.util.Collections;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.Collections;
-import java.util.List;
 
 /***
  Created by nitish.goyal on 24/07/18
@@ -25,7 +23,7 @@ import java.util.List;
 public class GroupActionCardinalityTest extends ActionTest {
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         super.setup();
         List<Document> documents = TestUtils.getGroupDocumentsForEstimation(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
@@ -50,9 +48,9 @@ public class GroupActionCardinalityTest extends ActionTest {
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("android"));
+                .containsKey("android"));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("ios"));
+                .containsKey("ios"));
     }
 
     @Test
@@ -64,9 +62,9 @@ public class GroupActionCardinalityTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
 
         Assert.assertTrue(response.getResult()
-                                  .containsKey("android"));
+                .containsKey("android"));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("ios"));
+                .containsKey("ios"));
     }
 
     @Test
@@ -77,7 +75,7 @@ public class GroupActionCardinalityTest extends ActionTest {
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("0"));
+                .containsKey("0"));
     }
 
     @Test
@@ -88,6 +86,6 @@ public class GroupActionCardinalityTest extends ActionTest {
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("0"));
+                .containsKey("0"));
     }
 }

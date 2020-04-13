@@ -14,6 +14,9 @@ package com.flipkart.foxtrot.core.querystore.actions;/**
  * limitations under the License.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.flipkart.foxtrot.common.ActionRequest;
@@ -21,26 +24,20 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
-import com.flipkart.foxtrot.common.query.*;
-import com.flipkart.foxtrot.core.MockHTable;
+import com.flipkart.foxtrot.common.query.MultiQueryRequest;
+import com.flipkart.foxtrot.common.query.MultiQueryResponse;
+import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.common.query.QueryResponse;
+import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Maps;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.mockito.Matchers;
-
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Test;
 
 /***
  Created by nitish.goyal on 22/08/18
@@ -48,7 +45,7 @@ import static org.junit.Assert.assertNotNull;
 public class MultiQueryActionTest extends ActionTest {
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         super.setup();
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
@@ -58,41 +55,6 @@ public class MultiQueryActionTest extends ActionTest {
                 .prepareRefresh("*")
                 .execute()
                 .actionGet();
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testQueryException() throws FoxtrotException, JsonProcessingException {
-        when(getElasticsearchConnection().getClient()).thenReturn(null);
-
-        HashMap<String, ActionRequest> requests = Maps.newHashMap();
-        Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE_NAME);
-        ResultSort resultSort = new ResultSort();
-        resultSort.setOrder(ResultSort.Order.asc);
-        resultSort.setField("_timestamp");
-        query.setSort(resultSort);
-        requests.put("1", query);
-
-        CountRequest countRequest = new CountRequest();
-        countRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        countRequest.setField("os");
-        countRequest.setDistinct(false);
-        requests.put("2", countRequest);
-
-        MultiQueryRequest multiQueryRequest = new MultiQueryRequest(requests);
-        ActionResponse actionResponse = getQueryExecutor().execute(multiQueryRequest);
-        MultiQueryResponse multiQueryResponse = null;
-        if (actionResponse instanceof MultiQueryResponse) {
-            multiQueryResponse = (MultiQueryResponse) actionResponse;
-        }
-        assertNotNull(multiQueryResponse);
-
-        QueryResponse queryResponse = (QueryResponse) multiQueryResponse.getResponses()
-                .get(1);
-        CountResponse countResponse = (CountResponse) multiQueryResponse.getResponses()
-                .get(2);
-
-        assertEquals(11, countResponse.getCount());
     }
 
     @Test

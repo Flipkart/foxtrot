@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.core.email;
 
 import com.flipkart.foxtrot.core.email.messageformatting.EmailBodyBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.EmailSubjectBuilder;
-
 import java.util.List;
 import java.util.Map;
 

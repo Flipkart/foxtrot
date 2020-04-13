@@ -15,9 +15,8 @@ package com.flipkart.foxtrot.common.query;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.util.List;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 13/03/14 Time: 6:38 PM
