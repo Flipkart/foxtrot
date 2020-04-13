@@ -63,6 +63,7 @@ import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -71,6 +72,7 @@ import com.google.inject.name.Names;
 import com.phonepe.platform.http.OkHttpUtils;
 import com.phonepe.platform.http.ServiceEndpointProvider;
 import com.phonepe.platform.http.ServiceEndpointProviderFactory;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
@@ -79,6 +81,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Named;
@@ -318,6 +321,20 @@ public class FoxtrotModule extends AbstractModule {
         return configuration.getQueryConfig();
     }
 
+    @Provides
+    @Singleton
+    public TranslatorConfig translatorConfig(FoxtrotServerConfiguration configuration) {
+        if(Objects.isNull(configuration.getTranslatorConfig())){
+            return TranslatorConfig.builder()
+                    .rawKeyVersion("1.0")
+                    .unmarshallJsonPaths(Collections.singletonList("/eventData/funnelInfo"))
+                    .build();
+        }
+        return configuration.getTranslatorConfig();
+    }
+
+    @Provides
+    @Singleton
     public ServerFactory serverFactory(FoxtrotServerConfiguration configuration) {
         return configuration.getServerFactory();
     }
