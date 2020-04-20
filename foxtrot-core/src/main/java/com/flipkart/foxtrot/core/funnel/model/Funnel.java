@@ -45,6 +45,8 @@ public class Funnel {
     @NotNull
     private List<EventAttributes> eventAttributes;
 
+    private String table;
+
     private String creatorEmailId;
 
     @NotBlank

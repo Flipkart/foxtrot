@@ -90,6 +90,16 @@
           },
           "ignore_above": 256
         },
+        "table": {
+          "type": "keyword",
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "lowercase_keyword"
+            }
+          },
+          "ignore_above": 256
+        },
         "approverEmailId": {
           "type": "keyword",
           "fields": {
