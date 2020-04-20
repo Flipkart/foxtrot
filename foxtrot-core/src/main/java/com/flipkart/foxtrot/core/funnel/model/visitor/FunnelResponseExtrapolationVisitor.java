@@ -175,7 +175,7 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
             Map<String, Object> groupResponseResult) {
         for (Map.Entry<String, Object> entry : groupResponseResult.entrySet()) {
             if (entry.getValue() instanceof Long) {
-                entry.setValue((Long) entry.getValue() * extrapolationFactor);
+                entry.setValue((long)(((Long) entry.getValue()) * extrapolationFactor));
             } else {
                 Map<String, Object> map = (Map<String, Object>) entry.getValue();
                 entry.setValue(extrapolateGroupResponse(extrapolationFactor, map));
