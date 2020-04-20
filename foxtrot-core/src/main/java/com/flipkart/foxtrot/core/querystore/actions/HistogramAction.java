@@ -184,11 +184,9 @@ public class HistogramAction extends Action<HistogramRequest> {
                 String key = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                 Cardinality cardinality = bucket.getAggregations()
                         .get(key);
-                counts.add(
-                        new HistogramResponse.Count(((DateTime) bucket.getKey()).getMillis(), cardinality.getValue()));
-            }
-            else {
-                counts.add(new HistogramResponse.Count(((DateTime) bucket.getKey()).getMillis(), bucket.getDocCount()));
+                counts.add(new HistogramResponse.Count(((DateTime)bucket.getKey()).getMillis(), cardinality.getValue()));
+            } else {
+                counts.add(new HistogramResponse.Count(((DateTime)bucket.getKey()).getMillis(), bucket.getDocCount()));
             }
         }
         return new HistogramResponse(counts);

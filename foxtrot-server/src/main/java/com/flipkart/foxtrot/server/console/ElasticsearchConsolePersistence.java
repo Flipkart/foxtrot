@@ -73,8 +73,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .get();
             logger.info("Saved Console : {}", console);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "console save failed", e);
         }
     }
@@ -93,8 +92,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), Console.class);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(id, "console get failed", e);
         }
     }
@@ -127,8 +125,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 }
             }
             return results;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }
@@ -145,8 +142,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .actionGet();
             logger.info("Deleted Console : {}", id);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(id, "console deletion_failed", e);
         }
     }
@@ -165,8 +161,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .get();
             logger.info("Saved Console : {}", console);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "console save failed", e);
         }
     }
@@ -185,8 +180,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), ConsoleV2.class);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(id, "console get failed", e);
         }
     }
@@ -221,8 +215,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                         .actionGet();
             }
             return results;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }
@@ -280,8 +273,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 results.add(mapper.readValue(searchHit.getSourceAsString(), ConsoleV2.class));
             }
             return results;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }
@@ -300,8 +292,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), ConsoleV2.class);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }
@@ -329,8 +320,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             ConsoleV2 console = getOldVersion(id);
             saveV2(console, false);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }
@@ -393,8 +383,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .get();
             logger.info("Saved Old Console : {}", console);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "old console save failed", e);
         }
     }

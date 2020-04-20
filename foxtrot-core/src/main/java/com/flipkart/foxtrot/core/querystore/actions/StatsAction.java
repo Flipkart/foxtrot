@@ -58,7 +58,9 @@ public class StatsAction extends Action<StatsRequest> {
                                                   .get(metricKey)));
         Percentiles internalPercentile = (Percentiles) aggregations.getAsMap()
                 .get(percentileMetricKey);
-        statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
+        if (null != internalPercentile) {
+            statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
+        }
         return statsValue;
     }
 

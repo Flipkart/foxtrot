@@ -51,10 +51,10 @@ public class Utils {
     private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
     private static final double DEFAULT_COMPRESSION = 100.0;
     public static final String COUNT = "count";
-    private static final String AVG = "avg";
+    public static final String AVG = "avg";
     public static final String SUM = "sum";
-    private static final String MIN = "min";
-    private static final String MAX = "max";
+    public static final String MIN = "min";
+    public static final String MAX = "max";
     public static final String SUM_OF_SQUARES = "sum_of_squares";
     private static final String VARIANCE = "variance";
     private static final String STD_DEVIATION = "std_deviation";
@@ -77,8 +77,7 @@ public class Utils {
                 termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
-            }
-            else {
+            } else {
                 TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
@@ -232,6 +231,7 @@ public class Utils {
         return AggregationBuilders.cardinality(Utils.sanitizeFieldForAggregation(field))
                 .precisionThreshold(precisionThreshold)
                 .field(storedFieldName(field));
+
     }
 
     public static DateHistogramInterval getHistogramInterval(Period period) {

@@ -101,10 +101,9 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .setIndicesOptions(Utils.indicesOptions());
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
-                    .addAggregation(Utils.buildTermsAggregation(
-                            request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
-        }
-        catch (Exception e) {
+                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet(),
+                            elasticsearchTuningConfig.getAggregationSize()));
+        } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
 
@@ -112,8 +111,7 @@ public class DistinctAction extends Action<DistinctRequest> {
             SearchResponse response = query.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, getParameter());
-        }
-        catch (ElasticsearchException e) {
+        } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(request, e);
         }
     }
@@ -135,8 +133,7 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .addAggregation(Utils.buildTermsAggregation(
                             request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
         return query;
@@ -178,10 +175,8 @@ public class DistinctAction extends Action<DistinctRequest> {
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
                 responseList.add(getValueList(parentKey, String.valueOf(bucket.getKey())));
-            }
-            else {
-                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList,
-                        bucket.getAggregations());
+            } else {
+                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList, bucket.getAggregations());
             }
         }
     }

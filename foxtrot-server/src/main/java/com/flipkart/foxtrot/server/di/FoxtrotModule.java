@@ -338,4 +338,5 @@ public class FoxtrotModule extends AbstractModule {
     public ServerFactory serverFactory(FoxtrotServerConfiguration configuration) {
         return configuration.getServerFactory();
     }
+
 }
