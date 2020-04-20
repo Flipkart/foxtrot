@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
@@ -98,7 +99,7 @@ public class StatsActionTest extends ActionTest {
                 .get("count")
                 .intValue());
         assertNull(statsResponse.getBuckets());
-        assertTrue(statsResponse.getResult().getPercentiles().isEmpty());
+        assertTrue(CollectionUtils.isEmpty(statsResponse.getResult().getPercentiles()));
     }
 
     @Test
@@ -116,7 +117,7 @@ public class StatsActionTest extends ActionTest {
                 .get("count")
                 .intValue());
         assertNull(statsResponse.getBuckets());
-        assertTrue(statsResponse.getResult().getPercentiles().isEmpty());
+        assertTrue(CollectionUtils.isEmpty(statsResponse.getResult().getPercentiles()));
     }
 
     @Test
