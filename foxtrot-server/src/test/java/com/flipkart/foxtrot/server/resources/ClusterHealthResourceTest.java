@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;

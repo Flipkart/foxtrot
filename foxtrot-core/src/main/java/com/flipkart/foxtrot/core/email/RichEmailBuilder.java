@@ -10,13 +10,14 @@ import javax.inject.Singleton;
 /**
  *
  */
+@Singleton
 public class RichEmailBuilder {
+
     private final EmailSubjectBuilder subjectBuilder;
     private final EmailBodyBuilder bodyBuilder;
 
-    public RichEmailBuilder(
-            EmailSubjectBuilder subjectBuilder,
-            EmailBodyBuilder bodyBuilder) {
+    @Inject
+    public RichEmailBuilder(EmailSubjectBuilder subjectBuilder, EmailBodyBuilder bodyBuilder) {
         this.subjectBuilder = subjectBuilder;
         this.bodyBuilder = bodyBuilder;
     }

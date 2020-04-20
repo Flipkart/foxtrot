@@ -1,6 +1,6 @@
 package com.flipkart.foxtrot.server.utils;
 
-import com.flipkart.foxtrot.core.exception.PortExtractionException;
+import com.flipkart.foxtrot.common.exception.PortExtractionException;
 import io.dropwizard.jetty.ConnectorFactory;
 import io.dropwizard.jetty.HttpConnectorFactory;
 import io.dropwizard.server.DefaultServerFactory;

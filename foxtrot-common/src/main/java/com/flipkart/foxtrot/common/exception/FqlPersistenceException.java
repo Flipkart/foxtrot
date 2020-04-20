@@ -1,13 +1,17 @@
-package com.flipkart.foxtrot.core.exception;
+package com.flipkart.foxtrot.common.exception;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
 
-public class HbaseRegionExtractionException extends FoxtrotException {
+/***
+ Created by mudit.g on May, 2019
+ ***/
+public class FqlPersistenceException extends FoxtrotException {
+
     private final String message;
 
-    public HbaseRegionExtractionException(String message, Throwable cause) {
-        super(ErrorCode.HBASE_REGIONS_EXTRACTION_FAILURE, message, cause);
+    public FqlPersistenceException(String message, Throwable cause) {
+        super(ErrorCode.FQL_PERSISTENCE_EXCEPTION, message, cause);
         this.message = message;
     }
 

@@ -1,11 +1,10 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
 import static com.collections.CollectionUtils.nullSafeList;
-import static com.flipkart.foxtrot.core.exception.ErrorCode.EXECUTION_EXCEPTION;
+import static com.flipkart.foxtrot.common.exception.ErrorCode.EXECUTION_EXCEPTION;
 
 import com.collections.CollectionUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.constants.FunnelConstants;
 import com.flipkart.foxtrot.core.funnel.exception.FunnelException;

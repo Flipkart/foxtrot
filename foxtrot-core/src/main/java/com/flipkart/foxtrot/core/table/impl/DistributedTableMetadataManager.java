@@ -30,7 +30,7 @@ import com.flipkart.foxtrot.common.estimation.PercentileEstimationData;
 import com.flipkart.foxtrot.common.estimation.TermHistogramEstimationData;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;

@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.core.util;
+package com.flipkart.foxtrot.common.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;

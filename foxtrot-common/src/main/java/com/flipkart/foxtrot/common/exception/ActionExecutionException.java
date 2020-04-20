@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.core.exception;
+package com.flipkart.foxtrot.common.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.google.common.collect.Maps;
@@ -9,12 +9,12 @@ import lombok.Getter;
  * Created by rishabh.goyal on 19/12/15.
  */
 @Getter
-public class ActionResolutionException extends FoxtrotException {
+public class ActionExecutionException extends FoxtrotException {
 
     private final ActionRequest actionRequest;
 
-    protected ActionResolutionException(ActionRequest actionRequest, Throwable cause) {
-        super(ErrorCode.ACTION_RESOLUTION_FAILURE, cause);
+    protected ActionExecutionException(ActionRequest actionRequest, Throwable cause) {
+        super(ErrorCode.ACTION_EXECUTION_ERROR, cause);
         this.actionRequest = actionRequest;
     }
 

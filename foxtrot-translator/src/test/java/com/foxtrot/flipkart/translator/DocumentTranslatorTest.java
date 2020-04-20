@@ -5,13 +5,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.Date;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.util.SerDe;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.foxtrot.flipkart.translator.utils.Constants;
+import edu.emory.mathcs.backport.java.util.Arrays;
+import java.io.IOException;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.Test;
 
+@Slf4j
 public class DocumentTranslatorTest {
 
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -174,4 +181,114 @@ public class DocumentTranslatorTest {
         assertEquals(document.getTimestamp(), translatedBackDocument.getTimestamp());
     }
 
+    @Test
+    public void testJsonStringFieldExpansionToJsonNode() throws IOException {
+        SerDe.init(mapper);
+
+        TranslatorConfig translatorConfig = new TranslatorConfig();
+        translatorConfig.setRawKeyVersion("2.0");
+        translatorConfig.setUnmarshallJsonPaths(Arrays.asList(new String[]{
+                "/eventData/funnelInfo",
+                "/eventData/funnelInfoData/funnelInfos/funnelIds"}));
+
+        DocumentTranslator documentTranslator = new DocumentTranslator(translatorConfig);
+
+        Table table = Table.builder()
+                .name("phonepe_consumer_app_android_new")
+                .build();
+
+        Document document = new Document();
+        document.setDate(new Date());
+        document.setId(UUID.randomUUID().toString());
+        String eventJson = "{\n"
+                + "  \"app\": \"phonepe_consumer_app_android_new\",\n"
+                + "  \"eventData\": {\n"
+                + "    \"value\": 0,\n"
+                + "    \"category\": \"SYNC_MANAGER\",\n"
+                + "    \"flowType_id\": \"c42e1be6-b72e-4d40-91f7-cd31b7f34ccb\",\n"
+                + "    \"mobileDataType\": \"4G\",\n"
+                + "    \"eventId\": \"SYNC_MANAGER_SYSTEM_REGISTRATION\",\n"
+                + "    \"appVersion\": \"4.0.07\",\n"
+                + "    \"isFirstTimeRegistration\": false,\n"
+                + "    \"deviceResolution\": \"720X1436\",\n"
+                + "    \"latitude\": \"17.995245\",\n"
+                + "    \"currentNetwork\": \"NO_NETWORK\",\n"
+                + "    \"osName\": \"Android\",\n"
+                + "    \"deviceId\": \"28b61b61-77ea-4e09-93de-f2e0d3a3b12aazYydjFfNjRfYnNw-bXQ2NzYy-\",\n"
+                + "    \"userId\": \"U1809251957496281968828\",\n"
+                + "    \"versionCode\": 400302,\n"
+                + "    \"funnelInfo\": \"[{\\\"funnelData\\\":{\\\"startPercentage\\\":0.0,\\\"endPercentage\\\":4.0},\\\"funnelId\\\":\\\"72bce962-058f-458f-ad22-dfb3ba40aaf4\\\"}]\",\n"
+                + "    \"identifierId\": \"SYNC_MANAGER\",\n"
+                + "    \"isConfigurationChanged\": false,\n"
+                + "    \"osVersion\": \"27\",\n"
+                + "    \"flowType_medium\": \"Marketing\",\n"
+                + "    \"flowType_campaign\": \"200405_OTHER_DONATION_1\",\n"
+                + "    \"deviceLanguage\": \"English\",\n"
+                + "    \"deviceModel\": \"vivo 1803\",\n"
+                + "    \"flowType_source\": \"Push\",\n"
+                + "    \"deviceManufacturer\": \"vivo\",\n"
+                + "    \"flowType\": \"push\",\n"
+                + "    \"longitude\": \"78.74735333333334\"\n"
+                + "  },\n"
+                + "  \"eventSchemaVersion\": \"v2\",\n"
+                + "  \"eventType\": \"SYNC_MANAGER_SYSTEM_REGISTRATION\",\n"
+                + "  \"groupingKey\": \"b354287cead141b1b40d0567a418c7d7\",\n"
+                + "  \"id\": \"b354287cead141b1b40d0567a418c7d7\",\n"
+                + "  \"ingestionTime\": 1586736296057,\n"
+                + "  \"partitionKey\": null,\n"
+                + "  \"time\": 1586721949229\n"
+                + "}";
+        document.setData(mapper.readTree(eventJson));
+        Document translatedDocument = documentTranslator.translate(table, document);
+        log.info("Translated document :{}",translatedDocument);
+        Assert.assertTrue(translatedDocument.getData().at("/eventData/funnelInfo").isArray());
+        eventJson = "{\n"
+                + "  \"app\": \"phonepe_consumer_app_android_new\",\n"
+                + "  \"eventData\": {\n"
+                + "    \"value\": 0,\n"
+                + "    \"category\": \"SYNC_MANAGER\",\n"
+                + "    \"flowType_id\": \"c42e1be6-b72e-4d40-91f7-cd31b7f34ccb\",\n"
+                + "    \"mobileDataType\": \"4G\",\n"
+                + "    \"eventId\": \"SYNC_MANAGER_SYSTEM_REGISTRATION\",\n"
+                + "    \"appVersion\": \"4.0.07\",\n"
+                + "    \"isFirstTimeRegistration\": false,\n"
+                + "    \"deviceResolution\": \"720X1436\",\n"
+                + "    \"latitude\": \"17.995245\",\n"
+                + "    \"currentNetwork\": \"NO_NETWORK\",\n"
+                + "    \"osName\": \"Android\",\n"
+                + "    \"deviceId\": \"28b61b61-77ea-4e09-93de-f2e0d3a3b12aazYydjFfNjRfYnNw-bXQ2NzYy-\",\n"
+                + "    \"userId\": \"U1809251957496281968828\",\n"
+                + "    \"versionCode\": 400302,\n"
+                + "    \"funnelInfoData\": {\n"
+                + "      \"funnelInfos\": {\n"
+                + "        \"funnelIds\": \"[{\\\"funnelData\\\":{\\\"startPercentage\\\":0.0,\\\"endPercentage\\\":4.0},\\\"funnelId\\\":\\\"72bce962-058f-458f-ad22-dfb3ba40aaf4\\\"}]\"\n"
+                + "      }\n"
+                + "    },\n"
+                + "    \"identifierId\": \"SYNC_MANAGER\",\n"
+                + "    \"isConfigurationChanged\": false,\n"
+                + "    \"osVersion\": \"27\",\n"
+                + "    \"flowType_medium\": \"Marketing\",\n"
+                + "    \"flowType_campaign\": \"200405_OTHER_DONATION_1\",\n"
+                + "    \"deviceLanguage\": \"English\",\n"
+                + "    \"deviceModel\": \"vivo 1803\",\n"
+                + "    \"flowType_source\": \"Push\",\n"
+                + "    \"deviceManufacturer\": \"vivo\",\n"
+                + "    \"flowType\": \"push\",\n"
+                + "    \"longitude\": \"78.74735333333334\"\n"
+                + "  },\n"
+                + "  \"eventSchemaVersion\": \"v2\",\n"
+                + "  \"eventType\": \"SYNC_MANAGER_SYSTEM_REGISTRATION\",\n"
+                + "  \"groupingKey\": \"b354287cead141b1b40d0567a418c7d7\",\n"
+                + "  \"id\": \"b354287cead141b1b40d0567a418c7d7\",\n"
+                + "  \"ingestionTime\": 1586736296057,\n"
+                + "  \"partitionKey\": null,\n"
+                + "  \"time\": 1586721949229\n"
+                + "}";
+        document.setData(mapper.readTree(eventJson));
+
+        translatedDocument = documentTranslator.translate(table, document);
+        log.info("Translated document :{}",translatedDocument);
+        Assert.assertTrue(translatedDocument.getData().at("/eventData/funnelInfoData/funnelInfos/funnelIds").isArray());
+
+    }
 }

@@ -26,7 +26,7 @@ import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
-import com.flipkart.foxtrot.core.exception.FqlParsingException;
+import com.flipkart.foxtrot.common.exception.FqlParsingException;
 import com.flipkart.foxtrot.sql.extendedsql.ExtendedSqlStatement;
 import com.flipkart.foxtrot.sql.extendedsql.desc.Describe;
 import com.flipkart.foxtrot.sql.extendedsql.showtables.ShowTables;

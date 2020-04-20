@@ -31,6 +31,7 @@ public class FunnelExtrapolationServiceImpl implements FunnelExtrapolationServic
     public ActionResponse extrapolateResponse(ActionRequest actionRequest, ActionResponse originalResponse) {
         Boolean extrapolationApplicable = actionRequest.accept(extrapolationValidator);
         if (Objects.nonNull(extrapolationApplicable) && extrapolationApplicable) {
+            log.info("Extrapolating results for query : {}, original response :{}", actionRequest, originalResponse);
             FunnelResponseExtrapolationVisitor responseVisitorAdapter = new FunnelResponseExtrapolationVisitor(actionRequest,
                     queryExecutor, funnelConfiguration.getBaseFunnelEventConfig());
             return originalResponse.accept(responseVisitorAdapter);

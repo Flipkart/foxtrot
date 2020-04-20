@@ -1,15 +1,15 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
-import static com.flipkart.foxtrot.core.exception.ErrorCode.DOCUMENT_NOT_FOUND;
-import static com.flipkart.foxtrot.core.exception.ErrorCode.EXECUTION_EXCEPTION;
-import static com.flipkart.foxtrot.core.exception.ErrorCode.INVALID_REQUEST;
+import static com.flipkart.foxtrot.common.exception.ErrorCode.DOCUMENT_NOT_FOUND;
+import static com.flipkart.foxtrot.common.exception.ErrorCode.EXECUTION_EXCEPTION;
+import static com.flipkart.foxtrot.common.exception.ErrorCode.INVALID_REQUEST;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.START_ID;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.UNASSIGNED_FUNNEL_ID;
 import static com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus.APPROVED;
 import static com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus.WAITING_FOR_APPROVAL;
 
 import com.collections.CollectionUtils;
-import com.flipkart.foxtrot.core.exception.ErrorCode;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
 import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
 import com.flipkart.foxtrot.core.funnel.model.Funnel;

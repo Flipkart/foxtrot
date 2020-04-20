@@ -1,20 +1,20 @@
-package com.flipkart.foxtrot.core.exception;
+package com.flipkart.foxtrot.common.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import lombok.Getter;
 
-/**
- * Created by rishabh.goyal on 19/12/15.
- */
+/***
+ Created by mudit.g on Mar, 2019
+ ***/
 @Getter
-public class UnresolvableActionException extends FoxtrotException {
+public class AuthorizationException extends FoxtrotException {
 
     private final ActionRequest actionRequest;
 
-    protected UnresolvableActionException(ActionRequest actionRequest) {
-        super(ErrorCode.UNRESOLVABLE_OPERATION);
+    protected AuthorizationException(ActionRequest actionRequest, Throwable cause) {
+        super(ErrorCode.AUTHORIZATION_EXCEPTION, cause);
         this.actionRequest = actionRequest;
     }
 
@@ -22,6 +22,8 @@ public class UnresolvableActionException extends FoxtrotException {
     public Map<String, Object> toMap() {
         Map<String, Object> map = Maps.newHashMap();
         map.put("request", this.actionRequest);
+        map.put("message", this.getCause()
+                .getMessage());
         return map;
     }
 }

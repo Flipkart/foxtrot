@@ -16,7 +16,7 @@
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.util.TableUtil;
 import io.dropwizard.lifecycle.Managed;
 import java.io.IOException;

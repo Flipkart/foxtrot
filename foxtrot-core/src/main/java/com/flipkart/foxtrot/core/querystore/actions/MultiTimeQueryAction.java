@@ -10,7 +10,7 @@ import com.flipkart.foxtrot.common.query.MultiTimeQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.collect.Lists;

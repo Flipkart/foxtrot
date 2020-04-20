@@ -10,7 +10,7 @@ import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableMap;

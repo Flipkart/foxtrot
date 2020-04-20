@@ -20,7 +20,7 @@ import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
-import com.flipkart.foxtrot.core.exception.FqlParsingException;
+import com.flipkart.foxtrot.common.exception.FqlParsingException;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FieldHeader;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.flipkart.foxtrot.sql.responseprocessors.model.MetaData;

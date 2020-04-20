@@ -7,7 +7,7 @@ import com.flipkart.foxtrot.core.email.Email;
 import com.flipkart.foxtrot.core.email.RichEmailBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailBodyBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailSubjectBuilder;
-import com.flipkart.foxtrot.core.exception.CardinalityOverflowException;
+import com.flipkart.foxtrot.common.exception.CardinalityOverflowException;
 import com.flipkart.foxtrot.core.internalevents.events.QueryProcessingError;
 import com.google.common.collect.Lists;
 import io.dropwizard.jackson.Jackson;

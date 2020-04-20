@@ -2,8 +2,8 @@ package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.flipkart.foxtrot.common.hbase.HRegionData;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.exception.HbaseRegionExtractionException;
-import com.flipkart.foxtrot.core.exception.HbaseRegionMergeException;
+import com.flipkart.foxtrot.common.exception.HbaseRegionExtractionException;
+import com.flipkart.foxtrot.common.exception.HbaseRegionMergeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

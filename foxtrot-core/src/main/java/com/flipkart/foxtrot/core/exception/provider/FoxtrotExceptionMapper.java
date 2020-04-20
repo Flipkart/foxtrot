@@ -2,7 +2,7 @@ package com.flipkart.foxtrot.core.exception.provider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
