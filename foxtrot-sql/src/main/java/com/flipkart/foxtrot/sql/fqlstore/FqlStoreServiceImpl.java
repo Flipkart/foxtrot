@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 public class FqlStoreServiceImpl implements FqlStoreService {
 
     private static final Logger logger = LoggerFactory.getLogger(FqlStore.class);
-    private static final String FQL_STORE_INDEX = "fql-store";
+    public static final String FQL_STORE_INDEX = "fql-store";
 
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper objectMapper;
