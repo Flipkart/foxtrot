@@ -33,7 +33,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 12:51 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 24/03/14
+ * Time: 12:51 PM
  */
 @Slf4j
 public abstract class QueryExecutor {
