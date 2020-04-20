@@ -15,15 +15,13 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-<<<<<<< Updated upstream
-=======
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.collections.CollectionUtils;
->>>>>>> Stashed changes
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
