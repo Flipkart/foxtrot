@@ -59,14 +59,14 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton
 public class AnalyticsResource {
 
-    private final QueryExecutor queryExecutor;
+    private final QueryExecutorFactory executorFactory;
     private final ObjectMapper objectMapper;
     private final QueryConfig queryConfig;
 
     @Inject
-    public AnalyticsResource(@Named("ExtrapolatedQueryExecutor") final QueryExecutor queryExecutor,
-            final ObjectMapper objectMapper, final QueryConfig queryConfig) {
-        this.queryExecutor = queryExecutor;
+    public AnalyticsResource(final QueryExecutorFactory executorFactory,
+                             final ObjectMapper objectMapper,final QueryConfig queryConfig) {
+        this.executorFactory = executorFactory;
         this.objectMapper = objectMapper;
         this.queryConfig = queryConfig;
     }
@@ -76,7 +76,7 @@ public class AnalyticsResource {
     @ApiOperation("runSync")
     public ActionResponse runSync(@Valid final ActionRequest request) {
         preprocess(request);
-        return queryExecutor.execute(request);
+        return executorFactory.getExecutor(request).execute(request);
     }
 
     @POST
@@ -84,7 +84,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("runSyncAsync")
     public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) {
-        return queryExecutor.executeAsync(request);
+        return executorFactory.getExecutor(request).executeAsync(request);
     }
 
     @POST
@@ -92,7 +92,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("validateQuery")
     public ActionValidationResponse validateQuery(@Valid final ActionRequest request) {
-        return queryExecutor.validate(request);
+        return executorFactory.getExecutor(request).validate(request);
     }
 
     @POST
@@ -101,7 +101,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("downloadAnalytics")
     public StreamingOutput download(@Valid final ActionRequest actionRequest) {
-        ActionResponse actionResponse = queryExecutor.execute(actionRequest);
+        ActionResponse actionResponse = executorFactory.getExecutor(actionRequest).execute(actionRequest);
         Flattener flattener = new Flattener(objectMapper, actionRequest, new ArrayList<>());
         FlatRepresentation flatRepresentation = actionResponse.accept(flattener);
         return output -> FlatToCsvConverter.convert(flatRepresentation, new OutputStreamWriter(output));

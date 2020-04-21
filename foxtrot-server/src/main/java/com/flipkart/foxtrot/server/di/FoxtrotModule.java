@@ -34,9 +34,10 @@ import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.lock.DistributedLock;
 import com.flipkart.foxtrot.core.lock.HazelcastDistributedLock;
 import com.flipkart.foxtrot.core.lock.HazelcastDistributedLockConfig;
+import com.flipkart.foxtrot.core.queryexecutor.ExtrapolationQueryExecutor;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.EventPublisherActionExecutionObserver;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.handlers.MetricRecorder;
@@ -49,8 +50,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
-import com.flipkart.foxtrot.core.querystore.query.ExtrapolatedQueryExecutor;
-import com.flipkart.foxtrot.core.querystore.query.SimpleQueryExecutor;
 import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -133,8 +132,7 @@ public class FoxtrotModule extends AbstractModule {
         bind(FunnelStore.class).to(ElasticsearchFunnelStore.class);
         bind(QueryExecutor.class).annotatedWith(Names.named("SimpleQueryExecutor")).to(SimpleQueryExecutor.class);
         bind(QueryExecutor.class).annotatedWith(Names.named("ExtrapolatedQueryExecutor"))
-                .to(ExtrapolatedQueryExecutor.class);
-        bind(FunnelExtrapolationService.class).to(FunnelExtrapolationServiceImpl.class);
+                .to(ExtrapolationQueryExecutor.class);
         bind(DistributedLock.class).to(HazelcastDistributedLock.class);
         bind(new TypeLiteral<List<HealthCheck>>() {
         }).toProvider(HealthcheckListProvider.class);

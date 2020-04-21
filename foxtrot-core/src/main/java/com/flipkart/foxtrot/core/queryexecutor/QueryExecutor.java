@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flipkart.foxtrot.core.querystore;
+package com.flipkart.foxtrot.core.queryexecutor;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
@@ -22,6 +22,8 @@ import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import com.flipkart.foxtrot.core.querystore.ActionEvaluationResponse;
+import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -75,8 +77,7 @@ public abstract class QueryExecutor {
                     action, request, response, stopwatch.elapsed(TimeUnit.MILLISECONDS), false);
             return response;
 
-        }
-        catch (FoxtrotException e) {
+        } catch (FoxtrotException e) {
             long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
             log.info("Elapsed time in query execution: {}, request: {}, Error: {}", elapsedTime, request, e);
             evaluationResponse = ActionEvaluationResponse.failure(
