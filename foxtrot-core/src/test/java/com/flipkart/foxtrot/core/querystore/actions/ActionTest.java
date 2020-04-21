@@ -18,9 +18,7 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
-import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationService;
-import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationServiceImpl;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
@@ -32,8 +30,8 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
-import com.flipkart.foxtrot.core.querystore.query.ExtrapolatedQueryExecutor;
-import com.flipkart.foxtrot.core.querystore.query.SimpleQueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.ExtrapolationQueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.SimpleQueryExecutor;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
@@ -131,13 +129,8 @@ public abstract class ActionTest {
                         .build())
                 .build();
 
-        QueryExecutor simpleQueryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService,
+        queryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService,
                 Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
-
-        FunnelExtrapolationService funnelExtrapolationService = new FunnelExtrapolationServiceImpl(
-                funnelConfiguration, simpleQueryExecutor);
-        queryExecutor = new ExtrapolatedQueryExecutor(analyticsLoader, executorService,
-                Collections.singletonList(new ResponseCacheUpdater(cacheManager)), funnelExtrapolationService);
     }
 
     @AfterClass

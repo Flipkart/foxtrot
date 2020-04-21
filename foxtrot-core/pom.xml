@@ -157,6 +157,11 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+
         <!-- Elasticsearch -->
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
