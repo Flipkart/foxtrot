@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
@@ -82,7 +83,7 @@ public abstract class FoxtrotResourceTest {
     private final List<IndexerEventMutator> mutators;
     private final CacheManager cacheManager;
     private AnalyticsLoader analyticsLoader;
-    private QueryExecutor queryExecutor;
+    private QueryExecutorFactory queryExecutorFactory;
     private QueryStore queryStore;
     private DataStore dataStore;
 
@@ -167,8 +168,16 @@ public abstract class FoxtrotResourceTest {
         }
         ExecutorService executorService = Executors.newFixedThreadPool(1);
 
-        queryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService,
-                Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
+        FunnelConfiguration funnelConfiguration = FunnelConfiguration.builder()
+                .querySize(100)
+                .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
+                        .eventType("APP_LOADED")
+                        .category("General")
+                .build())
+                .funnelIndex("foxtrot_funnel")
+                .build();
+        queryExecutorFactory = new QueryExecutorFactory(analyticsLoader, executorService,
+                Collections.singletonList(new ResponseCacheUpdater(cacheManager)), funnelConfiguration);
 
     }
 
@@ -184,8 +193,8 @@ public abstract class FoxtrotResourceTest {
         return hazelcastInstance;
     }
 
-    protected QueryExecutor getQueryExecutor() {
-        return queryExecutor;
+    protected QueryExecutorFactory getQueryExecutorFactory() {
+        return queryExecutorFactory;
     }
 
     protected ObjectMapper getMapper() {

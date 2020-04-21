@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -48,7 +49,8 @@ public class FqlEngine {
             throws JsonProcessingException {
         QueryTranslator translator = new QueryTranslator();
         FqlQuery query = translator.translate(fql);
-        FlatRepresentation response = new QueryProcessor(tableMetadataManager, queryStore, executorFactory, mapper)
+        FlatRepresentation response = new QueryProcessor(tableMetadataManager, queryStore, executorFactory, mapper,
+                userDetails, accessService)
                 .process(query);
         logger.debug("Flat Response: " + mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(response));

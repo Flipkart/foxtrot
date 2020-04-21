@@ -35,6 +35,7 @@ import com.flipkart.foxtrot.core.lock.DistributedLock;
 import com.flipkart.foxtrot.core.lock.HazelcastDistributedLock;
 import com.flipkart.foxtrot.core.lock.HazelcastDistributedLockConfig;
 import com.flipkart.foxtrot.core.queryexecutor.ExtrapolationQueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.SimpleQueryExecutor;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.EventPublisherActionExecutionObserver;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
@@ -130,9 +131,6 @@ public class FoxtrotModule extends AbstractModule {
         bind(FunnelService.class).annotatedWith(Names.named("FunnelServiceImplV1")).to(FunnelServiceImplV1.class);
         bind(FunnelService.class).to(FunnelServiceImplV1.class);
         bind(FunnelStore.class).to(ElasticsearchFunnelStore.class);
-        bind(QueryExecutor.class).annotatedWith(Names.named("SimpleQueryExecutor")).to(SimpleQueryExecutor.class);
-        bind(QueryExecutor.class).annotatedWith(Names.named("ExtrapolatedQueryExecutor"))
-                .to(ExtrapolationQueryExecutor.class);
         bind(DistributedLock.class).to(HazelcastDistributedLock.class);
         bind(new TypeLiteral<List<HealthCheck>>() {
         }).toProvider(HealthcheckListProvider.class);
@@ -321,12 +319,6 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public TranslatorConfig translatorConfig(FoxtrotServerConfiguration configuration) {
-        if(Objects.isNull(configuration.getTranslatorConfig())){
-            return TranslatorConfig.builder()
-                    .rawKeyVersion("1.0")
-                    .unmarshallJsonPaths(Collections.singletonList("/eventData/funnelInfo"))
-                    .build();
-        }
         return configuration.getTranslatorConfig();
     }
 

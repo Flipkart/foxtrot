@@ -10,6 +10,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.util.SerDe;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
+import com.foxtrot.flipkart.translator.config.UnmarshallerConfig;
 import com.foxtrot.flipkart.translator.utils.Constants;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 @Slf4j
 public class DocumentTranslatorTest {
@@ -187,9 +189,16 @@ public class DocumentTranslatorTest {
 
         TranslatorConfig translatorConfig = new TranslatorConfig();
         translatorConfig.setRawKeyVersion("2.0");
-        translatorConfig.setUnmarshallJsonPaths(Arrays.asList(new String[]{
-                "/eventData/funnelInfo",
-                "/eventData/funnelInfoData/funnelInfos/funnelIds"}));
+        translatorConfig.setUnmarshallerConfig(
+                UnmarshallerConfig.builder()
+                        .unmarshallingEnabled(true)
+                        .tableVsUnmarshallJsonPath(ImmutableMap.of(
+                                "phonepe_consumer_app_android_new",
+                                Arrays.asList(new String[]{
+                                        "/eventData/funnelInfo",
+                                        "/eventData/funnelInfoData/funnelInfos/funnelIds"}) ))
+                        .build()
+              );
 
         DocumentTranslator documentTranslator = new DocumentTranslator(translatorConfig);
 

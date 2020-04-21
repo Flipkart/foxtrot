@@ -7,7 +7,7 @@ import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.config.QueryConfig;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.gandalf.access.AccessService;
 import com.google.inject.Inject;
@@ -38,13 +38,13 @@ import lombok.extern.slf4j.Slf4j;
 public class AnalyticsV2Resource {
 
     private static final String AUTHORIZATION_EXCEPTION_MESSAGE = "User not Authorised";
-    private final QueryExecutor queryExecutor;
+    private final QueryExecutorFactory executorFactory;
     private final AccessService accessService;
     private final QueryConfig queryConfig;
 
     @Inject
-    public AnalyticsV2Resource(@Named("ExtrapolatedQueryExecutor") QueryExecutor queryExecutor, AccessService accessService, QueryConfig queryConfig) {
-        this.queryExecutor = queryExecutor;
+    public AnalyticsV2Resource(final QueryExecutorFactory executorFactory, AccessService accessService, QueryConfig queryConfig) {
+        this.executorFactory = executorFactory;
         this.accessService = accessService;
         this.queryConfig = queryConfig;
     }
@@ -55,7 +55,7 @@ public class AnalyticsV2Resource {
     @Authorize(value = {})
     public ActionResponse runSync(@Valid final ActionRequest request, @GandalfUserContext UserDetails userDetails) {
         preprocess(request, userDetails);
-        return queryExecutor.execute(request);
+        return executorFactory.getExecutor(request).execute(request);
     }
 
     @POST
@@ -75,7 +75,7 @@ public class AnalyticsV2Resource {
         catch (Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
-        return queryExecutor.executeAsync(request);
+        return executorFactory.getExecutor(request).executeAsync(request);
     }
 
     @POST
@@ -95,7 +95,7 @@ public class AnalyticsV2Resource {
         catch (Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
-        return queryExecutor.validate(request);
+        return executorFactory.getExecutor(request).validate(request);
     }
 
     private void preprocess(@Valid ActionRequest request, @GandalfUserContext UserDetails userDetails) {

@@ -12,6 +12,7 @@ import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.flipkart.foxtrot.common.util.Utils;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
+import com.foxtrot.flipkart.translator.config.UnmarshallerConfig;
 import com.foxtrot.flipkart.translator.utils.Constants;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -35,7 +36,7 @@ public class DocumentTranslator {
     private static final String JSON_PATH_SEPARATOR = "/";
     private final AbstractRowKeyDistributor keyDistributor;
     private final String rawKeyVersion;
-    private TranslatorConfig translatorConfig;
+    private UnmarshallerConfig unmarshallerConfig;
 
     @Inject
     public DocumentTranslator(TranslatorConfig translatorConfig) {
@@ -56,7 +57,7 @@ public class DocumentTranslator {
         } else {
             throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, translatorConfig.getRawKeyVersion()));
         }
-        this.translatorConfig = translatorConfig;
+        this.unmarshallerConfig = translatorConfig.getUnmarshallerConfig();
     }
 
     public List<Document> translate(final Table table, final List<Document> inDocuments) {
@@ -86,7 +87,12 @@ public class DocumentTranslator {
 
         ObjectNode dataNode = inDocument.getData().deepCopy();
 
-        unmarshallStringJsonFields(dataNode);
+        if (unmarshallerConfig.isUnmarshallingEnabled()
+                && unmarshallerConfig.getTableVsUnmarshallJsonPath().containsKey(table.getName())) {
+            List<String> unmarshallJsonPaths = unmarshallerConfig.getTableVsUnmarshallJsonPath()
+                    .get(table.getName());
+            unmarshallStringJsonFields(dataNode, unmarshallJsonPaths);
+        }
 
         document.setTimestamp(inDocument.getTimestamp());
         document.setMetadata(metadata);
@@ -96,8 +102,8 @@ public class DocumentTranslator {
         return document;
     }
 
-    private void unmarshallStringJsonFields(ObjectNode dataNode) {
-        for (String jsonPath : nullSafeList(translatorConfig.getUnmarshallJsonPaths())) {
+    private void unmarshallStringJsonFields(ObjectNode dataNode, List<String> unmarshallJsonPaths) {
+        for (String jsonPath : nullSafeList(unmarshallJsonPaths)) {
             try {
                 JsonPointer valueNodePointer = JsonPointer.compile(jsonPath);
                 JsonPointer containerPointer = valueNodePointer.head();

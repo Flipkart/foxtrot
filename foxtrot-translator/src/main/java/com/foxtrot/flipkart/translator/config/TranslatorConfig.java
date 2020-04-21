@@ -17,10 +17,6 @@ public class TranslatorConfig {
 
     private String rawKeyVersion = "2.0";
 
-    /**
-     * List of jsonPaths for fields which need to be unmarshalled to jsonNode
-     * e.g. "/eventData/funnelInfo", "/eventData/funnelInfo/funnelData"
-     */
-    private List<String> unmarshallJsonPaths;
+    private UnmarshallerConfig unmarshallerConfig = new UnmarshallerConfig();
 
 }
