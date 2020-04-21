@@ -4,17 +4,20 @@ import com.flipkart.foxtrot.core.email.messageformatting.EmailBodyBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.EmailSubjectBuilder;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  *
  */
+@Singleton
 public class RichEmailBuilder {
+
     private final EmailSubjectBuilder subjectBuilder;
     private final EmailBodyBuilder bodyBuilder;
 
-    public RichEmailBuilder(
-            EmailSubjectBuilder subjectBuilder,
-            EmailBodyBuilder bodyBuilder) {
+    @Inject
+    public RichEmailBuilder(EmailSubjectBuilder subjectBuilder, EmailBodyBuilder bodyBuilder) {
         this.subjectBuilder = subjectBuilder;
         this.bodyBuilder = bodyBuilder;
     }

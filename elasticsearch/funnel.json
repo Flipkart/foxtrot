@@ -1,0 +1,249 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "lowercase_keyword": {
+          "filter": "lowercase",
+          "tokenizer": "keyword"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "funnel_data": {
+      "dynamic_templates": [
+        {
+          "strings": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "analyzer": "keyword",
+              "fields": {
+                "text": {
+                  "analyzer": "lowercase_keyword",
+                  "type": "text"
+                }
+              },
+              "ignore_above": 256,
+              "index": true,
+              "type": "keyword"
+            }
+          }
+        }
+      ],
+      "properties": {
+        "id": {
+          "type": "keyword",
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "lowercase_keyword"
+            }
+          },
+          "ignore_above": 256
+        },
+        "documentId": {
+          "type": "keyword",
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "lowercase_keyword"
+            }
+          },
+          "ignore_above": 256
+        },
+        "name": {
+          "type": "keyword",
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "lowercase_keyword"
+            }
+          },
+          "ignore_above": 256
+        },
+        "desc": {
+          "type": "keyword",
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "lowercase_keyword"
+            }
+          },
+          "ignore_above": 256
+        },
+        "percentage": {
+          "type": "long"
+        },
+        "startPercentage": {
+          "type": "long"
+        },
+        "endPercentage": {
+          "type": "long"
+        },
+        "creatorEmailId": {
+          "type": "keyword",
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "lowercase_keyword"
+            }
+          },
+          "ignore_above": 256
+        },
+        "table": {
+          "type": "keyword",
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "lowercase_keyword"
+            }
+          },
+          "ignore_above": 256
+        },
+        "approverEmailId": {
+          "type": "keyword",
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "lowercase_keyword"
+            }
+          },
+          "ignore_above": 256
+        },
+        "eventAttributes": {
+          "type": "nested",
+          "properties": {
+            "eventType": {
+              "type": "keyword",
+              "fields": {
+                "text": {
+                  "type": "text",
+                  "analyzer": "lowercase_keyword"
+                }
+              },
+              "ignore_above": 256
+            },
+            "category": {
+              "type": "keyword",
+              "fields": {
+                "text": {
+                  "type": "text",
+                  "analyzer": "lowercase_keyword"
+                }
+              },
+              "ignore_above": 256
+            }
+          }
+        },
+        "fieldVsValues": {
+          "type": "nested",
+          "properties": {
+            "deviceId": {
+              "type": "keyword",
+              "fields": {
+                "text": {
+                  "type": "text",
+                  "analyzer": "lowercase_keyword"
+                }
+              },
+              "ignore_above": 256
+            },
+            "language": {
+              "type": "keyword",
+              "fields": {
+                "text": {
+                  "type": "text",
+                  "analyzer": "lowercase_keyword"
+                }
+              },
+              "ignore_above": 256
+            },
+            "manufacturer": {
+              "type": "keyword",
+              "fields": {
+                "text": {
+                  "type": "text",
+                  "analyzer": "lowercase_keyword"
+                }
+              },
+              "ignore_above": 256
+            },
+            "model": {
+              "type": "keyword",
+              "fields": {
+                "text": {
+                  "type": "text",
+                  "analyzer": "lowercase_keyword"
+                }
+              },
+              "ignore_above": 256
+            },
+            "networkProvider": {
+              "type": "keyword",
+              "fields": {
+                "text": {
+                  "type": "text",
+                  "analyzer": "lowercase_keyword"
+                }
+              },
+              "ignore_above": 256
+            },
+            "os": {
+              "type": "keyword",
+              "fields": {
+                "text": {
+                  "type": "text",
+                  "analyzer": "lowercase_keyword"
+                }
+              },
+              "ignore_above": 256
+            },
+            "osVersion": {
+              "type": "keyword",
+              "fields": {
+                "text": {
+                  "type": "text",
+                  "analyzer": "lowercase_keyword"
+                }
+              },
+              "ignore_above": 256
+            },
+            "platform": {
+              "type": "keyword",
+              "fields": {
+                "text": {
+                  "type": "text",
+                  "analyzer": "lowercase_keyword"
+                }
+              },
+              "ignore_above": 256
+            }
+          }
+        },
+        "funnelStatus": {
+          "type": "keyword",
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "lowercase_keyword"
+            }
+          },
+          "ignore_above": 256
+        },
+        "deleted": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "long"
+        },
+        "approvedAt": {
+          "type": "long"
+        },
+        "deletedAt": {
+          "type": "long"
+        }
+      }
+    }
+  }
+}
+

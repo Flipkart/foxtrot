@@ -33,10 +33,10 @@ import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.BadRequestException;
-import com.flipkart.foxtrot.core.exception.ErrorCode;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.exception.StoreConnectionException;
+import com.flipkart.foxtrot.common.exception.BadRequestException;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.StoreConnectionException;
 import com.foxtrot.flipkart.translator.DocumentTranslator;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -60,7 +60,6 @@ import org.mockito.Mockito;
 /**
  * Created by rishabh.goyal on 15/04/14.
  */
-
 public class HBaseDataStoreTest {
 
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");

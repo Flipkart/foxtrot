@@ -1,6 +1,6 @@
 package com.flipkart.foxtrot.sql;
 
-import com.flipkart.foxtrot.core.exception.FqlParsingException;
+import com.flipkart.foxtrot.common.exception.FqlParsingException;
 import com.flipkart.foxtrot.sql.extendedsql.ExtendedSqlStatementVisitor;
 import com.flipkart.foxtrot.sql.extendedsql.desc.Describe;
 import com.flipkart.foxtrot.sql.extendedsql.showtables.ShowTables;

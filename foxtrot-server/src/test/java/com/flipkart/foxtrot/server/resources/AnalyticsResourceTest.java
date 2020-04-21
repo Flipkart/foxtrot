@@ -24,8 +24,8 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
-import com.flipkart.foxtrot.server.config.QueryConfig;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.config.QueryConfig;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -57,7 +57,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                 .actionGet();
         resources = ResourceTestRule.builder()
                 .setMapper(getMapper())
-                .addResource(new AnalyticsResource(getQueryExecutor(), getMapper(), new QueryConfig()))
+                .addResource(new AnalyticsResource(getQueryExecutorFactory(), getMapper(), new QueryConfig()))
                 .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .build();
     }
@@ -121,8 +121,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                     .request()
                     .post(serviceUserEntity, GroupResponse.class);
             fail();
-        }
-        catch (WebApplicationException ex) {
+        } catch (WebApplicationException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse()
                     .getStatus());
         }

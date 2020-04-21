@@ -27,14 +27,19 @@ import com.marathon.hazelcast.servicediscovery.MarathonDiscoveryStrategyFactory;
 import io.dropwizard.lifecycle.Managed;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 15/03/14
  * Time: 10:01 PM
  */
+@Order(10)
+@Singleton
 public class HazelcastConnection implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
@@ -44,6 +49,7 @@ public class HazelcastConnection implements Managed {
     private HazelcastInstance hazelcast;
     private Config hazelcastConfig;
 
+    @Inject
     public HazelcastConnection(ClusterConfig clusterConfig) throws UnknownHostException {
         Config hzConfig = new Config();
         hzConfig.getGroupConfig()
@@ -80,9 +86,9 @@ public class HazelcastConnection implements Managed {
                         .replace("/", "")
                         .trim();
                 hzConfig.getGroupConfig()
-                        .setName("foxtrot");
+                        .setName(clusterConfig.getName());
                 hzConfig.getGroupConfig()
-                        .setPassword("foxtrot");
+                        .setPassword(clusterConfig.getName());
                 hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED, "true");
                 hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED, "true");
                 hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "true");

@@ -1,0 +1,79 @@
+.default: &default
+  only:
+    - merge_requests
+    - web
+
+.default_tag: &default_tag
+  tags:
+    - backend
+
+stages:
+  - build
+  - quality
+  - deploy
+  - merge
+  - release
+
+merge_ready:
+  stage: quality
+  only:
+    - merge_requests
+  <<: *default_tag
+  script:
+    - mvn clean test -U -Pquality_check
+
+merge:
+  stage: merge
+  <<: *default_tag
+  script:
+    - mvn clean test -U -Pquality_check
+  only:
+    refs:
+      - develop
+
+build_package:
+  stage: build
+  <<: *default
+  <<: *default_tag
+  script:
+    - mvn clean package -U
+
+deploy_snapshot:
+  #  tags:
+  #    - backend
+  stage: deploy
+  <<: *default_tag
+  only:
+    - web
+  script:
+    - mvn deploy -pl !foxtrot-server
+  when: manual
+  allow_failure: false
+
+docker_build:
+  stage: deploy
+  <<: *default_tag
+  only:
+    - web
+  script:
+    - cd foxtrot-server
+    - mvn -U clean compile package docker:build docker:push -Pdocker
+  when: manual
+  allow_failure: false
+
+release:
+  <<: *default_tag
+  stage: release
+  script:
+    - git remote set-url origin "git@gitlab.phonepe.com:${CI_PROJECT_PATH}.git"
+    - git checkout master
+    - git pull
+    - git checkout develop
+    - git pull
+    - mvn -U -Pdocker jgitflow:release-start jgitflow:release-finish
+    - git push --all
+    - git push --tags origin
+  when: manual
+  only:
+    refs:
+      - develop

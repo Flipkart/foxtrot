@@ -7,19 +7,22 @@ import com.foxtrot.flipkart.translator.config.TableSegregationConfig;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 /***
  Created by nitish.goyal on 28/08/19
  ***/
 @Slf4j
+@Singleton
 public class TableTranslator {
 
     private static final String EVENT_TYPE = "eventType";
     private final Map<String, TableSegregationConfig> tableVsSegregationConfig = Maps.newHashMap();
     private final Map<String, String> eventTypeVsNewTable = Maps.newHashMap();
 
-    public TableTranslator(SegregationConfiguration segregationConfiguration) {
+    @Inject
+    public TableTranslator(final SegregationConfiguration segregationConfiguration) {
         if(segregationConfiguration != null) {
             segregationConfiguration.getTableSegregationConfigs().forEach(tableSegregationConfig -> {
                 tableVsSegregationConfig.putIfAbsent(tableSegregationConfig.getOldTable(), tableSegregationConfig);

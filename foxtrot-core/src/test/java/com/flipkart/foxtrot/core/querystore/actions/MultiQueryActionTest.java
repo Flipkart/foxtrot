@@ -16,6 +16,7 @@ package com.flipkart.foxtrot.core.querystore.actions;/**
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -30,7 +31,7 @@ import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ import org.junit.Test;
 public class MultiQueryActionTest extends ActionTest {
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
         super.setup();
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
@@ -55,6 +56,41 @@ public class MultiQueryActionTest extends ActionTest {
                 .prepareRefresh("*")
                 .execute()
                 .actionGet();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testQueryException() throws FoxtrotException, JsonProcessingException {
+        when(getElasticsearchConnection().getClient()).thenReturn(null);
+
+        HashMap<String, ActionRequest> requests = Maps.newHashMap();
+        Query query = new Query();
+        query.setTable(TestUtils.TEST_TABLE_NAME);
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.asc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+        requests.put("1", query);
+
+        CountRequest countRequest = new CountRequest();
+        countRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        countRequest.setField("os");
+        countRequest.setDistinct(false);
+        requests.put("2", countRequest);
+
+        MultiQueryRequest multiQueryRequest = new MultiQueryRequest(requests);
+        ActionResponse actionResponse = getQueryExecutor().execute(multiQueryRequest);
+        MultiQueryResponse multiQueryResponse = null;
+        if (actionResponse instanceof MultiQueryResponse) {
+            multiQueryResponse = (MultiQueryResponse) actionResponse;
+        }
+        assertNotNull(multiQueryResponse);
+
+        QueryResponse queryResponse = (QueryResponse) multiQueryResponse.getResponses()
+                .get(1);
+        CountResponse countResponse = (CountResponse) multiQueryResponse.getResponses()
+                .get(2);
+
+        assertEquals(11, countResponse.getCount());
     }
 
     @Test

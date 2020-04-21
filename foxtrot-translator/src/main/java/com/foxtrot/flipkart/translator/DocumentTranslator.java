@@ -1,30 +1,44 @@
 package com.foxtrot.flipkart.translator;
 
+import static com.collections.CollectionUtils.nullSafeList;
+
+import com.fasterxml.jackson.core.JsonPointer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.flipkart.foxtrot.common.util.Utils;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
+import com.foxtrot.flipkart.translator.config.UnmarshallerConfig;
 import com.foxtrot.flipkart.translator.utils.Constants;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.sematext.hbase.ds.AbstractRowKeyDistributor;
 import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.util.Bytes;
 
 /**
  * Created by santanu.s on 24/11/15.
  */
 @Slf4j
+@Singleton
 public class DocumentTranslator {
 
     private static final String EXCEPTION_MESSAGE = "rawKeyVersion not supported version=[%s]";
+    private static final String JSON_PATH_SEPARATOR = "/";
     private final AbstractRowKeyDistributor keyDistributor;
-    private String rawKeyVersion;
+    private final String rawKeyVersion;
+    private UnmarshallerConfig unmarshallerConfig;
 
+    @Inject
     public DocumentTranslator(TranslatorConfig translatorConfig) {
         if (CollectionUtils.isNullOrEmpty(translatorConfig.getRawKeyVersion()) || translatorConfig.getRawKeyVersion()
                 .equalsIgnoreCase("1.0")) {
@@ -43,6 +57,7 @@ public class DocumentTranslator {
         } else {
             throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, translatorConfig.getRawKeyVersion()));
         }
+        this.unmarshallerConfig = translatorConfig.getUnmarshallerConfig();
     }
 
     public List<Document> translate(final Table table, final List<Document> inDocuments) {
@@ -66,14 +81,53 @@ public class DocumentTranslator {
                 document.setId(metadata.getRawStorageId());
                 break;
             default:
-                throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, rawKeyVersion));
+                throw new IllegalArgumentException(
+                        String.format(EXCEPTION_MESSAGE, rawKeyVersion));
         }
+
+        ObjectNode dataNode = inDocument.getData().deepCopy();
+
+        if (unmarshallerConfig.isUnmarshallingEnabled()
+                && unmarshallerConfig.getTableVsUnmarshallJsonPath().containsKey(table.getName())) {
+            List<String> unmarshallJsonPaths = unmarshallerConfig.getTableVsUnmarshallJsonPath()
+                    .get(table.getName());
+            unmarshallStringJsonFields(dataNode, unmarshallJsonPaths);
+        }
+
         document.setTimestamp(inDocument.getTimestamp());
         document.setMetadata(metadata);
-        document.setData(inDocument.getData());
+        document.setData(dataNode);
         document.setDate(Utils.getDate(inDocument.getTimestamp()));
 
         return document;
+    }
+
+    private void unmarshallStringJsonFields(ObjectNode dataNode, List<String> unmarshallJsonPaths) {
+        for (String jsonPath : nullSafeList(unmarshallJsonPaths)) {
+            try {
+                JsonPointer valueNodePointer = JsonPointer.compile(jsonPath);
+                JsonPointer containerPointer = valueNodePointer.head();
+                JsonNode parentJsonNode = dataNode.at(containerPointer);
+
+                if (!parentJsonNode.isMissingNode() && parentJsonNode.isObject()) {
+                    ObjectNode parentObjectNode = (ObjectNode) parentJsonNode;
+                    //following will give you just the field name.
+                    //e.g. if pointer is /parentObject/object/field
+                    //JsonPointer.last() will give you /field
+                    //remember to take out the / character
+                    String fieldName = valueNodePointer.last().toString();
+                    fieldName = fieldName.replace(JSON_PATH_SEPARATOR, StringUtils.EMPTY);
+                    JsonNode fieldValueNode = parentObjectNode.get(fieldName);
+
+                    if (fieldValueNode != null && fieldValueNode.isTextual()) {
+                        JsonNode jsonNode = JsonUtils.toJsonNode(fieldValueNode.asText());
+                        parentObjectNode.set(fieldName, jsonNode);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Error while expanding field at json path : {}", jsonPath, e);
+            }
+        }
     }
 
     public Document translateBack(final Document inDocument) {
@@ -103,10 +157,11 @@ public class DocumentTranslator {
             case "2.0":
             case "3.0":
                 return String.format("%s:%020d:%s:%s", table.getName(), document.getTimestamp(), document.getId(),
-                                    Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get(rawKeyVersion)
-                                    );
+                        Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get(rawKeyVersion)
+                );
             default:
-                throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, rawKeyVersion));
+                throw new IllegalArgumentException(
+                        String.format(EXCEPTION_MESSAGE, rawKeyVersion));
         }
     }
 

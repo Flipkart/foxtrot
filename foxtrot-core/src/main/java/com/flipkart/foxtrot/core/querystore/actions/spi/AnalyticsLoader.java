@@ -21,8 +21,8 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.AnalyticsActionLoaderException;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.AnalyticsActionLoaderException;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -34,11 +34,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import lombok.Getter;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -47,6 +50,8 @@ import org.slf4j.LoggerFactory;
  */
 
 @Getter
+@Singleton
+@Order(20)
 public class AnalyticsLoader implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsLoader.class);
@@ -60,6 +65,7 @@ public class AnalyticsLoader implements Managed {
     private final ObjectMapper objectMapper;
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
+    @Inject
     public AnalyticsLoader(
             TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
             ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,

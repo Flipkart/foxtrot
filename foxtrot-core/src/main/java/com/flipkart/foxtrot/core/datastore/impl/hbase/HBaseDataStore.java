@@ -22,13 +22,15 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.foxtrot.flipkart.translator.DocumentTranslator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -42,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * Date: 13/03/14
  * Time: 7:54 PM
  */
-
+@Singleton
 public class HBaseDataStore implements DataStore {
 
     private static final Logger logger = LoggerFactory.getLogger(HBaseDataStore.class.getSimpleName());
@@ -57,6 +59,7 @@ public class HBaseDataStore implements DataStore {
     private final ObjectMapper mapper;
     private final DocumentTranslator translator;
 
+    @Inject
     public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper, DocumentTranslator translator) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;

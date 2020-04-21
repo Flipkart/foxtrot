@@ -2,21 +2,25 @@ package com.flipkart.foxtrot.core.table.impl;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Created by rishabh.goyal on 05/12/15.
  */
+@Singleton
 public class FoxtrotTableManager implements TableManager {
 
     private final TableMetadataManager metadataManager;
     private final QueryStore queryStore;
     private final DataStore dataStore;
 
+    @Inject
     public FoxtrotTableManager(TableMetadataManager metadataManager, QueryStore queryStore, DataStore dataStore) {
         this.metadataManager = metadataManager;
         this.queryStore = queryStore;

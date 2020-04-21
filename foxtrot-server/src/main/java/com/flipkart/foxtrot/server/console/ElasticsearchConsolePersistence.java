@@ -18,13 +18,15 @@ import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -39,18 +41,20 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElasticsearchConsolePersistence implements ConsolePersistence {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConsolePersistence.class);
-    private static final String INDEX = "consoles";
-    private static final String INDEX_V2 = "consoles_v2";
+    public static final String INDEX = "consoles";
+    public static final String INDEX_V2 = "consoles_v2";
     private static final String TYPE = "console_data";
-    private static final String INDEX_HISTORY = "consoles_history";
+    public static final String INDEX_HISTORY = "consoles_history";
     private static final int SCROLL_SIZE = 500;
     private static final long SCROLL_TIMEOUT = TimeUnit.MINUTES.toMillis(2);
     private ElasticsearchConnection connection;
     private ObjectMapper mapper;
 
+    @Inject
     public ElasticsearchConsolePersistence(ElasticsearchConnection connection, ObjectMapper mapper) {
         this.connection = connection;
         this.mapper = mapper;
@@ -69,8 +73,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .get();
             logger.info("Saved Console : {}", console);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "console save failed", e);
         }
     }
@@ -89,8 +92,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), Console.class);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(id, "console get failed", e);
         }
     }
@@ -123,8 +125,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 }
             }
             return results;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }
@@ -141,8 +142,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .actionGet();
             logger.info("Deleted Console : {}", id);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(id, "console deletion_failed", e);
         }
     }
@@ -161,8 +161,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .get();
             logger.info("Saved Console : {}", console);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "console save failed", e);
         }
     }
@@ -181,8 +180,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), ConsoleV2.class);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(id, "console get failed", e);
         }
     }
@@ -217,8 +215,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                         .actionGet();
             }
             return results;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }
@@ -276,8 +273,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 results.add(mapper.readValue(searchHit.getSourceAsString(), ConsoleV2.class));
             }
             return results;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }
@@ -296,8 +292,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), ConsoleV2.class);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }
@@ -325,8 +320,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             ConsoleV2 console = getOldVersion(id);
             saveV2(console, false);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }
@@ -389,8 +383,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .get();
             logger.info("Saved Old Console : {}", console);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "old console save failed", e);
         }
     }

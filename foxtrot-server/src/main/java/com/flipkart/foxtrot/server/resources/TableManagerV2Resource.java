@@ -18,6 +18,8 @@ import com.flipkart.foxtrot.common.TableV2;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.gandalf.manager.GandalfManager;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.validation.Valid;
@@ -34,7 +36,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-
+@Singleton
 @Path("/v2/tables")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -44,6 +46,7 @@ public class TableManagerV2Resource {
     private final TableManager tableManager;
     private final GandalfManager gandalfManager;
 
+    @Inject
     public TableManagerV2Resource(TableManager tableManager, GandalfManager gandalfManager) {
         this.tableManager = tableManager;
         this.gandalfManager = gandalfManager;

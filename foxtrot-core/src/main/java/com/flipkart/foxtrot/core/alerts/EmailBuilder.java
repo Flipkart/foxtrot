@@ -2,7 +2,8 @@ package com.flipkart.foxtrot.core.alerts;
 
 import com.flipkart.foxtrot.core.email.Email;
 import com.flipkart.foxtrot.core.email.RichEmailBuilder;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.internalevents.InternalSystemEvent;
 import com.flipkart.foxtrot.core.internalevents.InternalSystemEventVisitor;
 import com.flipkart.foxtrot.core.internalevents.events.QueryProcessed;
@@ -30,14 +31,10 @@ class EmailBuilder implements InternalSystemEventVisitor<Email> {
     @Override
     public Email visit(QueryProcessingError queryProcessingError) {
         final FoxtrotException exception = queryProcessingError.getException();
-        switch (exception.getCode()) {
-            case CARDINALITY_OVERFLOW: {
-                return richEmailBuilder.build(templateIdFromEvent(queryProcessingError),
-                                              Collections.emptyList(),
-                                              exception.toMap());
-            }
-            default:
-                break;
+        if (ErrorCode.CARDINALITY_OVERFLOW == exception.getCode()) {
+            return richEmailBuilder.build(templateIdFromEvent(queryProcessingError),
+                    Collections.emptyList(),
+                    exception.toMap());
         }
         return null;
     }

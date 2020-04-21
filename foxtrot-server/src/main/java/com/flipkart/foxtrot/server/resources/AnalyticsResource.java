@@ -21,16 +21,19 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.config.QueryConfig;
+import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.server.config.QueryConfig;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.responseprocessors.Flattener;
+import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -45,20 +48,22 @@ import lombok.extern.slf4j.Slf4j;
  * Date: 27/03/14
  * Time: 2:05 AM
  */
+@Slf4j
 @Path("/v1/analytics")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/analytics")
-@Slf4j
+@Singleton
 public class AnalyticsResource {
 
-    private final QueryExecutor queryExecutor;
+    private final QueryExecutorFactory executorFactory;
     private final ObjectMapper objectMapper;
     private final QueryConfig queryConfig;
 
-    public AnalyticsResource(final QueryExecutor queryExecutor, final ObjectMapper objectMapper,
-                             QueryConfig queryConfig) {
-        this.queryExecutor = queryExecutor;
+    @Inject
+    public AnalyticsResource(final QueryExecutorFactory executorFactory,
+                             final ObjectMapper objectMapper,final QueryConfig queryConfig) {
+        this.executorFactory = executorFactory;
         this.objectMapper = objectMapper;
         this.queryConfig = queryConfig;
     }
@@ -68,7 +73,7 @@ public class AnalyticsResource {
     @ApiOperation("runSync")
     public ActionResponse runSync(@Valid final ActionRequest request) {
         preprocess(request);
-        return queryExecutor.execute(request);
+        return executorFactory.getExecutor(request).execute(request);
     }
 
     @POST
@@ -76,7 +81,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("runSyncAsync")
     public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) {
-        return queryExecutor.executeAsync(request);
+        return executorFactory.getExecutor(request).executeAsync(request);
     }
 
     @POST
@@ -84,7 +89,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("validateQuery")
     public ActionValidationResponse validateQuery(@Valid final ActionRequest request) {
-        return queryExecutor.validate(request);
+        return executorFactory.getExecutor(request).validate(request);
     }
 
     @POST
@@ -93,10 +98,10 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("downloadAnalytics")
     public StreamingOutput download(@Valid final ActionRequest actionRequest) {
-        ActionResponse actionResponse = queryExecutor.execute(actionRequest);
+        ActionResponse actionResponse = executorFactory.getExecutor(actionRequest).execute(actionRequest);
         Flattener flattener = new Flattener(objectMapper, actionRequest, new ArrayList<>());
-        actionResponse.accept(flattener);
-        return output -> FlatToCsvConverter.convert(flattener.getFlatRepresentation(), new OutputStreamWriter(output));
+        FlatRepresentation flatRepresentation = actionResponse.accept(flattener);
+        return output -> FlatToCsvConverter.convert(flatRepresentation, new OutputStreamWriter(output));
     }
 
     private void preprocess(ActionRequest request) {

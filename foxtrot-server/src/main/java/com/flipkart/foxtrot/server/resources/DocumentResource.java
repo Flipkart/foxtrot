@@ -15,13 +15,13 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
-import static com.flipkart.foxtrot.core.exception.FoxtrotExceptions.ERROR_DELIMITER;
+import static com.flipkart.foxtrot.common.exception.FoxtrotExceptions.ERROR_DELIMITER;
 
 import com.codahale.metrics.annotation.Timed;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.core.exception.BadRequestException;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.BadRequestException;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.foxtrot.flipkart.translator.TableTranslator;
 import com.google.common.collect.Lists;
@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -53,11 +55,14 @@ import javax.ws.rs.core.Response;
 @Path("/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/document/{table}")
+@Singleton
 public class DocumentResource {
 
+    private static final String EVENT_TYPE = "eventType";
     private final QueryStore queryStore;
     private final TableTranslator tableTranslator;
 
+    @Inject
     public DocumentResource(QueryStore queryStore, TableTranslator tableTranslator) {
         this.queryStore = queryStore;
         this.tableTranslator = tableTranslator;

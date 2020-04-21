@@ -4,7 +4,6 @@ package com.flipkart.foxtrot.core.table.impl;
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- *
  * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
@@ -24,10 +23,14 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import io.appform.testcontainers.elasticsearch.config.ElasticsearchContainerConfiguration;
 import java.util.Collections;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import io.appform.testcontainers.elasticsearch.config.ElasticsearchContainerConfiguration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 import org.testcontainers.containers.GenericContainer;
 

@@ -5,17 +5,21 @@ import com.flipkart.foxtrot.core.email.EmailClient;
 import com.flipkart.foxtrot.core.email.RichEmailBuilder;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBusConsumer;
 import com.flipkart.foxtrot.core.internalevents.InternalSystemEvent;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Listens to {@link InternalSystemEvent} and sends alert emails if necessary
  */
 @Slf4j
+@Singleton
 public class AlertingSystemEventConsumer implements InternalEventBusConsumer {
 
     private final EmailClient emailClient;
     private final RichEmailBuilder richEmailBuilder;
 
+    @Inject
     public AlertingSystemEventConsumer(
             EmailClient emailClient,
             RichEmailBuilder richEmailBuilder) {

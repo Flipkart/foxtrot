@@ -23,10 +23,13 @@ import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MaxSizeConfig;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 25/03/14 Time: 7:51 PM
  */
+@Singleton
 public class DistributedCacheFactory implements CacheFactory {
 
     private static final int DEFAULT_TIME_TO_LIVE_SECONDS = 15;
@@ -35,6 +38,7 @@ public class DistributedCacheFactory implements CacheFactory {
     private final HazelcastConnection connection;
     private final ObjectMapper mapper;
 
+    @Inject
     public DistributedCacheFactory(HazelcastConnection connection, ObjectMapper mapper, CacheConfig cacheConfig) {
         this.connection = connection;
         this.mapper = mapper;

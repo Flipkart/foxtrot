@@ -1,23 +1,28 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.util.TableUtil;
 import io.dropwizard.lifecycle.Managed;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -30,20 +35,28 @@ import org.apache.hadoop.hbase.util.RegionSplitter;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 13/03/14 Time: 7:35 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 13/03/14
+ * Time: 7:35 PM
  */
+@Singleton
+@Order(0)
 public class HbaseTableConnection implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(HbaseTableConnection.class.getSimpleName());
     private static final String DEFAULT_FAMILY_NAME = "d";
 
     private final HbaseConfig hbaseConfig;
+    private Configuration configuration;
     private Connection connection;
     private Admin hBaseAdmin;
 
-    public HbaseTableConnection(HbaseConfig hbaseConfig) {
+    @Inject
+    public HbaseTableConnection(Configuration configuration, HbaseConfig hbaseConfig) {
+        this.configuration = configuration;
         this.hbaseConfig = hbaseConfig;
     }
 
@@ -85,7 +98,6 @@ public class HbaseTableConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting HBase Connection");
-        Configuration configuration = HBaseUtil.create(hbaseConfig);
         connection = ConnectionFactory.createConnection(configuration);
         this.hBaseAdmin = connection.getAdmin();
         logger.info("Started HBase Connection");

@@ -18,6 +18,8 @@ import com.flipkart.foxtrot.server.console.ConsoleV2;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -31,10 +33,12 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v2/consoles")
+@Singleton
 public class ConsoleV2Resource {
 
     private ConsolePersistence consolePersistence;
 
+    @Inject
     public ConsoleV2Resource(ConsolePersistence consolePersistence) {
         this.consolePersistence = consolePersistence;
     }

@@ -10,7 +10,7 @@ import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableMap;
@@ -50,12 +50,12 @@ public class Utils {
 
     private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
     private static final double DEFAULT_COMPRESSION = 100.0;
-    private static final String COUNT = "count";
-    private static final String AVG = "avg";
-    private static final String SUM = "sum";
-    private static final String MIN = "min";
-    private static final String MAX = "max";
-    private static final String SUM_OF_SQUARES = "sum_of_squares";
+    public static final String COUNT = "count";
+    public static final String AVG = "avg";
+    public static final String SUM = "sum";
+    public static final String MIN = "min";
+    public static final String MAX = "max";
+    public static final String SUM_OF_SQUARES = "sum_of_squares";
     private static final String VARIANCE = "variance";
     private static final String STD_DEVIATION = "std_deviation";
     private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES
@@ -77,8 +77,7 @@ public class Utils {
                 termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
-            }
-            else {
+            } else {
                 TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
@@ -232,6 +231,7 @@ public class Utils {
         return AggregationBuilders.cardinality(Utils.sanitizeFieldForAggregation(field))
                 .precisionThreshold(precisionThreshold)
                 .field(storedFieldName(field));
+
     }
 
     public static DateHistogramInterval getHistogramInterval(Period period) {

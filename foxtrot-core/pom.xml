@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.flipkart.foxtrot</groupId>
         <artifactId>foxtrot</artifactId>
-        <version>6.3.1-64</version>
+        <version>6.3.1-66</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,6 +14,7 @@
     <properties>
         <hbase.version>1.2.1</hbase.version>
         <zookeeper.version>3.4.14</zookeeper.version>
+        <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <sonar.exclusions>**com/flipkart/foxtrot/core/querystore/impl/ElasticsearchConnection*
         </sonar.exclusions>
     </properties>
@@ -25,10 +26,16 @@
             <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
+            <groupId>ru.vyarus</groupId>
+            <artifactId>dropwizard-guicey</artifactId>
+            <version>${dropwizard.guicey.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-jmx</artifactId>
             <version>4.1.5</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -148,6 +155,11 @@
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
         </dependency>
 
         <!-- Elasticsearch -->

@@ -285,6 +285,7 @@ public class TableMapStoreTest {
     @Test
     public void testDeleteMissingKey() throws Exception {
         tableMapStore.delete("HELLO");
+        assertTrue(true);
     }
 
     @Test

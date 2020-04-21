@@ -13,7 +13,7 @@ import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
@@ -58,7 +58,9 @@ public class StatsAction extends Action<StatsRequest> {
                                                   .get(metricKey)));
         Percentiles internalPercentile = (Percentiles) aggregations.getAsMap()
                 .get(percentileMetricKey);
-        statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
+        if (null != internalPercentile) {
+            statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
+        }
         return statsValue;
     }
 

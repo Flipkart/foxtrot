@@ -17,6 +17,8 @@ package com.flipkart.foxtrot.core.querystore.impl;
 
 import io.dropwizard.lifecycle.Managed;
 import java.net.InetAddress;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -24,18 +26,22 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 14/03/14
  * Time: 12:38 AM
  */
+@Singleton
+@Order(5)
 public class ElasticsearchConnection implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConnection.class.getSimpleName());
     private final ElasticsearchConfig config;
     private Client client;
 
+    @Inject
     public ElasticsearchConnection(ElasticsearchConfig config) {
         this.config = config;
     }

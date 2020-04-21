@@ -58,6 +58,10 @@ cardinality:
   initialDelay: 6
   maxCardinality: 20000
 
+elasticsearchTuningConfig:
+  precisionThreshold: 500
+  aggregationSize: 10000
+
 esIndexOptimizationConfig:
   active: true
   interval: 86400
@@ -141,3 +145,65 @@ swagger:
   title: Foxtrot
   description: A store abstraction and analytics system for real-time event data.
   uriPrefix: "/foxtrot"
+
+distributedLockConfig:
+  locksConfig:
+    FUNNEL_APPROVAL:
+      lockExpiryTimeInMs: 2000
+
+funnelConfiguration:
+  querySize: 100
+  funnelIndex: foxtrot_funnel
+  funnelConsoleUrl: http://siphon-ui.traefik.stg.phonepe.com/#/
+  baseFunnelEventConfig:
+    eventType: APP_LOADED
+    category: APP_LOADED
+  funnelDropdownConfig:
+    eventTypes:
+      - APP_LOADED
+      - REFERRAL_RECEIVED
+      - FORCE_LOGOUT
+      - RESET_DEVICE_MAPPING
+      - USER_LOGOUT
+      - INSTALL_REFERRAL
+      - P2P_SEND_TRANSACTION_TAG_SELECTED
+      - P2P_SEND_TRANSACTION_CONTACT_CHANGE_INITIATED
+      - P2P_REQUEST_TRANSACTION_INITIATED
+      - P2P_REQUEST_CONTACT_SELECTED
+      - P2P_REQUEST_TRANSACTION_TAG_SELECTED
+      - P2P_REQUEST_TRANSACTION_CONTACT_CHANGE_INITIATED
+      - P2P_SPLIT_TRANSACTION_INITIATED
+      - P2P_SPLIT_CONTACT_SELECTED
+      - P2P_SPLIT_TRANSACTION_TAG_SELECTED
+      - P2P_SPLIT_TRANSACTION_CONTACT_CHANGE_INITIATED
+      - P2P_INIT
+      - MANAGE_REMINDER_INIT
+      - WALLET_TOPUP_INIT
+      - CHECK_BALANCE_INIT
+      - P2P_CONTACT_SELECTED
+    categories:
+      - P2PSendTransaction
+      - P2P_REQUEST_TRANSACTION
+      - P2P_Split_Transaction
+      - home
+      - RechargePayment
+      - DatacardPayment
+      - Notifications
+      - P2PPayToMoneyRequest
+      - CS
+      - Invite
+      - SendMoney
+      - ManageReminders
+      - WalletTopup
+      - CHECK_BALANCE
+      - P2P
+      - PAY
+    deviceAttributes:
+      - deviceId
+      - Model
+      - OS_Version
+      - Network_Provider
+      - Manufacturer
+      - Latitude
+      - Longitude
+      - OS

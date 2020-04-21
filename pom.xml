@@ -12,12 +12,16 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-64</version>
+    <version>6.3.1-66</version>
 
+    <parent>
+        <groupId>com.phonepe</groupId>
+        <artifactId>pp-parent-pom</artifactId>
+        <version>0.21</version>
+    </parent>
     <scm>
         <connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
-        <developerConnection>scm:git:https://github.com/flipkart-incubator/foxtrot.git
-        </developerConnection>
+        <developerConnection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</developerConnection>
         <tag>HEAD</tag>
         <url>https://github.com/flipkart-incubator/foxtrot</url>
     </scm>
@@ -70,16 +74,90 @@
         <dropwizard.version>1.0.6</dropwizard.version>
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
         <lombok.version>1.16.16</lombok.version>
+        <project.version>6.3.1-2</project.version>
         <es.container.version>1.0.4</es.container.version>
-        <guava.version>24.1.1-jre</guava.version>
         <gandalf.version>1.2.30</gandalf.version>
+        <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
+        <project.version>6.3.1-3</project.version>
+        <es.container.version>1.0.4</es.container.version>
+        <caffeine.version>2.6.2</caffeine.version>
+        <guava.version>24.1.1-jre</guava.version>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
+        <jacoco.version>0.7.5.201505241946</jacoco.version>
+        <powermock.api.mockito.version>1.7.3</powermock.api.mockito.version>
+        <powermock.module.junit4.version>1.7.3</powermock.module.junit4.version>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.jacoco.reportPaths>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPaths>
+        <sonar.jacoco.reportPaths>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPaths>
+        <sonar.version>3.6.0.1398</sonar.version>
         <sonar.language>java</sonar.language>
-        <sonar.exclusions>**com/flipkart/foxtrot/common/**/*</sonar.exclusions>
+        <sonar.exclusions>**com/flipkart/foxtrot/common/**/*,
+            **com/flipkart/foxtrot/server/console/*,
+            **com/flipkart/foxtrot/server/di/**,
+            **com/flipkart/foxtrot/server/healthcheck/**,
+            **com/flipkart/foxtrot/server/providers/**,
+            **com/flipkart/foxtrot/server/utils/**,
+            **com/flipkart/foxtrot/server/utils/response/**,
+            **com/flipkart/foxtrot/server/providers/exception/**,
+            **com/flipkart/foxtrot/server/resources/UtilResource.java,
+            **com/flipkart/foxtrot/server/resources/TableManagerV2Resource.java,
+            **com/flipkart/foxtrot/server/resources/HbaseRegionsMergeResource.java,
+            **com/flipkart/foxtrot/server/resources/FqlV2Resource.java,
+            **com/flipkart/foxtrot/server/resources/FqlResource.java,
+            **com/flipkart/foxtrot/server/resources/ESClusterResource.java,
+            **com/flipkart/foxtrot/server/resources/ConsoleV2Resource.java,
+            **com/flipkart/foxtrot/server/resources/ConsoleResource.java,
+            **com/flipkart/foxtrot/server/resources/ClusterInfoResource.java,
+            **com/flipkart/foxtrot/server/resources/AnalyticsV2Resource.java,
+            **com/flipkart/foxtrot/server/cluster/ClusterMember.java,
+            **com/flipkart/foxtrot/server/App.java,
+            **com/flipkart/foxtrot/server/FoxtrotServer.java,
+            **com/flipkart/foxtrot/server/InitializerCommand.java,
+            **com/flipkart/foxtrot/server/jobs/consolehistory/**,
+            **com/flipkart/foxtrot/core/internalevents/**,
+            **com/flipkart/foxtrot/core/jobs/optimization/**,
+            **com/flipkart/foxtrot/core/reroute/ClusterRerouteConfig.java,
+            **com/flipkart/foxtrot/core/reroute/NodeInfo.java,
+            **com/flipkart/foxtrot/core/reroute/ShardInfo.java,
+            **com/flipkart/foxtrot/core/jobs/BaseJobConfig.java,
+            **com/flipkart/foxtrot/core/internalevents/events/**,
+            **com/flipkart/foxtrot/core/jobs/optimization/EsIndexOptimizationConfig.java,
+            **com/flipkart/foxtrot/core/exception/**,
+            **com/flipkart/foxtrot/core/cardinality/CardinalityConfig.java,
+            **com/flipkart/foxtrot/core/util/MetricUtil.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/HbaseTableConnection.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/HBaseUtil.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/HbaseRegions.java,
+            **com/flipkart/foxtrot/core/querystore/actions/spi/ElasticsearchTuningConfig.java,
+            **com/flipkart/foxtrot/core/querystore/actions/spi/ActionMetadata.java,
+            **com/flipkart/foxtrot/core/internalevents/EventBusInitializer.java,
+            **com/flipkart/foxtrot/core/jobs/optimization/EsIndexOptimizationConfig.java,
+            **com/flipkart/foxtrot/core/reroute/ClusterRerouteConfig.java,
+            **com/flipkart/foxtrot/core/reroute/NodeInfo.java,
+            **com/flipkart/foxtrot/core/reroute/ShardInfo.java,
+            **com/flipkart/foxtrot/core/jobs/BaseJobConfig.java,
+            **com/flipkart/foxtrot/core/config/**,
+            **com/flipkart/foxtrot/core/internalevents/events/**,
+            **com/flipkart/foxtrot/core/email/EmailConfig.java,
+            **com/google/common/base/Stopwatch.java,
+            **com/flipkart/foxtrot/core/querystore/handlers/MetricRecorder.java,
+            **com/flipkart/foxtrot/core/querystore/handlers/SlowQueryReporter.java,
+            **com/flipkart/foxtrot/core/cardinality/CardinalityConfig.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/HbaseConfig.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/IdentityKeyDistributor.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/HbaseTableConnection.java,
+            **com/flipkart/foxtrot/core/exception/*.java,
+            **com/flipkart/foxtrot/core/common/DataDeletionManagerConfig.java,
+            **com/flipkart/foxtrot/core/querystore/actions/spi/ElasticsearchTuningConfig.java,
+            **com/flipkart/foxtrot/gandalf/**/*,
+            **com/flipkart/foxtrot/sql/fqlstore/FqlGetRequest.java,
+            **com/flipkart/foxtrot/sql/fqlstore/FqlStore.java,
+            **com/flipkart/foxtrot/sql/SqlElementVisitor.java,
+            **com/flipkart/foxtrot/sql/query/FqlDescribeTable.java,
+            **com/flipkart/foxtrot/sql/query/FqlShowTablesQuery.java,
+            **com/flipkart/foxtrot/sql/responseprocessors/model/**
+        </sonar.exclusions>
         <sonar.test.exclusions>**com/flipkart/foxtrot/gandalf/**/*</sonar.test.exclusions>
     </properties>
 
@@ -161,7 +239,7 @@
         <profile>
             <id>local</id>
             <properties>
-                <project.version>6.3.1.0</project.version>
+                <project.version>6.3.1-3</project.version>
             </properties>
         </profile>
     </profiles>
@@ -174,17 +252,43 @@
                 <version>1.7.21</version>
             </dependency>
             <dependency>
+                <groupId>ru.vyarus</groupId>
+                <artifactId>dropwizard-guicey</artifactId>
+                <version>${dropwizard.guicey.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
             </dependency>
             <dependency>
                 <artifactId>io.github.openfeign</artifactId>
                 <groupId>feign-httpclient</groupId>
                 <version>10.1.0</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito</artifactId>
+                <version>${powermock.api.mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>${powermock.module.junit4.version}</version>
+                <scope>test</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.smoketurner</groupId>
@@ -306,7 +410,36 @@
                     <groupId>io.appform.dropwizard.discovery</groupId>
                     <artifactId>dropwizard-service-discovery-bundle</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.sonatype.sisu</groupId>
+                    <artifactId>sisu-guice</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.2.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.appform.testcontainer</groupId>
+            <artifactId>junit-testcontainer-commons</artifactId>
+            <version>${es.container.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.appform.testcontainer</groupId>
+            <artifactId>junit-testcontainer-elasticsearch</artifactId>
+            <version>${es.container.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.0.2</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.phonepe.gandalf</groupId>
@@ -439,21 +572,24 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.0</version>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <destFile>${sonar.jacoco.reportPaths}</destFile>
+                    <append>true</append>
+                </configuration>
                 <executions>
                     <execution>
+                        <id>agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

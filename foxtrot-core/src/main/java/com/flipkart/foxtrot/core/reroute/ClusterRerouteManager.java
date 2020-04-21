@@ -6,6 +6,8 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
@@ -27,11 +29,13 @@ import org.joda.time.DateTime;
  Created by mudit.g on Sep, 2019
  ***/
 @Slf4j
+@Singleton
 public class ClusterRerouteManager {
 
     private final ElasticsearchConnection connection;
     private final ClusterRerouteConfig clusterRerouteConfig;
 
+    @Inject
     public ClusterRerouteManager(ElasticsearchConnection connection, ClusterRerouteConfig clusterRerouteConfig) {
         this.connection = connection;
         this.clusterRerouteConfig = clusterRerouteConfig;

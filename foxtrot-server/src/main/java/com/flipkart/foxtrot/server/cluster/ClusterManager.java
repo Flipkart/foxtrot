@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.server.cluster;
 
 import com.codahale.metrics.health.HealthCheck;
+import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.server.utils.ServerUtils;
 import com.google.common.base.Preconditions;
@@ -11,7 +12,6 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 import io.dropwizard.lifecycle.Managed;
-import io.dropwizard.server.ServerFactory;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.util.Collection;
@@ -19,9 +19,14 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
+@Singleton
+@Order(30)
 public class ClusterManager implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(ClusterManager.class.getSimpleName());
@@ -34,8 +39,9 @@ public class ClusterManager implements Managed {
     private HazelcastConnection hazelcastConnection;
     private ScheduledExecutorService executor;
 
-    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks, ServerFactory serverFactory)
-            throws IOException {
+    @Inject
+    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks,
+            FoxtrotServerConfiguration configuration) throws IOException {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);
@@ -53,7 +59,7 @@ public class ClusterManager implements Managed {
             hostname = System.getenv("HOST");
         }
         Preconditions.checkNotNull(hostname, "Could not retrieve hostname, cannot proceed");
-        int port = ServerUtils.port(serverFactory);
+        int port = ServerUtils.port(configuration.getServerFactory());
         //Auto detect marathon environment and query for host environment variable
         if (!Strings.isNullOrEmpty(System.getenv("PORT_" + port))) {
             port = Integer.parseInt(System.getenv("PORT_" + port));
@@ -67,7 +73,7 @@ public class ClusterManager implements Managed {
         members = hazelcastConnection.getHazelcast()
                 .getMap(MAP_NAME);
         executor.scheduleWithFixedDelay(new NodeDataUpdater(healthChecks, members, clusterMember), 0, MAP_REFRESH_TIME,
-                                        TimeUnit.SECONDS);
+                TimeUnit.SECONDS);
     }
 
     @Override
@@ -113,8 +119,7 @@ public class ClusterManager implements Managed {
                     members.put(clusterMember.toString(), clusterMember);
                     logger.debug("Service is healthy. Registering to map.");
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("Error updating value in map: ", e);
             }
         }

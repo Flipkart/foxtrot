@@ -16,7 +16,10 @@ import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.email.EmailConfig;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
+import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
+import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.SimpleQueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
@@ -88,21 +91,22 @@ public abstract class ActionTest {
         emailConfig.setHost("127.0.0.1");
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(hazelcastInstance.getConfig());
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true",
+                String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
         TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
         TestUtils.ensureIndex(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
+                cardinalityConfig);
         tableMetadataManager.start();
 
         tableMetadataManager.save(Table.builder()
-                                          .name(TestUtils.TEST_TABLE_NAME)
-                                          .ttl(30)
-                                          .build());
+                .name(TestUtils.TEST_TABLE_NAME)
+                .ttl(30)
+                .build());
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
-
-                                                                                         TextNodeRemoverConfiguration.builder().build()));
+                                         TextNodeRemoverConfiguration.builder().build()));
         tableConnection = Mockito.mock(HbaseTableConnection.class);
         DataStore dataStore = TestUtils.getDataStore(tableConnection);
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
@@ -116,7 +120,16 @@ public abstract class ActionTest {
                                                               new ElasticsearchTuningConfig());
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
+
+        FunnelConfiguration funnelConfiguration = FunnelConfiguration.builder()
+                .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
+                        .eventType("APP_LOADED")
+                        .category("APP_LOADED")
+                        .build())
+                .build();
+
+        queryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService,
+                Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
     }
 
     @AfterClass

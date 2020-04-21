@@ -18,12 +18,17 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
+import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
+import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
+import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
@@ -31,12 +36,13 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
+import com.flipkart.foxtrot.core.queryexecutor.ExtrapolationQueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.SimpleQueryExecutor;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
-import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -77,7 +83,7 @@ public abstract class FoxtrotResourceTest {
     private final List<IndexerEventMutator> mutators;
     private final CacheManager cacheManager;
     private AnalyticsLoader analyticsLoader;
-    private QueryExecutor queryExecutor;
+    private QueryExecutorFactory queryExecutorFactory;
     private QueryStore queryStore;
     private DataStore dataStore;
 
@@ -161,7 +167,18 @@ public abstract class FoxtrotResourceTest {
             Assert.fail();
         }
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.emptyList());
+
+        FunnelConfiguration funnelConfiguration = FunnelConfiguration.builder()
+                .querySize(100)
+                .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
+                        .eventType("APP_LOADED")
+                        .category("General")
+                .build())
+                .funnelIndex("foxtrot_funnel")
+                .build();
+        queryExecutorFactory = new QueryExecutorFactory(analyticsLoader, executorService,
+                Collections.singletonList(new ResponseCacheUpdater(cacheManager)), funnelConfiguration);
+
     }
 
     protected TableMetadataManager getTableMetadataManager() {
@@ -176,8 +193,8 @@ public abstract class FoxtrotResourceTest {
         return hazelcastInstance;
     }
 
-    protected QueryExecutor getQueryExecutor() {
-        return queryExecutor;
+    protected QueryExecutorFactory getQueryExecutorFactory() {
+        return queryExecutorFactory;
     }
 
     protected ObjectMapper getMapper() {
