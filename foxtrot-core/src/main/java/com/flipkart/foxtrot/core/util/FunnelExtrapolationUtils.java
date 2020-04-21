@@ -33,7 +33,6 @@ public class FunnelExtrapolationUtils {
                 Optional<Filter> funnelIdFilter = actionRequest.getFilters().stream()
                         .filter(filter -> (filter instanceof EqualsFilter)
                                 && (filter.getField().equals(FUNNEL_ID_QUERY_FIELD))
-                                && ((EqualsFilter) filter).getValue() instanceof String
                         )
                         .findFirst();
                 if (funnelIdFilter.isPresent()) {
