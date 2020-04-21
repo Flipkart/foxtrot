@@ -1,5 +1,8 @@
 package com.flipkart.foxtrot.core.funnel.model.visitor;
 
+import static com.flipkart.foxtrot.core.util.FunnelExtrapolationUtils.FUNNEL_ID_QUERY_FIELD;
+import static com.flipkart.foxtrot.core.util.FunnelExtrapolationUtils.VALID_STATS_FOR_EXTRAPOLATION;
+
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
@@ -30,21 +33,19 @@ import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<ActionResponse> {
+public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<ActionResponse> {
 
-    private static final String FUNNEL_ID_QUERY_FIELD = "eventData.funnelInfo.funnelId";
 
     private static final String EVENT_TYPE = "eventType";
 
@@ -52,16 +53,15 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
 
     private final QueryExecutor queryExecutor;
 
+    private final Long funnelId;
+
     private final BaseFunnelEventConfig funnelEventConfig;
 
     private final TableActionRequestVisitor tableActionRequestVisitor;
 
-    private static final List<String> VALID_STATS_FOR_EXTRAPOLATION = Arrays.asList(
-            Utils.COUNT, Utils.SUM, Utils.SUM_OF_SQUARES);
-
-    public FunnelResponseExtrapolationVisitor(final ActionRequest actionRequest,
-            final QueryExecutor queryExecutor,
-            final BaseFunnelEventConfig funnelEventConfig) {
+    public FunnelExtrapolationResponseVisitor(final Long funnelId, final ActionRequest actionRequest,
+            final QueryExecutor queryExecutor, final BaseFunnelEventConfig funnelEventConfig) {
+        this.funnelId = funnelId;
         this.actionRequest = actionRequest;
         this.queryExecutor = queryExecutor;
         this.funnelEventConfig = funnelEventConfig;
@@ -157,17 +157,17 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
         MultiQueryRequest multiQueryRequest = (MultiQueryRequest) actionRequest;
         if (CollectionUtils.isNotEmpty(multiQueryResponse.getResponses())) {
             for (Map.Entry<String, ActionResponse> entry : multiQueryResponse.getResponses().entrySet()) {
-                FunnelResponseExtrapolationVisitor funnelResponseExtrapolationVisitor =
-                        new FunnelResponseExtrapolationVisitor(multiQueryRequest.getRequests().get(entry.getKey()),
-                                queryExecutor, funnelEventConfig);
-                entry.setValue(entry.getValue().accept(funnelResponseExtrapolationVisitor));
+                FunnelExtrapolationResponseVisitor funnelExtrapolationResponseVisitor =
+                        new FunnelExtrapolationResponseVisitor(funnelId,
+                                multiQueryRequest.getRequests().get(entry.getKey()), queryExecutor,
+                                funnelEventConfig);
+                entry.setValue(entry.getValue().accept(funnelExtrapolationResponseVisitor));
             }
         }
         return multiQueryResponse;
     }
 
     public ActionResponse visit(MultiTimeQueryResponse multiTimeQueryResponse) {
-        MultiTimeQueryRequest multiTimeQueryRequest = (MultiTimeQueryRequest) this.actionRequest;
         return multiTimeQueryResponse;
     }
 
@@ -175,7 +175,7 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
             Map<String, Object> groupResponseResult) {
         for (Map.Entry<String, Object> entry : groupResponseResult.entrySet()) {
             if (entry.getValue() instanceof Long) {
-                entry.setValue((long)(((Long) entry.getValue()) * extrapolationFactor));
+                entry.setValue((long) (((Long) entry.getValue()) * extrapolationFactor));
             } else {
                 Map<String, Object> map = (Map<String, Object>) entry.getValue();
                 entry.setValue(extrapolateGroupResponse(extrapolationFactor, map));
@@ -231,36 +231,7 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
         }
     }
 
-
-    private long extractFunnelId() {
-        long funnelId = 0;
-
-        // Extract funnel id if equals filter is applied on eventData.funnelInfo.funnelId
-        try {
-            Optional<Filter> funnelIdFilter = actionRequest.getFilters().stream()
-                    .filter(filter -> (filter instanceof EqualsFilter)
-                            && (filter.getField().equals(FUNNEL_ID_QUERY_FIELD))
-                            && ((EqualsFilter) filter).getValue() instanceof String
-                    )
-                    .findFirst();
-            if (funnelIdFilter.isPresent()) {
-                funnelId = Long.parseLong((String) (((EqualsFilter) funnelIdFilter.get()).getValue()));
-            }
-        } catch (NumberFormatException ex) {
-            log.error("Error while extracting funnel id from action request : {} ", actionRequest, ex);
-        }
-        // TODO: Extract funnelId from eventType when funnelId is not given in filter
-
-        log.info("Extracted funnel id :{} from actionRequest: {}", funnelId, actionRequest);
-        return funnelId;
-    }
-
     private double computeExtrapolationFactor() {
-        long funnelId = extractFunnelId();
-        if (funnelId == 0) {
-            return 1;
-        }
-
         String table = actionRequest.accept(tableActionRequestVisitor);
         long totalBaseEventCount = getTotalBaseEventCount(table);
 
@@ -275,7 +246,7 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
     private Number extrapolatedValue(String key, Number value, double extrapolationFactor) {
         switch (key) {
             case Utils.COUNT:
-                return (long)(value.longValue() *  extrapolationFactor);
+                return (long) (value.longValue() * extrapolationFactor);
             case Utils.SUM:
             case Utils.SUM_OF_SQUARES:
                 return value.doubleValue() * extrapolationFactor;
@@ -331,15 +302,8 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
 
     private List<Count> computeExtrapolationFactors(String table, String field, Period period) {
         List<Count> extrapolationFactors = new ArrayList<>();
-        long funnelId = extractFunnelId();
-        if (funnelId == 0) {
-            log.info("No funnel id present for actionRequest :{}, empty extrapolation factors for histogram",
-                    actionRequest);
-            return extrapolationFactors;
-        }
-
         List<Count> totalBaseEventCounts = getTotalBaseEventCount(table, field, period).getCounts();
-        List<Count> baseEventCountsForFunnelId = getBaseEventCountForFunnelId(funnelId, table, field, period)
+        List<Count> baseEventCountsForFunnelId = getBaseEventCountForFunnelId(table, field, period)
                 .getCounts();
 
         if (totalBaseEventCounts.size() != baseEventCountsForFunnelId.size()) {
@@ -365,7 +329,7 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
         return extrapolationCounts;
     }
 
-    private HistogramResponse getBaseEventCountForFunnelId(long funnelId, String table, String field, Period period) {
+    private HistogramResponse getBaseEventCountForFunnelId(String table, String field, Period period) {
         List<Filter> filters = baseEventFilter();
         filters.add(funnelIdFilter(funnelId));
 

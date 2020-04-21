@@ -19,7 +19,8 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.responseprocessors.Flattener;
@@ -52,13 +53,13 @@ import java.util.ArrayList;
 @Singleton
 public class AnalyticsResource {
 
-    private final QueryExecutor queryExecutor;
+    private final QueryExecutorFactory executorFactory;
     private final ObjectMapper objectMapper;
 
     @Inject
-    public AnalyticsResource(@Named("ExtrapolatedQueryExecutor") final QueryExecutor queryExecutor,
+    public AnalyticsResource(final QueryExecutorFactory executorFactory,
                              final ObjectMapper objectMapper) {
-        this.queryExecutor = queryExecutor;
+        this.executorFactory = executorFactory;
         this.objectMapper = objectMapper;
     }
 
@@ -66,7 +67,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("runSync")
     public ActionResponse runSync(@Valid final ActionRequest request) {
-        return queryExecutor.execute(request);
+        return executorFactory.getExecutor(request).execute(request);
     }
 
     @POST
@@ -74,7 +75,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("runSyncAsync")
     public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) {
-        return queryExecutor.executeAsync(request);
+        return executorFactory.getExecutor(request).executeAsync(request);
     }
 
     @POST
@@ -82,7 +83,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("validateQuery")
     public ActionValidationResponse validateQuery(@Valid final ActionRequest request) {
-        return queryExecutor.validate(request);
+        return executorFactory.getExecutor(request).validate(request);
     }
 
     @POST
@@ -91,7 +92,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("downloadAnalytics")
     public StreamingOutput download(@Valid final ActionRequest actionRequest) {
-        ActionResponse actionResponse = queryExecutor.execute(actionRequest);
+        ActionResponse actionResponse = executorFactory.getExecutor(actionRequest).execute(actionRequest);
         Flattener flattener = new Flattener(objectMapper, actionRequest, new ArrayList<>());
         FlatRepresentation flatRepresentation = actionResponse.accept(flattener);
         return output -> FlatToCsvConverter.convert(flatRepresentation, new OutputStreamWriter(output));

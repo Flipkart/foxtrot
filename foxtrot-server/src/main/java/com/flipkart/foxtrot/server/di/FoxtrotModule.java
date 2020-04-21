@@ -32,7 +32,7 @@ import com.flipkart.foxtrot.core.lock.HazelcastDistributedLock;
 import com.flipkart.foxtrot.core.lock.HazelcastDistributedLockConfig;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.EventPublisherActionExecutionObserver;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.handlers.MetricRecorder;
 import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
@@ -40,8 +40,8 @@ import com.flipkart.foxtrot.core.querystore.handlers.SlowQueryReporter;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
-import com.flipkart.foxtrot.core.querystore.query.ExtrapolatedQueryExecutor;
-import com.flipkart.foxtrot.core.querystore.query.SimpleQueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.ExtrapolationQueryExecutor;
+import com.flipkart.foxtrot.core.queryexecutor.SimpleQueryExecutor;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
@@ -66,7 +66,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import javax.inject.Singleton;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -108,8 +107,7 @@ public class FoxtrotModule extends AbstractModule {
         bind(FunnelStore.class).to(ElasticsearchFunnelStore.class);
         bind(QueryExecutor.class).annotatedWith(Names.named("SimpleQueryExecutor")).to(SimpleQueryExecutor.class);
         bind(QueryExecutor.class).annotatedWith(Names.named("ExtrapolatedQueryExecutor"))
-                .to(ExtrapolatedQueryExecutor.class);
-        bind(FunnelExtrapolationService.class).to(FunnelExtrapolationServiceImpl.class);
+                .to(ExtrapolationQueryExecutor.class);
         bind(DistributedLock.class).to(HazelcastDistributedLock.class);
         bind(new TypeLiteral<List<HealthCheck>>() {
         }).toProvider(HealthcheckListProvider.class);

@@ -1,19 +1,22 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
-package com.flipkart.foxtrot.core.querystore;
+package com.flipkart.foxtrot.core.queryexecutor;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.TestUtils;
@@ -28,36 +31,33 @@ import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
-import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationService;
-import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationServiceImpl;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.flipkart.foxtrot.core.querystore.query.ExtrapolatedQueryExecutor;
-import com.flipkart.foxtrot.core.querystore.query.SimpleQueryExecutor;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
-import org.junit.*;
-import org.mockito.Mockito;
-
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 
 /**
  * Created by rishabh.goyal on 02/05/14.
  */
 public class QueryExecutorTest {
+
     private static HazelcastInstance hazelcastInstance;
     private static ElasticsearchConnection elasticsearchConnection;
     private QueryExecutor queryExecutor;
@@ -81,14 +81,15 @@ public class QueryExecutorTest {
         DataStore dataStore = TestUtils.getDataStore();
 
         //Initializing Cache Factory
-        HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
+        HazelcastConnection hazelcastConnection = mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
+        CacheManager cacheManager = new CacheManager(
+                new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
         TableMetadataManager tableMetadataManager = mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(anyString())).thenReturn(true);
-        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
+        when(tableMetadataManager.exists(ArgumentMatchers.anyString())).thenReturn(true);
+        when(tableMetadataManager.get(ArgumentMatchers.anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = mock(QueryStore.class);
         analyticsLoader = spy(
                 new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager,
@@ -103,14 +104,8 @@ public class QueryExecutorTest {
                         .build())
                 .build();
 
-        QueryExecutor simpleQueryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService,
+        queryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService,
                 Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
-
-        FunnelExtrapolationService funnelExtrapolationService = new FunnelExtrapolationServiceImpl(
-                funnelConfiguration, simpleQueryExecutor);
-
-        queryExecutor = new ExtrapolatedQueryExecutor(analyticsLoader, executorService,
-                Collections.singletonList(new ResponseCacheUpdater(cacheManager)), funnelExtrapolationService);
     }
 
     @After

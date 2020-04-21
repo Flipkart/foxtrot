@@ -59,6 +59,7 @@
         <lombok.version>1.16.16</lombok.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <es.container.version>1.0.4</es.container.version>
+        <caffeine.version>2.6.2</caffeine.version>
         <guava.version>24.1.1-jre</guava.version>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
@@ -184,6 +185,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

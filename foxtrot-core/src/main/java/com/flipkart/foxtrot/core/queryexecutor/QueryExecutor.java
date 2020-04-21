@@ -10,7 +10,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package com.flipkart.foxtrot.core.querystore;
+package com.flipkart.foxtrot.core.queryexecutor;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
@@ -21,16 +21,14 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationService;
+import com.flipkart.foxtrot.core.querystore.ActionEvaluationResponse;
+import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.google.common.base.Stopwatch;
-import lombok.extern.slf4j.Slf4j;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
