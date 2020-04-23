@@ -82,7 +82,7 @@ public class ConsoleV2Resource {
     @Path("/{id}/old/get")
     @ApiOperation("get Old Version Console - via id")
     public ConsoleV2 getOldVersion(@PathParam("id") final String id) {
-        return consolePersistence.getV2(id);
+        return consolePersistence.getOldVersion(id);
     }
 
     @GET

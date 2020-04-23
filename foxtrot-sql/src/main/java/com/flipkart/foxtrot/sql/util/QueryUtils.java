@@ -1,7 +1,6 @@
 package com.flipkart.foxtrot.sql.util;
 
 import com.flipkart.foxtrot.sql.Constants;
-import com.flipkart.foxtrot.sql.QueryTranslator;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;

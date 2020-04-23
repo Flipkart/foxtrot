@@ -26,7 +26,6 @@ import com.flipkart.foxtrot.sql.query.FqlDescribeTable;
 import com.flipkart.foxtrot.sql.query.FqlShowTablesQuery;
 import com.flipkart.foxtrot.sql.util.QueryUtils;
 import com.google.common.collect.Lists;
-import com.sun.org.apache.regexp.internal.RE;
 import io.dropwizard.util.Duration;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.*;
