@@ -35,7 +35,7 @@ public class MultiTimeQueryRequest extends ActionRequest {
     }
 
     public MultiTimeQueryRequest(int sampleSize, Duration skipDuration, ActionRequest actionRequest) {
-        super("multi_time_query");
+        super(Opcodes.MULTI_TIME_QUERY);
         this.sampleSize = sampleSize;
         this.skipDuration = skipDuration;
         this.actionRequest = actionRequest;
