@@ -617,7 +617,7 @@ h1 {
 
 .settings {
   float: right;
-  width: 170px;
+  width: 195px;
   height: 34px;
   position: relative;
   top: 12px;
@@ -640,6 +640,19 @@ h1 {
   margin-top: 8px;
 }
 
+.download-widget {
+  float: left;
+    right: 6px;
+    position: relative;
+    top: -1px;
+    width: 33px;
+}
+.download-widget img{
+  float: left;
+  width: 19px;
+  margin-top: 6px;
+  
+}
 .settings-icon {
   position: relative;
   top: 2px;
