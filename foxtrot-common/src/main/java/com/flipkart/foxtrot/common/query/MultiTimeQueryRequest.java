@@ -15,7 +15,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  ***/
 @Getter
 @Setter
-@AllArgsConstructor
 public class MultiTimeQueryRequest extends ActionRequest {
 
     private int sampleSize;
@@ -33,6 +32,13 @@ public class MultiTimeQueryRequest extends ActionRequest {
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    public MultiTimeQueryRequest(int sampleSize, Duration skipDuration, ActionRequest actionRequest) {
+        super("multi_time_query");
+        this.sampleSize = sampleSize;
+        this.skipDuration = skipDuration;
+        this.actionRequest = actionRequest;
     }
 
     @Override
