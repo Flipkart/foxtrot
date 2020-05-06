@@ -33,12 +33,6 @@ oneDaySeconds = 86400
 oneMonthSeconds = 2592000
 currentTime = int(time.time())
 
-parser = argparse.ArgumentParser(
-    description='Deleting unassigned indices beyond certain day')
-parser.add_argument('--day', type=int, metavar='N', action='store',
-                    help='Days beyond which indices needs to be deleted',
-                    required=True)
-
 for unassigned_index in unassigned_indices:
     res = requests.get(host + unassigned_index +"/_settings")
     index = res.json()
