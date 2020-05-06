@@ -17,7 +17,7 @@
     <parent>
         <groupId>com.phonepe</groupId>
         <artifactId>pp-parent-pom</artifactId>
-        <version>0.21</version>
+        <version>0.25</version>
     </parent>
     <scm>
         <connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
@@ -84,12 +84,9 @@
         <guava.version>24.1.1-jre</guava.version>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
-        <jacoco.version>0.7.5.201505241946</jacoco.version>
         <powermock.api.mockito.version>1.7.3</powermock.api.mockito.version>
         <powermock.module.junit4.version>1.7.3</powermock.module.junit4.version>
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.jacoco.reportPaths>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPaths>
         <sonar.version>3.6.0.1398</sonar.version>
         <sonar.language>java</sonar.language>
         <sonar.exclusions>**com/flipkart/foxtrot/common/**/*,
@@ -565,23 +562,6 @@
                         <phase>test</phase>
                         <goals>
                             <goal>test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco.version}</version>
-                <configuration>
-                    <destFile>${sonar.jacoco.reportPaths}</destFile>
-                    <append>true</append>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
                         </goals>
                     </execution>
                 </executions>
