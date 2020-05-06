@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.flipkart.foxtrot</groupId>
         <artifactId>foxtrot</artifactId>
-        <version>6.3.1-67</version>
+        <version>6.3.1-68</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -276,7 +276,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
-                    <skip>true</skip>
+                    <skip>false</skip>
                 </configuration>
             </plugin>
         </plugins>
