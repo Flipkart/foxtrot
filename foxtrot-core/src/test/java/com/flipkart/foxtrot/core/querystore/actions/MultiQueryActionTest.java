@@ -22,6 +22,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.query.*;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Maps;
@@ -30,10 +31,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -84,6 +82,43 @@ public class MultiQueryActionTest extends ActionTest {
                 .get("2");
 
         assertEquals(9, countResponse.getCount());
+    }
+
+    @Test
+    public void testMultiQueryCommonFilters() throws FoxtrotException, JsonProcessingException {
+
+        HashMap<String, ActionRequest> requests = Maps.newHashMap();
+        Query query = new Query();
+        query.setTable(TestUtils.TEST_TABLE_NAME);
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.asc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+        requests.put("1", query);
+
+        CountRequest countRequest = new CountRequest();
+        countRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        countRequest.setField("os");
+        countRequest.setDistinct(false);
+        requests.put("2", countRequest);
+
+        MultiQueryRequest multiQueryRequest = new MultiQueryRequest(requests);
+        multiQueryRequest.setFilters(Collections.singletonList(new EqualsFilter("device", "nexus")));
+
+        ActionResponse actionResponse = getQueryExecutor().execute(multiQueryRequest);
+        MultiQueryResponse multiQueryResponse = null;
+        if(actionResponse instanceof MultiQueryResponse) {
+            multiQueryResponse = (MultiQueryResponse)actionResponse;
+        }
+        assertNotNull(multiQueryResponse);
+
+        QueryResponse queryResponse = (QueryResponse)multiQueryResponse.getResponses()
+                .get("1");
+        CountResponse countResponse = (CountResponse)multiQueryResponse.getResponses()
+                .get("2");
+
+        assertEquals(6, queryResponse.getDocuments().size());
+        assertEquals(6, countResponse.getCount());
     }
 
     @Test

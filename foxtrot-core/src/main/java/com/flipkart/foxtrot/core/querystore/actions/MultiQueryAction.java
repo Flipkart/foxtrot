@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
 import com.flipkart.foxtrot.core.common.Action;
@@ -11,8 +12,10 @@ import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.val;
 import org.elasticsearch.action.search.MultiSearchRequest;
 import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -81,7 +84,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     @Override
     public ActionResponse execute(MultiQueryRequest parameter) {
-        MultiSearchRequest multiSearchRequestBuilder = getRequestBuilder(parameter);
+        MultiSearchRequest multiSearchRequestBuilder = getRequestBuilder(parameter, Collections.emptyList());
         try {
             LOGGER.info("Search: {}", multiSearchRequestBuilder);
             MultiSearchResponse multiSearchResponse = getConnection()
@@ -94,10 +97,17 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     @Override
-    public MultiSearchRequest getRequestBuilder(MultiQueryRequest parameter) {
+    public MultiSearchRequest getRequestBuilder(MultiQueryRequest parameter, List<Filter> extraFilters) {
 
         MultiSearchRequest multiSearchRequest = new MultiSearchRequest();
-
+        val filterBuilder = ImmutableList.<Filter>builder();
+        if(null != parameter.getFilters()) {
+            filterBuilder.addAll(parameter.getFilters());
+        }
+        if(null != extraFilters) {
+            filterBuilder.addAll(extraFilters);
+        }
+        val filters =  filterBuilder.build();
 
         for(Map.Entry<String, ActionRequest> entry : parameter.getRequests()
                 .entrySet()) {
@@ -106,7 +116,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             if(null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
             }
-            org.elasticsearch.action.ActionRequest requestBuilder = action.getRequestBuilder(request);
+            org.elasticsearch.action.ActionRequest requestBuilder = action.getRequestBuilder(request, filters);
             if(requestBuilder instanceof SearchRequest) {
                 multiSearchRequest.add((SearchRequest) requestBuilder);
             }
