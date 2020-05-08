@@ -48,6 +48,7 @@ public class MultiQueryActionTest extends ActionTest {
         getElasticsearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
+        Thread.sleep(2000);
     }
 
     @Test
@@ -81,6 +82,7 @@ public class MultiQueryActionTest extends ActionTest {
         CountResponse countResponse = (CountResponse)multiQueryResponse.getResponses()
                 .get("2");
 
+        System.out.println(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(queryResponse));
         assertEquals(9, countResponse.getCount());
     }
 
@@ -103,7 +105,7 @@ public class MultiQueryActionTest extends ActionTest {
         requests.put("2", countRequest);
 
         MultiQueryRequest multiQueryRequest = new MultiQueryRequest(requests);
-        multiQueryRequest.setFilters(Collections.singletonList(new EqualsFilter("device", "nexus")));
+        multiQueryRequest.setFilters(Collections.singletonList(new EqualsFilter("os", "ios")));
 
         ActionResponse actionResponse = getQueryExecutor().execute(multiQueryRequest);
         MultiQueryResponse multiQueryResponse = null;
@@ -117,8 +119,8 @@ public class MultiQueryActionTest extends ActionTest {
         CountResponse countResponse = (CountResponse)multiQueryResponse.getResponses()
                 .get("2");
 
-        assertEquals(6, queryResponse.getDocuments().size());
-        assertEquals(6, countResponse.getCount());
+        assertEquals(2, queryResponse.getDocuments().size());
+        assertEquals(2, countResponse.getCount());
     }
 
     @Test
