@@ -12,7 +12,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Sets;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -106,7 +107,7 @@ public class DistinctAction extends Action<DistinctRequest> {
     public ActionResponse execute(DistinctRequest request) {
         SearchRequest query;
         try {
-            query = getRequestBuilder(request);
+            query = getRequestBuilder(request, Collections.emptyList());
         }
         catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
@@ -125,12 +126,12 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(DistinctRequest request) {
+    public SearchRequest getRequestBuilder(DistinctRequest request, List<Filter> extraFilters) {
         try {
             return new SearchRequest(ElasticsearchUtils.getIndices(request.getTable(), request))
                     .indicesOptions(Utils.indicesOptions())
                     .source(new SearchSourceBuilder()
-                                    .query(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
+                                    .query(ElasticsearchQueryUtils.translateFilter(request, extraFilters))
                                     .size(QUERY_SIZE)
                                     .aggregation(Utils.buildTermsAggregation(
                                             request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()))

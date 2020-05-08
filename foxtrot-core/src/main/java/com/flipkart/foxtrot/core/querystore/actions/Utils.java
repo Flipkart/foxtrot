@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
@@ -353,4 +354,10 @@ public class Utils {
         return null != fieldMetadata && NUMERIC_FIELD_TYPES.contains(fieldMetadata.getType());
     }
 
+    public static boolean hasTemporalFilters(List<Filter> filters) {
+        if(null == filters) {
+            return false;
+        }
+        return filters.stream().anyMatch(Filter::isFilterTemporal);
+    }
 }

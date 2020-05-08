@@ -42,8 +42,8 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
@@ -154,7 +154,7 @@ public class GroupAction extends Action<GroupRequest> {
 
     @Override
     public ActionResponse execute(GroupRequest parameter) {
-        SearchRequest query = getRequestBuilder(parameter);
+        SearchRequest query = getRequestBuilder(parameter, Collections.emptyList());
         try {
             SearchResponse response = getConnection()
                     .getClient()
@@ -167,13 +167,13 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(GroupRequest parameter) {
+    public SearchRequest getRequestBuilder(GroupRequest parameter, List<Filter> extraFilters) {
         return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                 .indicesOptions(Utils.indicesOptions())
                 .source(new SearchSourceBuilder()
                        .size(QUERY_SIZE)
                        .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
-                        .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
+                        .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
                        .aggregation(buildAggregation(parameter)));
     }
 
