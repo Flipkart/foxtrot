@@ -29,17 +29,16 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.foxtrot.flipkart.translator.DocumentTranslator;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import lombok.SneakyThrows;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.settings.Settings;
 import org.joda.time.DateTime;
 import org.mockito.Matchers;
@@ -53,7 +52,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -489,48 +489,20 @@ public class TestUtils {
         return documents;
     }
 
-    public static ElasticsearchConnection initESConnection(MockElasticsearchServer elasticsearchServer) {
-        CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX);
-        Settings indexSettings = Settings.builder()
-                .put("number_of_replicas", 0)
-                .build();
-        createRequest.settings(indexSettings);
-        elasticsearchServer.getClient()
-                .admin()
-                .indices()
-                .create(createRequest)
-                .actionGet();
-        elasticsearchServer.getClient()
-                .admin()
-                .cluster()
-                .prepareHealth()
-                .setWaitForGreenStatus()
-                .execute()
-                .actionGet();
-        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
-        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
-        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
-        return elasticsearchConnection;
-    }
-
+    @SneakyThrows
     public static void ensureIndex(ElasticsearchConnection connection, final String table) {
-        IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(table);
-        IndicesExistsResponse indicesExistsResponse = connection.getClient()
-                .admin()
+        boolean exists = connection.getClient()
                 .indices()
-                .exists(indicesExistsRequest)
-                .actionGet();
+                .exists(new GetIndexRequest(table), RequestOptions.DEFAULT);
 
-        if(!indicesExistsResponse.isExists()) {
+        if(!exists) {
             Settings indexSettings = Settings.builder()
                     .put("number_of_replicas", 0)
                     .build();
             CreateIndexRequest createRequest = new CreateIndexRequest(table).settings(indexSettings);
             connection.getClient()
-                    .admin()
                     .indices()
-                    .create(createRequest)
-                    .actionGet();
+                    .create(createRequest, RequestOptions.DEFAULT);
         }
     }
 }

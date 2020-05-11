@@ -16,13 +16,16 @@
 package com.flipkart.foxtrot.core.common.noncacheable;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.annotations.VisibleForTesting;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.ActionRequest;
+
+import java.util.List;
 
 /**
  * Created by rishabh.goyal on 02/05/14.
@@ -57,7 +60,7 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(NonCacheableActionRequest parameter) throws FoxtrotException {
+    public ActionRequest getRequestBuilder(NonCacheableActionRequest parameter, List<Filter> extraFilters) throws FoxtrotException {
         return null;
     }
 

@@ -17,11 +17,14 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
@@ -36,6 +39,7 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/tables")
 @Singleton
+@PermitAll
 public class TableFieldMappingResource {
 
     private final TableManager tableManager;
@@ -80,6 +84,7 @@ public class TableFieldMappingResource {
     @Timed
     @Path("/{name}/fields/update")
     @ApiOperation("Update Fields")
+    @RolesAllowed(FoxtrotRole.Value.SYSADMIN)
     public Response updateEstimation(@PathParam("name") final String table, @QueryParam("time") @DefaultValue("0") long epoch) {
         tableMetadataManager.updateEstimationData(table, 0 == epoch ? System.currentTimeMillis() : epoch);
         return Response.ok()

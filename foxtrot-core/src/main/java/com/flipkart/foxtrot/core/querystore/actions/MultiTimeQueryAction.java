@@ -10,7 +10,6 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.collect.Lists;
-import org.elasticsearch.action.ActionRequestBuilder;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -116,8 +115,8 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     }
 
     @Override
-    public ActionRequestBuilder getRequestBuilder(MultiTimeQueryRequest parameter) {
-        return action.getRequestBuilder(multiQueryRequest);
+    public org.elasticsearch.action.ActionRequest getRequestBuilder(MultiTimeQueryRequest parameter, List<Filter> extraFilters) {
+        return action.getRequestBuilder(multiQueryRequest, extraFilters);
     }
 
     @Override

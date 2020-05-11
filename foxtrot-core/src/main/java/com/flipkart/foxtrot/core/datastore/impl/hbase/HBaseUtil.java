@@ -100,7 +100,9 @@ public abstract class HBaseUtil {
         Admin hBaseAdmin = null;
         try {
             hBaseAdmin = connection.getAdmin();
-            hBaseAdmin.createTable(hTableDescriptor);
+            if(!hBaseAdmin.tableExists(TableName.valueOf(tableName))) {
+                hBaseAdmin.createTable(hTableDescriptor);
+            }
         } catch (Exception e) {
             logger.error("Could not create table: " + tableName, e);
         } finally {

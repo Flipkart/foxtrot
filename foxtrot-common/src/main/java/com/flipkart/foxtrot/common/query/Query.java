@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.common.query;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.List;
  * Date: 13/03/14
  * Time: 6:38 PM
  */
+@Data
 public class Query extends ActionRequest {
 
     private String table;
@@ -36,6 +38,9 @@ public class Query extends ActionRequest {
     private int from = 0;
 
     private int limit = 10;
+
+    private boolean scrollRequest = false;
+    private String scrollId;
 
     public Query() {
         super(Opcodes.QUERY);
@@ -96,6 +101,8 @@ public class Query extends ActionRequest {
                 .append("sort", sort)
                 .append("from", from)
                 .append("limit", limit)
+                .append("scroll", scrollRequest)
+                .append("scrollId", scrollId)
                 .toString();
     }
 }

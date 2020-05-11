@@ -45,8 +45,9 @@ def eventBatch(batchSize=100):
 
 def postBatch(args):
     events = eventBatch()
-    r = requests.post(url="http://" + args.server + "/foxtrot/v1/document/test/bulk", data=json.dumps(events),
-                      headers={'Content-type': 'application/json'})
+    headers = headers={'Content-type': 'application/json', 'Authorization' : 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJmb3h0cm90LXNlcnZlciIsImp0aSI6IjA5YzIwMmRhLTg2YjctNGMyZS1iMzA1LWZjNTBkNjliYTRlNSIsImlhdCI6MTU4NjI1NDE2NSwibmJmIjoxNTg2MjU0MDQ1LCJzdWIiOiJldmVudF9wdWJsaXNoZXIiLCJhdWQiOiJTVEFUSUMifQ.jGijnjI8TSXJ7F2OnwE-r5HuN_YRfvoG45umga-vVhI_Qeu83k17AtBbeGbaaTT8sPJDQFIktz4EGe7TWkLUvw'}
+    print(headers)
+    r = requests.post(url="http://" + args.server + "/foxtrot/v1/document/test/bulk", data=json.dumps(events), headers = headers)
     print r
     if r.status_code == requests.codes.created:
         print "Sent batch"

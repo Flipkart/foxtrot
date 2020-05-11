@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
@@ -29,6 +30,19 @@ import java.util.List;
  */
 @NoArgsConstructor
 public class ElasticsearchConfig {
+    public ConnectionType getConnectionType() {
+        return connectionType;
+    }
+
+    public void setConnectionType(ConnectionType connectionType) {
+        this.connectionType = connectionType;
+    }
+
+    public enum ConnectionType {
+        HTTP,
+        HTTPS
+    }
+
     public static final long DEFAULT_TIMEOUT = 10000L;
     @Valid
     @NotNull
@@ -42,6 +56,9 @@ public class ElasticsearchConfig {
     private String tableNamePrefix = "foxtrot";
     private long getQueryTimeout;
     private Integer port;
+    @NotNull
+    @Builder.Default
+    private ConnectionType connectionType = ConnectionType.HTTP;
 
     public List<String> getHosts() {
         return hosts;

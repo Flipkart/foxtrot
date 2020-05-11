@@ -6,6 +6,7 @@ import com.flipkart.foxtrot.server.cluster.ClusterMember;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -22,6 +23,7 @@ import java.util.Map;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/cluster")
 @Singleton
+@PermitAll
 public class ClusterInfoResource {
     private ClusterManager clusterManager;
 

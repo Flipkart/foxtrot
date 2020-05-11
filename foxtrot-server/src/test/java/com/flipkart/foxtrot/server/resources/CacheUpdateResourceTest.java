@@ -14,7 +14,7 @@ package com.flipkart.foxtrot.server.resources;/**
  * limitations under the License.
  */
 
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.server.ResourceTestUtils;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,17 +33,14 @@ public class CacheUpdateResourceTest extends FoxtrotResourceTest {
     public CacheUpdateResourceTest() throws Exception {
         super();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        resources = ResourceTestRule.builder()
+        resources = ResourceTestUtils.testResourceBuilder(getMapper())
                 .addResource(new CacheUpdateResource(executorService, getTableMetadataManager()))
-                .addProvider(new FoxtrotExceptionMapper(getMapper()))
-                .setMapper(getMapper())
                 .build();
     }
 
     @Test
     public void testUpdateCache() {
-        resources.client()
-                .target("/v1/cache/update/cardinality")
+        resources.target("/v1/cache/update/cardinality")
                 .request()
                 .post(null);
 

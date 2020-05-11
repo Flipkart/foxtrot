@@ -6,12 +6,15 @@ server:
     - type: http
       port: 17001
 
+swaggerScheme: ${SWAGGER_SCHEME}
+
 elasticsearch:
   hosts:
   - ${ELASTICSEARCH_HOST}
   cluster: ${ELASTICSEARCH_CLUSTER_NAME}
   tableNamePrefix: ${ELASTICSEARCH_TABLE_NAME_PREFIX}
   port: ${ELASTICSEARCH_PORT}
+  connectionType: ${ELASTICSEARCH_PROTOCOL}
 
 hbase:
   secure : false
@@ -22,7 +25,7 @@ hbase:
 cluster:
   name: foxtrot
   discovery:
-    type: foxtrot_simple
+    type: ${DISCOVERY_TYPE}
     disableMulticast: true
     members: ["localhost:5701"]
 
@@ -66,3 +69,21 @@ consoleHistoryConfig:
   interval: 86400
   initialDelay: 10
 
+sessionCleanupConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10
+
+auth:
+  enabled: ${AUTH_ENABLED}
+  jwt:
+    issuerId: foxtrot-server
+    privateKey: ${PRIVATE_KEY}
+    sessionDuration: 15d
+
+  provider:
+    type: OAUTH_GOOGLE
+    clientId: ${GOOGLE_CLIENT_ID}
+    clientSecret: ${GOOGLE_CLIENT_SECRET}
+    server: ${GOOGLE_CALLBACK_HOST_PORT}
+    secureEndpoint: ${GOOGLE_SECURE_ENDPOINT}

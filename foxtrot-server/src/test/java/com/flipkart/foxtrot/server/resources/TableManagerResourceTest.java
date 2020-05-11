@@ -20,7 +20,7 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.server.ResourceTestUtils;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Rule;
@@ -52,10 +52,8 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         super();
         this.tableManager = new FoxtrotTableManager(getTableMetadataManager(), getQueryStore(), getDataStore());
         this.tableManager = spy(tableManager);
-        resources = ResourceTestRule.builder()
+        resources = ResourceTestUtils.testResourceBuilder(getMapper())
                 .addResource(new TableManagerResource(tableManager))
-                .addProvider(new FoxtrotExceptionMapper(getMapper()))
-                .setMapper(getMapper())
                 .build();
     }
 
@@ -71,7 +69,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
                 .ttl(7)
                 .build();
         Entity<Table> tableEntity = Entity.json(table);
-        resources.client()
+        resources
                 .target("/v1/tables")
                 .request()
                 .post(tableEntity);
@@ -87,7 +85,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testSaveNullTable() throws Exception {
-        Response response = resources.client()
+        Response response = resources
                 .target("/v1/tables")
                 .request()
                 .post(null);
@@ -101,7 +99,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
                 .ttl(30)
                 .build();
         Entity<Table> tableEntity = Entity.json(table);
-        Response response = resources.client()
+        Response response = resources
                 .target("/v1/tables")
                 .request()
                 .post(tableEntity);
@@ -118,7 +116,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         Entity<Table> tableEntity = Entity.json(table);
         doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException())).when(tableManager)
                 .save(Matchers.<Table>any());
-        Response response = resources.client()
+        Response response = resources
                 .target("/v1/tables")
                 .request()
                 .post(tableEntity);
@@ -134,7 +132,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
                 .ttl(0)
                 .build();
         Entity<Table> tableEntity = Entity.json(table);
-        Response response = resources.client()
+        Response response = resources
                 .target("/v1/tables")
                 .request()
                 .post(tableEntity);
@@ -149,7 +147,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
                 .initializeTable(any(String.class));
 
 
-        Table response = resources.client()
+        Table response = resources
                 .target(String.format("/v1/tables/%s", TEST_TABLE_NAME))
                 .request()
                 .get(Table.class);
@@ -160,7 +158,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testGetMissingTable() throws Exception {
-        Response response = resources.client()
+        Response response = resources
                 .target(String.format("/v1/tables/%s", TEST_TABLE_NAME + "_missing"))
                 .request()
                 .get();
