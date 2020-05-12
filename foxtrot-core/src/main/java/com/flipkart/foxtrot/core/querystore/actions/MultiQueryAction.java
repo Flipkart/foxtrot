@@ -211,6 +211,10 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     private String processForSubQueries(MultiQueryRequest multiQueryRequest, ActionInterface actionInterface) {
         List<String> results = Lists.newArrayList();
         for(Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests().entrySet()) {
+            if(null == entry.getValue()) {
+                log.warn("Empty response for query: {}", entry.getKey());
+                continue;
+            }
             String result = actionInterface.invoke(requestActionMap.get(entry.getValue()), entry.getValue());
             if(!Strings.isNullOrEmpty(result)) {
                 results.add(result);
