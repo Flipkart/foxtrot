@@ -119,9 +119,6 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                     .execute()
                     .actionGet();
             LOGGER.info("No of indexes optimized : {}", indices.size());
-            MetricUtil.getInstance()
-                    .registerActionSuccess("indexesOptimized", CollectionUtils.mkString(indices, ","),
-                                           stopwatch.elapsed(TimeUnit.MILLISECONDS));
         }
     }
 
