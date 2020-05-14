@@ -108,7 +108,6 @@ public class EsIndexOptimizationManager extends BaseJobManager {
     private void optimizeIndices(Set<String> indicesToOptimize) {
         List<List<String>> batchOfIndicesToOptimize = CollectionUtils.partition(indicesToOptimize, BATCH_SIZE);
         for (List<String> indices : batchOfIndicesToOptimize) {
-            Stopwatch stopwatch = Stopwatch.createStarted();
             elasticsearchConnection.getClient()
                     .admin()
                     .indices()
