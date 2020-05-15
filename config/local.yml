@@ -130,12 +130,6 @@ gandalfConfiguration:
   username: "mudit.g@phonepe.com"
   password: "gandalf@echo"
 
-segregationConfiguration:
-  tableEventConfigs:
-    phonepe_consumer_app_android:
-      phonepe_consumer_app_android_app_loaded:
-        - APP_LOADED
-
 elasticsearchTuningConfig:
   precisionThreshold: 500
   aggregationSize: 10000
