@@ -46,7 +46,7 @@ deploy_snapshot:
   only:
     - web
   script:
-    - mvn deploy -pl !foxtrot-server
+    - mvn deploy -pl !foxtrot-server -Dmaven.install.skip=true
   when: manual
   allow_failure: false
 
@@ -57,7 +57,7 @@ docker_build:
     - web
   script:
     - cd foxtrot-server
-    - mvn -U clean compile package docker:build docker:push -Pdocker
+    - mvn -U clean compile package docker:build docker:push -Pdocker -Dmaven.install.skip=true
   when: manual
   allow_failure: false
 
