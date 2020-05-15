@@ -5,7 +5,7 @@
     <parent>
         <artifactId>foxtrot</artifactId>
         <groupId>com.flipkart.foxtrot</groupId>
-        <version>6.3.1-68</version>
+        <version>6.3.1-69</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>foxtrot-server</artifactId>
@@ -19,11 +19,6 @@
         <dependency>
             <groupId>ru.vyarus</groupId>
             <artifactId>dropwizard-guicey</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.raven.dropwizard</groupId>
-            <artifactId>dropwizard-oor</artifactId>
-            <version>1.3.13-1</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
