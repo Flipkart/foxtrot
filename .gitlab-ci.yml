@@ -20,7 +20,7 @@ merge_ready:
     - merge_requests
   <<: *default_tag
   script:
-    - mvn clean test -U -Pquality_check
+    - mvn clean verify -U -Pquality_check
 
 merge:
   stage: merge
