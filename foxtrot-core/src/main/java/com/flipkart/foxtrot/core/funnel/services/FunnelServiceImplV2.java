@@ -60,8 +60,13 @@ public class FunnelServiceImplV2 implements FunnelService {
     }
 
     @Override
-    public Funnel getFunnel(String funnelId) {
-        return funnelService.getFunnel(funnelId);
+    public Funnel getFunnelByFunnelId(String funnelId) {
+        return funnelService.getFunnelByFunnelId(funnelId);
+    }
+
+    @Override
+    public Funnel getFunnelByDocumentId(String documentId) {
+        return funnelService.getFunnelByDocumentId(documentId);
     }
 
     @Override

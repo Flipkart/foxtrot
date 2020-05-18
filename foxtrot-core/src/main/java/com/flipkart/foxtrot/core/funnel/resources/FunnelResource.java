@@ -96,7 +96,15 @@ public class FunnelResource {
     @Path("/{id}")
     @ApiOperation("Get Funnel via funnel id")
     public Response getFunnel(@PathParam("id") final String funnelId) {
-        Funnel funnel = funnelService.getFunnel(funnelId);
+        Funnel funnel = funnelService.getFunnelByFunnelId(funnelId);
+        return Response.ok(funnel).build();
+    }
+
+    @GET
+    @Path("/document/{documentId}")
+    @ApiOperation("Get Funnel via document id")
+    public Response getFunnel(@PathParam("documentId") final String documentId) {
+        Funnel funnel = funnelService.getFunnelByDocumentId(documentId);
         return Response.ok(funnel).build();
     }
 

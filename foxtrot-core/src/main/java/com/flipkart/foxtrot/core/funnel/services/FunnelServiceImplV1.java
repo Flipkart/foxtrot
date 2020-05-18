@@ -73,7 +73,7 @@ public class FunnelServiceImplV1 implements FunnelService {
         Funnel savedFunnel = funnelStore.get(documentId);
         validateFunnelUpdateRequest(savedFunnel);
 
-        if(isFunnelWaitingForApproval(savedFunnel)){
+        if (isFunnelWaitingForApproval(savedFunnel)) {
             assignFunnelPercentage(funnel);
 
             // set parameters which are not updatable
@@ -157,8 +157,13 @@ public class FunnelServiceImplV1 implements FunnelService {
 
 
     @Override
-    public Funnel getFunnel(String funnelId) {
+    public Funnel getFunnelByFunnelId(String funnelId) {
         return funnelStore.getByFunnelId(funnelId);
+    }
+
+    @Override
+    public Funnel getFunnelByDocumentId(String documentId) {
+        return funnelStore.get(documentId);
     }
 
     @Override
