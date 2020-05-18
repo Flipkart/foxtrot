@@ -5,10 +5,14 @@
     <parent>
         <artifactId>foxtrot</artifactId>
         <groupId>com.flipkart.foxtrot</groupId>
-        <version>6.3.1-73</version>
+        <version>6.3.1-74</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>foxtrot-server</artifactId>
+
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -139,7 +143,7 @@
                     <plugin>
                         <artifactId>maven-deploy-plugin</artifactId>
                         <configuration>
-                            <skip>true</skip>
+                            <skip>${maven.deploy.skip}</skip>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -221,7 +225,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
-                    <skip>true</skip>
+                    <skip>${maven.deploy.skip}</skip>
                 </configuration>
             </plugin>
         </plugins>
