@@ -1311,7 +1311,7 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 .reduce-period-select {
   width: 64px;
   font-size: 10px;
-  right: 11px;
+  right: 48px;
   position: relative;
 }
 
