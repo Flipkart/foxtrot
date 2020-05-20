@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var wdata1;
+
 function Queue() {
   this.requests = {};
   this.refreshTime = 5;
@@ -497,16 +499,97 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
     });
   }
 }
-/*----------added download button to widget-------*/
+
+
+//  -------------------- Starts Added download widget 2--------------------
+
+
+TileFactory.prototype.downloadWidget = function (object, tileElement) { // get query
+  if (object.tileContext.chartType == "line") {
+    var lineGraph = new LineTile();
+    //lineGraph.render(tileElement, object);
+    lineGraph.downloadWidget(object);
+  }
+  else if (object.tileContext.chartType == "radar") {
+    tileElement.find(".chart-item").append('<div id="radar-' + object.id + '" style="width:200;height:200"></div>');
+    var radarGraph = new RadarTile();
+    radarGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "trend") {
+    var trendGraph = new TrendTile();
+    trendGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "gauge") {
+    var gaugeGraph = new GaugeTile();
+    gaugeGraph.getQuery(object);
+  } else if (object.tileContext.chartType == "percentageGauge") {
+    var gaugeGraph = new PercentageGaugeTile();
+    gaugeGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "stacked") {
+    var stackedGraph = new StackedTile();
+    stackedGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "stackedBar") {
+    var stackedBarGraph = new StackedBarTile();
+    stackedBarGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "pie") {
+    var pieGraph = new PieTile();
+    pieGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "statsTrend") {
+    var statsTrendGraph = new StatsTrendTile();
+    statsTrendGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "bar") {
+    var barGraph = new BarTile();
+    barGraph.downloadWidget(object);
+  }
+  else if (object.tileContext.chartType == "count") {
+    var countGraph = new CountTile();
+    countGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "lineRatio") {
+    var lineRatioGraph = new LineRatioTile();
+    lineRatioGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "sunburst") {
+    var sunburstGraph = new SunburstTile();
+    sunburstGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "nonStackedLine") {
+    var nonStackedLineGraph = new NonStackedLineTile();
+    nonStackedLineGraph.getQuery(object);
+  }
+}
+
+
 
 TileFactory.prototype.triggerDownload = function (tileElement, object) {
   var instanceVar = this;
   tileElement.find(".download-widget").click(function () {
     var clickedObject = tileData[object.id];
-    console.log(clickedObject);
+    console.log("object clickedObject......", clickedObject);
+    instanceVar.downloadWidget(object,tileElement)
   });
 }
 
+
+
+//  common Recussive function for download csv using blob-------
+function downloadTextAsCSV(text, fileName) {
+  var link = document.createElement('a');
+  link.href = 'data:text/csv;charset=utf-8,' + encodeURI(text);
+  link.target = "_blank";
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+
+//  -------------------- Ends added download widget 2--------------------
 
 /**
  * 
@@ -759,3 +842,9 @@ TileFactory.prototype.create = function () {
   previousWidget = this.tileObject.tileContext.widgetType;
   this.addEventToPeriodSelect(tileElement, this.tileObject);
 };
+
+
+
+
+
+
