@@ -548,7 +548,7 @@ TileFactory.prototype.downloadWidget = function (object, tileElement) { // get q
   }
   else if (object.tileContext.chartType == "count") {
     var countGraph = new CountTile();
-    countGraph.getQuery(object);
+    countGraph.downloadWidget(object);
   }
   else if (object.tileContext.chartType == "lineRatio") {
     var lineRatioGraph = new LineRatioTile();
