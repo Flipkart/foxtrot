@@ -45,17 +45,17 @@ public class EmailClient {
         this.session = Session.getDefaultInstance(mailProps);
     }
 
-    public boolean sendEmail(final Email email) {
+    public void sendEmail(final Email email) {
         if (Strings.isNullOrEmpty(emailConfig.getFrom())) {
             LOGGER.warn("Mail config not set properly. No mail will be sent.");
-            return false;
+            return;
         }
         try {
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(emailConfig.getFrom()));
             final List<String> recipients = recipients(email);
             if (recipients.isEmpty()) {
-                return false;
+                return;
             }
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(String.join(",", recipients)));
             message.setSubject(email.getSubject());
@@ -73,10 +73,7 @@ public class EmailClient {
             Transport.send(message, emailConfig.getUser(), emailConfig.getPassword());
         } catch (Exception e) {
             LOGGER.error("Error occurred while sending the email :%s", e);
-            return false;
         }
-        return true;
-
     }
 
     private List<String> recipients(Email email) {
