@@ -524,7 +524,7 @@ TileFactory.prototype.downloadWidget = function (object, tileElement) { // get q
     gaugeGraph.downloadWidget(object);
   } else if (object.tileContext.chartType == "percentageGauge") {
     var gaugeGraph = new PercentageGaugeTile();
-    gaugeGraph.getQuery(object);
+    gaugeGraph.downloadWidget(object);
   }
   else if (object.tileContext.chartType == "stacked") {
     var stackedGraph = new StackedTile();
