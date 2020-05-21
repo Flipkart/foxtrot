@@ -517,7 +517,7 @@ TileFactory.prototype.downloadWidget = function (object, tileElement) { // get q
   }
   else if (object.tileContext.chartType == "trend") {
     var trendGraph = new TrendTile();
-    trendGraph.getQuery(object);
+    trendGraph.downloadWidget(object);
   }
   else if (object.tileContext.chartType == "gauge") {
     var gaugeGraph = new GaugeTile();
