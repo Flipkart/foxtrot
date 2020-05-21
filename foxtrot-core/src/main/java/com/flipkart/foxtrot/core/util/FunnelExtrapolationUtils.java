@@ -16,10 +16,10 @@ public class FunnelExtrapolationUtils {
 
     public static final String FUNNEL_ID_QUERY_FIELD = "eventData.funnelInfo.funnelId";
 
-    public static final List<String> VALID_STATS_FOR_EXTRAPOLATION = Arrays.asList(
-            Utils.COUNT, Utils.SUM, Utils.SUM_OF_SQUARES);
+    public static final List<String> VALID_STATS_FOR_EXTRAPOLATION = Arrays.asList(Utils.COUNT, Utils.SUM,
+            Utils.SUM_OF_SQUARES);
 
-    private FunnelExtrapolationUtils(){
+    private FunnelExtrapolationUtils() {
 
     }
 
@@ -30,10 +30,10 @@ public class FunnelExtrapolationUtils {
             // TODO: Extract funnelId from eventType when funnelId is not given in filter
             // Extract funnel id if equals filter is applied on eventData.funnelInfo.funnelId
             try {
-                Optional<Filter> funnelIdFilter = actionRequest.getFilters().stream()
-                        .filter(filter -> (filter instanceof EqualsFilter)
-                                && (filter.getField().equals(FUNNEL_ID_QUERY_FIELD))
-                        )
+                Optional<Filter> funnelIdFilter = actionRequest.getFilters()
+                        .stream()
+                        .filter(filter -> (filter instanceof EqualsFilter) && (filter.getField()
+                                .equals(FUNNEL_ID_QUERY_FIELD)))
                         .findFirst();
                 if (funnelIdFilter.isPresent()) {
                     Long funnelId = Long.parseLong((String) (((EqualsFilter) funnelIdFilter.get()).getValue()));

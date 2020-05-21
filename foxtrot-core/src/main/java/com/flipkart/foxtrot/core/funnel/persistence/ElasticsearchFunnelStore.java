@@ -15,6 +15,7 @@ import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.TYPE;
 
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
 import com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes;
@@ -29,7 +30,6 @@ import com.flipkart.foxtrot.core.funnel.services.PreProcessFilter;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
-import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.google.inject.Inject;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -76,8 +76,8 @@ public class ElasticsearchFunnelStore implements FunnelStore {
 
 
     @Inject
-    public ElasticsearchFunnelStore(ElasticsearchConnection connection,
-            MappingService mappingService, FunnelConfiguration funnelConfiguration) {
+    public ElasticsearchFunnelStore(ElasticsearchConnection connection, MappingService mappingService,
+            FunnelConfiguration funnelConfiguration) {
         this.connection = connection;
         this.mappingService = mappingService;
         this.funnelConfiguration = funnelConfiguration;
@@ -136,7 +136,8 @@ public class ElasticsearchFunnelStore implements FunnelStore {
             if (response == null || response.getTotalHits() == 0) {
                 return null;
             }
-            return JsonUtils.fromJson(response.getAt(0).getSourceAsString(), Funnel.class);
+            return JsonUtils.fromJson(response.getAt(0)
+                    .getSourceAsString(), Funnel.class);
         } catch (Exception e) {
             throw new FunnelException(EXECUTION_EXCEPTION, "Funnel get by funnel id failed", e);
         }
@@ -156,8 +157,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                     .setQuery(esRequest)
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setSize(funnelConfiguration.getQuerySize());
-            SearchResponse response = requestBuilder
-                    .execute()
+            SearchResponse response = requestBuilder.execute()
                     .actionGet();
             searchHits = response.getHits();
         } catch (Exception e) {
@@ -210,8 +210,10 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                 searchRequestBuilder.setQuery(query);
             }
 
-            SearchResponse response = searchRequestBuilder.execute().actionGet();
-            for (SearchHit hit : CollectionUtils.nullAndEmptySafeValueList(response.getHits().getHits())) {
+            SearchResponse response = searchRequestBuilder.execute()
+                    .actionGet();
+            for (SearchHit hit : CollectionUtils.nullAndEmptySafeValueList(response.getHits()
+                    .getHits())) {
                 funnels.add(JsonUtils.fromJson(hit.getSourceAsString(), Funnel.class));
             }
             return funnels;
@@ -274,12 +276,16 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                     .prepareSearch(funnelConfiguration.getFunnelIndex())
                     .setTypes(TYPE)
                     .setQuery(query)
-                    .addSort(SortBuilders.fieldSort(APPROVAL_DATE).order(SortOrder.DESC))
+                    .addSort(SortBuilders.fieldSort(APPROVAL_DATE)
+                            .order(SortOrder.DESC))
                     .get();
-            if (response.getHits().getTotalHits() == 0) {
+            if (response.getHits()
+                    .getTotalHits() == 0) {
                 return null;
             }
-            return JsonUtils.fromJson(response.getHits().getAt(0).getSourceAsString(), Funnel.class);
+            return JsonUtils.fromJson(response.getHits()
+                    .getAt(0)
+                    .getSourceAsString(), Funnel.class);
         } catch (Exception e) {
             throw new FunnelException(EXECUTION_EXCEPTION, "Failed to get latest funnel", e);
         }
@@ -365,10 +371,8 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         //Event Attributes query
         BoolQueryBuilder eventAttributesQueryBuilder = buildEventAttributesQuery(funnel);
 
-        outerQueryBuilder
-                .must(QueryBuilders.nestedQuery(FIELD_VS_VALUES, fieldVsValuesQueryBuilder, ScoreMode.Avg));
-        outerQueryBuilder
-                .must(QueryBuilders.nestedQuery(EVENT_ATTRIBUTES, eventAttributesQueryBuilder, ScoreMode.Avg));
+        outerQueryBuilder.must(QueryBuilders.nestedQuery(FIELD_VS_VALUES, fieldVsValuesQueryBuilder, ScoreMode.Avg));
+        outerQueryBuilder.must(QueryBuilders.nestedQuery(EVENT_ATTRIBUTES, eventAttributesQueryBuilder, ScoreMode.Avg));
         return outerQueryBuilder;
     }
 
@@ -401,9 +405,8 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                     if (eventAttributeField.get(eventAttributes) != null) {
                         String key = EVENT_ATTRIBUTES + DOT + eventAttributeField.getName();
                         if (!eventAttributesMap.containsKey(key)) {
-                            eventAttributesMap.put(key,
-                                    new ArrayList<>(
-                                            Collections.singletonList(eventAttributeField.get(eventAttributes))));
+                            eventAttributesMap.put(key, new ArrayList<>(
+                                    Collections.singletonList(eventAttributeField.get(eventAttributes))));
                         } else {
                             eventAttributesMap.get(key)
                                     .add(eventAttributeField.get(eventAttributes));

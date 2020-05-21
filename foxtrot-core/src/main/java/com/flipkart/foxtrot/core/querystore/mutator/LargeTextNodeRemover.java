@@ -18,9 +18,7 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
     private final TextNodeRemoverConfiguration configuration;
     private final Random random;
 
-    public LargeTextNodeRemover(
-            ObjectMapper objectMapper,
-            TextNodeRemoverConfiguration textNodeRemoverConfiguration) {
+    public LargeTextNodeRemover(ObjectMapper objectMapper, TextNodeRemoverConfiguration textNodeRemoverConfiguration) {
         this.objectMapper = objectMapper;
         this.configuration = textNodeRemoverConfiguration;
         this.random = new Random();
@@ -33,10 +31,7 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
     }
 
 
-    private void walkTree(
-            final String table,
-            final String documentId,
-            JsonNode node) {
+    private void walkTree(final String table, final String documentId, JsonNode node) {
         if (node == null || node.isNull()) {
             return;
         }
@@ -47,37 +42,30 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         }
     }
 
-    private void handleObjectNode(
-            final String table,
-            final String documentId,
-            ObjectNode objectNode) {
+    private void handleObjectNode(final String table, final String documentId, ObjectNode objectNode) {
         if (objectNode == null || objectNode.isNull()) {
             return;
         }
         List<String> toBeRemoved = Lists.newArrayList();
-        objectNode.fields().forEachRemaining(entry -> {
-            val key = entry.getKey();
-            val value = entry.getValue();
-            if (value.isTextual()) {
-                boolean removeEntry = evaluateForRemoval(table, documentId, key, value);
-                if (removeEntry) {
-                    toBeRemoved.add(entry.getKey());
-                }
-            }
-            else if (value.isArray()) {
-                handleArrayNode(table, documentId, key, (ArrayNode) value);
-            }
-            else if (value.isObject()) {
-                handleObjectNode(table, documentId, (ObjectNode) value);
-            }
-        });
+        objectNode.fields()
+                .forEachRemaining(entry -> {
+                    val key = entry.getKey();
+                    val value = entry.getValue();
+                    if (value.isTextual()) {
+                        boolean removeEntry = evaluateForRemoval(table, documentId, key, value);
+                        if (removeEntry) {
+                            toBeRemoved.add(entry.getKey());
+                        }
+                    } else if (value.isArray()) {
+                        handleArrayNode(table, documentId, key, (ArrayNode) value);
+                    } else if (value.isObject()) {
+                        handleObjectNode(table, documentId, (ObjectNode) value);
+                    }
+                });
         objectNode.remove(toBeRemoved);
     }
 
-    private void handleArrayNode(
-            final String table,
-            final String documentId,
-            final String parentKey,
+    private void handleArrayNode(final String table, final String documentId, final String parentKey,
             ArrayNode arrayNode) {
         if (arrayNode == null || arrayNode.isNull()) {
             return;
@@ -88,11 +76,9 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
                     boolean copyNode = true;
                     if (node.isObject()) {
                         handleObjectNode(table, documentId, (ObjectNode) node);
-                    }
-                    else if (node.isArray()) {
+                    } else if (node.isArray()) {
                         handleArrayNode(table, documentId, parentKey, (ArrayNode) node);
-                    }
-                    else if (node.isTextual()) {
+                    } else if (node.isTextual()) {
                         copyNode = !evaluateForRemoval(table, documentId, parentKey, node);
                     }
                     if (copyNode) {
@@ -103,11 +89,7 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         arrayNode.addAll(copy);
     }
 
-    private boolean evaluateForRemoval(
-            final String table,
-            final String documentId,
-            final String key,
-            JsonNode node) {
+    private boolean evaluateForRemoval(final String table, final String documentId, final String key, JsonNode node) {
         if (!node.isTextual()) {
             return false;
         }
@@ -116,13 +98,15 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
             return false;
         }
 
-        if (node.textValue().length() < configuration.getMaxAllowedSize()) {
+        if (node.textValue()
+                .length() < configuration.getMaxAllowedSize()) {
             return false;
         }
 
         if (random.nextInt(100) < configuration.getLogSamplingPercentage()) {
-            log.warn("LargeTextNodeDetected table: {} documentId: {} key: {} size: {}",
-                     table, documentId, key, node.textValue().length());
+            log.warn("LargeTextNodeDetected table: {} documentId: {} key: {} size: {}", table, documentId, key,
+                    node.textValue()
+                            .length());
         }
 
         return random.nextInt(100) < configuration.getBlockPercentage();

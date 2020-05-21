@@ -6,6 +6,7 @@ import com.flipkart.foxtrot.common.ActionRequest;
  *
  */
 public interface ActionExecutionObserver {
+
     default void preExecution(ActionRequest request) {
     }
 

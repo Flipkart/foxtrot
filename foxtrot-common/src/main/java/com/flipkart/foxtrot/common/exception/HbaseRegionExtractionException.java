@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 public class HbaseRegionExtractionException extends FoxtrotException {
+
     private final String message;
 
     public HbaseRegionExtractionException(String message, Throwable cause) {

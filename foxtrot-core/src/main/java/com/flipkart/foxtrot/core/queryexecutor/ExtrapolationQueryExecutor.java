@@ -20,11 +20,9 @@ public class ExtrapolationQueryExecutor extends QueryExecutor {
 
     private final FunnelConfiguration funnelConfiguration;
 
-    public ExtrapolationQueryExecutor(final AnalyticsLoader analyticsLoader,
-            final ExecutorService executorService,
-            final List<ActionExecutionObserver> executionObservers,
-            final long funnelId, final QueryExecutor queryExecutor,
-            final FunnelConfiguration funnelConfiguration) {
+    public ExtrapolationQueryExecutor(final AnalyticsLoader analyticsLoader, final ExecutorService executorService,
+            final List<ActionExecutionObserver> executionObservers, final long funnelId,
+            final QueryExecutor queryExecutor, final FunnelConfiguration funnelConfiguration) {
         super(analyticsLoader, executorService, executionObservers);
         this.funnelId = funnelId;
         this.simpleQueryExecutor = queryExecutor;

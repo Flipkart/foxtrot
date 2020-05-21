@@ -52,8 +52,7 @@ public class TableManagerResource {
     @POST
     @Timed
     @ApiOperation("Save Table")
-    public Response save(
-            @Valid final Table table,
+    public Response save(@Valid final Table table,
             @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
         tableManager.save(table, forceCreate);

@@ -23,11 +23,11 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
-import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import java.io.IOException;
 import java.util.UUID;
@@ -112,7 +112,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
     public void testSaveBackendError() throws Exception {
         Table table = Table.builder()
                 .name(UUID.randomUUID()
-                              .toString())
+                        .toString())
                 .ttl(30)
                 .build();
         Entity<Table> tableEntity = Entity.json(table);

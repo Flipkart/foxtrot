@@ -94,7 +94,7 @@ public class ParseTest {
             query.setFilters(filters);
             FqlActionQuery fqlActionQuery = new FqlActionQuery(query, new ArrayList<>());
             Assert.assertEquals(writer.writeValueAsString(fqlActionQuery),
-                                writer.writeValueAsString(queryTranslator.translate(sql)));
+                    writer.writeValueAsString(queryTranslator.translate(sql)));
         }
     }
 }

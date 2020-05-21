@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 public class UserNotFoundException extends FoxtrotException {
+
     private final String message;
 
     public UserNotFoundException(String message) {

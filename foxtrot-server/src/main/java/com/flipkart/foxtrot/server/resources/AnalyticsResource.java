@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.server.resources;
 
@@ -61,8 +58,8 @@ public class AnalyticsResource {
     private final QueryConfig queryConfig;
 
     @Inject
-    public AnalyticsResource(final QueryExecutorFactory executorFactory,
-                             final ObjectMapper objectMapper,final QueryConfig queryConfig) {
+    public AnalyticsResource(final QueryExecutorFactory executorFactory, final ObjectMapper objectMapper,
+            final QueryConfig queryConfig) {
         this.executorFactory = executorFactory;
         this.objectMapper = objectMapper;
         this.queryConfig = queryConfig;
@@ -73,7 +70,8 @@ public class AnalyticsResource {
     @ApiOperation("runSync")
     public ActionResponse runSync(@Valid final ActionRequest request) {
         preprocess(request);
-        return executorFactory.getExecutor(request).execute(request);
+        return executorFactory.getExecutor(request)
+                .execute(request);
     }
 
     @POST
@@ -81,7 +79,8 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("runSyncAsync")
     public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) {
-        return executorFactory.getExecutor(request).executeAsync(request);
+        return executorFactory.getExecutor(request)
+                .executeAsync(request);
     }
 
     @POST
@@ -89,7 +88,8 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("validateQuery")
     public ActionValidationResponse validateQuery(@Valid final ActionRequest request) {
-        return executorFactory.getExecutor(request).validate(request);
+        return executorFactory.getExecutor(request)
+                .validate(request);
     }
 
     @POST
@@ -98,7 +98,8 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("downloadAnalytics")
     public StreamingOutput download(@Valid final ActionRequest actionRequest) {
-        ActionResponse actionResponse = executorFactory.getExecutor(actionRequest).execute(actionRequest);
+        ActionResponse actionResponse = executorFactory.getExecutor(actionRequest)
+                .execute(actionRequest);
         Flattener flattener = new Flattener(objectMapper, actionRequest, new ArrayList<>());
         FlatRepresentation flatRepresentation = actionResponse.accept(flattener);
         return output -> FlatToCsvConverter.convert(flatRepresentation, new OutputStreamWriter(output));
@@ -108,8 +109,7 @@ public class AnalyticsResource {
         if (queryConfig.isLogQueries()) {
             if (ElasticsearchUtils.isTimeFilterPresent(request.getFilters())) {
                 log.info("Analytics Query");
-            }
-            else {
+            } else {
                 log.info("Analytics Query where time filter is not specified, request: {}", request.toString());
             }
         }

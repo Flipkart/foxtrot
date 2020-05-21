@@ -49,47 +49,46 @@ public class FunnelResource {
     @ApiOperation("Create Funnel")
     public Response saveFunnel(Funnel funnel) {
         Funnel savedFunnel = funnelService.save(funnel);
-        return Response.status(Status.CREATED).entity(savedFunnel).build();
+        return Response.status(Status.CREATED)
+                .entity(savedFunnel)
+                .build();
     }
 
     /**
      * Update Funnel, only WAITING_FOR_APPROVAL Funnel can be updated
-     *
-     * @param documentId
      */
     @PUT
     @Path("/{documentId}")
     @ApiOperation("Update Funnel via document id")
     public Response approveFunnel(@PathParam("documentId") final String documentId, Funnel funnel) {
         Funnel updatedFunnel = funnelService.update(documentId, funnel);
-        return Response.ok(updatedFunnel).build();
+        return Response.ok(updatedFunnel)
+                .build();
     }
 
     /**
      * Approve Funnel, move status to APPROVED
-     *
-     * @param documentId
      */
     @PUT
     @Path("/approve/{documentId}")
     @ApiOperation("Approve Funnel via document id")
     public Response approveFunnel(@PathParam("documentId") final String documentId) {
         Funnel approvedFunnel = funnelService.approve(documentId);
-        return Response.ok(approvedFunnel).build();
+        return Response.ok(approvedFunnel)
+                .build();
     }
 
 
     /**
      * Reject Funnel, move status to REJECTED and soft delete
-     *
-     * @param documentId
      */
     @PUT
     @Path("/reject/{documentId}")
     @ApiOperation("Reject Funnel via document id")
     public Response rejectFunnel(@PathParam("documentId") final String documentId) {
         Funnel rejectedFunnel = funnelService.reject(documentId);
-        return Response.ok(rejectedFunnel).build();
+        return Response.ok(rejectedFunnel)
+                .build();
     }
 
     @GET
@@ -97,7 +96,8 @@ public class FunnelResource {
     @ApiOperation("Get Funnel via funnel id")
     public Response getFunnel(@PathParam("id") final String funnelId) {
         Funnel funnel = funnelService.getFunnel(funnelId);
-        return Response.ok(funnel).build();
+        return Response.ok(funnel)
+                .build();
     }
 
     @GET
@@ -105,7 +105,8 @@ public class FunnelResource {
     @ApiOperation("Get All Funnel Request")
     public Response getAll(@QueryParam("deleted") @DefaultValue("false") boolean deleted) {
         List<Funnel> funnels = funnelService.getAll(deleted);
-        return Response.ok(funnels).build();
+        return Response.ok(funnels)
+                .build();
     }
 
     @DELETE
@@ -113,7 +114,8 @@ public class FunnelResource {
     @ApiOperation("Delete Funnel via funnel id")
     public Response deleteFunnel(@PathParam("id") final String funnelId) {
         funnelService.delete(funnelId);
-        return Response.status(Status.ACCEPTED).build();
+        return Response.status(Status.ACCEPTED)
+                .build();
     }
 
     @POST
@@ -121,14 +123,16 @@ public class FunnelResource {
     @ApiOperation("Search Funnel")
     public Response searchFunnel(FilterRequest filterRequest) {
         FunnelFilterResponse funnelFilterResponse = funnelService.searchFunnel(filterRequest);
-        return Response.ok(funnelFilterResponse).build();
+        return Response.ok(funnelFilterResponse)
+                .build();
     }
 
     @GET
     @Path("/dropdown")
     @ApiOperation("Get dropdown values")
     public Response getDropdownValues() {
-        return Response.ok(funnelService.getDropdownValues()).build();
+        return Response.ok(funnelService.getDropdownValues())
+                .build();
     }
 
 }

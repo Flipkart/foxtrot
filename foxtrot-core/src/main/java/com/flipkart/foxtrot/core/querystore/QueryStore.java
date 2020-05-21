@@ -22,9 +22,7 @@ import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 12/03/14
- * Time: 9:25 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 12/03/14 Time: 9:25 PM
  */
 public interface QueryStore {
 
@@ -48,7 +46,7 @@ public interface QueryStore {
 
     ClusterHealthResponse getClusterHealth() throws ExecutionException, InterruptedException;
 
-    NodesStatsResponse getNodeStats() throws ExecutionException, InterruptedException;
+    NodesStatsResponse getNodeStats();
 
     IndicesStatsResponse getIndicesStats() throws ExecutionException, InterruptedException;
 

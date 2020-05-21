@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class SlowQueryReporter implements ActionExecutionObserver {
+
     @Override
     public void postExecution(ActionEvaluationResponse response) {
         if (response == null || null != response.getException() || response.isCached()) {
@@ -17,10 +18,11 @@ public class SlowQueryReporter implements ActionExecutionObserver {
         }
         if (response.getElapsedTime() > 1000) {
             try {
-                String query = response.getExecutedAction().getObjectMapper().writeValueAsString(response.getRequest());
+                String query = response.getExecutedAction()
+                        .getObjectMapper()
+                        .writeValueAsString(response.getRequest());
                 log.warn("SLOW_QUERY: Time: {} ms Query: {}", response.getElapsedTime(), query);
-            }
-            catch (JsonProcessingException e) {
+            } catch (JsonProcessingException e) {
                 log.error("Error serializing slow query", e);
             }
         }

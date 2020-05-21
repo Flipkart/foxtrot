@@ -4,11 +4,11 @@ import java.util.concurrent.locks.Lock;
 
 public interface DistributedLock {
 
-    default Lock achieveLock(String lockUniqueId, String lockGroup) throws RuntimeException {
+    default Lock achieveLock(String lockUniqueId, String lockGroup) {
         return achieveLock(lockUniqueId);
     }
 
-    Lock achieveLock(String lockUniqueId) throws RuntimeException;
+    Lock achieveLock(String lockUniqueId);
 
     void releaseLock(Lock lock, String lockUniqueId);
 
@@ -17,6 +17,7 @@ public interface DistributedLock {
     void shutdown();
 
     public static class DistributedLockTryFailedWithTimeout extends RuntimeException {
+
         DistributedLockTryFailedWithTimeout(String message) {
             super(message);
         }

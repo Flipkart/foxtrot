@@ -22,9 +22,7 @@ import lombok.Data;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 14/03/14
- * Time: 2:10 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 2:10 AM
  */
 @Data
 public class BetweenFilter extends Filter {
@@ -89,8 +87,10 @@ public class BetweenFilter extends Filter {
             result = result * 21 + (getFrom() == null ? 43 : getFrom().hashCode());
             result = result * 23 + (getTo() == null ? 29 : getTo().hashCode());
         } else {
-            result = result * 21 + Long.valueOf(getFrom().longValue() / (long)30000).hashCode();
-            result = result * 23 + Long.valueOf(getTo().longValue() / (long)30000).hashCode();
+            result = result * 21 + Long.valueOf(getFrom().longValue() / (long) 30000)
+                    .hashCode();
+            result = result * 23 + Long.valueOf(getTo().longValue() / (long) 30000)
+                    .hashCode();
         }
         result = result * 59 + (this.isTemporal() ? 79 : 97);
         return result;
@@ -106,9 +106,9 @@ public class BetweenFilter extends Filter {
 
         BetweenFilter that = (BetweenFilter) o;
 
-        return getField().equals(that.getField()) && getOperator().equals(that.getOperator()) &&
-                isFilterTemporal() == that.isFilterTemporal() && getFrom().equals(that.getFrom()) &&
-                getTo().equals(that.getTo());
+        return getField().equals(that.getField()) && getOperator().equals(that.getOperator())
+                && isFilterTemporal() == that.isFilterTemporal() && getFrom().equals(that.getFrom()) && getTo().equals(
+                that.getTo());
     }
 
 }

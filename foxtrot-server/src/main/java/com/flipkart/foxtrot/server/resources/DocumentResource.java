@@ -48,9 +48,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 15/03/14
- * Time: 10:55 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:55 PM
  */
 @Path("/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
@@ -58,7 +56,6 @@ import javax.ws.rs.core.Response;
 @Singleton
 public class DocumentResource {
 
-    private static final String EVENT_TYPE = "eventType";
     private final QueryStore queryStore;
     private final TableTranslator tableTranslator;
 
@@ -74,10 +71,10 @@ public class DocumentResource {
     @ApiOperation("Save Document")
     public Response saveDocument(@PathParam("table") String table, @Valid final Document document) {
         String tableName = tableTranslator.getTable(table, document);
-        if(tableName != null) {
+        if (tableName != null) {
             queryStore.save(tableName, document);
         }
-        if(tableName != null && !table.equals(tableName)) {
+        if (tableName != null && !table.equals(tableName)) {
             queryStore.save(table, document);
         }
         return Response.created(URI.create("/" + document.getId()))
@@ -98,15 +95,14 @@ public class DocumentResource {
         List<String> exceptionMessages = new ArrayList<>();
         BadRequestException badRequestException = null;
 
-        for(Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
+        for (Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
             try {
                 queryStore.save(entry.getKey(), entry.getValue());
             } catch (BadRequestException e) {
                 badRequestException = e;
             } catch (Exception e) {
-                exceptionMessages.add(Objects.nonNull(e.getCause())
-                        ? e.getCause().getMessage()
-                        : e.getMessage());
+                exceptionMessages.add(Objects.nonNull(e.getCause()) ? e.getCause()
+                        .getMessage() : e.getMessage());
             }
         }
 
@@ -133,7 +129,8 @@ public class DocumentResource {
     @GET
     @Timed
     @ApiOperation("Get Documents")
-    public Response getDocuments(@PathParam("table") final String table, @QueryParam("id") @NotNull final List<String> ids) {
+    public Response getDocuments(@PathParam("table") final String table,
+            @QueryParam("id") @NotNull final List<String> ids) {
         return Response.ok(queryStore.getAll(table, ids))
                 .build();
     }
@@ -141,11 +138,11 @@ public class DocumentResource {
 
     private Map<String, List<Document>> getTableVsDocuments(String table, List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = new HashMap<>();
-        if(tableTranslator.isTransformableTable(table)) {
-            for(Document document : CollectionUtils.nullSafeList(documents)) {
+        if (tableTranslator.isTransformableTable(table)) {
+            for (Document document : CollectionUtils.nullSafeList(documents)) {
                 String tableName = tableTranslator.getTable(table, document);
 
-                if(tableVsDocuments.containsKey(tableName)) {
+                if (tableVsDocuments.containsKey(tableName)) {
                     tableVsDocuments.get(tableName)
                             .add(document);
                 } else {

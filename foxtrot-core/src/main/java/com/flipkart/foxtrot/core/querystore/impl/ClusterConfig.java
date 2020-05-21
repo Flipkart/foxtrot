@@ -19,9 +19,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 14/09/13
- * Time: 2:12 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/09/13 Time: 2:12 PM
  */
 @NoArgsConstructor
 public class ClusterConfig {

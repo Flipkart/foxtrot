@@ -23,7 +23,6 @@ public class SerDeException extends FoxtrotException {
 
     @Override
     public Map<String, Object> toMap() {
-        return ImmutableMap.of("code", getCode().name(),
-                "message", getMessage());
+        return ImmutableMap.of("code", getCode().name(), "message", getMessage());
     }
 }

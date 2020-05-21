@@ -42,8 +42,7 @@ public class StatsTrendRequest extends ActionRequest {
     }
 
     @Builder
-    public StatsTrendRequest(
-            List<Filter> filters, String table, String field, Set<Stat> stats, List<String> nesting,
+    public StatsTrendRequest(List<Filter> filters, String table, String field, Set<Stat> stats, List<String> nesting,
             List<Double> percentiles, Period period, String timestamp, double compression,
             Set<AnalyticsRequestFlags> flags) {
         super(Opcodes.STATS_TREND, filters);

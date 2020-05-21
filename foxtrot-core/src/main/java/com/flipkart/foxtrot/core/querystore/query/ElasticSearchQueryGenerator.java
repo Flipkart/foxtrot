@@ -45,11 +45,10 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 14/03/14
- * Time: 2:31 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 2:31 PM
  */
 public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
+
     private final BoolQueryBuilder boolFilterBuilder;
 
     public ElasticSearchQueryGenerator() {
@@ -59,7 +58,7 @@ public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
     @Override
     public Void visit(BetweenFilter filter) {
         addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).from(filter.getFrom())
-                          .to(filter.getTo()));
+                .to(filter.getTo()));
         return null;
     }
 
@@ -132,9 +131,9 @@ public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
     @Override
     public Void visit(LastFilter filter) {
         addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).from(filter.getWindow()
-                                                                                    .getStartTime())
-                          .to(filter.getWindow()
-                                      .getEndTime()));
+                .getStartTime())
+                .to(filter.getWindow()
+                        .getEndTime()));
         return null;
     }
 

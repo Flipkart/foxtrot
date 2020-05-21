@@ -64,8 +64,7 @@ public class TableManagerV2Resource {
     @POST
     @Timed
     @ApiOperation("Save Table")
-    public Response save(
-            @Valid final TableV2 table,
+    public Response save(@Valid final TableV2 table,
             @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
         tableManager.save(toWireModel(table), forceCreate);

@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.server.resources;
 
@@ -24,10 +21,10 @@ import static org.mockito.Mockito.doThrow;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.foxtrot.flipkart.translator.TableTranslator;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -109,7 +106,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
     @Test
     public void testSaveDocumentNullData() throws Exception {
         Document document = new Document(UUID.randomUUID()
-                                                 .toString(), System.currentTimeMillis(), null);
+                .toString(), System.currentTimeMillis(), null);
         Entity<Document> documentEntity = Entity.json(document);
         Response response = resources.client()
                 .target("/v1/document/" + TestUtils.TEST_TABLE_NAME)
@@ -200,9 +197,9 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         List<Document> documents = new Vector<Document>();
         documents.add(null);
         documents.add(new Document(UUID.randomUUID()
-                                           .toString(), System.currentTimeMillis(), getMapper().getNodeFactory()
-                                           .objectNode()
-                                           .put("d", "d")));
+                .toString(), System.currentTimeMillis(), getMapper().getNodeFactory()
+                .objectNode()
+                .put("d", "d")));
         Entity<List<Document>> listEntity = Entity.json(documents);
         Response response = resources.client()
                 .target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
@@ -229,7 +226,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
     public void testSaveDocumentsNullData() throws Exception {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(UUID.randomUUID()
-                                           .toString(), System.currentTimeMillis(), null));
+                .toString(), System.currentTimeMillis(), null));
         Entity<List<Document>> listEntity = Entity.json(documents);
         Response response = resources.client()
                 .target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
@@ -382,15 +379,14 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         assertNotNull("Actual document Id should not be null", actual.getId());
         assertNotNull("Actual document data should not be null", actual.getData());
         assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
-        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp",
-                     expected.getTimestamp(),
-                     actual.getTimestamp());
+        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(),
+                actual.getTimestamp());
         Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(),
-                                                                   new TypeReference<HashMap<String, Object>>() {
-                                                                   });
+                new TypeReference<HashMap<String, Object>>() {
+                });
         Map<String, Object> actualMap = getMapper().convertValue(actual.getData(),
-                                                                 new TypeReference<HashMap<String, Object>>() {
-                                                                 });
+                new TypeReference<HashMap<String, Object>>() {
+                });
         assertEquals("Actual data should match expected data", expectedMap, actualMap);
     }
 }

@@ -38,8 +38,9 @@ public class HbaseRegionsMergeResource {
     @Timed
     @ApiOperation("Get all Hbase regions which can be merged")
     public Map<String, List<List<HRegionData>>> listMergableRegions(@PathParam("table") final String tableName,
-                                                                     @PathParam("threshSizeInGB") @Min(0) final double threshSizeInGB) {
-        return Collections.singletonMap("regions", hbaseRegions.getMergeableRegions(TableName.valueOf(tableName), threshSizeInGB));
+            @PathParam("threshSizeInGB") @Min(0) final double threshSizeInGB) {
+        return Collections.singletonMap("regions",
+                hbaseRegions.getMergeableRegions(TableName.valueOf(tableName), threshSizeInGB));
     }
 
     @GET
@@ -47,8 +48,8 @@ public class HbaseRegionsMergeResource {
     @Timed
     @ApiOperation("Merge Hbase regions")
     public Response mergeRegions(@PathParam("table") final String tableName,
-                                 @PathParam("threshSizeInGB") @Min(0) final double threshSizeInGB,
-                                 @PathParam("number") @Min(-1) final int number) {
+            @PathParam("threshSizeInGB") @Min(0) final double threshSizeInGB,
+            @PathParam("number") @Min(-1) final int number) {
         hbaseRegions.mergeRegions(TableName.valueOf(tableName), threshSizeInGB, number);
         return Response.ok()
                 .build();

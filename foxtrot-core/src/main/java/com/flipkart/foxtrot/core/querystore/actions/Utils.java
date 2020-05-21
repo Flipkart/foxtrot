@@ -7,10 +7,10 @@ import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableMap;
@@ -48,25 +48,24 @@ import org.joda.time.DateTimeZone;
  */
 public class Utils {
 
-    private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
-    private static final double DEFAULT_COMPRESSION = 100.0;
     public static final String COUNT = "count";
     public static final String AVG = "avg";
     public static final String SUM = "sum";
     public static final String MIN = "min";
     public static final String MAX = "max";
     public static final String SUM_OF_SQUARES = "sum_of_squares";
+    private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
+    private static final double DEFAULT_COMPRESSION = 100.0;
     private static final String VARIANCE = "variance";
     private static final String STD_DEVIATION = "std_deviation";
-    private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES
-            = EnumSet.of(FieldType.INTEGER, FieldType.LONG, FieldType.FLOAT, FieldType.DOUBLE);
+    private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES = EnumSet.of(FieldType.INTEGER, FieldType.LONG,
+            FieldType.FLOAT, FieldType.DOUBLE);
     private static final int PRECISION_THRESHOLD = 500;
 
     private Utils() {
     }
 
-    public static TermsAggregationBuilder buildTermsAggregation(
-            List<ResultSort> fields,
+    public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields,
             Set<AggregationBuilder> subAggregations, int aggregationSize) {
         TermsAggregationBuilder rootBuilder = null;
         TermsAggregationBuilder termsBuilder = null;
@@ -78,7 +77,8 @@ public class Utils {
                         .field(storedFieldName(field))
                         .order(bucketOrder);
             } else {
-                TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
+                TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(
+                        Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
                 termsBuilder.subAggregation(tempBuilder);
@@ -181,20 +181,16 @@ public class Utils {
         return sanitizeFieldForAggregation(field) + "_extended_stats";
     }
 
-    public static AbstractAggregationBuilder buildPercentileAggregation(
-            String field,
+    public static AbstractAggregationBuilder buildPercentileAggregation(String field,
             Collection<Double> inputPercentiles) {
         return buildPercentileAggregation(field, inputPercentiles, DEFAULT_COMPRESSION);
     }
 
-    public static AbstractAggregationBuilder buildPercentileAggregation(
-            String field,
+    public static AbstractAggregationBuilder buildPercentileAggregation(String field,
             Collection<Double> inputPercentiles, double compression) {
-        double[] percentiles = inputPercentiles != null
-                               ? inputPercentiles.stream()
-                                       .mapToDouble(x -> x)
-                                       .toArray()
-                               : DEFAULT_PERCENTILES;
+        double[] percentiles = inputPercentiles != null ? inputPercentiles.stream()
+                .mapToDouble(x -> x)
+                .toArray() : DEFAULT_PERCENTILES;
         if (compression == 0.0) {
             compression = DEFAULT_COMPRESSION;
         }
@@ -209,8 +205,7 @@ public class Utils {
         return sanitizeFieldForAggregation(field) + "_percentile";
     }
 
-    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(
-            String field,
+    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(String field,
             DateHistogramInterval interval) {
         String metricKey = getDateHistogramKey(field);
         return AggregationBuilders.dateHistogram(metricKey)
@@ -305,7 +300,7 @@ public class Utils {
 
     public static Map<Number, Number> createPercentilesResponse(Percentiles internalPercentiles) {
         Map<Number, Number> percentiles = Maps.newHashMap();
-        if (internalPercentiles == null){
+        if (internalPercentiles == null) {
             return percentiles;
         }
         for (Percentile percentile : internalPercentiles) {
@@ -315,38 +310,28 @@ public class Utils {
     }
 
     public static double ensurePositive(long number) {
-        return number <= 0.0
-               ? 0.0
-               : number;
+        return number <= 0.0 ? 0.0 : number;
     }
 
 
     public static double ensureOne(long number) {
-        return number <= 0
-               ? 1
-               : number;
+        return number <= 0 ? 1 : number;
     }
 
     public static Map<String, Number> toStats(Aggregation statAggregation) {
         if (statAggregation instanceof InternalExtendedStats) {
             return Utils.createStatsResponse((InternalExtendedStats) statAggregation);
-        }
-        else if (statAggregation instanceof InternalStats) {
+        } else if (statAggregation instanceof InternalStats) {
             return Utils.createStatsResponse((InternalStats) statAggregation);
-        }
-        else if (statAggregation instanceof InternalMax) {
+        } else if (statAggregation instanceof InternalMax) {
             return Utils.createStatResponse((InternalMax) statAggregation);
-        }
-        else if (statAggregation instanceof InternalMin) {
+        } else if (statAggregation instanceof InternalMin) {
             return Utils.createStatResponse((InternalMin) statAggregation);
-        }
-        else if (statAggregation instanceof InternalAvg) {
+        } else if (statAggregation instanceof InternalAvg) {
             return Utils.createStatResponse((InternalAvg) statAggregation);
-        }
-        else if (statAggregation instanceof InternalSum) {
+        } else if (statAggregation instanceof InternalSum) {
             return Utils.createStatResponse((InternalSum) statAggregation);
-        }
-        else if (statAggregation instanceof InternalValueCount) {
+        } else if (statAggregation instanceof InternalValueCount) {
             return Utils.createStatResponse((InternalValueCount) statAggregation);
         }
         return new HashMap<>();
@@ -357,7 +342,8 @@ public class Utils {
         final TableFieldMapping fieldMappings = tableMetadataManager.getFieldMappings(table, false, false);
         final FieldMetadata fieldMetadata = fieldMappings.getMappings()
                 .stream()
-                .filter(mapping -> mapping.getField().equals(field))
+                .filter(mapping -> mapping.getField()
+                        .equals(field))
                 .findFirst()
                 .orElse(null);
         return null != fieldMetadata && NUMERIC_FIELD_TYPES.contains(fieldMetadata.getType());

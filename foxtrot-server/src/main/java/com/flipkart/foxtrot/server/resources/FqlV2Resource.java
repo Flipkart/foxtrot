@@ -42,8 +42,7 @@ public class FqlV2Resource {
     private AccessService accessService;
 
     @Inject
-    public FqlV2Resource(
-            final FqlEngine fqlEngine, final FqlStoreService fqlStoreService, AccessService accessService,
+    public FqlV2Resource(final FqlEngine fqlEngine, final FqlStoreService fqlStoreService, AccessService accessService,
             QueryConfig queryConfig) {
         this.fqlEngine = fqlEngine;
         this.fqlStoreService = fqlStoreService;
@@ -66,8 +65,7 @@ public class FqlV2Resource {
     @Timed
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, FoxtrotExtraMediaType.TEXT_CSV})
     @ApiOperation("runFqlPost")
-    public FlatRepresentation runFqlPost(final String query)
-            throws JsonProcessingException {
+    public FlatRepresentation runFqlPost(final String query) throws JsonProcessingException {
         return fqlEngine.parse(query, null, accessService);
     }
 

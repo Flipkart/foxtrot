@@ -33,8 +33,7 @@ public class FlatToCsvConverter {
                             .toString()
                             .replaceAll("\"", "")
                             .replaceAll("null", "");
-                }
-                else {
+                } else {
                     rowData[i++] = "";
                 }
             }

@@ -21,9 +21,14 @@ public class CustomESTransportClient extends TransportClient {
         initializeNetty();
     }
 
+    public CustomESTransportClient(Settings settings) {
+        super(settings, ImmutableList.of(Netty4Plugin.class));
+    }
+
     /**
-     * Netty wants to do some unwelcome things like use unsafe and replace a private field, or use a poorly considered buffer recycler. This
-     * method disables these things by default, but can be overridden by setting the corresponding system properties.
+     * Netty wants to do some unwelcome things like use unsafe and replace a private field, or use a poorly considered
+     * buffer recycler. This method disables these things by default, but can be overridden by setting the corresponding
+     * system properties.
      */
     private static void initializeNetty() {
         /*
@@ -48,24 +53,22 @@ public class CustomESTransportClient extends TransportClient {
         }
     }
 
-    public CustomESTransportClient(Settings settings) {
-        super(settings, ImmutableList.of(Netty4Plugin.class));
-    }
-
     @Override
     public void close() {
         super.close();
-        if (!NetworkModule.TRANSPORT_TYPE_SETTING.exists(settings)
-                || NetworkModule.TRANSPORT_TYPE_SETTING.get(settings).equals(Netty4Plugin.NETTY_TRANSPORT_NAME)) {
+        if (!NetworkModule.TRANSPORT_TYPE_SETTING.exists(settings) || NetworkModule.TRANSPORT_TYPE_SETTING.get(settings)
+                .equals(Netty4Plugin.NETTY_TRANSPORT_NAME)) {
             try {
                 GlobalEventExecutor.INSTANCE.awaitInactivity(5, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                Thread.currentThread()
+                        .interrupt();
             }
             try {
                 ThreadDeathWatcher.awaitInactivity(5, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                Thread.currentThread()
+                        .interrupt();
             }
         }
     }

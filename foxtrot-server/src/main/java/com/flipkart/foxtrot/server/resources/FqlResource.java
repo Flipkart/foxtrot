@@ -42,8 +42,7 @@ public class FqlResource {
     private AccessService accessService;
 
     @Inject
-    public FqlResource(
-            final FqlEngine fqlEngine, final FqlStoreService fqlStoreService, AccessService accessService,
+    public FqlResource(final FqlEngine fqlEngine, final FqlStoreService fqlStoreService, AccessService accessService,
             QueryConfig queryConfig) {
         this.fqlEngine = fqlEngine;
         this.fqlStoreService = fqlStoreService;
@@ -107,8 +106,7 @@ public class FqlResource {
         if (queryConfig.isLogQueries()) {
             if (query.contains("time")) {
                 log.info("Fql Query : " + query);
-            }
-            else {
+            } else {
                 log.info("Fql Query where time filter is not specified, query: {} executed by: {}", query, email);
             }
         }

@@ -2,9 +2,9 @@ package com.flipkart.foxtrot.core.funnel.services;
 
 
 import com.collections.CollectionUtils;
+import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.common.util.JsonUtils;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -33,7 +33,8 @@ public class MappingService {
     private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> allMappings;
 
     @Inject
-    public MappingService(final ElasticsearchConnection elasticsearchConnection, final FunnelConfiguration funnelConfiguration) {
+    public MappingService(final ElasticsearchConnection elasticsearchConnection,
+            final FunnelConfiguration funnelConfiguration) {
         this.elasticsearchConnection = elasticsearchConnection;
         this.funnelConfiguration = funnelConfiguration;
     }

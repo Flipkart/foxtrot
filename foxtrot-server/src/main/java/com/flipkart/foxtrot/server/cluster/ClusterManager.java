@@ -86,7 +86,9 @@ public class ClusterManager implements Managed {
     }
 
     public Collection<Member> getHazelcastMembers() {
-        return hazelcastConnection.getHazelcast().getCluster().getMembers();
+        return hazelcastConnection.getHazelcast()
+                .getCluster()
+                .getMembers();
     }
 
     private static final class NodeDataUpdater implements Runnable {
@@ -95,8 +97,7 @@ public class ClusterManager implements Managed {
         private final ClusterMember clusterMember;
         private IMap<String, ClusterMember> members;
 
-        private NodeDataUpdater(
-                List<HealthCheck> healthChecks, IMap<String, ClusterMember> members,
+        private NodeDataUpdater(List<HealthCheck> healthChecks, IMap<String, ClusterMember> members,
                 ClusterMember clusterMember) {
             this.healthChecks = ImmutableList.copyOf(healthChecks);
             this.members = members;

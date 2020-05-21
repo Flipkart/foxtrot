@@ -47,23 +47,19 @@ public abstract class HBaseUtil {
         try {
             hBaseAdmin = connection.getAdmin();
             hBaseAdmin.createTable(hTableDescriptor);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error("Could not create table: " + tableName, e);
-        }
-        finally {
+        } finally {
             try {
                 if (hBaseAdmin != null) {
                     hBaseAdmin.close();
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("Error closing hbase admin", e);
             }
             try {
                 connection.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("Error closing hbase connection", e);
             }
         }
@@ -74,22 +70,22 @@ public abstract class HBaseUtil {
 
         if (isValidFile(hbaseConfig.getCoreSite())) {
             configuration.addResource(new File(hbaseConfig.getCoreSite()).toURI()
-                                              .toURL());
+                    .toURL());
         }
 
         if (isValidFile(hbaseConfig.getHdfsSite())) {
             configuration.addResource(new File(hbaseConfig.getHdfsSite()).toURI()
-                                              .toURL());
+                    .toURL());
         }
 
         if (isValidFile(hbaseConfig.getHbasePolicy())) {
             configuration.addResource(new File(hbaseConfig.getHbasePolicy()).toURI()
-                                              .toURL());
+                    .toURL());
         }
 
         if (isValidFile(hbaseConfig.getHbaseSite())) {
             configuration.addResource(new File(hbaseConfig.getHbaseSite()).toURI()
-                                              .toURL());
+                    .toURL());
         }
 
         if (hbaseConfig.isSecure() && isValidFile(hbaseConfig.getKeytabFileName())) {

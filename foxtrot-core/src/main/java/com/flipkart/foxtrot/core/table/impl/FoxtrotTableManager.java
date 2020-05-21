@@ -1,8 +1,8 @@
 package com.flipkart.foxtrot.core.table.impl;
 
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -83,10 +83,8 @@ public class FoxtrotTableManager implements TableManager {
         if (table == null || table.getName() == null || table.getName()
                 .trim()
                 .isEmpty() || table.getTtl() <= 0) {
-            throw FoxtrotExceptions.createBadRequestException(table != null
-                                                              ? table.getName()
-                                                              : null,
-                                                              "Invalid Table Params");
+            throw FoxtrotExceptions.createBadRequestException(table != null ? table.getName() : null,
+                    "Invalid Table Params");
         }
     }
 }

@@ -6,11 +6,6 @@ import static com.collections.CollectionUtils.nullSafeMap;
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus;
-import lombok.Builder;
-import lombok.Data;
-import org.hibernate.validator.constraints.NotBlank;
-
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -68,17 +63,16 @@ public class Funnel {
 
 
     /**
-     * Funnels are similar if
-     * 1. all fieldVsValues entries are same
-     * 2. all eventAttributes are same
+     * Funnels are similar if 1. all fieldVsValues entries are same 2. all eventAttributes are same
      *
      * @param funnel {@link Funnel}
      * @return boolean
      */
     public boolean isSimilar(Funnel funnel) {
         boolean similarFunnel = false;
-        if (eventAttributes.size() == funnel.getEventAttributes().size()
-                && fieldVsValues.size() == funnel.getFieldVsValues().size()) {
+        if (eventAttributes.size() == funnel.getEventAttributes()
+                .size() && fieldVsValues.size() == funnel.getFieldVsValues()
+                .size()) {
             similarFunnel = true;
             for (Map.Entry<String, List<String>> field : nullSafeMap(funnel.getFieldVsValues()).entrySet()) {
                 if (!CollectionUtils.listEquals(field.getValue(), fieldVsValues.get(field.getKey()))) {

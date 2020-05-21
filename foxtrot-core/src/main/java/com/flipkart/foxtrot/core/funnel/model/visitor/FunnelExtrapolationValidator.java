@@ -21,8 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FunnelExtrapolationValidator implements ActionRequestVisitor<Boolean> {
 
-    private static final List<Stat> VALID_STATS_FOR_EXTRAPOLATION = Arrays.asList(
-            Stat.COUNT, Stat.SUM, Stat.SUM_OF_SQUARES);
+    private static final List<Stat> VALID_STATS_FOR_EXTRAPOLATION = Arrays.asList(Stat.COUNT, Stat.SUM,
+            Stat.SUM_OF_SQUARES);
 
     @Override
     public Boolean visit(GroupRequest groupRequest) {
@@ -65,7 +65,8 @@ public class FunnelExtrapolationValidator implements ActionRequestVisitor<Boolea
 
     @Override
     public Boolean visit(MultiTimeQueryRequest multiTimeQueryRequest) {
-        return multiTimeQueryRequest.getActionRequest().accept(new FunnelExtrapolationValidator());
+        return multiTimeQueryRequest.getActionRequest()
+                .accept(new FunnelExtrapolationValidator());
     }
 
     @Override

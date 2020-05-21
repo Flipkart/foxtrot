@@ -71,9 +71,7 @@ public class ElasticsearchConfig {
     }
 
     public long getGetQueryTimeout() {
-        return getQueryTimeout > 0
-               ? getQueryTimeout
-               : DEFAULT_TIMEOUT;
+        return getQueryTimeout > 0 ? getQueryTimeout : DEFAULT_TIMEOUT;
     }
 
 }

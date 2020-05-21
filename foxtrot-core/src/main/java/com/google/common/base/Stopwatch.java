@@ -29,8 +29,8 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
- * An object that measures elapsed time in nanoseconds. It is useful to measure elapsed time using
- * this class instead of direct calls to {@link System#nanoTime} for a few reasons:
+ * An object that measures elapsed time in nanoseconds. It is useful to measure elapsed time using this class instead of
+ * direct calls to {@link System#nanoTime} for a few reasons:
  *
  * <ul>
  * <li>An alternate time source can be substituted, for testing or performance reasons.
@@ -116,14 +116,6 @@ public final class Stopwatch {
         return new Stopwatch(ticker).start();
     }
 
-    public long elapsedTime(TimeUnit desiredUnit) {
-        return desiredUnit.convert(this.elapsedNanos(), TimeUnit.NANOSECONDS);
-    }
-
-    public long elapsedMillis() {
-        return this.elapsedTime(TimeUnit.MILLISECONDS);
-    }
-
     private static TimeUnit chooseUnit(long nanos) {
         if (DAYS.convert(nanos, NANOSECONDS) > 0) {
             return DAYS;
@@ -169,6 +161,14 @@ public final class Stopwatch {
             default:
                 throw new AssertionError();
         }
+    }
+
+    public long elapsedTime(TimeUnit desiredUnit) {
+        return desiredUnit.convert(this.elapsedNanos(), TimeUnit.NANOSECONDS);
+    }
+
+    public long elapsedMillis() {
+        return this.elapsedTime(TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -218,8 +218,8 @@ public final class Stopwatch {
     }
 
     /**
-     * Returns the current elapsed time shown on this stopwatch, expressed in the desired time unit,
-     * with any fraction rounded down.
+     * Returns the current elapsed time shown on this stopwatch, expressed in the desired time unit, with any fraction
+     * rounded down.
      *
      * <p>Note that the overhead of measurement can be more than a microsecond, so it is generally not
      * useful to specify {@link TimeUnit#NANOSECONDS} precision here.
@@ -231,9 +231,7 @@ public final class Stopwatch {
     }
 
     private long elapsedNanos() {
-        return isRunning
-               ? ticker.read() - startTick + elapsedNanos
-               : elapsedNanos;
+        return isRunning ? ticker.read() - startTick + elapsedNanos : elapsedNanos;
     }
 
     /**

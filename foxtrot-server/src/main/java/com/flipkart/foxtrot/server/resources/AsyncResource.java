@@ -30,9 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 26/03/14
- * Time: 7:09 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 26/03/14 Time: 7:09 PM
  */
 @Path("/v1/async")
 @Produces(MediaType.APPLICATION_JSON)

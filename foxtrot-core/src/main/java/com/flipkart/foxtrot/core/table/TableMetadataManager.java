@@ -18,9 +18,7 @@ import io.dropwizard.lifecycle.Managed;
 import java.util.List;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 15/03/14
- * Time: 10:08 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:08 PM
  */
 public interface TableMetadataManager extends Managed {
 
@@ -36,10 +34,7 @@ public interface TableMetadataManager extends Managed {
         return getFieldMappings(table, withCardinality, calculateCardinality, System.currentTimeMillis());
     }
 
-    TableFieldMapping getFieldMappings(
-            String table,
-            boolean withCardinality,
-            boolean calculateCardinality,
+    TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality,
             long timestamp);
 
     void updateEstimationData(String table, long timestamp);

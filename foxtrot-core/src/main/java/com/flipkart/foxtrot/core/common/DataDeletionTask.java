@@ -25,8 +25,7 @@ public class DataDeletionTask extends TimerTask {
         logger.info("Starting Deletion Job");
         try {
             queryStore.cleanupAll();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             logger.error("Deletion Job Failed ", ex);
         }
         logger.info("Finished Deletion Job");

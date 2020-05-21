@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.common;
 
@@ -20,12 +17,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.MalformedQueryException;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.common.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
@@ -46,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * Time: 12:23 AM
  */
 public abstract class Action<P extends ActionRequest> {
+
     private static final Logger logger = LoggerFactory.getLogger(Action.class.getSimpleName());
     private final TableMetadataManager tableMetadataManager;
     private final QueryStore queryStore;
@@ -80,14 +78,12 @@ public abstract class Action<P extends ActionRequest> {
     public ActionValidationResponse validate() {
         try {
             preProcessRequest();
-        }
-        catch (MalformedQueryException e) {
+        } catch (MalformedQueryException e) {
             return ActionValidationResponse.builder()
                     .processedRequest(parameter)
                     .validationErrors(e.getReasons())
                     .build();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ActionValidationResponse.builder()
                     .processedRequest(parameter)
                     .validationErrors(Collections.singletonList(e.getMessage()))
@@ -181,8 +177,7 @@ public abstract class Action<P extends ActionRequest> {
     protected String requestString() {
         try {
             return objectMapper.writeValueAsString(parameter);
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             logger.error("Error serializing request: ", e);
             return "";
         }
@@ -198,8 +193,7 @@ public abstract class Action<P extends ActionRequest> {
         }
         if (null == filters) {
             filters = Lists.newArrayList();
-        }
-        else {
+        } else {
             filters = Lists.newArrayList(filters);
         }
         filters.add(getDefaultTimeSpan());

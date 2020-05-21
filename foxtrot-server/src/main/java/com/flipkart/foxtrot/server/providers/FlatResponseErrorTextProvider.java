@@ -29,8 +29,7 @@ public class FlatResponseErrorTextProvider implements MessageBodyWriter<Map> {
     }
 
     @Override
-    public void writeTo(
-            Map map, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
+    public void writeTo(Map map, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
             MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
         StringBuilder data = new StringBuilder();
         for (Object key : map.keySet()) {
@@ -38,15 +37,14 @@ public class FlatResponseErrorTextProvider implements MessageBodyWriter<Map> {
             data.append(":");
             if (null == map.get(key.toString())) {
                 data.append("Check logs for more details");
-            }
-            else {
+            } else {
                 data.append(map.get(key.toString())
-                                    .toString());
+                        .toString());
             }
             data.append("\n");
         }
         entityStream.write(data.toString()
-                                   .getBytes());
+                .getBytes());
     }
 
     public void hrLine(int length, StringBuilder stringBuilder) {

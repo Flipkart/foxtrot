@@ -45,8 +45,9 @@ public class ConsoleHistoryManager extends BaseJobManager {
     private final ElasticsearchConsolePersistence elasticsearchConsolePersistence;
 
     @Inject
-    public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService, ConsoleHistoryConfig consoleHistoryConfig,
-                                 ElasticsearchConnection connection, HazelcastConnection hazelcastConnection, ObjectMapper mapper) {
+    public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService,
+            ConsoleHistoryConfig consoleHistoryConfig, ElasticsearchConnection connection,
+            HazelcastConnection hazelcastConnection, ObjectMapper mapper) {
         super(consoleHistoryConfig, scheduledExecutorService, hazelcastConnection);
         this.consoleHistoryConfig = consoleHistoryConfig;
         this.connection = connection;
@@ -63,8 +64,8 @@ public class ConsoleHistoryManager extends BaseJobManager {
                         .setTypes(TYPE)
                         .setSearchType(SearchType.QUERY_THEN_FETCH)
                         .addAggregation(AggregationBuilders.terms("names")
-                                                .field("name.keyword")
-                                                .size(1000))
+                                .field("name.keyword")
+                                .size(1000))
                         .execute()
                         .actionGet();
                 Terms agg = searchResponse.getAggregations()
@@ -88,7 +89,7 @@ public class ConsoleHistoryManager extends BaseJobManager {
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setQuery(QueryBuilders.termQuery("name.keyword", name))
                     .addSort(SortBuilders.fieldSort(updatedAt)
-                                     .order(SortOrder.DESC))
+                            .order(SortOrder.DESC))
                     .setFrom(10)
                     .setSize(9000)
                     .execute()

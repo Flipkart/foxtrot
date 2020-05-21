@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p/>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p/>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package com.flipkart.foxtrot.server.resources;
@@ -50,9 +47,7 @@ public class ClusterHealthResource {
     private final TableMetadataManager tableMetadataManager;
 
     @Inject
-    public ClusterHealthResource(
-            QueryStore queryStore,
-            TableManager tableManager,
+    public ClusterHealthResource(QueryStore queryStore, TableManager tableManager,
             TableMetadataManager tableMetadataManager) {
         this.queryStore = queryStore;
         this.tableManager = tableManager;
@@ -71,7 +66,7 @@ public class ClusterHealthResource {
     @Timed
     @Path("/nodestats")
     @ApiOperation("getNodeStat")
-    public NodesStatsResponse getNodeStat() throws ExecutionException, InterruptedException {
+    public NodesStatsResponse getNodeStat() {
         return queryStore.getNodeStats();
     }
 
@@ -82,14 +77,12 @@ public class ClusterHealthResource {
     public FoxtrotIndicesStatsResponse getIndicesStat() throws ExecutionException, InterruptedException {
         return FoxtrotIndicesStatsResponse.builder()
                 .indicesStatsResponse(queryStore.getIndicesStats())
-                .tableColumnCount(tableManager.getAll().stream()
-                                          .map(table -> tableMetadataManager.getFieldMappings(table.getName(),
-                                                                                              false,
-                                                                                              false))
-                                          .collect(Collectors.toMap(TableFieldMapping::getTable,
-                                                                    tableFieldMapping -> tableFieldMapping.getMappings()
-                                                                            .size()))
-                                 )
+                .tableColumnCount(tableManager.getAll()
+                        .stream()
+                        .map(table -> tableMetadataManager.getFieldMappings(table.getName(), false, false))
+                        .collect(Collectors.toMap(TableFieldMapping::getTable,
+                                tableFieldMapping -> tableFieldMapping.getMappings()
+                                        .size())))
                 .build();
     }
 }

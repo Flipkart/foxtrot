@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.server.resources;
 
@@ -28,8 +25,8 @@ import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import java.util.Collections;
 import java.util.HashSet;
@@ -69,57 +66,58 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
     @Test
     public void testGet() throws Exception {
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
-        await().pollDelay(500, TimeUnit.MILLISECONDS).until(() -> true);
+        await().pollDelay(500, TimeUnit.MILLISECONDS)
+                .until(() -> true);
 
         Set<FieldMetadata> mappings = new HashSet<>();
         mappings.add(FieldMetadata.builder()
-                             .field("time")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("time")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("word")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("word")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("data.data")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("data.data")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("header.hello")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("header.hello")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("head.hello")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("head.hello")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.dayOfWeek")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.dayOfWeek")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.minuteOfDay")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.minuteOfDay")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.monthOfYear")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.monthOfYear")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.hourOfDay")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.hourOfDay")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.year")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.year")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.dayOfMonth")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.dayOfMonth")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.minuteOfHour")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.minuteOfHour")
+                .type(FieldType.LONG)
+                .build());
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         String response = resources.client()
                 .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
@@ -129,7 +127,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         TableFieldMapping mapping = getMapper().readValue(response, TableFieldMapping.class);
         assertEquals(tableFieldMapping.getTable(), mapping.getTable());
         assertTrue(tableFieldMapping.getMappings()
-                           .equals(mapping.getMappings()));
+                .equals(mapping.getMappings()));
     }
 
     @Test
@@ -162,7 +160,8 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                 .initializeTable(any(String.class));
 
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
-        await().pollDelay(500, TimeUnit.MILLISECONDS).until(() -> true);
+        await().pollDelay(500, TimeUnit.MILLISECONDS)
+                .until(() -> true);
 
         Map<String, TableFieldMapping> response = resources.client()
                 .target("/v1/tables/fields")

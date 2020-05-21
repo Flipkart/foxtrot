@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 public class HbaseRegionMergeException extends FoxtrotException {
+
     private final String message;
 
     public HbaseRegionMergeException(String message, Throwable cause) {

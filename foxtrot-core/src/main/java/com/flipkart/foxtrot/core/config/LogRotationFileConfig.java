@@ -38,12 +38,8 @@ public class LogRotationFileConfig {
 
     @Override
     public String toString() {
-        return "LogRotationFileConfig{" +
-                "minIndex=" + minIndex +
-                ", maxIndex=" + maxIndex +
-                ", maxFileSize='" + maxFileSize + '\'' +
-                ", filePattern='" + filePattern + '\'' +
-                '}';
+        return "LogRotationFileConfig{" + "minIndex=" + minIndex + ", maxIndex=" + maxIndex + ", maxFileSize='"
+                + maxFileSize + '\'' + ", filePattern='" + filePattern + '\'' + '}';
     }
 
 }

@@ -28,8 +28,7 @@ public class FunnelServiceImplV2 implements FunnelService {
 
     @Inject
     public FunnelServiceImplV2(@Named("FunnelServiceImplV1") final FunnelService funnelService,
-            final EmailClient emailClient,
-            final FunnelConfiguration funnelConfiguration) {
+            final EmailClient emailClient, final FunnelConfiguration funnelConfiguration) {
         this.emailClient = emailClient;
         this.funnelService = funnelService;
         this.funnelConfiguration = funnelConfiguration;

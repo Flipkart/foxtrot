@@ -12,6 +12,7 @@ import org.elasticsearch.search.sort.SortOrder;
  ***/
 @Getter
 public class FilterRequest {
+
     private List<Filter> filters;
 
     private int page;
@@ -19,10 +20,6 @@ public class FilterRequest {
 
     private String fieldName;
     private SortOrder sortOrder;
-
-    public int getFrom() {
-        return (page - 1) * size;
-    }
 
     public FilterRequest() {
         this.page = 1;
@@ -34,25 +31,29 @@ public class FilterRequest {
     @Builder
     public FilterRequest(List<Filter> filters, int page, int size, String fieldName, SortOrder sortOrder) {
         this.filters = filters;
-        if(page == 0) {
+        if (page == 0) {
             this.page = 1;
         } else {
             this.page = page;
         }
-        if(size == 0) {
+        if (size == 0) {
             this.size = 10;
         } else {
             this.size = size;
         }
-        if(Strings.isNullOrEmpty(fieldName)) {
+        if (Strings.isNullOrEmpty(fieldName)) {
             this.fieldName = "id";
         } else {
             this.fieldName = fieldName;
         }
-        if(null == sortOrder) {
+        if (null == sortOrder) {
             this.sortOrder = SortOrder.DESC;
         } else {
             this.sortOrder = sortOrder;
         }
+    }
+
+    public int getFrom() {
+        return (page - 1) * size;
     }
 }

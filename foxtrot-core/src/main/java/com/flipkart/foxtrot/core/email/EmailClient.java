@@ -57,8 +57,7 @@ public class EmailClient {
             if (recipients.isEmpty()) {
                 return false;
             }
-            message.setRecipients(Message.RecipientType.TO,
-                                  InternetAddress.parse(String.join(",",recipients)));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(String.join(",", recipients)));
             message.setSubject(email.getSubject());
 
             InternetHeaders headers = new InternetHeaders();
@@ -72,8 +71,7 @@ public class EmailClient {
                 message.setContent(multipart);
             }
             Transport.send(message, emailConfig.getUser(), emailConfig.getPassword());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("Error occurred while sending the email :%s", e);
             return false;
         }

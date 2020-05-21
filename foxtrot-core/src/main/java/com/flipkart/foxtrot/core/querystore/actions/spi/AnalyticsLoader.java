@@ -1,28 +1,25 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions.spi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.exception.AnalyticsActionLoaderException;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.common.exception.AnalyticsActionLoaderException;
-import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -66,8 +63,7 @@ public class AnalyticsLoader implements Managed {
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     @Inject
-    public AnalyticsLoader(
-            TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+    public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
             ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
             ElasticsearchTuningConfig elasticsearchTuningConfig) {
         this.tableMetadataManager = tableMetadataManager;
@@ -102,7 +98,8 @@ public class AnalyticsLoader implements Managed {
     }
 
     public void register(ActionMetadata actionMetadata, String opcode) {
-        actions.put(actionMetadata.getRequest().getCanonicalName(), actionMetadata);
+        actions.put(actionMetadata.getRequest()
+                .getCanonicalName(), actionMetadata);
         if (actionMetadata.isCacheable()) {
             registerCache(opcode);
         }
@@ -127,7 +124,7 @@ public class AnalyticsLoader implements Managed {
                 throw new AnalyticsActionLoaderException("Invalid annotation on " + action.getCanonicalName());
             }
             register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()),
-                     analyticsProvider.opcode());
+                    analyticsProvider.opcode());
             types.add(new NamedType(analyticsProvider.request(), opcode));
             types.add(new NamedType(analyticsProvider.response(), opcode));
             logger.info("Registered action: {}", action.getCanonicalName());

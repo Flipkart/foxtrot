@@ -21,10 +21,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
-import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
+import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -66,9 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 14/03/14
- * Time: 12:27 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 12:27 AM
  */
 @Data
 @Slf4j
@@ -80,6 +78,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     private static final String DATA_STORE = "dataStore";
     private static final String QUERY_STORE = "queryStore";
     private static final String UNKNOWN_TABLE_ERROR_MESSAGE = "unknown_table table:%s";
+    private static final String ERROR_SAVING_DOCUMENTS = "Error while saving documents to table";
 
     private final ElasticsearchConnection connection;
     private final DataStore dataStore;
@@ -89,18 +88,22 @@ public class ElasticsearchQueryStore implements QueryStore {
     private final CardinalityConfig cardinalityConfig;
 
     @Inject
-    public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
-                                   ElasticsearchConnection connection,
-                                   DataStore dataStore,
-                                   List<IndexerEventMutator> mutators,
-                                   ObjectMapper mapper,
-                                   CardinalityConfig cardinalityConfig) {
+    public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager, ElasticsearchConnection connection,
+            DataStore dataStore, List<IndexerEventMutator> mutators, ObjectMapper mapper,
+            CardinalityConfig cardinalityConfig) {
         this.connection = connection;
         this.dataStore = dataStore;
         this.tableMetadataManager = tableMetadataManager;
         this.mutators = mutators;
         this.mapper = mapper;
         this.cardinalityConfig = cardinalityConfig;
+    }
+
+    private static String bulkSaveFailureMessage(BulkResponse bulkResponse) {
+        return Stream.of(bulkResponse.getItems())
+                .filter(BulkItemResponse::isFailed)
+                .map(BulkItemResponse::getFailureMessage)
+                .collect(Collectors.joining(ERROR_DELIMITER));
     }
 
     @Override
@@ -236,35 +239,32 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             }
         } catch (JsonProcessingException e) {
-            log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents, e.getMessage());
-            logger.error("Error while saving documents to table: {}", table, e);
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            logAndRegister(table, documents, stopwatch, action, e);
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents, e.getMessage());
-            logger.error("Error while saving documents to table: {}", table, e);
+            log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents,
+                    e.getMessage());
+            log.error("Error while saving documents to table: {}", table, e);
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             Thread.currentThread()
                     .interrupt();
             throw FoxtrotExceptions.createExecutionException(table, e);
+        } catch (FoxtrotException e) {
+            logAndRegister(table, documents, stopwatch, action, e);
+            throw e;
         } catch (Exception e) {
-            log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents, e.getMessage());
-            logger.error("Error while saving documents to table: {}", table, e);
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            if (e instanceof FoxtrotException)
-                throw e;
+            logAndRegister(table, documents, stopwatch, action, e);
             throw FoxtrotExceptions.createExecutionException(table, e);
         }
     }
 
-    private static String bulkSaveFailureMessage(BulkResponse bulkResponse) {
-        return Stream.of(bulkResponse.getItems())
-                .filter(BulkItemResponse::isFailed)
-                .map(BulkItemResponse::getFailureMessage)
-                .collect(Collectors.joining(ERROR_DELIMITER));
+    private void logAndRegister(String table, List<Document> documents, Stopwatch stopwatch, String action,
+            Exception e) {
+        log.debug("{}: {}, documents :{}, error: {}", ERROR_SAVING_DOCUMENTS, table, documents, e.getMessage());
+        log.error("{}: {}", ERROR_SAVING_DOCUMENTS, table, e);
+        MetricUtil.getInstance()
+                .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     private void printFailedDocuments(String table, List<Document> documents, BulkResponse bulkResponse)
@@ -273,8 +273,8 @@ public class ElasticsearchQueryStore implements QueryStore {
             BulkItemResponse itemResponse = bulkResponse.getItems()[i];
             if (itemResponse.isFailed()) {
                 String failedDocument = mapper.writeValueAsString(documents.get(i));
-                logger.error("Table : {} Failure Message : {} Document : {}", table,
-                        itemResponse.getFailureMessage(), failedDocument);
+                logger.error("Table : {} Failure Message : {} Document : {}", table, itemResponse.getFailureMessage(),
+                        failedDocument);
             }
         }
     }
@@ -329,8 +329,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             SearchResponse response = connection.getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(table))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setQuery(boolQuery().filter(termsQuery(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME,
-                            ids.toArray(new String[ids.size()]))))
+                    .setQuery(boolQuery().filter(termsQuery(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME, ids)))
                     .setFetchSource(false)
                     .addStoredField(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME) // Used for compatibility
                     .setSize(ids.size())
@@ -380,8 +379,8 @@ public class ElasticsearchQueryStore implements QueryStore {
             indicesToDelete = getIndicesToDelete(tables, currentIndices);
             deleteIndices(indicesToDelete);
         } catch (Exception e) {
-            throw FoxtrotExceptions.createDataCleanupException(String.format("Index Deletion Failed indexes - %s",
-                    indicesToDelete), e);
+            throw FoxtrotExceptions.createDataCleanupException(
+                    String.format("Index Deletion Failed indexes - %s", indicesToDelete), e);
         }
     }
 
@@ -397,7 +396,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public NodesStatsResponse getNodeStats() throws ExecutionException, InterruptedException {
+    public NodesStatsResponse getNodeStats() {
         NodesStatsRequest nodesStatsRequest = new NodesStatsRequest();
         nodesStatsRequest.clear()
                 .jvm(true)
@@ -469,8 +468,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 boolean indexEligibleForDeletion;
                 try {
                     indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex,
-                            tableMetadataManager.get(
-                                    table));
+                            tableMetadataManager.get(table));
                     if (indexEligibleForDeletion) {
                         logger.warn("Index eligible for deletion : {}", currentIndex);
                         indicesToDelete.add(currentIndex);

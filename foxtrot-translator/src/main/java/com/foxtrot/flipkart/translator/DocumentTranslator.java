@@ -36,7 +36,7 @@ public class DocumentTranslator {
     private static final String JSON_PATH_SEPARATOR = "/";
     private final AbstractRowKeyDistributor keyDistributor;
     private final String rawKeyVersion;
-    private UnmarshallerConfig unmarshallerConfig;
+    private final UnmarshallerConfig unmarshallerConfig;
 
     @Inject
     public DocumentTranslator(TranslatorConfig translatorConfig) {
@@ -81,14 +81,14 @@ public class DocumentTranslator {
                 document.setId(metadata.getRawStorageId());
                 break;
             default:
-                throw new IllegalArgumentException(
-                        String.format(EXCEPTION_MESSAGE, rawKeyVersion));
+                throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, rawKeyVersion));
         }
 
-        ObjectNode dataNode = inDocument.getData().deepCopy();
+        ObjectNode dataNode = inDocument.getData()
+                .deepCopy();
 
-        if (unmarshallerConfig.isUnmarshallingEnabled()
-                && unmarshallerConfig.getTableVsUnmarshallJsonPath().containsKey(table.getName())) {
+        if (unmarshallerConfig.isUnmarshallingEnabled() && unmarshallerConfig.getTableVsUnmarshallJsonPath()
+                .containsKey(table.getName())) {
             List<String> unmarshallJsonPaths = unmarshallerConfig.getTableVsUnmarshallJsonPath()
                     .get(table.getName());
             unmarshallStringJsonFields(dataNode, unmarshallJsonPaths);
@@ -115,7 +115,8 @@ public class DocumentTranslator {
                     //e.g. if pointer is /parentObject/object/field
                     //JsonPointer.last() will give you /field
                     //remember to take out the / character
-                    String fieldName = valueNodePointer.last().toString();
+                    String fieldName = valueNodePointer.last()
+                            .toString();
                     fieldName = fieldName.replace(JSON_PATH_SEPARATOR, StringUtils.EMPTY);
                     JsonNode fieldValueNode = parentObjectNode.get(fieldName);
 
@@ -157,11 +158,9 @@ public class DocumentTranslator {
             case "2.0":
             case "3.0":
                 return String.format("%s:%020d:%s:%s", table.getName(), document.getTimestamp(), document.getId(),
-                        Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get(rawKeyVersion)
-                );
+                        Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get(rawKeyVersion));
             default:
-                throw new IllegalArgumentException(
-                        String.format(EXCEPTION_MESSAGE, rawKeyVersion));
+                throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, rawKeyVersion));
         }
     }
 
@@ -171,8 +170,8 @@ public class DocumentTranslator {
     }
 
     public String rawStorageIdFromDocumentId(Table table, String id) {
-        if (id.endsWith(Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("2.0")) || id
-                .endsWith(Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("3.0"))) {
+        if (id.endsWith(Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("2.0")) || id.endsWith(
+                Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("3.0"))) {
             return id;
         }
 

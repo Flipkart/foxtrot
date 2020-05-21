@@ -17,9 +17,7 @@ import com.flipkart.foxtrot.common.Table;
 import java.util.List;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 12/03/14
- * Time: 9:17 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 12/03/14 Time: 9:17 PM
  */
 public interface DataStore {
 

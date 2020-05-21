@@ -26,9 +26,8 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class FqlStoreServiceImpl implements FqlStoreService {
 
-    private static final Logger logger = LoggerFactory.getLogger(FqlStore.class);
     public static final String FQL_STORE_INDEX = "fql-store";
-
+    private static final Logger logger = LoggerFactory.getLogger(FqlStore.class);
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper objectMapper;
 
@@ -41,7 +40,7 @@ public class FqlStoreServiceImpl implements FqlStoreService {
     @Override
     public void save(FqlStore fqlStore) {
         fqlStore.setId(UUID.randomUUID()
-                               .toString());
+                .toString());
         try {
             elasticsearchConnection.getClient()
                     .prepareIndex()
@@ -53,7 +52,8 @@ public class FqlStoreServiceImpl implements FqlStoreService {
                     .get();
             logger.info("Saved FQL Query : {}", fqlStore.getQuery());
         } catch (Exception e) {
-            throw new FqlPersistenceException("Couldn't save FQL query: " + fqlStore.getQuery() + " Error Message: " + e.getMessage(), e);
+            throw new FqlPersistenceException(
+                    "Couldn't save FQL query: " + fqlStore.getQuery() + " Error Message: " + e.getMessage(), e);
         }
     }
 

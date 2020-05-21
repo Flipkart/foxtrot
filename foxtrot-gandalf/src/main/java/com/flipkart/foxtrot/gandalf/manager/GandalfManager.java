@@ -46,9 +46,7 @@ public class GandalfManager {
     private final String password;
 
     @Inject
-    public GandalfManager(
-            ObjectMapper mapper,
-            @Named("GandalfOkHttpClient") OkHttpClient okHttp,
+    public GandalfManager(ObjectMapper mapper, @Named("GandalfOkHttpClient") OkHttpClient okHttp,
             @Named("GandalfServiceEndpointProvider") ServiceEndpointProvider endpointProvider,
             GandalfConfiguration gandalfConfiguration) {
         this.mapper = mapper;
@@ -64,7 +62,9 @@ public class GandalfManager {
         createPermission(authToken, table.getName());
         String adminPermissionId = createPermission(authToken, "admin_" + table.getName());
 
-        String[] emailIds = table.getAdminEmails().replaceAll("\\s+", "").split(",");
+        String[] emailIds = table.getAdminEmails()
+                .replaceAll("\\s+", "")
+                .split(",");
         for (String emailId : emailIds) {
             addPermissionToUser(adminPermissionId, emailId, authToken);
         }
@@ -81,17 +81,17 @@ public class GandalfManager {
         PermissionRequest permissionRequest = new PermissionRequest(tableName, true);
 
         try {
-            body = RequestBody.create(APPLICATION_JSON,
-                    mapper.writeValueAsString(permissionRequest));
-            request = new Request.Builder()
-                    .url(url)
+            body = RequestBody.create(APPLICATION_JSON, mapper.writeValueAsString(permissionRequest));
+            request = new Request.Builder().url(url)
                     .header(AUTHORIZATION, String.format("Bearer %s", authToken))
                     .post(body)
                     .build();
 
-            response = okHttp.newCall(request).execute();
+            response = okHttp.newCall(request)
+                    .execute();
             responseBody = OkHttpUtils.body(response);
-            permissionId = mapper.readValue(responseBody, Permission.class).getPermissionId();
+            permissionId = mapper.readValue(responseBody, Permission.class)
+                    .getPermissionId();
         } catch (Exception e) {
             throw new PermissionCreationException("Not able to create new permission", e);
         }
@@ -109,20 +109,18 @@ public class GandalfManager {
         okhttp3.Response response;
         byte[] responseBody;
 
-        LoginRequest loginRequest = new PasswordLoginRequest(username, password,
-                TTLInfo.builder()
-                        .jwtTtlSeconds(10)
-                        .ttlSeconds(10)
-                        .build());
+        LoginRequest loginRequest = new PasswordLoginRequest(username, password, TTLInfo.builder()
+                .jwtTtlSeconds(10)
+                .ttlSeconds(10)
+                .build());
         try {
-            requestBody = RequestBody.create(APPLICATION_JSON,
-                    mapper.writeValueAsBytes(loginRequest));
-            Request request = new Request.Builder()
-                    .url(url)
+            requestBody = RequestBody.create(APPLICATION_JSON, mapper.writeValueAsBytes(loginRequest));
+            Request request = new Request.Builder().url(url)
                     .header("NAMESPACE", namespace)
                     .post(requestBody)
                     .build();
-            response = okHttp.newCall(request).execute();
+            response = okHttp.newCall(request)
+                    .execute();
             responseBody = OkHttpUtils.body(response);
 
             LoginResponse loginResponse = mapper.readValue(responseBody, LoginResponse.class);
@@ -141,16 +139,16 @@ public class GandalfManager {
             throw new UserNotFoundException("Not able to retrieve user details with email : " + emailId);
         }
 
-        final HttpUrl url = endpoint(endpointProvider)
-                .url(String.format("/v1/user/%s/permission/%s", user.getUserId(), permissionId));
+        final HttpUrl url = endpoint(endpointProvider).url(
+                String.format("/v1/user/%s/permission/%s", user.getUserId(), permissionId));
         Set<UserGroupNamespace> userGroupNamespaces = user.getUserGroupNamespaces();
         long userGroupId = 0L;
         int userGroupIdFlag = 0;
 
         for (UserGroupNamespace userGroupNamespace : userGroupNamespaces) {
-            if (userGroupNamespace.getNamespace().equals(ECHO)) {
-                userGroupId = userGroupNamespace
-                        .getUserRole()
+            if (userGroupNamespace.getNamespace()
+                    .equals(ECHO)) {
+                userGroupId = userGroupNamespace.getUserRole()
                         .getUserGroupId();
                 userGroupIdFlag = 1;
                 break;
@@ -160,18 +158,15 @@ public class GandalfManager {
             throw new UserPermissionAdditionException("Not able to find User group ID for the given user");
         }
         try {
-            requestBody = RequestBody.create(APPLICATION_JSON,
-                    mapper.writeValueAsBytes(
-                            UserPermissionRequest
-                                    .builder()
-                                    .userGroupId(userGroupId)
-                                    .build()));
-            Request request = new Request.Builder()
-                    .url(url)
+            requestBody = RequestBody.create(APPLICATION_JSON, mapper.writeValueAsBytes(UserPermissionRequest.builder()
+                    .userGroupId(userGroupId)
+                    .build()));
+            Request request = new Request.Builder().url(url)
                     .header(AUTHORIZATION, String.format("Bearer %s", authToken))
                     .post(requestBody)
                     .build();
-            response = okHttp.newCall(request).execute();
+            response = okHttp.newCall(request)
+                    .execute();
         } catch (Exception e) {
             throw new UserPermissionAdditionException("Not able to add new permission to user", e);
         }
@@ -187,13 +182,13 @@ public class GandalfManager {
         byte[] responseBody;
 
         final HttpUrl url = endpoint(endpointProvider).url(String.format("/v1/user/?email=%s", emailId));
-        Request request = new Request.Builder()
-                .url(url)
+        Request request = new Request.Builder().url(url)
                 .header(AUTHORIZATION, String.format("Bearer %s", authToken))
                 .get()
                 .build();
         try {
-            response = okHttp.newCall(request).execute();
+            response = okHttp.newCall(request)
+                    .execute();
             responseBody = OkHttpUtils.body(response);
             if (!response.isSuccessful() || null == responseBody) {
                 log.error("Error in retrieving user details get Call response {}", response);

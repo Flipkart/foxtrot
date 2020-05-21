@@ -26,7 +26,8 @@ import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.persistence.ElasticsearchFunnelStore;
 import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
-import com.flipkart.foxtrot.core.funnel.services.*;
+import com.flipkart.foxtrot.core.funnel.services.FunnelService;
+import com.flipkart.foxtrot.core.funnel.services.FunnelServiceImplV1;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBus;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBusConsumer;
 import com.flipkart.foxtrot.core.internalevents.impl.GuavaInternalEventBus;
@@ -34,11 +35,8 @@ import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.lock.DistributedLock;
 import com.flipkart.foxtrot.core.lock.HazelcastDistributedLock;
 import com.flipkart.foxtrot.core.lock.HazelcastDistributedLockConfig;
-import com.flipkart.foxtrot.core.queryexecutor.ExtrapolationQueryExecutor;
-import com.flipkart.foxtrot.core.queryexecutor.SimpleQueryExecutor;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.EventPublisherActionExecutionObserver;
-import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.handlers.MetricRecorder;
@@ -72,7 +70,6 @@ import com.google.inject.name.Names;
 import com.phonepe.platform.http.OkHttpUtils;
 import com.phonepe.platform.http.ServiceEndpointProvider;
 import com.phonepe.platform.http.ServiceEndpointProviderFactory;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
@@ -81,7 +78,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Named;
@@ -103,32 +99,22 @@ public class FoxtrotModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(TableMetadataManager.class)
-                .to(DistributedTableMetadataManager.class);
-        bind(DataStore.class)
-                .to(HBaseDataStore.class);
-        bind(QueryStore.class)
-                .to(ElasticsearchQueryStore.class);
-        bind(FqlStoreService.class)
-                .to(FqlStoreServiceImpl.class);
+        bind(TableMetadataManager.class).to(DistributedTableMetadataManager.class);
+        bind(DataStore.class).to(HBaseDataStore.class);
+        bind(QueryStore.class).to(ElasticsearchQueryStore.class);
+        bind(FqlStoreService.class).to(FqlStoreServiceImpl.class);
         bind(AccessService.class).to(AccessServiceImpl.class);
-        bind(CacheFactory.class)
-                .to(DistributedCacheFactory.class);
-        bind(InternalEventBus.class)
-                .to(GuavaInternalEventBus.class);
-        bind(InternalEventBusConsumer.class)
-                .to(AlertingSystemEventConsumer.class);
-        bind(ConsolePersistence.class)
-                .to(ElasticsearchConsolePersistence.class);
-        bind(EmailSubjectBuilder.class)
-                .to(StrSubstitutorEmailSubjectBuilder.class);
-        bind(EmailBodyBuilder.class)
-                .to(StrSubstitutorEmailBodyBuilder.class);
-        bind(TableManager.class)
-                .to(FoxtrotTableManager.class);
+        bind(CacheFactory.class).to(DistributedCacheFactory.class);
+        bind(InternalEventBus.class).to(GuavaInternalEventBus.class);
+        bind(InternalEventBusConsumer.class).to(AlertingSystemEventConsumer.class);
+        bind(ConsolePersistence.class).to(ElasticsearchConsolePersistence.class);
+        bind(EmailSubjectBuilder.class).to(StrSubstitutorEmailSubjectBuilder.class);
+        bind(EmailBodyBuilder.class).to(StrSubstitutorEmailBodyBuilder.class);
+        bind(TableManager.class).to(FoxtrotTableManager.class);
         bind(new TypeLiteral<ActionRequestVisitor<String>>() {
         }).toInstance(new TableActionRequestVisitor());
-        bind(FunnelService.class).annotatedWith(Names.named("FunnelServiceImplV1")).to(FunnelServiceImplV1.class);
+        bind(FunnelService.class).annotatedWith(Names.named("FunnelServiceImplV1"))
+                .to(FunnelServiceImplV1.class);
         bind(FunnelService.class).to(FunnelServiceImplV1.class);
         bind(FunnelStore.class).to(ElasticsearchFunnelStore.class);
         bind(DistributedLock.class).to(HazelcastDistributedLock.class);
@@ -157,16 +143,14 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public CardinalityConfig cardinalityConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getCardinality()
-                ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
-                : configuration.getCardinality();
+        return null == configuration.getCardinality() ? new CardinalityConfig("false",
+                String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)) : configuration.getCardinality();
     }
 
     @Provides
     @Singleton
     public EsIndexOptimizationConfig esIndexOptimizationConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getEsIndexOptimizationConfig()
-                ? new EsIndexOptimizationConfig()
+        return null == configuration.getEsIndexOptimizationConfig() ? new EsIndexOptimizationConfig()
                 : configuration.getEsIndexOptimizationConfig();
     }
 
@@ -179,16 +163,14 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public ConsoleHistoryConfig consoleHistoryConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getConsoleHistoryConfig()
-                ? new ConsoleHistoryConfig()
+        return null == configuration.getConsoleHistoryConfig() ? new ConsoleHistoryConfig()
                 : configuration.getConsoleHistoryConfig();
     }
 
     @Provides
     @Singleton
     public ClusterRerouteConfig clusterRerouteConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getClusterRerouteConfig()
-                ? new ClusterRerouteConfig()
+        return null == configuration.getClusterRerouteConfig() ? new ClusterRerouteConfig()
                 : configuration.getClusterRerouteConfig();
     }
 
@@ -218,8 +200,7 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public List<IndexerEventMutator> provideMutators(
-            FoxtrotServerConfiguration configuration,
+    public List<IndexerEventMutator> provideMutators(FoxtrotServerConfiguration configuration,
             ObjectMapper objectMapper) {
         return Collections.singletonList(new LargeTextNodeRemover(objectMapper, configuration.getTextNodeRemover()));
     }
@@ -228,8 +209,7 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public List<ActionExecutionObserver> actionExecutionObservers(CacheManager cacheManager,
             InternalEventBus eventBus) {
-        return ImmutableList.<ActionExecutionObserver>builder()
-                .add(new MetricRecorder())
+        return ImmutableList.<ActionExecutionObserver>builder().add(new MetricRecorder())
                 .add(new ResponseCacheUpdater(cacheManager))
                 .add(new SlowQueryReporter())
                 .add(new EventPublisherActionExecutionObserver(eventBus))
@@ -259,12 +239,12 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public FunnelConfiguration funnelConfig(FoxtrotServerConfiguration configuration) {
-        return configuration.getFunnelConfiguration() != null
-                ? configuration.getFunnelConfiguration()
+        return configuration.getFunnelConfiguration() != null ? configuration.getFunnelConfiguration()
                 : FunnelConfiguration.builder()
                         .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
                                 .eventType("APP_LOADED")
-                                .category("APP_LOADED").build())
+                                .category("APP_LOADED")
+                                .build())
                         .querySize(100)
                         .build();
     }
@@ -293,11 +273,9 @@ public class FoxtrotModule extends AbstractModule {
     ServiceEndpointProvider provideGandalfServiceEndpointProvider(FoxtrotServerConfiguration configuration,
             Environment environment) {
         ServiceEndpointProviderFactory serviceEndpointFactory = new ServiceEndpointProviderFactory(
-                this.serviceDiscoveryBundle
-                        .getCurator());
+                this.serviceDiscoveryBundle.getCurator());
         return serviceEndpointFactory.provider(configuration.getGandalfConfig()
-                        .getHttpConfig(),
-                environment);
+                .getHttpConfig(), environment);
     }
 
     @Provides
@@ -305,9 +283,9 @@ public class FoxtrotModule extends AbstractModule {
     @Named("GandalfOkHttpClient")
     OkHttpClient provideGandalfOkHttpClient(Environment environment, FoxtrotServerConfiguration configuration)
             throws GeneralSecurityException, IOException {
-        return OkHttpUtils.createDefaultClient("foxtrot-gandalf-client",
-                environment.metrics(),
-                configuration.getGandalfConfig().getHttpConfig());
+        return OkHttpUtils.createDefaultClient("foxtrot-gandalf-client", environment.metrics(),
+                configuration.getGandalfConfig()
+                        .getHttpConfig());
     }
 
     @Provides
