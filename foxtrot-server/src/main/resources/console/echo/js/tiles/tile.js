@@ -560,7 +560,7 @@ TileFactory.prototype.downloadWidget = function (object, tileElement) { // get q
   }
   else if (object.tileContext.chartType == "nonStackedLine") {
     var nonStackedLineGraph = new NonStackedLineTile();
-    nonStackedLineGraph.getQuery(object);
+    nonStackedLineGraph.downloadWidget(object);
   }
 }
 
