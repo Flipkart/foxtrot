@@ -1,7 +1,6 @@
 package com.flipkart.foxtrot.core.funnel.model.visitor;
 
 import static com.flipkart.foxtrot.core.util.FunnelExtrapolationUtils.FUNNEL_ID_QUERY_FIELD;
-import static com.flipkart.foxtrot.core.util.FunnelExtrapolationUtils.VALID_STATS_FOR_EXTRAPOLATION;
 
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
@@ -44,7 +43,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<ActionResponse> {
-
 
     private static final String EVENT_TYPE = "eventType";
 
@@ -208,7 +206,8 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         if (CollectionUtils.isNotEmpty(originalStats)) {
             Map<String, Number> extrapolatedStats = new HashMap<>(originalStats);
             for (Map.Entry<String, Number> entry : extrapolatedStats.entrySet()) {
-                if (FunnelExtrapolationUtils.getValidStatsForExtrapolation().contains(entry.getKey())) {
+                if (FunnelExtrapolationUtils.getValidStatsForExtrapolation()
+                        .contains(entry.getKey())) {
                     entry.setValue(extrapolatedValue(entry.getKey(), entry.getValue(), extrapolationFactor));
                 }
             }
