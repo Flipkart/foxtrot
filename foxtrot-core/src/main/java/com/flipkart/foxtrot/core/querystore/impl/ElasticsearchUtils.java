@@ -229,7 +229,7 @@ public class ElasticsearchUtils {
                 .endObject()
 
                 .endArray()
-                .field("properties")
+                .field(PROPERTIES)
                 .startObject()
                 .field("eventData")
                 .startObject()
@@ -288,7 +288,6 @@ public class ElasticsearchUtils {
         DateTime creationDate = parseIndexDate(index, table.getName());
         DateTime startTime = new DateTime(0L);
         DateTime endTime = new DateTime().minusDays(table.getTtl())
-                .toDateMidnight()
                 .toDateTime();
         return creationDate.isAfter(startTime) && creationDate.isBefore(endTime);
     }

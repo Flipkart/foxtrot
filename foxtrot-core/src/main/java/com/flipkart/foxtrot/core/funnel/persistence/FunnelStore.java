@@ -1,8 +1,6 @@
 package com.flipkart.foxtrot.core.funnel.persistence;
 
-import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
-import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
 import com.flipkart.foxtrot.core.funnel.model.Funnel;
 import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
 import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
@@ -14,23 +12,23 @@ import java.util.Map;
  ***/
 public interface FunnelStore {
 
-    void save(Funnel funnel) throws FunnelException;
+    void save(Funnel funnel);
 
-    void update(Funnel funnel) throws FoxtrotException;
+    void update(Funnel funnel);
 
-    void delete(final String documentId) throws FunnelException;
+    void delete(final String documentId);
 
-    Funnel get(final String documentId) throws FoxtrotException;
+    Funnel get(final String documentId);
 
-    Funnel getByFunnelId(final String funnelId) throws FoxtrotException;
+    Funnel getByFunnelId(final String funnelId);
 
-    List<Funnel> searchSimilar(Funnel funnel) throws FunnelException;
+    List<Funnel> searchSimilar(Funnel funnel);
 
-    List<Funnel> getAll(boolean deleted) throws FoxtrotException;
+    List<Funnel> getAll(boolean deleted);
 
-    FunnelFilterResponse search(FilterRequest filterRequest) throws FunnelException;
+    FunnelFilterResponse search(FilterRequest filterRequest);
 
-    Funnel getLatestFunnel() throws FunnelException;
+    Funnel getLatestFunnel();
 
     FunnelDropdownConfig getFunnelDropdownValues();
 

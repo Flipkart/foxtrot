@@ -19,12 +19,12 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton
 public class QueryExecutorFactory {
 
-    private static int POOL_EXPIRY = 300;
-    private static int POOL_SIZE = 1000;
+    private static final int POOL_EXPIRY = 300;
+    private static final int POOL_SIZE = 1000;
     private final QueryExecutor simpleQueryExecutor;
     // Flyweight pool to not create unnecessary new objects for every request
     // with same funnel id
-    private LoadingCache<Long, QueryExecutor> extrapolationQueryExecutors;
+    private final LoadingCache<Long, QueryExecutor> extrapolationQueryExecutors;
 
     @Inject
     public QueryExecutorFactory(final AnalyticsLoader analyticsLoader, final ExecutorService executorService,

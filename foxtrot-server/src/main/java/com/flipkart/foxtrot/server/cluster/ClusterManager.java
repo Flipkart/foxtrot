@@ -13,7 +13,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 import io.dropwizard.lifecycle.Managed;
 import java.io.IOException;
-import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -36,8 +36,8 @@ public class ClusterManager implements Managed {
     private final ClusterMember clusterMember;
     private final List<HealthCheck> healthChecks;
     private IMap<String, ClusterMember> members;
-    private HazelcastConnection hazelcastConnection;
-    private ScheduledExecutorService executor;
+    private final HazelcastConnection hazelcastConnection;
+    private final ScheduledExecutorService executor;
 
     @Inject
     public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks,
@@ -52,7 +52,7 @@ public class ClusterManager implements Managed {
         hazelcastConnection.getHazelcastConfig()
                 .getMapConfigs()
                 .put(MAP_NAME, mapConfig);
-        String hostname = Inet4Address.getLocalHost()
+        String hostname = InetAddress.getLocalHost()
                 .getCanonicalHostName();
         //Auto detect marathon environment and query for host environment variable
         if (!Strings.isNullOrEmpty(System.getenv("HOST"))) {
@@ -69,7 +69,7 @@ public class ClusterManager implements Managed {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() {
         members = hazelcastConnection.getHazelcast()
                 .getMap(MAP_NAME);
         executor.scheduleWithFixedDelay(new NodeDataUpdater(healthChecks, members, clusterMember), 0, MAP_REFRESH_TIME,
@@ -77,7 +77,7 @@ public class ClusterManager implements Managed {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         members.remove(clusterMember.toString());
     }
 
@@ -95,7 +95,7 @@ public class ClusterManager implements Managed {
 
         private final List<HealthCheck> healthChecks;
         private final ClusterMember clusterMember;
-        private IMap<String, ClusterMember> members;
+        private final IMap<String, ClusterMember> members;
 
         private NodeDataUpdater(List<HealthCheck> healthChecks, IMap<String, ClusterMember> members,
                 ClusterMember clusterMember) {

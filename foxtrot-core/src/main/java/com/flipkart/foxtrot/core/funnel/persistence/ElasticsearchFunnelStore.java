@@ -14,7 +14,6 @@ import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.DOT;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.TYPE;
 
 import com.collections.CollectionUtils;
-import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
@@ -85,7 +84,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
 
 
     @Override
-    public void save(Funnel funnel) throws FoxtrotException {
+    public void save(Funnel funnel) {
         try {
             connection.getClient()
                     .prepareIndex()
@@ -104,7 +103,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     }
 
     @Override
-    public Funnel get(final String documentId) throws FoxtrotException {
+    public Funnel get(final String documentId) {
         try {
             GetResponse response = connection.getClient()
                     .prepareGet()
@@ -122,7 +121,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     }
 
     @Override
-    public Funnel getByFunnelId(String funnelId) throws FoxtrotException {
+    public Funnel getByFunnelId(String funnelId) {
         QueryBuilder query = new TermQueryBuilder(FunnelAttributes.ID, funnelId);
         try {
             SearchHits response = connection.getClient()
@@ -145,7 +144,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     }
 
     @Override
-    public List<Funnel> searchSimilar(Funnel funnel) throws FunnelException {
+    public List<Funnel> searchSimilar(Funnel funnel) {
         List<Funnel> similarFunnels = new ArrayList<>();
         BoolQueryBuilder esRequest = buildSimilarFunnelSearchQuery(funnel);
         SearchHits searchHits;
@@ -175,7 +174,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     }
 
     @Override
-    public void update(Funnel funnel) throws FoxtrotException {
+    public void update(Funnel funnel) {
         try {
             UpdateRequest updateRequest = new UpdateRequest();
             updateRequest.index(funnelConfiguration.getFunnelIndex())
@@ -195,7 +194,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
 
 
     @Override
-    public List<Funnel> getAll(boolean deleted) throws FoxtrotException {
+    public List<Funnel> getAll(boolean deleted) {
 
         int maxSize = 1000;
         List<Funnel> funnels = new ArrayList<>();
@@ -223,7 +222,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     }
 
     @Override
-    public FunnelFilterResponse search(FilterRequest filterRequest) throws FoxtrotException {
+    public FunnelFilterResponse search(FilterRequest filterRequest) {
         preProcessFilterRequest(filterRequest);
         List<Funnel> funnels = new ArrayList<>();
         SearchHits searchHits;
@@ -251,7 +250,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     }
 
     @Override
-    public void delete(final String documentId) throws FoxtrotException {
+    public void delete(final String documentId) {
         try {
             connection.getClient()
                     .prepareDelete()
@@ -268,7 +267,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     }
 
     @Override
-    public Funnel getLatestFunnel() throws FoxtrotException {
+    public Funnel getLatestFunnel() {
         QueryBuilder query = new TermQueryBuilder(FUNNEL_STATUS, FunnelStatus.APPROVED.name());
 
         try {
@@ -322,8 +321,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         return funnels;
     }
 
-    private BoolQueryBuilder buildEsRequest(List<Map<String, String>> fieldVsValues, int bucket)
-            throws FoxtrotException {
+    private BoolQueryBuilder buildEsRequest(List<Map<String, String>> fieldVsValues, int bucket) {
 
         BoolQueryBuilder outerQueryBuilder = QueryBuilders.boolQuery();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -362,7 +360,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     }
 
 
-    private BoolQueryBuilder buildSimilarFunnelSearchQuery(Funnel funnel) throws FoxtrotException {
+    private BoolQueryBuilder buildSimilarFunnelSearchQuery(Funnel funnel) {
         BoolQueryBuilder outerQueryBuilder = QueryBuilders.boolQuery();
 
         //Field VS Value Query
@@ -427,7 +425,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         return boolEventAttributesQueryBuilder;
     }
 
-    private void preProcessFilterRequest(FilterRequest filterRequest) throws FoxtrotException {
+    private void preProcessFilterRequest(FilterRequest filterRequest) {
         PreProcessFilter preProcessFilter = new PreProcessFilter();
         try {
             preProcessFilter.preProcess(filterRequest, mappingService, funnelConfiguration.getFunnelIndex());

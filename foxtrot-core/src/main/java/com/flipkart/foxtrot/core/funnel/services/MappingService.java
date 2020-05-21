@@ -60,7 +60,6 @@ public class MappingService {
         return getMappingsResponse.mappings();
     }
 
-    @SuppressWarnings("unchecked")
     public String getFieldType(String fieldName, String index) {
         String defaultFieldType = TEXT;
         String[] fieldArray = fieldName.split("\\.", 5);
@@ -89,7 +88,6 @@ public class MappingService {
         return defaultFieldType;
     }
 
-    @SuppressWarnings("unchecked")
     public String getAnalyzedFieldName(String fieldName, String index) {
         String defaultFieldName = "id" + DOT + TEXT;
         String[] fieldArray = fieldName.split("\\.", 5);

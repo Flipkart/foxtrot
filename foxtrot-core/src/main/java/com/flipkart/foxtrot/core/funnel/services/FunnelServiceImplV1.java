@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.function.Function;
 import org.joda.time.DateTime;
@@ -34,12 +35,14 @@ public class FunnelServiceImplV1 implements FunnelService {
     private static final Logger logger = LoggerFactory.getLogger(FunnelServiceImplV1.class);
     private static final String FUNNEL_APPROVAL_LOCK_KEY = "FUNNEL_APPROVAL";
     private final FunnelStore funnelStore;
-    private LockedExecutor lockedExecutor;
+    private final LockedExecutor lockedExecutor;
+    private final Random random;
 
     @Inject
     public FunnelServiceImplV1(final FunnelStore funnelStore, final LockedExecutor lockedExecutor) {
         this.funnelStore = funnelStore;
         this.lockedExecutor = lockedExecutor;
+        this.random = new Random();
     }
 
     @Override
@@ -91,7 +94,7 @@ public class FunnelServiceImplV1 implements FunnelService {
      */
     private void assignFunnelPercentage(Funnel funnel) {
         if (funnel.getStartPercentage() == 0 && funnel.getEndPercentage() == 0) {
-            int startPercentage = (int) Math.ceil(Math.random() * (100 - funnel.getPercentage()));
+            int startPercentage = (random.nextInt(100 - funnel.getPercentage()));
             funnel.setStartPercentage(startPercentage);
             funnel.setEndPercentage(startPercentage + funnel.getPercentage());
         }
