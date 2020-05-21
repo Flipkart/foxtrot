@@ -2,6 +2,8 @@ package com.flipkart.foxtrot.core.lock;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.google.common.base.Strings;
 import com.hazelcast.core.ILock;
@@ -38,7 +40,7 @@ public class HazelcastDistributedLock implements DistributedLock {
                             String lockGroup) throws RuntimeException {
         if (Strings.isNullOrEmpty(lockUniqueId)) {
             log.error("Failed to take HZ lock as lock id is null or empty: lockUniqueId={}", lockUniqueId);
-            throw new RuntimeException("Failed to take HZ lock as lock id is null or empty");
+            throw new FunnelException(ErrorCode.FUNNEL_EXCEPTION, "Failed to take HZ lock as lock id is null or empty");
         }
 
         DistributedLockGroupConfig lockGroupConfig;
@@ -66,7 +68,9 @@ public class HazelcastDistributedLock implements DistributedLock {
                     lockGroupConfig.getLockExpiryTimeInMs());
         } catch (InterruptedException e) {
             log.error("Failed to acquired HZ lock with lock id = {}, error={}", lockUniqueId, e.getMessage());
-            throw new RuntimeException("HZ lock interrupted with lock id = " + lockUniqueId);
+            Thread.currentThread()
+                    .interrupt();
+            throw new FunnelException(ErrorCode.FUNNEL_EXCEPTION, "HZ lock interrupted with lock id = " + lockUniqueId);
         }
         return lock;
     }
@@ -75,7 +79,7 @@ public class HazelcastDistributedLock implements DistributedLock {
     public Lock achieveLock(String lockUniqueId) throws RuntimeException {
         if (Strings.isNullOrEmpty(lockUniqueId)) {
             log.error("Failed to take HZ lock as lock id is null or empty: lockUniqueId={}", lockUniqueId);
-            throw new RuntimeException("Failed to take HZ lock as lock id is null or empty");
+            throw new FunnelException(ErrorCode.FUNNEL_EXCEPTION, "Failed to take HZ lock as lock id is null or empty");
         }
 
         ILock lock = hazelcastConnection.getHazelcast()
@@ -84,12 +88,15 @@ public class HazelcastDistributedLock implements DistributedLock {
             log.debug("(HazelcastDistributedLock) try lock={}", lockUniqueId);
             if (!lock.tryLock(lock.getRemainingLeaseTime(), MILLISECONDS)) {
                 log.error("Failed to acquired HZ lock with lock id = {}", lockUniqueId);
-                throw new RuntimeException("Failed to take HZ lock with lock id = " + lockUniqueId);
+                throw new FunnelException(ErrorCode.FUNNEL_EXCEPTION,
+                        "Failed to take HZ lock with lock id = " + lockUniqueId);
             }
             log.debug("(HazelcastDistributedLock) lock acquired={}", lockUniqueId);
         } catch (InterruptedException e) {
             log.error("Failed to acquired HZ lock with lock id = {}, error={}", lockUniqueId, e.getMessage());
-            throw new RuntimeException("HZ lock interrupted with lock id = " + lockUniqueId);
+            Thread.currentThread()
+                    .interrupt();
+            throw new FunnelException(ErrorCode.FUNNEL_EXCEPTION, "HZ lock interrupted with lock id = " + lockUniqueId);
         }
         return lock;
     }
