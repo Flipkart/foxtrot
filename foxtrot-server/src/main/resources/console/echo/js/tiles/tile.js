@@ -552,7 +552,7 @@ TileFactory.prototype.downloadWidget = function (object, tileElement) { // get q
   }
   else if (object.tileContext.chartType == "lineRatio") {
     var lineRatioGraph = new LineRatioTile();
-    lineRatioGraph.getQuery(object);
+    lineRatioGraph.downloadWidget(object);
   }
   else if (object.tileContext.chartType == "sunburst") {
     var sunburstGraph = new SunburstTile();
