@@ -44,9 +44,7 @@ import javax.ws.rs.core.StreamingOutput;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 27/03/14
- * Time: 2:05 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 27/03/14 Time: 2:05 AM
  */
 @Slf4j
 @Path("/v1/analytics")

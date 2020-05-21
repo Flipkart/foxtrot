@@ -34,9 +34,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 24/03/14
- * Time: 12:51 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 12:51 PM
  */
 @Slf4j
 public abstract class QueryExecutor {

@@ -55,9 +55,7 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.DateTime;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 30/03/14
- * Time: 10:27 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 30/03/14 Time: 10:27 PM
  */
 @AnalyticsProvider(opcode = "trend", request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
 public class TrendAction extends Action<TrendRequest> {

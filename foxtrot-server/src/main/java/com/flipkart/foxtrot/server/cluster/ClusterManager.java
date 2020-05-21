@@ -35,9 +35,9 @@ public class ClusterManager implements Managed {
     private static final int MAP_REFRESH_TIME = 5;
     private final ClusterMember clusterMember;
     private final List<HealthCheck> healthChecks;
-    private IMap<String, ClusterMember> members;
     private final HazelcastConnection hazelcastConnection;
     private final ScheduledExecutorService executor;
+    private IMap<String, ClusterMember> members;
 
     @Inject
     public ClusterManager(HazelcastConnection connection,
