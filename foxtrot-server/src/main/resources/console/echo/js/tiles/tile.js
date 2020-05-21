@@ -521,7 +521,7 @@ TileFactory.prototype.downloadWidget = function (object, tileElement) { // get q
   }
   else if (object.tileContext.chartType == "gauge") {
     var gaugeGraph = new GaugeTile();
-    gaugeGraph.getQuery(object);
+    gaugeGraph.downloadWidget(object);
   } else if (object.tileContext.chartType == "percentageGauge") {
     var gaugeGraph = new PercentageGaugeTile();
     gaugeGraph.getQuery(object);
