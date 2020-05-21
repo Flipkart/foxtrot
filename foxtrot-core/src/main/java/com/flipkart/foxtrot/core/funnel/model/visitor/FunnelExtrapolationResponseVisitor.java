@@ -34,6 +34,7 @@ import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
+import com.flipkart.foxtrot.core.util.FunnelExtrapolationUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -211,7 +212,7 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         if (CollectionUtils.isNotEmpty(originalStats)) {
             Map<String, Number> extrapolatedStats = new HashMap<>(originalStats);
             for (Map.Entry<String, Number> entry : extrapolatedStats.entrySet()) {
-                if (VALID_STATS_FOR_EXTRAPOLATION.contains(entry.getKey())) {
+                if (FunnelExtrapolationUtils.getValidStatsForExtrapolation().contains(entry.getKey())) {
                     entry.setValue(extrapolatedValue(entry.getKey(), entry.getValue(), extrapolationFactor));
                 }
             }

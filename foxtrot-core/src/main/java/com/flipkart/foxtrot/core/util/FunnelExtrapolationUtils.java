@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.core.funnel.model.visitor.FunnelExtrapolationValidator;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
+import edu.emory.mathcs.backport.java.util.Collections;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +16,7 @@ public class FunnelExtrapolationUtils {
 
     public static final String FUNNEL_ID_QUERY_FIELD = "eventData.funnelInfo.funnelId";
 
-    protected static final List<String> VALID_STATS_FOR_EXTRAPOLATION = Arrays.asList(Utils.COUNT, Utils.SUM,
+    private static final List<String> VALID_STATS_FOR_EXTRAPOLATION = Arrays.asList(Utils.COUNT, Utils.SUM,
             Utils.SUM_OF_SQUARES);
 
     private FunnelExtrapolationUtils() {
@@ -45,7 +46,9 @@ public class FunnelExtrapolationUtils {
         }
         log.debug("Extrapolation not applicable for actionRequest: {}", actionRequest);
         return Optional.empty();
-
     }
 
+    public static List<String> getValidStatsForExtrapolation() {
+        return Collections.unmodifiableList(VALID_STATS_FOR_EXTRAPOLATION);
+    }
 }
