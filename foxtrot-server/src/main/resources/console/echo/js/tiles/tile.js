@@ -536,7 +536,7 @@ TileFactory.prototype.downloadWidget = function (object, tileElement) { // get q
   }
   else if (object.tileContext.chartType == "pie") {
     var pieGraph = new PieTile();
-    pieGraph.getQuery(object);
+    pieGraph.downloadWidget(object);
   }
   else if (object.tileContext.chartType == "statsTrend") {
     var statsTrendGraph = new StatsTrendTile();
