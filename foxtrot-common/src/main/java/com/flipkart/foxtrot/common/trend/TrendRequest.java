@@ -24,9 +24,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 30/03/14
- * Time: 2:30 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 30/03/14 Time: 2:30 PM
  */
 @Getter
 @Setter

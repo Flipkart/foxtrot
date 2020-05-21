@@ -326,9 +326,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         BoolQueryBuilder outerQueryBuilder = QueryBuilders.boolQuery();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
-        fieldVsValues.forEach(fieldVsValueMap -> {
-            addQueries(fieldVsValueMap, boolQueryBuilder);
-        });
+        fieldVsValues.forEach(fieldVsValueMap -> addQueries(fieldVsValueMap, boolQueryBuilder));
 
         outerQueryBuilder.must(QueryBuilders.nestedQuery(FIELD_VS_VALUES, boolQueryBuilder, ScoreMode.Avg));
 
@@ -390,28 +388,9 @@ public class ElasticsearchFunnelStore implements FunnelStore {
 
     private BoolQueryBuilder buildEventAttributesQuery(Funnel funnel) {
         BoolQueryBuilder boolEventAttributesQueryBuilder = QueryBuilders.boolQuery();
-
         try {
             Map<String, List<Object>> eventAttributesMap = new HashMap<>();
-            for (EventAttributes eventAttributes : nullAndEmptySafeValueList(funnel.getEventAttributes())) {
-                Field[] eventAttributesFields = EventAttributes.class.getDeclaredFields();
-                for (Field eventAttributeField : nullAndEmptySafeValueList(eventAttributesFields)) {
-                    if (eventAttributeField.isSynthetic()) {
-                        continue;
-                    }
-                    eventAttributeField.setAccessible(true);
-                    if (eventAttributeField.get(eventAttributes) != null) {
-                        String key = EVENT_ATTRIBUTES + DOT + eventAttributeField.getName();
-                        if (!eventAttributesMap.containsKey(key)) {
-                            eventAttributesMap.put(key, new ArrayList<>(
-                                    Collections.singletonList(eventAttributeField.get(eventAttributes))));
-                        } else {
-                            eventAttributesMap.get(key)
-                                    .add(eventAttributeField.get(eventAttributes));
-                        }
-                    }
-                }
-            }
+            extractEventAttributes(funnel, eventAttributesMap);
 
             for (Map.Entry<String, List<Object>> entry : nullSafeMap(eventAttributesMap).entrySet()) {
                 BoolQueryBuilder mustQueryBuilder = QueryBuilders.boolQuery();
@@ -423,6 +402,29 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         }
 
         return boolEventAttributesQueryBuilder;
+    }
+
+    private void extractEventAttributes(Funnel funnel, Map<String, List<Object>> eventAttributesMap)
+            throws IllegalAccessException {
+        for (EventAttributes eventAttributes : nullAndEmptySafeValueList(funnel.getEventAttributes())) {
+            Field[] eventAttributesFields = EventAttributes.class.getDeclaredFields();
+            for (Field eventAttributeField : nullAndEmptySafeValueList(eventAttributesFields)) {
+                if (eventAttributeField.isSynthetic()) {
+                    continue;
+                }
+                eventAttributeField.setAccessible(true);
+                if (eventAttributeField.get(eventAttributes) != null) {
+                    String key = EVENT_ATTRIBUTES + DOT + eventAttributeField.getName();
+                    if (!eventAttributesMap.containsKey(key)) {
+                        eventAttributesMap.put(key, new ArrayList<>(
+                                Collections.singletonList(eventAttributeField.get(eventAttributes))));
+                    } else {
+                        eventAttributesMap.get(key)
+                                .add(eventAttributeField.get(eventAttributes));
+                    }
+                }
+            }
+        }
     }
 
     private void preProcessFilterRequest(FilterRequest filterRequest) {

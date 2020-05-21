@@ -38,9 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 24/03/14
- * Time: 12:23 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 12:23 AM
  */
 public abstract class Action<P extends ActionRequest> {
 
@@ -127,9 +125,7 @@ public abstract class Action<P extends ActionRequest> {
      * Returns a metric key for current action. Ideally this key's cardinality should be less since each new value of
      * this key will create new JMX metric
      * <p>
-     * Sample use cases - Used for reporting per action
-     * success/failure metrics
-     * cache hit/miss metrics
+     * Sample use cases - Used for reporting per action success/failure metrics cache hit/miss metrics
      *
      * @return metric key for current action
      */
