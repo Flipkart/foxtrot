@@ -199,7 +199,7 @@ CountTile.prototype.downloadWidget = function(object) {
     contentType: 'application/json',
     context: this,
     success: function(response) {
-      downloadTextAsCSV(response, 'CountTile.csv')
+      downloadTextAsCSV(response, 'CountChart.csv')
     },
     error: function(xhr, textStatus, error ) {
       console.log("error.........",error,textStatus,xhr)

@@ -345,7 +345,7 @@ BarTile.prototype.downloadWidget = function (object) {
     contentType: 'application/json',
     context: this,
     success: function(response) {
-      downloadTextAsCSV(response, 'BarTiles.csv')
+      downloadTextAsCSV(response, 'BarChart.csv')
     },
     error: function(xhr, textStatus, error ) {
       console.log("error.........",error,textStatus,xhr)

@@ -304,7 +304,7 @@ LineTile.prototype.downloadWidget = function (object) {
     contentType: 'application/json',
     context: this,
     success: function(response) {
-      downloadTextAsCSV(response, 'LineTile.csv')
+      downloadTextAsCSV(response, 'LineChart.csv')
     },
     error: function(xhr, textStatus, error ) {
       console.log("error.........",error,textStatus,xhr)
