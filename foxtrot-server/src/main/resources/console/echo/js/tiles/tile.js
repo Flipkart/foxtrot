@@ -513,7 +513,7 @@ TileFactory.prototype.downloadWidget = function (object, tileElement) { // get q
   else if (object.tileContext.chartType == "radar") {
     tileElement.find(".chart-item").append('<div id="radar-' + object.id + '" style="width:200;height:200"></div>');
     var radarGraph = new RadarTile();
-    radarGraph.getQuery(object);
+    radarGraph.downloadWidget(object);
   }
   else if (object.tileContext.chartType == "trend") {
     var trendGraph = new TrendTile();
