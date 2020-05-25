@@ -12,12 +12,12 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-66</version>
+    <version>6.3.1-74</version>
 
     <parent>
         <groupId>com.phonepe</groupId>
         <artifactId>pp-parent-pom</artifactId>
-        <version>0.21</version>
+        <version>0.25</version>
     </parent>
     <scm>
         <connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
@@ -76,20 +76,18 @@
         <lombok.version>1.16.16</lombok.version>
         <project.version>6.3.1-2</project.version>
         <es.container.version>1.0.4</es.container.version>
-        <gandalf.version>1.2.30</gandalf.version>
+        <gandalf.version>1.2.35</gandalf.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <project.version>6.3.1-3</project.version>
         <es.container.version>1.0.4</es.container.version>
         <caffeine.version>2.6.2</caffeine.version>
+        <maven.deploy.skip>true</maven.deploy.skip>
         <guava.version>24.1.1-jre</guava.version>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
-        <jacoco.version>0.7.5.201505241946</jacoco.version>
         <powermock.api.mockito.version>1.7.3</powermock.api.mockito.version>
         <powermock.module.junit4.version>1.7.3</powermock.module.junit4.version>
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.jacoco.reportPaths>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPaths>
         <sonar.version>3.6.0.1398</sonar.version>
         <sonar.language>java</sonar.language>
         <sonar.exclusions>**com/flipkart/foxtrot/common/**/*,
@@ -230,7 +228,7 @@
                     <plugin>
                         <artifactId>maven-deploy-plugin</artifactId>
                         <configuration>
-                            <skip>true</skip>
+                            <skip>${maven.deploy.skip}</skip>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -570,23 +568,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco.version}</version>
-                <configuration>
-                    <destFile>${sonar.jacoco.reportPaths}</destFile>
-                    <append>true</append>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>${sonar.version}</version>
@@ -595,7 +576,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
-                    <skip>true</skip>
+                    <skip>${maven.deploy.skip}</skip>
                 </configuration>
             </plugin>
         </plugins>
