@@ -16,7 +16,9 @@ public interface FunnelService {
 
     Funnel reject(String documentId);
 
-    Funnel getFunnel(String funnelId);
+    Funnel getFunnelByFunnelId(String funnelId);
+
+    Funnel getFunnelByDocumentId(String documentId);
 
     void delete(String funnelId);
 
