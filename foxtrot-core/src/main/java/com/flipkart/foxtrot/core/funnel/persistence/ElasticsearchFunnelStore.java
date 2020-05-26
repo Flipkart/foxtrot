@@ -104,7 +104,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     }
 
     @Override
-    public Funnel get(final String documentId) throws FoxtrotException {
+    public Funnel getByDocumentId(final String documentId) throws FoxtrotException {
         try {
             GetResponse response = connection.getClient()
                     .prepareGet()

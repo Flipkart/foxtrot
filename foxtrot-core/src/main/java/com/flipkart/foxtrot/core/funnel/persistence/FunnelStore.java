@@ -20,7 +20,7 @@ public interface FunnelStore {
 
     void delete(final String documentId) throws FunnelException;
 
-    Funnel get(final String documentId) throws FoxtrotException;
+    Funnel getByDocumentId(final String documentId) throws FoxtrotException;
 
     Funnel getByFunnelId(final String funnelId) throws FoxtrotException;
 

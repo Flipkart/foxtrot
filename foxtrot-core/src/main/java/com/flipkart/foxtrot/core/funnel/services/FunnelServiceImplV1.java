@@ -70,7 +70,7 @@ public class FunnelServiceImplV1 implements FunnelService {
 
     @Override
     public Funnel update(String documentId, Funnel funnel) {
-        Funnel savedFunnel = funnelStore.get(documentId);
+        Funnel savedFunnel = funnelStore.getByDocumentId(documentId);
         validateFunnelUpdateRequest(savedFunnel);
 
         if (isFunnelWaitingForApproval(savedFunnel)) {
@@ -109,7 +109,7 @@ public class FunnelServiceImplV1 implements FunnelService {
 
     @Override
     public Funnel reject(String documentId) {
-        Funnel savedFunnel = funnelStore.get(documentId);
+        Funnel savedFunnel = funnelStore.getByDocumentId(documentId);
 
         validateFunnelUpdateRequest(savedFunnel);
 
@@ -126,7 +126,7 @@ public class FunnelServiceImplV1 implements FunnelService {
 
     private Function<String, Funnel> approveAndGenerateFunnelId() {
         return documentId -> {
-            Funnel savedFunnel = funnelStore.get(documentId);
+            Funnel savedFunnel = funnelStore.getByDocumentId(documentId);
             validateFunnelUpdateRequest(savedFunnel);
 
             if (isFunnelWaitingForApproval(savedFunnel)) {
@@ -163,7 +163,7 @@ public class FunnelServiceImplV1 implements FunnelService {
 
     @Override
     public Funnel getFunnelByDocumentId(String documentId) {
-        return funnelStore.get(documentId);
+        return funnelStore.getByDocumentId(documentId);
     }
 
     @Override
