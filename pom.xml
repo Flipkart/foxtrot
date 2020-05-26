@@ -156,6 +156,7 @@
             **com/flipkart/foxtrot/sql/query/FqlDescribeTable.java,
             **com/flipkart/foxtrot/sql/query/FqlShowTablesQuery.java,
             **com/flipkart/foxtrot/sql/responseprocessors/model/**,
+            **com.flipkart.foxtrot.core.querystore.impl/**,
             *.js,
             *.css,
             **console/**/*,
@@ -163,7 +164,6 @@
             src/main/resources/**
         </sonar.exclusions>
         <sonar.test.exclusions>
-            **com/flipkart/foxtrot/gandalf/**/*,
             **com/flipkart/foxtrot/common/**/*,
             **com/flipkart/foxtrot/server/console/*,
             **com/flipkart/foxtrot/server/di/**,
@@ -220,7 +220,7 @@
             **com/flipkart/foxtrot/core/datastore/impl/hbase/IdentityKeyDistributor.java,
             **com/flipkart/foxtrot/core/datastore/impl/hbase/HbaseTableConnection.java,
             **com/flipkart/foxtrot/core/exception/*.java,
-            **com/flipkart/foxtrot/core/common/DataDeletionManagerConfig.java,
+            **com/flipkart/foxtrot/core/commoAlertingSystemEventConsumern/DataDeletionManagerConfig.java,
             **com/flipkart/foxtrot/core/querystore/actions/spi/ElasticsearchTuningConfig.java,
             **com/flipkart/foxtrot/gandalf/**/*,
             **com/flipkart/foxtrot/sql/fqlstore/FqlGetRequest.java,
@@ -229,6 +229,10 @@
             **com/flipkart/foxtrot/sql/query/FqlDescribeTable.java,
             **com/flipkart/foxtrot/sql/query/FqlShowTablesQuery.java,
             **com/flipkart/foxtrot/sql/responseprocessors/model/**,
+            **com.flipkart.foxtrot.core.alerts/**,
+            **com.flipkart.foxtrot.core.jobs/**,
+            **com.flipkart.foxtrot.core.querystore.actions/Constants.java,
+            **com.flipkart.foxtrot.core.config/**,
             *.js,
             *.css,
             **console/**/*,
