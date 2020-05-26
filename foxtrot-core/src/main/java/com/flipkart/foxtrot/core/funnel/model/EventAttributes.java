@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.funnel.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +13,9 @@ import lombok.EqualsAndHashCode;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode
-public class EventAttributes {
+public class EventAttributes implements Serializable {
+
+    private static final long serialVersionUID = -4212561989849321831L;
 
     private String eventType;
     private String category;

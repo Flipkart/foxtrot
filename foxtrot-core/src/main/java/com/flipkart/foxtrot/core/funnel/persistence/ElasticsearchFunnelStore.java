@@ -83,7 +83,6 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         this.funnelConfiguration = funnelConfiguration;
     }
 
-
     @Override
     public void save(Funnel funnel) throws FoxtrotException {
         try {
