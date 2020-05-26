@@ -193,6 +193,7 @@
             **com/flipkart/foxtrot/core/common/DataDeletionManager.java,
             **com/flipkart/foxtrot/core/common/DataDeletionTask.java,
             **com/flipkart/foxtrot/core/common/DataDeletionManagerConfig.java,
+            **/com/flipkart/foxtrot/core/common/AsyncDataToken.java,
             **com/flipkart/foxtrot/core/jobs/**/*,
             **com/flipkart/foxtrot/core/reroute/**,
             **com/flipkart/foxtrot/core/querystore/impl/AwsClusterDiscoveryConfig.java,
