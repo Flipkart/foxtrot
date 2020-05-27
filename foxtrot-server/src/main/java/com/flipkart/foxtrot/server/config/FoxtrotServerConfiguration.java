@@ -91,7 +91,6 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.segregationConfiguration = new SegregationConfiguration();
         this.restrictAccess = true;
         this.clusterRerouteConfig = new ClusterRerouteConfig();
-        this.elasticsearchTuningConfig = new ElasticsearchTuningConfig();
     }
 
 }

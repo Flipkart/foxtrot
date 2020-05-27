@@ -107,12 +107,6 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public TranslatorConfig getTranslatorConfig(FoxtrotServerConfiguration configuration){
-        return configuration.getTranslatorConfig();
-    }
-
-    @Provides
-    @Singleton
     public ClusterConfig clusterConfig(FoxtrotServerConfiguration configuration) {
         return configuration.getCluster();
     }
@@ -220,13 +214,6 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ServerFactory serverFactory(FoxtrotServerConfiguration configuration) {
         return configuration.getServerFactory();
-    }
-
-    @Provides
-    @Singleton
-    public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
-        return Objects.nonNull(configuration.getElasticsearchTuningConfig())
-                ? configuration.getElasticsearchTuningConfig() : new ElasticsearchTuningConfig();
     }
 
 }
