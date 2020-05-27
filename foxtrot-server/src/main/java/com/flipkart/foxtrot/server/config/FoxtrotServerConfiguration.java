@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.server.config;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
+import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.email.EmailConfig;
@@ -28,6 +29,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import io.dropwizard.Configuration;
 import lombok.Builder;
 import lombok.Data;
@@ -89,6 +91,7 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.segregationConfiguration = new SegregationConfiguration();
         this.restrictAccess = true;
         this.clusterRerouteConfig = new ClusterRerouteConfig();
+        this.elasticsearchTuningConfig = new ElasticsearchTuningConfig();
     }
 
 }

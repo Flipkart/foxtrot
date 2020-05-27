@@ -46,11 +46,12 @@ import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 
 @Singleton
 public class ElasticsearchConsolePersistence implements ConsolePersistence {
+    public static final String INDEX_HISTORY = "consoles_history";
+    public static final String INDEX_V2 = "consoles_v2";
+    public static final String INDEX = "consoles";
+
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConsolePersistence.class);
-    private static final String INDEX = "consoles";
-    private static final String INDEX_V2 = "consoles_v2";
     private static final String TYPE = "console_data";
-    private static final String INDEX_HISTORY = "consoles_history";
     private static final int SCROLL_SIZE = 500;
     private static final long SCROLL_TIMEOUT = TimeUnit.MINUTES.toMillis(2);
 
@@ -195,7 +196,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 .setTypes(TYPE)
                 .setQuery(boolQuery().must(matchAllQuery()))
                 .setSize(SCROLL_SIZE)
-                .addSort(fieldSort("name.keyword").order(SortOrder.DESC))
+                .addSort(fieldSort("name.keyword").order(SortOrder.DESC).unmappedType("keyword"))
                 .setScroll(new TimeValue(SCROLL_TIMEOUT))
                 .execute()
                 .actionGet();
