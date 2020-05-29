@@ -51,7 +51,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testFqlParse() throws Exception {
+    public void testWhereCommand() throws Exception {
         String sql = "select * from europa where a is null";
         QueryTranslator queryTranslator = new QueryTranslator();
         Query query = new Query();
@@ -66,7 +66,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testLimitOffsetCommandFqlParse() throws JsonProcessingException {
+    public void testLimitOffsetCommand() throws JsonProcessingException {
         String sql = "select abc.xyz, def from europa order by test.name limit 20 offset 5";
         QueryTranslator queryTranslator = new QueryTranslator();
         Query query = new Query();
@@ -81,7 +81,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testGroupByCommandFqlParse() throws JsonProcessingException {
+    public void testGroupByCommand() throws JsonProcessingException {
         String sql = "select * from europa group by test.name, test.surname";
         QueryTranslator queryTranslator = new QueryTranslator();
         GroupRequest query = new GroupRequest();
@@ -93,7 +93,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testMixedFqlParse() throws JsonProcessingException {
+    public void testMixed() throws JsonProcessingException {
         String sql = "select * from europa where a = 'b' and c = 2.5 and temporal(e) between 10 and 30 and x > 99 order by test.name limit 20 offset 5";
         QueryTranslator queryTranslator = new QueryTranslator();
         Query query = new Query();
@@ -114,7 +114,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testTrendCommandFqlParse() throws JsonProcessingException {
+    public void testTrendCommand() throws JsonProcessingException {
         String sql = "select trend(header.configName, 'minutes', 'header.timestamp') from europa where a != 10 and a <= 20";
         QueryTranslator queryTranslator = new QueryTranslator();
         TrendRequest query = new TrendRequest();
@@ -131,7 +131,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testStatsTrendCommandFqlParse() throws JsonProcessingException {
+    public void testStatsTrendCommand() throws JsonProcessingException {
         String sql = "select statstrend(header.configName, 'minutes') from europa where a < 10";
         QueryTranslator queryTranslator = new QueryTranslator();
         StatsTrendRequest query = new StatsTrendRequest();
@@ -145,7 +145,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testStatsCommandFqlParse() throws JsonProcessingException {
+    public void testStatsCommand() throws JsonProcessingException {
         String sql = "select stats(header.configName) from europa where a >=10";
         QueryTranslator queryTranslator = new QueryTranslator();
         StatsRequest query = new StatsRequest();
@@ -158,7 +158,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testHistogramCommandFqlParse() throws JsonProcessingException {
+    public void testHistogramCommand() throws JsonProcessingException {
         String sql = "select histogram('minutes', 'header.timestamp') from europa where a in ('b', 'c')";
         QueryTranslator queryTranslator = new QueryTranslator();
         HistogramRequest query = new HistogramRequest();
@@ -172,7 +172,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testCountCommandFqlParse() throws JsonProcessingException {
+    public void testCountCommand() throws JsonProcessingException {
         String sql = "select count('header.timestamp') from europa where a like 'b'";
         QueryTranslator queryTranslator = new QueryTranslator();
         CountRequest query = new CountRequest();
@@ -187,7 +187,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testTimeRangeCommandFqlParse() throws JsonProcessingException {
+    public void testTimeRangeCommand() throws JsonProcessingException {
         String sql = "select eventType from europa where last('1m', 1000)";
         QueryTranslator queryTranslator = new QueryTranslator();
         Query query = new Query();
@@ -203,7 +203,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testDistinctCommandFqlParse() throws JsonProcessingException {
+    public void testDistinctCommand() throws JsonProcessingException {
         String sql = "select distinct(eventType) from europa";
         QueryTranslator queryTranslator = new QueryTranslator();
         DistinctRequest query = new DistinctRequest();
@@ -222,7 +222,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testShowTablesCommandFqlParse() {
+    public void testShowTablesCommand() {
         String sql = "show tables";
         QueryTranslator queryTranslator = new QueryTranslator();
         FqlShowTablesQuery query = (FqlShowTablesQuery) queryTranslator.translate(sql);
@@ -230,7 +230,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testDescribeCommandTableFqlParse() {
+    public void testDescribeCommandTable() {
         String sql = "desc europa";
         QueryTranslator queryTranslator = new QueryTranslator();
         FqlQuery query = queryTranslator.translate(sql);
