@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.flipkart.foxtrot</groupId>
         <artifactId>foxtrot</artifactId>
-        <version>6.3.1-66</version>
+        <version>6.3.1-74</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,6 +15,7 @@
         <hbase.version>1.2.1</hbase.version>
         <zookeeper.version>3.4.14</zookeeper.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
+        <maven.deploy.skip>true</maven.deploy.skip>
         <sonar.exclusions>**com/flipkart/foxtrot/core/querystore/impl/ElasticsearchConnection*
         </sonar.exclusions>
     </properties>
@@ -276,7 +277,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
-                    <skip>true</skip>
+                    <skip>${maven.deploy.skip}</skip>
                 </configuration>
             </plugin>
         </plugins>
