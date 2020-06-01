@@ -14,7 +14,7 @@ public class ConsoleQueryBlockedException extends FoxtrotException {
 
     private final ActionRequest actionRequest;
 
-    protected ConsoleQueryBlockedException(ActionRequest actionRequest) {
+    public ConsoleQueryBlockedException(ActionRequest actionRequest) {
         super(ErrorCode.CONSOLE_QUERY_BLOCKED,
               "Console Query blocked due to high load. Kindly run after sometime");
         this.actionRequest = actionRequest;

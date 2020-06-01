@@ -66,15 +66,26 @@ public class FoxtrotServerConfiguration extends Configuration {
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
     @Valid
     private ConsoleHistoryConfig consoleHistoryConfig;
+    @Valid
     private EmailConfig emailConfig;
+    @Valid
     private CacheConfig cacheConfig;
 
+    @Valid
     private RangerConfiguration rangerConfiguration;
 
+    @Valid
     private SegregationConfiguration segregationConfiguration;
 
     @NotNull
     private boolean restrictAccess;
+
+    @Valid
+    private ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    @Valid
+    @Builder.Default
+    private TranslatorConfig translatorConfig = new TranslatorConfig();
 
     @Valid
     @Builder.Default

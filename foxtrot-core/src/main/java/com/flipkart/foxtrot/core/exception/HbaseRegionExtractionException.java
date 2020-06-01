@@ -1,7 +1,5 @@
 package com.flipkart.foxtrot.core.exception;
 
-import com.google.common.collect.Maps;
-
 import java.util.Map;
 
 public class HbaseRegionExtractionException extends FoxtrotException {
@@ -14,7 +12,7 @@ public class HbaseRegionExtractionException extends FoxtrotException {
 
     @Override
     public Map<String, Object> toMap() {
-        Map<String, Object> map = Maps.newHashMap();
+        Map<String, Object> map = super.toMap();
         map.put("message", message);
         return map;
     }
