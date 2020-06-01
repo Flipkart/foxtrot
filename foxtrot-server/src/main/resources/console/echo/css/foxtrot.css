@@ -875,7 +875,7 @@ th, td {
   border: none;
   font-family: Open Sans;
   cursor: pointer;
-    margin-right: 25px;
+  margin: 0px  9px;
 }
 
 .listConsole {
@@ -3494,7 +3494,7 @@ div.tab button:first-child {
 }
 #selected-global-date {
   position: absolute;
-  right: -41px;
+  right: -71px;
   top: -37px;
   font-size: 14px;
   background: #000;
@@ -3503,6 +3503,7 @@ div.tab button:first-child {
   padding: 10px;
   height: 27px;
   display: none;
+  width:auto;
 }
 #selected-global-date span {
   position: relative;
