@@ -9,6 +9,7 @@ import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.END_PE
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.EVENT_ATTRIBUTES;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FIELD_VS_VALUES;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FUNNEL_STATUS;
+import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.ID;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.START_PERCENTAGE;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.DOT;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.TYPE;
@@ -266,14 +267,17 @@ public class ElasticsearchFunnelStore implements FunnelStore {
 
     @Override
     public Funnel getLatestFunnel() throws FoxtrotException {
-        QueryBuilder query = new TermQueryBuilder(FUNNEL_STATUS, FunnelStatus.APPROVED.name());
-
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        TermQueryBuilder statusQueryBuilder = new TermQueryBuilder(FUNNEL_STATUS, FunnelStatus.APPROVED.name());
+        TermQueryBuilder deletedQueryBuilder = new TermQueryBuilder(DELETED, false);
+        boolQueryBuilder.must(statusQueryBuilder);
+        boolQueryBuilder.must(deletedQueryBuilder);
         try {
             SearchResponse response = connection.getClient()
                     .prepareSearch(funnelConfiguration.getFunnelIndex())
                     .setTypes(TYPE)
-                    .setQuery(query)
-                    .addSort(SortBuilders.fieldSort(APPROVAL_DATE).order(SortOrder.DESC))
+                    .setQuery(boolQueryBuilder)
+                    .addSort(SortBuilders.fieldSort(ID).order(SortOrder.DESC))
                     .get();
             if (response.getHits().getTotalHits() == 0) {
                 return null;
