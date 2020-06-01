@@ -12,11 +12,6 @@
     <artifactId>foxtrot-sql</artifactId>
 
     <dependencies>
-        <!--<dependency>
-            <groupId>com.foundationdb</groupId>
-            <artifactId>fdb-sql-parser</artifactId>
-            <version>1.4.0</version>
-        </dependency>-->
         <dependency>
             <groupId>com.github.jsqlparser</groupId>
             <artifactId>jsqlparser</artifactId>

@@ -218,10 +218,9 @@ public class HBaseDataStore implements DataStore {
                     missingIds.add(ids.get(index));
                 }
             }
-            if(!missingIds.isEmpty()) {
-                String allIds = String.join(",", ids);
-                logger.error("ID's missing in HBase - {}", allIds);
-                throw FoxtrotExceptions.createMissingDocumentsException(table, ids);
+            if (!missingIds.isEmpty()) {
+                logger.error("ID's missing in HBase - {}", missingIds);
+                throw FoxtrotExceptions.createMissingDocumentsException(table, missingIds);
             }
             return results;
         } catch (JsonProcessingException e) {
@@ -240,6 +239,21 @@ public class HBaseDataStore implements DataStore {
                 .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
                 .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()))
                 .addColumn(COLUMN_FAMILY, DATE_FIELD_NAME, mapper.writeValueAsBytes(document.getDate()));
+    }
+
+    @Override
+    @Timed
+    public void updateTable(final Table table) {
+        // Check for existence of HBase table during update to make sure HBase is ready for taking writes
+        try {
+            boolean isTableAvailable = tableWrapper.isTableAvailable(table);
+            if (isTableAvailable) {
+                tableWrapper.updateTable(table);
+            }
+        }
+        catch (IOException e) {
+            throw FoxtrotExceptions.createConnectionException(table, e);
+        }
     }
 
 }

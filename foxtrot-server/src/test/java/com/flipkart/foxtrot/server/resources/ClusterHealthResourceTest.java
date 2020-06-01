@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.ResourceTestUtils;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
@@ -36,6 +37,8 @@ import java.util.UUID;
  * Created by swapnil on 25/01/16.
  */
 public class ClusterHealthResourceTest extends FoxtrotResourceTest {
+
+    private FoxtrotTableManager tableManager;
 
     @Rule
     public ResourceTestRule resources;
