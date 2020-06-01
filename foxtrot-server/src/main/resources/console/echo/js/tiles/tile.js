@@ -528,11 +528,11 @@ TileFactory.prototype.downloadWidget = function (object, tileElement) { // get q
   }
   else if (object.tileContext.chartType == "stacked") {
     var stackedGraph = new StackedTile();
-    stackedGraph.getQuery(object);
+    stackedGraph.downloadWidget(object);
   }
   else if (object.tileContext.chartType == "stackedBar") {
     var stackedBarGraph = new StackedBarTile();
-    stackedBarGraph.getQuery(object);
+    stackedBarGraph.downloadWidget(object);
   }
   else if (object.tileContext.chartType == "pie") {
     var pieGraph = new PieTile();
