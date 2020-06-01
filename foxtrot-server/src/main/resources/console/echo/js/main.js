@@ -920,6 +920,7 @@ $(document).ready(function () {
       $(".filter-switch").change(function () {
           if (this.checked) {
               globalFilters = true;
+              refereshTiles(); 
               showFilters();
           } else {
               globalFilterResetDetails();
