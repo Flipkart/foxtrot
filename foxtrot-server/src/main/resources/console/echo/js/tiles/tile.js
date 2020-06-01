@@ -540,7 +540,7 @@ TileFactory.prototype.downloadWidget = function (object, tileElement) { // get q
   }
   else if (object.tileContext.chartType == "statsTrend") {
     var statsTrendGraph = new StatsTrendTile();
-    statsTrendGraph.getQuery(object);
+    statsTrendGraph.downloadWidget(object);
   }
   else if (object.tileContext.chartType == "bar") {
     var barGraph = new BarTile();
@@ -556,7 +556,7 @@ TileFactory.prototype.downloadWidget = function (object, tileElement) { // get q
   }
   else if (object.tileContext.chartType == "sunburst") {
     var sunburstGraph = new SunburstTile();
-    sunburstGraph.getQuery(object);
+    sunburstGraph.downloadWidget(object);
   }
   else if (object.tileContext.chartType == "nonStackedLine") {
     var nonStackedLineGraph = new NonStackedLineTile();
