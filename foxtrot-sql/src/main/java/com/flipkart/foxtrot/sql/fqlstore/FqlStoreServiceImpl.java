@@ -61,7 +61,6 @@ public class FqlStoreServiceImpl implements FqlStoreService {
     public List<FqlStore> get(FqlGetRequest fqlGetRequest) {
         SearchHits searchHits;
         List<FqlStore> fqlStoreList = new ArrayList<>();
-        System.out.println(elasticsearchConnection.getConfig().getCluster());
         try {
             searchHits = elasticsearchConnection.getClient()
                     .prepareSearch(FQL_STORE_INDEX)
@@ -80,7 +79,6 @@ public class FqlStoreServiceImpl implements FqlStoreService {
         } catch (Exception e) {
             throw new FqlPersistenceException("Couldn't get FqlStore: " + e.getMessage(), e);
         }
-        System.out.println(fqlStoreList);
         return fqlStoreList;
     }
 }

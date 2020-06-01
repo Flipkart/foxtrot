@@ -16,6 +16,7 @@ import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -116,7 +117,7 @@ public class FqlV2ResourceTest extends FoxtrotResourceTest {
         Assert.assertEquals(title, fqlStoreResponse.getTitle());
         Assert.assertEquals(query, fqlStoreResponse.getQuery());
 
-        Thread.sleep(1000);
+        TimeUnit.SECONDS.sleep(1);
 
         FqlGetRequest fqlGetRequest = new FqlGetRequest();
         fqlGetRequest.setTitle(title);
