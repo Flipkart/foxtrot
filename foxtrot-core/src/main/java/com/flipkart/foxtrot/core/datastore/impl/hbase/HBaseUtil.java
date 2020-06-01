@@ -37,7 +37,41 @@ public abstract class HBaseUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(HBaseUtil.class);
 
-    private HBaseUtil() {}
+    private HBaseUtil() {
+    }
+
+    public static void createTable(final HbaseConfig hbaseConfig, final String tableName) throws IOException {
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
+        HColumnDescriptor columnDescriptor = new HColumnDescriptor("d");
+        columnDescriptor.setCompressionType(Compression.Algorithm.GZ);
+        hTableDescriptor.addFamily(columnDescriptor);
+        Configuration configuration = HBaseUtil.create(hbaseConfig);
+        Connection connection = ConnectionFactory.createConnection(configuration);
+        Admin hBaseAdmin = null;
+        try {
+            hBaseAdmin = connection.getAdmin();
+            hBaseAdmin.createTable(hTableDescriptor);
+        }
+        catch (Exception e) {
+            logger.error("Could not create table: " + tableName, e);
+        }
+        finally {
+            try {
+                if (hBaseAdmin != null) {
+                    hBaseAdmin.close();
+                }
+            }
+            catch (Exception e) {
+                logger.error("Error closing hbase admin", e);
+            }
+            try {
+                connection.close();
+            }
+            catch (Exception e) {
+                logger.error("Error closing hbase connection", e);
+            }
+        }
+    }
 
     public static Configuration create(final HbaseConfig hbaseConfig) throws IOException {
         Configuration configuration = HBaseConfiguration.create();
@@ -88,34 +122,5 @@ public abstract class HBaseUtil {
     public static boolean isValidFile(String fileName) {
         return fileName != null && !fileName.trim()
                 .isEmpty() && new File(fileName).exists();
-    }
-
-    public static void createTable(final HbaseConfig hbaseConfig, final String tableName) throws IOException {
-        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
-        HColumnDescriptor columnDescriptor = new HColumnDescriptor("d");
-        columnDescriptor.setCompressionType(Compression.Algorithm.GZ);
-        hTableDescriptor.addFamily(columnDescriptor);
-        Configuration configuration = HBaseUtil.create(hbaseConfig);
-        Connection connection = ConnectionFactory.createConnection(configuration);
-        Admin hBaseAdmin = null;
-        try {
-            hBaseAdmin = connection.getAdmin();
-            hBaseAdmin.createTable(hTableDescriptor);
-        } catch (Exception e) {
-            logger.error("Could not create table: " + tableName, e);
-        } finally {
-            try {
-                if(hBaseAdmin != null) {
-                    hBaseAdmin.close();
-                }
-            } catch (Exception e) {
-                logger.error("Error closing hbase admin", e);
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-                logger.error("Error closing hbase connection", e);
-            }
-        }
     }
 }

@@ -27,6 +27,7 @@ import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.io.compress.Compression;
+import org.apache.hadoop.hbase.util.RegionSplitter;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -77,13 +79,16 @@ public class HbaseTableConnection implements Managed {
     }
 
     public synchronized void createTable(final Table table) throws IOException {
+        HTableDescriptor hTableDescriptor = constructHTableDescriptor(table);
+        byte[][] splits = new RegionSplitter.HexStringSplit().split(table.getDefaultRegions());
+        hBaseAdmin.createTable(hTableDescriptor, splits);
+    }
+
+    public synchronized void updateTable(final Table table) throws IOException {
         String tableName = TableUtil.getTableName(hbaseConfig, table);
 
-        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
-        HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(DEFAULT_FAMILY_NAME);
-        hColumnDescriptor.setCompressionType(Compression.Algorithm.GZ);
-        hTableDescriptor.addFamily(hColumnDescriptor);
-        hBaseAdmin.createTable(hTableDescriptor);
+        HTableDescriptor hTableDescriptor = constructHTableDescriptor(table);
+        hBaseAdmin.modifyTable(TableName.valueOf(tableName), hTableDescriptor);
     }
 
     public String getHBaseTableName(final Table table) {
@@ -93,6 +98,7 @@ public class HbaseTableConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting HBase Connection");
+        Configuration configuration = HBaseUtil.create(hbaseConfig);
         connection = ConnectionFactory.createConnection(configuration);
         this.hBaseAdmin = connection.getAdmin();
         logger.info("Started HBase Connection");
@@ -106,5 +112,16 @@ public class HbaseTableConnection implements Managed {
 
     public HbaseConfig getHbaseConfig() {
         return hbaseConfig;
+    }
+
+    private HTableDescriptor constructHTableDescriptor(final Table table) {
+        String tableName = TableUtil.getTableName(hbaseConfig, table);
+
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
+        HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(DEFAULT_FAMILY_NAME);
+        hColumnDescriptor.setCompressionType(Compression.Algorithm.GZ);
+        hColumnDescriptor.setTimeToLive(Math.toIntExact(TimeUnit.DAYS.toSeconds(table.getTtl())));
+        hTableDescriptor.addFamily(hColumnDescriptor);
+        return hTableDescriptor;
     }
 }

@@ -11,7 +11,7 @@ import com.flipkart.foxtrot.core.util.MetricUtil;
 public class MetricRecorder implements ActionExecutionObserver {
     @Override
     public void postExecution(ActionEvaluationResponse response) {
-        if(null == response.getExecutedAction()) {
+        if(null == response || null == response.getExecutedAction()) {
             return;
         }
         final ActionRequest request = response.getRequest();

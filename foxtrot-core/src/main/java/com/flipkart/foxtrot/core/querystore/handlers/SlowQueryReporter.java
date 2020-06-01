@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SlowQueryReporter implements ActionExecutionObserver {
     @Override
     public void postExecution(ActionEvaluationResponse response) {
-        if(null != response.getException() || response.isCached()) {
+        if(null == response || null != response.getException() || response.isCached()) {
             return;
         }
         if (response.getElapsedTime() > 1000) {
