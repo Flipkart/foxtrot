@@ -39,7 +39,7 @@ public class ClusterRerouteManager {
         this.clusterRerouteConfig = clusterRerouteConfig;
     }
 
-    public void reallocate() {
+    /*public void reallocate() {
         Map<String, NodeInfo> nodeIdVsNodeInfoMap = new HashMap<>();
         BiMap<String, String> nodeNameVsNodeId = HashBiMap.create();
         this.createNodeInfoMap(nodeIdVsNodeInfoMap);
@@ -167,6 +167,6 @@ public class ClusterRerouteManager {
             }
         }
         return vacantNodeIds;
-    }
+    }*/
 
 }

@@ -49,24 +49,16 @@ import java.util.concurrent.ExecutionException;
 public class ClusterHealthResource {
 
     private final QueryStore queryStore;
-    private final TableManager tableManager;
-    private final TableMetadataManager tableMetadataManager;
 
     @Inject
-    public ClusterHealthResource(
-            QueryStore queryStore,
-            TableManager tableManager,
-            TableMetadataManager tableMetadataManager) {
+    public ClusterHealthResource(QueryStore queryStore) {
         this.queryStore = queryStore;
-        this.tableManager = tableManager;
-        this.tableMetadataManager = tableMetadataManager;
     }
-
 
     @GET
     @Timed
     @ApiOperation("getHealth")
-    public ClusterHealthResponse getHealth() throws ExecutionException, InterruptedException {
+    public ClusterHealthResponse getHealth() {
         return queryStore.getClusterHealth();
     }
 
@@ -74,7 +66,7 @@ public class ClusterHealthResource {
     @Timed
     @Path("/nodestats")
     @ApiOperation("getNodeStat")
-    public JsonNode getNodeStat() throws ExecutionException, InterruptedException {
+    public JsonNode getNodeStat() {
         return queryStore.getNodeStats();
     }
 
@@ -83,7 +75,7 @@ public class ClusterHealthResource {
     @Path("indicesstats")
     @ApiOperation("getIndicesStat")
     @SneakyThrows
-    public JsonNode getIndicesStat() throws ExecutionException, InterruptedException {
+    public JsonNode getIndicesStat() {
         return queryStore.getIndicesStats();
     }
 }

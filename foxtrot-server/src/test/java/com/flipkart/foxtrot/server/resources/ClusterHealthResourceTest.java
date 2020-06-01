@@ -30,19 +30,16 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by swapnil on 25/01/16.
  */
 public class ClusterHealthResourceTest extends FoxtrotResourceTest {
 
-    private final FoxtrotTableManager tableManager;
+    private FoxtrotTableManager tableManager;
+
     @Rule
     public ResourceTestRule resources;
 
