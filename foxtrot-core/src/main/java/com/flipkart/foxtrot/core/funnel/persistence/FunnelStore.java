@@ -33,6 +33,4 @@ public interface FunnelStore {
     Funnel getLatestFunnel() throws FunnelException;
 
     FunnelDropdownConfig getFunnelDropdownValues();
-
-    List<Funnel> fetchFunnels(List<Map<String, String>> fieldVsValueMaps, int bucket);
 }

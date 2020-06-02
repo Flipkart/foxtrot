@@ -69,11 +69,10 @@ public class ElasticsearchFunnelStore implements FunnelStore {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchFunnelStore.class);
 
-    private static final int FUNNEL_SIZE = 100;
 
-    private final ElasticsearchConnection connection;
-    private final MappingService mappingService;
-    private final FunnelConfiguration funnelConfiguration;
+    protected final ElasticsearchConnection connection;
+    protected final MappingService mappingService;
+    protected final FunnelConfiguration funnelConfiguration;
 
 
     @Inject
@@ -292,72 +291,6 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     public FunnelDropdownConfig getFunnelDropdownValues() {
         return funnelConfiguration.getFunnelDropdownConfig();
     }
-
-    @Override
-    public List<Funnel> fetchFunnels(List<Map<String, String>> fieldVsValueMaps, int bucket) {
-        List<Funnel> funnels = new ArrayList<>();
-        BoolQueryBuilder esRequest = buildEsRequest(fieldVsValueMaps, bucket);
-
-        SearchHits searchHits;
-        try {
-            SearchResponse response = connection.getClient()
-                    .prepareSearch(funnelConfiguration.getFunnelIndex())
-                    .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(esRequest)
-                    .setSearchType(SearchType.QUERY_THEN_FETCH)
-                    .setSize(FUNNEL_SIZE)
-                    .execute()
-                    .actionGet();
-            searchHits = response.getHits();
-        } catch (Exception e) {
-            throw new FunnelException(EXECUTION_EXCEPTION, "Error making ES request", e);
-        }
-        for (SearchHit searchHit : searchHits) {
-            Funnel funnel = JsonUtils.fromJson(searchHit.getSourceAsString(), Funnel.class);
-            funnels.add(funnel);
-        }
-        return funnels;
-    }
-
-    private BoolQueryBuilder buildEsRequest(List<Map<String, String>> fieldVsValues, int bucket)
-            throws FoxtrotException {
-
-        BoolQueryBuilder outerQueryBuilder = QueryBuilders.boolQuery();
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-
-        fieldVsValues.forEach(fieldVsValueMap -> {
-            addQueries(fieldVsValueMap, boolQueryBuilder);
-        });
-
-        outerQueryBuilder.must(QueryBuilders.nestedQuery(FIELD_VS_VALUES, boolQueryBuilder, ScoreMode.Avg));
-
-        RangeQueryBuilder startPercentageQueryBuilder = new RangeQueryBuilder(START_PERCENTAGE);
-        startPercentageQueryBuilder.lte(bucket);
-        outerQueryBuilder.must(startPercentageQueryBuilder);
-
-        RangeQueryBuilder endPercentageQueryBuilder = new RangeQueryBuilder(END_PERCENTAGE);
-        endPercentageQueryBuilder.gte(bucket);
-        outerQueryBuilder.must(endPercentageQueryBuilder);
-
-        TermQueryBuilder statusQueryBuilder = new TermQueryBuilder(FUNNEL_STATUS, FunnelStatus.APPROVED.name());
-        TermQueryBuilder deletedQueryBuilder = new TermQueryBuilder(DELETED, false);
-
-        outerQueryBuilder.must(statusQueryBuilder);
-        outerQueryBuilder.must(deletedQueryBuilder);
-
-        return outerQueryBuilder;
-    }
-
-    private void addQueries(Map<String, String> fields, BoolQueryBuilder boolQueryBuilder) {
-        for (Map.Entry<String, String> field : nullSafeMap(fields).entrySet()) {
-            BoolQueryBuilder shouldQueryBuilder = QueryBuilders.boolQuery();
-            String key = FIELD_VS_VALUES + DOT + field.getKey();
-            shouldQueryBuilder.should(new TermQueryBuilder(key, field.getValue()));
-            shouldQueryBuilder.should(new BoolQueryBuilder().mustNot(new ExistsQueryBuilder(key)));
-            boolQueryBuilder.must(shouldQueryBuilder);
-        }
-    }
-
 
     private BoolQueryBuilder buildSimilarFunnelSearchQuery(Funnel funnel) throws FoxtrotException {
         BoolQueryBuilder outerQueryBuilder = QueryBuilders.boolQuery();
