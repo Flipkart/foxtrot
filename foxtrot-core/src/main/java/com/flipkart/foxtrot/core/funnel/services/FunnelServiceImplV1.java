@@ -70,21 +70,23 @@ public class FunnelServiceImplV1 implements FunnelService {
 
     @Override
     public Funnel update(String documentId, Funnel funnel) {
-        Funnel savedFunnel = funnelStore.get(documentId);
+        Funnel savedFunnel = funnelStore.getByDocumentId(documentId);
         validateFunnelUpdateRequest(savedFunnel);
 
-        if(isFunnelWaitingForApproval(savedFunnel)){
-            assignFunnelPercentage(funnel);
-
-            // set parameters which are not updatable
-            funnel.setDocumentId(documentId);
-            funnel.setCreatedAt(savedFunnel.getCreatedAt());
-            funnel.setId(savedFunnel.getId());
-            funnel.setFunnelStatus(savedFunnel.getFunnelStatus());
-            funnel.setDeleted(savedFunnel.isDeleted());
-
-            funnelStore.update(funnel);
+        if (!isFunnelWaitingForApproval(savedFunnel)) {
+            return funnel;
         }
+
+        assignFunnelPercentage(funnel);
+
+        // set parameters which are not updatable
+        funnel.setDocumentId(documentId);
+        funnel.setCreatedAt(savedFunnel.getCreatedAt());
+        funnel.setId(savedFunnel.getId());
+        funnel.setFunnelStatus(savedFunnel.getFunnelStatus());
+        funnel.setDeleted(savedFunnel.isDeleted());
+
+        funnelStore.update(funnel);
         return funnel;
     }
 
@@ -109,7 +111,7 @@ public class FunnelServiceImplV1 implements FunnelService {
 
     @Override
     public Funnel reject(String documentId) {
-        Funnel savedFunnel = funnelStore.get(documentId);
+        Funnel savedFunnel = funnelStore.getByDocumentId(documentId);
 
         validateFunnelUpdateRequest(savedFunnel);
 
@@ -126,7 +128,7 @@ public class FunnelServiceImplV1 implements FunnelService {
 
     private Function<String, Funnel> approveAndGenerateFunnelId() {
         return documentId -> {
-            Funnel savedFunnel = funnelStore.get(documentId);
+            Funnel savedFunnel = funnelStore.getByDocumentId(documentId);
             validateFunnelUpdateRequest(savedFunnel);
 
             if (isFunnelWaitingForApproval(savedFunnel)) {
@@ -157,8 +159,13 @@ public class FunnelServiceImplV1 implements FunnelService {
 
 
     @Override
-    public Funnel getFunnel(String funnelId) {
+    public Funnel getFunnelByFunnelId(String funnelId) {
         return funnelStore.getByFunnelId(funnelId);
+    }
+
+    @Override
+    public Funnel getFunnelByDocumentId(String documentId) {
+        return funnelStore.getByDocumentId(documentId);
     }
 
     @Override
