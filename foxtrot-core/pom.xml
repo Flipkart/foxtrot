@@ -16,8 +16,10 @@
         <zookeeper.version>3.4.14</zookeeper.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <sonar.exclusions>**com/flipkart/foxtrot/core/querystore/impl/ElasticsearchConnection*
+        <sonar.exclusions>
+            **com/flipkart/foxtrot/core/querystore/impl/ElasticsearchConnection*
         </sonar.exclusions>
+        <hazelcast-kubernetes-version>1.3.1</hazelcast-kubernetes-version>
     </properties>
 
     <dependencies>
@@ -166,8 +168,8 @@
         <!-- Elasticsearch -->
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
-            <artifactId>transport</artifactId>
-            <version>6.0.1</version>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>6.3.0</version>
         </dependency>
 
         <dependency>
@@ -194,13 +196,19 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>3.6.2</version>
+            <version>3.11.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-kubernetes</artifactId>
+            <version>${hazelcast-kubernetes-version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>3.6.2</version>
+            <version>3.11.7</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

@@ -92,6 +92,7 @@ public class HbaseTableConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting HBase Connection");
+        Configuration configuration = HBaseUtil.create(hbaseConfig);
         connection = ConnectionFactory.createConnection(configuration);
         this.hBaseAdmin = connection.getAdmin();
         logger.info("Started HBase Connection");

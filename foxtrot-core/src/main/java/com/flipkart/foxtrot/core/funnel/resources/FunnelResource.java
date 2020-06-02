@@ -45,7 +45,7 @@ public class FunnelResource {
      *
      * @param funnel {@link Funnel}
      */
-    @POST
+    /*@POST
     @ApiOperation("Create Funnel")
     public Response saveFunnel(Funnel funnel) {
         Funnel savedFunnel = funnelService.save(funnel);
@@ -54,9 +54,9 @@ public class FunnelResource {
                 .build();
     }
 
-    /**
+    *//**
      * Update Funnel, only WAITING_FOR_APPROVAL Funnel can be updated
-     */
+     *//*
     @PUT
     @Path("/{documentId}")
     @ApiOperation("Update Funnel via document id")
@@ -66,9 +66,9 @@ public class FunnelResource {
                 .build();
     }
 
-    /**
+    *//**
      * Approve Funnel, move status to APPROVED
-     */
+     *//*
     @PUT
     @Path("/approve/{documentId}")
     @ApiOperation("Approve Funnel via document id")
@@ -79,9 +79,9 @@ public class FunnelResource {
     }
 
 
-    /**
+    *//**
      * Reject Funnel, move status to REJECTED and soft delete
-     */
+     *//*
     @PUT
     @Path("/reject/{documentId}")
     @ApiOperation("Reject Funnel via document id")
@@ -133,6 +133,6 @@ public class FunnelResource {
     public Response getDropdownValues() {
         return Response.ok(funnelService.getDropdownValues())
                 .build();
-    }
+    }*/
 
 }

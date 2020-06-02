@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.sql.util;
 
+import com.flipkart.foxtrot.sql.Constants;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
@@ -13,10 +14,12 @@ public class QueryUtils {
 
     public static String expressionToString(Expression expression) {
         if (expression instanceof Column) {
-            return ((Column) expression).getFullyQualifiedName();
+            return ((Column) expression).getFullyQualifiedName()
+                    .replaceAll(Constants.REGEX, Constants.REPLACEMENT);
         }
         if (expression instanceof StringValue) {
-            return ((StringValue) expression).getValue();
+            return ((StringValue) expression).getValue()
+                    .replaceAll(Constants.REGEX, Constants.REPLACEMENT);
         }
         return null;
     }

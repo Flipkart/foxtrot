@@ -10,11 +10,16 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package com.flipkart.foxtrot.core.config;
+package com.flipkart.foxtrot.server.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
+import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
+import com.flipkart.foxtrot.core.config.GandalfConfiguration;
+import com.flipkart.foxtrot.core.config.QueryConfig;
+import com.flipkart.foxtrot.core.config.RangerConfiguration;
+import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
@@ -25,6 +30,8 @@ import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
+import com.flipkart.foxtrot.server.auth.AuthConfig;
+import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
@@ -73,9 +80,15 @@ public class FoxtrotServerConfiguration extends Configuration {
     private CardinalityConfig cardinality;
     @Valid
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
+
+    @Valid
+    private SessionCleanupConfig sessionCleanupConfig;
+
     @Valid
     private ConsoleHistoryConfig consoleHistoryConfig;
+    @Valid
     private EmailConfig emailConfig;
+    @Valid
     private CacheConfig cacheConfig;
 
     private QueryConfig queryConfig;
@@ -86,8 +99,10 @@ public class FoxtrotServerConfiguration extends Configuration {
     @NonNull
     private PrimerBundleConfiguration primerBundleConfiguration;
 
+    @Valid
     private RangerConfiguration rangerConfiguration;
 
+    @Valid
     private SegregationConfiguration segregationConfiguration;
 
     @NotNull
@@ -99,6 +114,16 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     private HazelcastDistributedLockConfig distributedLockConfig;
 
+    @Valid
+    private ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    @Valid
+    private String swaggerHost;
+
+    private String swaggerScheme;
+
+    @Builder.Default
+    private TranslatorConfig translatorConfig = new TranslatorConfig();
 
     @Valid
     @Builder.Default
@@ -106,9 +131,9 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     private ClusterRerouteConfig clusterRerouteConfig;
 
-    private ElasticsearchTuningConfig elasticsearchTuningConfig;
-
-    private TranslatorConfig translatorConfig;
+    @Valid
+    @NotNull
+    private AuthConfig auth;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
@@ -124,5 +149,6 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.primerBundleConfiguration = new PrimerBundleConfiguration();
         this.clusterRerouteConfig = new ClusterRerouteConfig();
         this.elasticsearchTuningConfig = new ElasticsearchTuningConfig();
+        this.clusterRerouteConfig = new ClusterRerouteConfig();
     }
 }

@@ -34,7 +34,7 @@ public class FunnelServiceImplV2 implements FunnelService {
         this.funnelConfiguration = funnelConfiguration;
     }
 
-    @Override
+    /*@Override
     public Funnel save(Funnel funnel) {
         Funnel savedFunnel = funnelService.save(funnel);
         sendForApproval(savedFunnel.getApproverEmailId(), savedFunnel.getName(), savedFunnel.getDesc());
@@ -91,5 +91,5 @@ public class FunnelServiceImplV2 implements FunnelService {
                 .recipients(Collections.singletonList(mailId))
                 .build();
         emailClient.sendEmail(email);
-    }
+    }*/
 }

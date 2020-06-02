@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -22,9 +23,10 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/cluster")
 @Singleton
+@PermitAll
 public class ClusterInfoResource {
 
-    private ClusterManager clusterManager;
+    private final ClusterManager clusterManager;
 
     @Inject
     public ClusterInfoResource(ClusterManager clusterManager) {

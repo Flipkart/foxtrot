@@ -14,10 +14,13 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -34,12 +37,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-
 @Path("/v1/tables")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/tables")
 @Singleton
+@PermitAll
 public class TableManagerResource {
 
     private final TableManager tableManager;
@@ -47,17 +50,6 @@ public class TableManagerResource {
     @Inject
     public TableManagerResource(TableManager tableManager) {
         this.tableManager = tableManager;
-    }
-
-    @POST
-    @Timed
-    @ApiOperation("Save Table")
-    public Response save(@Valid final Table table,
-            @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
-        table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
-        tableManager.save(table, forceCreate);
-        return Response.ok(table)
-                .build();
     }
 
     @GET
@@ -72,10 +64,33 @@ public class TableManagerResource {
                 .build();
     }
 
+    @GET
+    @Timed
+    @ApiOperation("Get all Tables")
+    public Response getAll() {
+        return Response.ok()
+                .entity(tableManager.getAll())
+                .build();
+    }
+
+    @POST
+    @Timed
+    @ApiOperation("Save Table")
+    @RolesAllowed(FoxtrotRole.Value.SYSADMIN)
+    public Response save(@Valid final Table table,
+            @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
+        table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
+        tableManager.save(table, forceCreate);
+        return Response.ok(table)
+                .build();
+    }
+
+
     @PUT
     @Timed
     @Path("/{name}")
     @ApiOperation("Update Table")
+    @RolesAllowed(FoxtrotRole.Value.SYSADMIN)
     public Response get(@PathParam("name") final String name, @Valid final Table table) {
         table.setName(name);
         tableManager.update(table);
@@ -87,6 +102,7 @@ public class TableManagerResource {
     @Timed
     @Path("/{name}/delete")
     @ApiOperation("Delete Table")
+    @RolesAllowed(FoxtrotRole.Value.SYSADMIN)
     public Response delete(@PathParam("name") String name) {
         name = ElasticsearchUtils.getValidTableName(name);
         tableManager.delete(name);
@@ -94,12 +110,4 @@ public class TableManagerResource {
                 .build();
     }
 
-    @GET
-    @Timed
-    @ApiOperation("Get all Tables")
-    public Response getAll() {
-        return Response.ok()
-                .entity(tableManager.getAll())
-                .build();
-    }
 }

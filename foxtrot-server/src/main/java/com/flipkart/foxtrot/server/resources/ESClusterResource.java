@@ -4,12 +4,11 @@ import com.flipkart.foxtrot.core.reroute.ClusterRerouteManager;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /***
  Created by mudit.g on Sep, 2019
@@ -19,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/escluster")
+@Order(20)
 public class ESClusterResource {
 
     private ClusterRerouteManager clusterRerouteManager;
@@ -28,10 +28,10 @@ public class ESClusterResource {
         this.clusterRerouteManager = clusterRerouteManager;
     }
 
-    @GET
+    /*@GET
     @Path("/reallocate")
     @ApiOperation("reallocate shards")
     public void reallocate() {
         clusterRerouteManager.reallocate();
-    }
+    }*/
 }

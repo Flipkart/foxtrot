@@ -17,4 +17,8 @@ public class ElasticsearchTuningConfig {
     private int precisionThreshold = 500;
 
     private int aggregationSize = 10000;
+
+    private int scrollTimeInSeconds = 120;
+
+    private int documentsLimitAllowed = 10000;
 }

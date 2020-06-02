@@ -34,10 +34,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.support.WriteRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -91,12 +95,7 @@ public class TableMapStoreTest {
         tableMapStore.store(table.getName(), table);
 
         GetResponse response = elasticsearchConnection.getClient()
-                .prepareGet()
-                .setIndex(TABLE_META_INDEX)
-                .setType(TABLE_META_TYPE)
-                .setId(table.getName())
-                .execute()
-                .actionGet();
+                .get(new GetRequest(TABLE_META_INDEX, TABLE_META_TYPE, table.getName()), RequestOptions.DEFAULT);
         compareTables(table, mapper.readValue(response.getSourceAsBytes(), Table.class));
     }
 
@@ -141,12 +140,11 @@ public class TableMapStoreTest {
             tables.put(table.getName(), table);
         }
         tableMapStore.storeAll(tables);
-
+        MultiGetRequest multiGetRequest = new MultiGetRequest();
+        tables.keySet()
+                .forEach(key -> multiGetRequest.add(TABLE_META_INDEX, TABLE_META_TYPE, key));
         MultiGetResponse response = elasticsearchConnection.getClient()
-                .prepareMultiGet()
-                .add(TABLE_META_INDEX, TABLE_META_TYPE, tables.keySet())
-                .execute()
-                .actionGet();
+                .mget(multiGetRequest, RequestOptions.DEFAULT);
         Map<String, Table> responseTables = Maps.newHashMap();
         for (MultiGetItemResponse multiGetItemResponse : response) {
             Table table = mapper.readValue(multiGetItemResponse.getResponse()
@@ -254,22 +252,12 @@ public class TableMapStoreTest {
         table.setTtl(30);
         tableMapStore.store(table.getName(), table);
         GetResponse response = elasticsearchConnection.getClient()
-                .prepareGet()
-                .setIndex(TABLE_META_INDEX)
-                .setType(TABLE_META_TYPE)
-                .setId(table.getName())
-                .execute()
-                .actionGet();
+                .get(new GetRequest(TABLE_META_INDEX, TABLE_META_TYPE, table.getName()), RequestOptions.DEFAULT);
         assertTrue(response.isExists());
 
         tableMapStore.delete(table.getName());
         response = elasticsearchConnection.getClient()
-                .prepareGet()
-                .setIndex(TABLE_META_INDEX)
-                .setType(TABLE_META_TYPE)
-                .setId(table.getName())
-                .execute()
-                .actionGet();
+                .get(new GetRequest(TABLE_META_INDEX, TABLE_META_TYPE, table.getName()), RequestOptions.DEFAULT);
         assertFalse(response.isExists());
     }
 
@@ -298,24 +286,16 @@ public class TableMapStoreTest {
         tableMapStore.storeAll(tables);
         for (String name : tables.keySet()) {
             GetResponse response = elasticsearchConnection.getClient()
-                    .prepareGet()
-                    .setIndex(TABLE_META_INDEX)
-                    .setType(TABLE_META_TYPE)
-                    .setId(name)
-                    .execute()
-                    .actionGet();
+                    .get(new GetRequest(TABLE_META_INDEX, TABLE_META_TYPE, name), RequestOptions.DEFAULT);
+            ;
             assertTrue(response.isExists());
         }
 
         tableMapStore.deleteAll(tables.keySet());
         for (String name : tables.keySet()) {
             GetResponse response = elasticsearchConnection.getClient()
-                    .prepareGet()
-                    .setIndex(TABLE_META_INDEX)
-                    .setType(TABLE_META_TYPE)
-                    .setId(name)
-                    .execute()
-                    .actionGet();
+                    .get(new GetRequest(TABLE_META_INDEX, TABLE_META_TYPE, name), RequestOptions.DEFAULT);
+            ;
             assertFalse(response.isExists());
         }
 
@@ -341,14 +321,10 @@ public class TableMapStoreTest {
         table.setTtl(30);
         Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
         elasticsearchConnection.getClient()
-                .prepareIndex()
-                .setIndex(TABLE_META_INDEX)
-                .setType(TABLE_META_TYPE)
-                .setSource(sourceMap)
-                .setId(table.getName())
-                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
-                .execute()
-                .actionGet();
+                .index(new IndexRequest(TABLE_META_INDEX).type(TABLE_META_TYPE)
+                        .source(sourceMap)
+                        .id(table.getName())
+                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
 
         Table responseTable = tableMapStore.load(table.getName());
         compareTables(table, responseTable);
@@ -371,14 +347,10 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testLoadKeyWithWrongJson() throws Exception {
         elasticsearchConnection.getClient()
-                .prepareIndex()
-                .setIndex(TABLE_META_INDEX)
-                .setType(TABLE_META_TYPE)
-                .setSource("{ \"test\" : \"test\"}")
-                .setId(TEST_TABLE)
-                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
-                .execute()
-                .actionGet();
+                .index(new IndexRequest(TABLE_META_INDEX).type(TABLE_META_TYPE)
+                        .source("{ \"test\" : \"test\"}")
+                        .id(TEST_TABLE)
+                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
         tableMapStore.load(TEST_TABLE);
     }
 
@@ -393,14 +365,10 @@ public class TableMapStoreTest {
             tables.put(table.getName(), table);
             Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
             elasticsearchConnection.getClient()
-                    .prepareIndex()
-                    .setIndex(TABLE_META_INDEX)
-                    .setType(TABLE_META_TYPE)
-                    .setSource(sourceMap)
-                    .setId(table.getName())
-                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
-                    .execute()
-                    .actionGet();
+                    .index(new IndexRequest(TABLE_META_INDEX).type(TABLE_META_TYPE)
+                            .source(sourceMap)
+                            .id(table.getName())
+                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
         }
 
         Set<String> names = ImmutableSet.copyOf(Iterables.limit(tables.keySet(), 5));
@@ -419,14 +387,10 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testLoadAllKeyWithWrongJson() throws Exception {
         elasticsearchConnection.getClient()
-                .prepareIndex()
-                .setIndex(TABLE_META_INDEX)
-                .setType(TABLE_META_TYPE)
-                .setSource("{ \"test\" : \"test\"}")
-                .setId(TEST_TABLE)
-                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
-                .execute()
-                .actionGet();
+                .index(new IndexRequest(TABLE_META_INDEX).type(TABLE_META_TYPE)
+                        .source("{ \"test\" : \"test\"}")
+                        .id(TEST_TABLE)
+                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE));
         tableMapStore.loadAll(Arrays.asList(TEST_TABLE));
     }
 
@@ -441,14 +405,10 @@ public class TableMapStoreTest {
             tables.put(table.getName(), table);
             Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
             elasticsearchConnection.getClient()
-                    .prepareIndex()
-                    .setIndex(TABLE_META_INDEX)
-                    .setType(TABLE_META_TYPE)
-                    .setSource(sourceMap)
-                    .setId(table.getName())
-                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
-                    .execute()
-                    .actionGet();
+                    .index(new IndexRequest(TABLE_META_INDEX).type(TABLE_META_TYPE)
+                            .source(sourceMap)
+                            .id(table.getName())
+                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
         }
 
         Set<String> responseKeys = tableMapStore.loadAllKeys();

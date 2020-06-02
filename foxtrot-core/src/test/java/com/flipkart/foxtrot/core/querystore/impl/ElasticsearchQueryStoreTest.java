@@ -27,6 +27,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -56,6 +57,7 @@ import com.google.common.collect.Sets;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import io.dropwizard.jackson.Jackson;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -72,10 +74,10 @@ import lombok.val;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
+import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -91,7 +93,7 @@ import org.mockito.Mockito;
  */
 public class ElasticsearchQueryStoreTest {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = Jackson.newObjectMapper();
 
     private static ElasticsearchConnection elasticsearchConnection;
     private static HazelcastInstance hazelcastInstance;
@@ -106,6 +108,7 @@ public class ElasticsearchQueryStoreTest {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @AfterClass
@@ -157,12 +160,10 @@ public class ElasticsearchQueryStoreTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
 
         GetResponse getResponse = elasticsearchConnection.getClient()
-                .prepareGet(
+                .get(new GetRequest(
                         ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
-                        ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId())
-                .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
-                .execute()
-                .actionGet();
+                        ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId()).storedFields(
+                        ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME), RequestOptions.DEFAULT);
         assertTrue("Id should exist in ES", getResponse.isExists());
         assertEquals("Id should match requestId", originalDocument.getId(), getResponse.getId());
     }
@@ -188,12 +189,10 @@ public class ElasticsearchQueryStoreTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
 
         GetResponse getResponse = elasticsearchConnection.getClient()
-                .prepareGet(
+                .get(new GetRequest(
                         ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
-                        ElasticsearchUtils.DOCUMENT_TYPE_NAME, translatedDocument.getId())
-                .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
-                .execute()
-                .actionGet();
+                        ElasticsearchUtils.DOCUMENT_TYPE_NAME, translatedDocument.getId()).storedFields(
+                        ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME), RequestOptions.DEFAULT);
         assertTrue("Id should exist in ES", getResponse.isExists());
         assertEquals("Id should match requestId", translatedDocument.getId(), getResponse.getId());
     }
@@ -211,27 +210,23 @@ public class ElasticsearchQueryStoreTest {
         val currentIndex = ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME,
                 originalDocument.getTimestamp());
         val response = elasticsearchConnection.getClient()
-                .prepareGet(currentIndex, ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId())
-                .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME, "testField", "testLargeField")
-                .execute()
-                .actionGet();
+                .get(new GetRequest(currentIndex, ElasticsearchUtils.DOCUMENT_TYPE_NAME,
+                        originalDocument.getId()).storedFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME,
+                        "testField", "testLargeField"), RequestOptions.DEFAULT);
         assertTrue(response.isExists());
         val request = new GetFieldMappingsRequest();
         request.indices(currentIndex);
         request.fields("*");
 
         val mappings = elasticsearchConnection.getClient()
-                .admin()
                 .indices()
-                .getFieldMappings(request)
-                .get();
+                .getFieldMapping(request, RequestOptions.DEFAULT);
 
         Set<String> expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year", "date.dayOfMonth",
-                "testField", "testField.analyzed", "_all", "date.dayOfWeek", "date.minuteOfDay",
-                "eventData.funnelInfo.funnelId", "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
-                "time.date", "_version", "date.weekOfYear", "_routing", "__FOXTROT_METADATA__.rawStorageId", "_type",
-                "__FOXTROT_METADATA__.id", "date.hourOfDay", "_seq_no", "_field_names", "_source", "_id", "time",
-                "_uid");
+                "testField", "testField.analyzed", "_all", "date.dayOfWeek", "date.minuteOfDay", "_parent",
+                "date.monthOfYear", "__FOXTROT_METADATA__.time", "time.date", "_version", "date.weekOfYear", "_routing",
+                "__FOXTROT_METADATA__.rawStorageId", "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay", "_seq_no",
+                "_field_names", "_source", "_id", "time", "_uid", "_ignored");
         assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings()
                 .get(currentIndex)
                 .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
@@ -252,31 +247,29 @@ public class ElasticsearchQueryStoreTest {
         val currentIndex = ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME,
                 originalDocument.getTimestamp());
         val response = elasticsearchConnection.getClient()
-                .prepareGet(currentIndex, ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId())
-                .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME, "testField", "testLargeField")
-                .execute()
-                .actionGet();
+                .get(new GetRequest(currentIndex, ElasticsearchUtils.DOCUMENT_TYPE_NAME,
+                        originalDocument.getId()).storedFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME,
+                        "testField", "testLargeField"), RequestOptions.DEFAULT);
         assertTrue(response.isExists());
         val request = new GetFieldMappingsRequest();
         request.indices(currentIndex);
         request.fields("*");
 
         val mappings = elasticsearchConnection.getClient()
-                .admin()
                 .indices()
-                .getFieldMappings(request)
-                .get();
+                .getFieldMapping(request, RequestOptions.DEFAULT);
 
         Set<String> expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year", "date.dayOfMonth",
-                "testField", "testField.analyzed", "testLargeField", "eventData.funnelInfo.funnelId",
-                "testLargeField.analyzed", "_all", "date.dayOfWeek", "date.minuteOfDay", "_parent", "date.monthOfYear",
-                "__FOXTROT_METADATA__.time", "time.date", "_version", "date.weekOfYear", "_routing",
-                "__FOXTROT_METADATA__.rawStorageId", "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay", "_seq_no",
-                "_field_names", "_source", "_id", "time", "_uid");
-        assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings()
+                "testField", "testField.analyzed", "testLargeField", "testLargeField.analyzed", "_all",
+                "date.dayOfWeek", "date.minuteOfDay", "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
+                "time.date", "_version", "date.weekOfYear", "_routing", "__FOXTROT_METADATA__.rawStorageId", "_type",
+                "__FOXTROT_METADATA__.id", "date.hourOfDay", "_seq_no", "_field_names", "_source", "_id", "time",
+                "_uid", "_ignored");
+        final Set<String> received = mappings.mappings()
                 .get(currentIndex)
                 .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                .keySet()));
+                .keySet();
+        assertEquals(expectedFields, received);
     }
 
     @Test
@@ -296,10 +289,8 @@ public class ElasticsearchQueryStoreTest {
         String[] fields = {ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME, "testField",
                 String.format("testLargeField%s", StringUtils.repeat(".testField", 5))};
         val response = elasticsearchConnection.getClient()
-                .prepareGet(currentIndex, ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId())
-                .setStoredFields(fields)
-                .execute()
-                .actionGet();
+                .get(new GetRequest(currentIndex, ElasticsearchUtils.DOCUMENT_TYPE_NAME,
+                        originalDocument.getId()).storedFields(fields), RequestOptions.DEFAULT);
         assertTrue(response.isExists());
 
         val request = new GetFieldMappingsRequest();
@@ -307,21 +298,19 @@ public class ElasticsearchQueryStoreTest {
         request.fields("*");
 
         val mappings = elasticsearchConnection.getClient()
-                .admin()
                 .indices()
-                .getFieldMappings(request)
-                .get();
+                .getFieldMapping(request, RequestOptions.DEFAULT);
 
         Set<String> expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year", "date.dayOfMonth",
-                "testField", "testField.analyzed", "_all", "date.dayOfWeek", "date.minuteOfDay",
-                "eventData.funnelInfo.funnelId", "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
-                "time.date", "_version", "date.weekOfYear", "_routing", "__FOXTROT_METADATA__.rawStorageId", "_type",
-                "__FOXTROT_METADATA__.id", "date.hourOfDay", "_seq_no", "_field_names", "_source", "_id", "time",
-                "_uid");
-        assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings()
+                "testField", "testField.analyzed", "_all", "date.dayOfWeek", "date.minuteOfDay", "_parent",
+                "date.monthOfYear", "__FOXTROT_METADATA__.time", "time.date", "_version", "date.weekOfYear", "_routing",
+                "__FOXTROT_METADATA__.rawStorageId", "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay", "_seq_no",
+                "_field_names", "_source", "_id", "time", "_uid", "_ignored");
+        final Set<String> received = mappings.mappings()
                 .get(currentIndex)
                 .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                .keySet()));
+                .keySet();
+        assertEquals(expectedFields, received);
     }
 
     @Test
@@ -341,10 +330,8 @@ public class ElasticsearchQueryStoreTest {
         String[] fields = {ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME, "testField",
                 String.format("testLargeField%s", StringUtils.repeat(".testField", 5))};
         val response = elasticsearchConnection.getClient()
-                .prepareGet(currentIndex, ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId())
-                .setStoredFields(fields)
-                .execute()
-                .actionGet();
+                .get(new GetRequest(currentIndex, ElasticsearchUtils.DOCUMENT_TYPE_NAME,
+                        originalDocument.getId()).storedFields(fields), RequestOptions.DEFAULT);
         assertTrue(response.isExists());
 
         val request = new GetFieldMappingsRequest();
@@ -352,15 +339,13 @@ public class ElasticsearchQueryStoreTest {
         request.fields("*");
 
         val mappings = elasticsearchConnection.getClient()
-                .admin()
                 .indices()
-                .getFieldMappings(request)
-                .get();
+                .getFieldMapping(request, RequestOptions.DEFAULT);
         val expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year", "date.dayOfMonth", "testField",
-                "testField.analyzed", "_all", "date.dayOfWeek", "date.minuteOfDay", "eventData.funnelInfo.funnelId",
-                "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time", "time.date", "_version", "date.weekOfYear",
-                "_routing", "__FOXTROT_METADATA__.rawStorageId", "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay",
-                "_seq_no", "_field_names", "_source", "_id", "time", "_uid",
+                "testField.analyzed", "_all", "date.dayOfWeek", "date.minuteOfDay", "_parent", "date.monthOfYear",
+                "__FOXTROT_METADATA__.time", "time.date", "_version", "date.weekOfYear", "_routing",
+                "__FOXTROT_METADATA__.rawStorageId", "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay", "_seq_no",
+                "_field_names", "_source", "_id", "time", "_uid", "_ignored",
                 "testLargeField.testField.testField.testField.testField_array",
                 "testLargeField.testField.testField.testField.testField_array.analyzed");
         assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings()
@@ -400,11 +385,10 @@ public class ElasticsearchQueryStoreTest {
 
         for (Document document : documents) {
             GetResponse getResponse = elasticsearchConnection.getClient()
-                    .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
-                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId())
-                    .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
-                    .execute()
-                    .actionGet();
+                    .get(new GetRequest(
+                            ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId()).storedFields(
+                            ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME), RequestOptions.DEFAULT);
             assertTrue("Id should exist in ES", getResponse.isExists());
             assertEquals("Id should match requestId", document.getId(), getResponse.getId());
         }
@@ -430,22 +414,19 @@ public class ElasticsearchQueryStoreTest {
 
         for (Document document : documents) {
             GetResponse getResponse = elasticsearchConnection.getClient()
-                    .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
-                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId())
-                    .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
-                    .execute()
-                    .actionGet();
-
+                    .get(new GetRequest(
+                            ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId()).storedFields(
+                            ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME), RequestOptions.DEFAULT);
             assertFalse("Id should not exist in ES", getResponse.isExists());
         }
 
         for (Document document : translatedDocuments) {
             GetResponse getResponse = elasticsearchConnection.getClient()
-                    .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
-                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId())
-                    .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
-                    .execute()
-                    .actionGet();
+                    .get(new GetRequest(
+                            ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId()).storedFields(
+                            ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME), RequestOptions.DEFAULT);
 
             assertTrue("Id should exist in ES", getResponse.isExists());
             assertEquals("Id should match requestId", document.getId(), getResponse.getId());
@@ -714,7 +695,6 @@ public class ElasticsearchQueryStoreTest {
     }
 
     @Test
-    @Ignore
     public void testEsNodesStats() throws FoxtrotException, ExecutionException, InterruptedException {
         List<Document> documents = Lists.newArrayList();
         for (int i = 0; i < 10; i++) {
@@ -725,9 +705,9 @@ public class ElasticsearchQueryStoreTest {
 
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         elasticsearchConnection.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
-        NodesStatsResponse clusterHealth = queryStore.getNodeStats();
+        JsonNode clusterHealth = queryStore.getNodeStats();
         assertNotNull(clusterHealth);
-        assertEquals(1, clusterHealth.getNodesMap()
+        assertEquals(1, clusterHealth.get("nodes")
                 .size());
     }
 
@@ -742,16 +722,18 @@ public class ElasticsearchQueryStoreTest {
 
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         elasticsearchConnection.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
-        IndicesStatsResponse clusterHealth = queryStore.getIndicesStats();
-        assertEquals(10, clusterHealth.getPrimaries()
-                .getDocs()
-                .getCount());
-        assertNotEquals(0, clusterHealth.getTotal()
-                .getStore()
-                .getSizeInBytes());
-        assertNotEquals(0, clusterHealth.getPrimaries()
-                .getStore()
-                .getSizeInBytes());
+        JsonNode clusterHealth = queryStore.getIndicesStats();
+
+        assertEquals(10, clusterHealth.at("/_all/primaries/docs/count")
+                .asInt());
+        assertEquals(10, clusterHealth.at("/_all/primaries/docs/count")
+                .asInt());
+
+        assertNotEquals(0, clusterHealth.at("/_all/total/store/size_in_bytes")
+                .asLong());
+        assertNotEquals(0, clusterHealth.at("/_all/primaries/store/size_in_bytes")
+                .asLong());
+
     }
 
     @Test

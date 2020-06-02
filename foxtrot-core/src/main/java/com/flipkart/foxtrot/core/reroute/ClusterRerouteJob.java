@@ -33,13 +33,13 @@ public class ClusterRerouteJob extends BaseJobManager {
 
     @Override
     protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
-        executor.executeWithLock(() -> {
+        /*executor.executeWithLock(() -> {
             try {
                 clusterRerouteManager.reallocate();
             } catch (Exception e) {
                 logger.info("Failed to reallocate shards. {}", e);
             }
-        }, new LockConfiguration(clusterRerouteConfig.getJobName(), lockAtMostUntil));
+        }, new LockConfiguration(clusterRerouteConfig.getJobName(), lockAtMostUntil));*/
     }
 
 }

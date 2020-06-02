@@ -19,7 +19,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
-import com.flipkart.foxtrot.common.query.QueryResponse;
+import com.flipkart.foxtrot.common.QueryResponse;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
 import com.flipkart.foxtrot.common.stats.BucketResponse;

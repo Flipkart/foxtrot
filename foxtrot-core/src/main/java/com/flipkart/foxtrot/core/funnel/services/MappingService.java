@@ -39,7 +39,7 @@ public class MappingService {
         this.funnelConfiguration = funnelConfiguration;
     }
 
-    private Map<String, Object> getMapping(String index) {
+    /*private Map<String, Object> getMapping(String index) {
         if (allMappings == null || allMappings.isEmpty()) {
             allMappings = getAllMapping(elasticsearchConnection);
         }
@@ -119,5 +119,5 @@ public class MappingService {
         }
         LOGGER.info("Issue in field mapping. Sorting on id");
         return defaultFieldName;
-    }
+    }*/
 }

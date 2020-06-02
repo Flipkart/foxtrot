@@ -14,17 +14,21 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Sets;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,24 +97,19 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     @Override
     public ActionResponse execute(DistinctRequest request) {
-        SearchRequestBuilder query;
+        SearchRequest query;
         try {
-            query = getConnection().getClient()
-                    .prepareSearch(ElasticsearchUtils.getIndices(request.getTable(), request))
-                    .setIndicesOptions(Utils.indicesOptions());
-            query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
-                    .setSize(QUERY_SIZE)
-                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet(),
-                            elasticsearchTuningConfig.getAggregationSize()));
+            query = getRequestBuilder(request, Collections.emptyList());
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
 
         try {
-            SearchResponse response = query.execute()
-                    .actionGet(getGetQueryTimeout());
+            SearchResponse response = getConnection().getClient()
+                    .search(query);
+
             return getResponse(response, getParameter());
-        } catch (ElasticsearchException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(request, e);
         }
     }
@@ -121,21 +120,20 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(DistinctRequest request) {
-        SearchRequestBuilder query;
+    public SearchRequest getRequestBuilder(DistinctRequest request, List<Filter> extraFilters) {
         try {
-            query = getConnection().getClient()
-                    .prepareSearch(ElasticsearchUtils.getIndices(request.getTable(), request))
-                    .setIndicesOptions(Utils.indicesOptions());
-            query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
-                    .setSize(QUERY_SIZE)
-                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet(),
-                            elasticsearchTuningConfig.getAggregationSize()));
+            return new SearchRequest(ElasticsearchUtils.getIndices(request.getTable(), request)).indicesOptions(
+                    Utils.indicesOptions())
+                    .source(new SearchSourceBuilder().query(
+                            ElasticsearchQueryUtils.translateFilter(request, extraFilters))
+                            .size(QUERY_SIZE)
+                            .aggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet(),
+                                    elasticsearchTuningConfig.getAggregationSize()))
+                            .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS)));
 
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
-        return query;
     }
 
     @Override

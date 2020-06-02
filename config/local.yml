@@ -12,6 +12,8 @@ elasticsearch:
   cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
+  connectionType: HTTP
+  port: 9200
 
 serviceDiscovery:
   namespace: local
@@ -61,6 +63,9 @@ cardinality:
 elasticsearchTuningConfig:
   precisionThreshold: 500
   aggregationSize: 10000
+  scrollSize: 100
+  scrollTimeInSeconds: 120
+  documentsLimitAllowed: 10000
 
 esIndexOptimizationConfig:
   active: true
@@ -82,6 +87,11 @@ clusterRerouteConfig:
   interval: 86400
   initialDelay: 10
   thresholdShardCountPercentage: 10
+
+sessionCleanupConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10
 
 emailConfig:
   from: noreply@phonepe.com
@@ -129,10 +139,6 @@ gandalfConfiguration:
   serviceBaseUrl: "localhost:17000"
   username: "mudit.g@phonepe.com"
   password: "gandalf@echo"
-
-elasticsearchTuningConfig:
-  precisionThreshold: 500
-  aggregationSize: 10000
 
 swagger:
   resourcePackage: com.flipkart.foxtrot.server.resources
@@ -201,3 +207,17 @@ funnelConfiguration:
       - Latitude
       - Longitude
       - OS
+
+auth:
+  enabled: false
+  jwt:
+    issuerId: foxtrot-server
+    privateKey: ${PRIVATE_KEY}
+    sessionDuration: 15d
+
+  provider:
+    type: OAUTH_GOOGLE
+    clientId: ${GOOGLE_CLIENT_ID}
+    clientSecret: ${GOOGLE_CLIENT_SECRET}
+    server: ${GOOGLE_CALLBACK_HOST_PORT}
+    secureEndpoint: false

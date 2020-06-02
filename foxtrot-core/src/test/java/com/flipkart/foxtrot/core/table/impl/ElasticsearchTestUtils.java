@@ -15,50 +15,28 @@ package com.flipkart.foxtrot.core.table.impl;
  * limitations under the License.
  */
 
-import static io.appform.testcontainers.commons.ContainerUtils.containerLogsConsumer;
-import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContainerUtils.getCompositeWaitStrategy;
-import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContainerUtils.getJavaOpts;
-
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import io.appform.testcontainers.elasticsearch.config.ElasticsearchContainerConfiguration;
-import java.util.Collections;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 import org.testcontainers.containers.GenericContainer;
+
+import java.util.Collections;
+
+import static io.appform.testcontainers.commons.ContainerUtils.containerLogsConsumer;
+import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContainerUtils.getCompositeWaitStrategy;
+import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContainerUtils.getJavaOpts;
 
 /***
  Created by nitish.goyal on 02/08/18
  ***/
 @Slf4j
 public class ElasticsearchTestUtils {
-
-    public static synchronized ElasticsearchConnection getConnection() throws Exception {
-        // To make sure we load class which will start the server.
-        ElasticsearchContainerHolder.containerLoaded = true;
-        ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(
-                ElasticsearchContainerHolder.getElasticsearchConfig());
-        elasticsearchConnection.start();
-
-        return elasticsearchConnection;
-    }
-
-    public static void cleanupIndices(final ElasticsearchConnection elasticsearchConnection) {
-        try {
-            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("_all");
-            final DeleteIndexResponse deleteIndexResponse = elasticsearchConnection.getClient()
-                    .admin()
-                    .indices()
-                    .delete(deleteIndexRequest)
-                    .get();
-            log.info("Delete index response: {}", deleteIndexResponse);
-        } catch (Exception e) {
-            log.error("Index Cleanup failed", e);
-        }
-    }
 
     /**
      * Class to make sure we run the server only once.
@@ -74,10 +52,10 @@ public class ElasticsearchTestUtils {
         static {
             try {
                 ElasticsearchContainerConfiguration configuration = new ElasticsearchContainerConfiguration();
+                configuration.setDockerImage("docker.elastic.co/elasticsearch/elasticsearch-oss:6.3.0");
                 configuration.setClusterRamMb(100);
-                GenericContainer esContainer = new FixedHostPortGenericContainer(
-                        configuration.getDockerImage()).withExposedPorts(configuration.getHttpPort(),
-                        configuration.getTransportPort())
+                GenericContainer esContainer = new FixedHostPortGenericContainer(configuration.getDockerImage())
+                        .withExposedPorts(configuration.getHttpPort(), configuration.getTransportPort())
                         .withEnv("cluster.name", "elasticsearch")
                         .withEnv("discovery.type", "single-node")
                         .withEnv("ES_JAVA_OPTS", getJavaOpts(configuration))
@@ -86,17 +64,40 @@ public class ElasticsearchTestUtils {
                         .withStartupTimeout(configuration.getTimeoutDuration());
                 esContainer.start();
 
-                Integer mappedPort = esContainer.getMappedPort(configuration.getTransportPort());
+                Integer mappedPort = esContainer.getMappedPort(configuration.getHttpPort());
 
                 elasticsearchConfig = new ElasticsearchConfig();
                 elasticsearchConfig.setHosts(Collections.singletonList(configuration.getHost()));
                 elasticsearchConfig.setPort(mappedPort);
+                elasticsearchConfig.setConnectionType(ElasticsearchConfig.ConnectionType.HTTP);
                 elasticsearchConfig.setCluster("elasticsearch");
                 elasticsearchConfig.setTableNamePrefix("foxtrot");
             } catch (Exception e) {
                 log.error("Error in initializing es test container , error :", e);
                 throw e;
             }
+        }
+    }
+
+    public static synchronized ElasticsearchConnection getConnection() throws Exception {
+        // To make sure we load class which will start the server.
+        ElasticsearchContainerHolder.containerLoaded = true;
+        ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(
+                ElasticsearchContainerHolder.getElasticsearchConfig());
+        elasticsearchConnection.start();
+
+        return elasticsearchConnection;
+    }
+
+    public static void cleanupIndices(final ElasticsearchConnection elasticsearchConnection) {
+        try {
+            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("_all");
+            final AcknowledgedResponse deleteIndexResponse = elasticsearchConnection.getClient()
+                    .indices()
+                    .delete(deleteIndexRequest, RequestOptions.DEFAULT);
+            log.info("Delete index response: {}", deleteIndexResponse);
+        } catch (Exception e) {
+            log.error("Index Cleanup failed", e);
         }
     }
 }

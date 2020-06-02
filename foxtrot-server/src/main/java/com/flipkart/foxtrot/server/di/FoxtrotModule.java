@@ -11,7 +11,7 @@ import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
-import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.core.config.QueryConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
@@ -54,14 +54,27 @@ import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
-import com.flipkart.foxtrot.gandalf.access.AccessService;
-import com.flipkart.foxtrot.gandalf.access.AccessServiceImpl;
+import com.flipkart.foxtrot.server.auth.AuthConfig;
+import com.flipkart.foxtrot.server.auth.AuthStore;
+import com.flipkart.foxtrot.server.auth.ESAuthStore;
+import com.flipkart.foxtrot.server.auth.JwtConfig;
+import com.flipkart.foxtrot.server.auth.RoleAuthorizer;
+import com.flipkart.foxtrot.server.auth.TokenAuthenticator;
+import com.flipkart.foxtrot.server.auth.TokenType;
+import com.flipkart.foxtrot.server.auth.UserPrincipal;
+import com.flipkart.foxtrot.server.auth.authprovider.AuthProvider;
+import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProvider;
+import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProviderConfig;
+import com.flipkart.foxtrot.server.auth.sessionstore.DistributedSessionDataStore;
+import com.flipkart.foxtrot.server.auth.sessionstore.SessionDataStore;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
+import com.google.common.cache.CacheBuilderSpec;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -71,11 +84,17 @@ import com.phonepe.platform.http.OkHttpUtils;
 import com.phonepe.platform.http.ServiceEndpointProvider;
 import com.phonepe.platform.http.ServiceEndpointProviderFactory;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
+import io.dropwizard.auth.Authenticator;
+import io.dropwizard.auth.Authorizer;
+import io.dropwizard.auth.CachingAuthenticator;
+import io.dropwizard.auth.CachingAuthorizer;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -84,7 +103,12 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import okhttp3.OkHttpClient;
 import org.apache.hadoop.conf.Configuration;
-
+import org.jose4j.jwa.AlgorithmConstraints;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.jose4j.jwt.consumer.JwtContext;
+import org.jose4j.keys.HmacKey;
 
 /**
  *
@@ -103,7 +127,6 @@ public class FoxtrotModule extends AbstractModule {
         bind(DataStore.class).to(HBaseDataStore.class);
         bind(QueryStore.class).to(ElasticsearchQueryStore.class);
         bind(FqlStoreService.class).to(FqlStoreServiceImpl.class);
-        bind(AccessService.class).to(AccessServiceImpl.class);
         bind(CacheFactory.class).to(DistributedCacheFactory.class);
         bind(InternalEventBus.class).to(GuavaInternalEventBus.class);
         bind(InternalEventBusConsumer.class).to(AlertingSystemEventConsumer.class);
@@ -120,6 +143,10 @@ public class FoxtrotModule extends AbstractModule {
         bind(DistributedLock.class).to(HazelcastDistributedLock.class);
         bind(new TypeLiteral<List<HealthCheck>>() {
         }).toProvider(HealthcheckListProvider.class);
+        bind(AuthStore.class).to(ESAuthStore.class);
+        bind(AuthProvider.class).to(GoogleAuthProvider.class);
+        bind(SessionDataStore.class).to(DistributedSessionDataStore.class);
+
     }
 
     @Provides
@@ -172,6 +199,11 @@ public class FoxtrotModule extends AbstractModule {
     public ClusterRerouteConfig clusterRerouteConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getClusterRerouteConfig() ? new ClusterRerouteConfig()
                 : configuration.getClusterRerouteConfig();
+    }
+
+    public SessionCleanupConfig sessionCleanupConfig(FoxtrotServerConfiguration configuration) {
+        return null == configuration.getSessionCleanupConfig() ? new SessionCleanupConfig()
+                : configuration.getSessionCleanupConfig();
     }
 
     @Provides
@@ -261,6 +293,55 @@ public class FoxtrotModule extends AbstractModule {
         return configuration.getDistributedLockConfig();
     }
 
+
+    @Provides
+    @Singleton
+    public AuthConfig authConfig(FoxtrotServerConfiguration serverConfiguration) {
+        return serverConfiguration.getAuth();
+    }
+
+    @Provides
+    @Singleton
+    public GoogleAuthProviderConfig googleAuthProviderConfig(FoxtrotServerConfiguration configuration) {
+        return (GoogleAuthProviderConfig) configuration.getAuth()
+                .getProvider();
+    }
+
+    @Provides
+    @Singleton
+    public JwtConsumer provideJwtConsumer(AuthConfig config) {
+        final JwtConfig jwtConfig = config.getJwt();
+        final byte[] secretKey = jwtConfig.getPrivateKey()
+                .getBytes(StandardCharsets.UTF_8);
+        return new JwtConsumerBuilder().setRequireIssuedAt()
+                .setRequireSubject()
+                .setExpectedIssuer(jwtConfig.getIssuerId())
+                .setVerificationKey(new HmacKey(secretKey))
+                .setJwsAlgorithmConstraints(new AlgorithmConstraints(AlgorithmConstraints.ConstraintType.WHITELIST,
+                        AlgorithmIdentifiers.HMAC_SHA512))
+                .setExpectedAudience(Arrays.stream(TokenType.values())
+                        .map(TokenType::name)
+                        .toArray(String[]::new))
+                .build();
+    }
+
+    @Provides
+    @Singleton
+    public Authenticator<JwtContext, UserPrincipal> authenticator(final Environment environment,
+            final TokenAuthenticator authenticator, final AuthConfig authConfig) {
+        return new CachingAuthenticator<>(environment.metrics(), authenticator, CacheBuilderSpec.parse(
+                authConfig.getJwt()
+                        .getAuthCachePolicy()));
+    }
+
+    @Provides
+    @Singleton
+    public Authorizer<UserPrincipal> authorizer(final Environment environment, final RoleAuthorizer authorizer,
+            final AuthConfig authConfig) {
+        return new CachingAuthorizer<>(environment.metrics(), authorizer, CacheBuilderSpec.parse(authConfig.getJwt()
+                .getAuthCachePolicy()));
+    }
+
     @Provides
     @Singleton
     public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
@@ -304,6 +385,12 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ServerFactory serverFactory(FoxtrotServerConfiguration configuration) {
         return configuration.getServerFactory();
+    }
+
+    @Provides
+    @Singleton
+    public boolean restrictAccess(FoxtrotServerConfiguration configuration){
+        return configuration.isRestrictAccess();
     }
 
 }

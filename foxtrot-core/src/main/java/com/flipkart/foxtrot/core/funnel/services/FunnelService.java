@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface FunnelService {
 
-    Funnel save(Funnel funnel);
+    /*Funnel save(Funnel funnel);
 
     Funnel update(String documentId, Funnel funnel);
 
@@ -24,6 +24,6 @@ public interface FunnelService {
 
     FunnelDropdownConfig getDropdownValues();
 
-    List<Funnel> getAll(boolean deleted);
+    List<Funnel> getAll(boolean deleted);*/
 
 }

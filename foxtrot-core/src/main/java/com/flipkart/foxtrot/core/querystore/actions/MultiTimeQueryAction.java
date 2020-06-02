@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import org.elasticsearch.action.ActionRequestBuilder;
 
 @AnalyticsProvider(opcode = "multi_time_query", request = MultiTimeQueryRequest.class, response = MultiTimeQueryResponse.class, cacheable = false)
 public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
@@ -118,8 +117,9 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     }
 
     @Override
-    public ActionRequestBuilder getRequestBuilder(MultiTimeQueryRequest parameter) {
-        return action.getRequestBuilder(multiQueryRequest);
+    public org.elasticsearch.action.ActionRequest getRequestBuilder(MultiTimeQueryRequest parameter,
+            List<Filter> extraFilters) {
+        return action.getRequestBuilder(multiQueryRequest, extraFilters);
     }
 
     @Override

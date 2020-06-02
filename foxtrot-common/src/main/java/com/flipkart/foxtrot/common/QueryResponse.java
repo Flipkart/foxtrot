@@ -10,46 +10,37 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package com.flipkart.foxtrot.common.query;
+package com.flipkart.foxtrot.common;
 
-import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.Opcodes;
-import com.flipkart.foxtrot.common.ResponseVisitor;
 import java.util.List;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 1:00 PM
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class QueryResponse extends ActionResponse {
 
     private List<Document> documents;
     private long totalHits;
 
+    private String scrollId;
+    private boolean moreDataAvailable;
+
     public QueryResponse() {
         super(Opcodes.QUERY);
     }
 
-    public QueryResponse(List<Document> documents, long totalHits) {
+    @Builder
+    public QueryResponse(List<Document> documents, long totalHits, String scrollId, boolean moreDataAvailable) {
         super(Opcodes.QUERY);
         this.documents = documents;
         this.totalHits = totalHits;
-    }
-
-    public List<Document> getDocuments() {
-        return documents;
-    }
-
-    public void setDocuments(List<Document> documents) {
-        this.documents = documents;
-    }
-
-    public long getTotalHits() {
-        return totalHits;
-    }
-
-    public void setTotalHits(long totalHits) {
-        this.totalHits = totalHits;
+        this.scrollId = scrollId;
+        this.moreDataAvailable = moreDataAvailable;
     }
 
     @Override

@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.elasticsearch.action.ActionRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,7 +132,7 @@ public abstract class Action<P extends ActionRequest> {
 
     public abstract String getRequestCacheKey();
 
-    public abstract ActionRequestBuilder getRequestBuilder(P parameter);
+    public abstract org.elasticsearch.action.ActionRequest getRequestBuilder(P parameter, List<Filter> extraFilters);
 
     public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, P parameter);
 

@@ -1,35 +1,17 @@
 package com.flipkart.foxtrot.core.reroute;
 
-import com.flipkart.foxtrot.common.Date;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
-import org.elasticsearch.action.admin.cluster.reroute.ClusterRerouteRequest;
-import org.elasticsearch.action.admin.cluster.reroute.ClusterRerouteResponse;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequest;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
-import org.elasticsearch.cluster.routing.allocation.command.MoveAllocationCommand;
-import org.elasticsearch.index.shard.ShardId;
-import org.joda.time.DateTime;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /***
  Created by mudit.g on Sep, 2019
  ***/
 @Slf4j
 @Singleton
+@Order(20)
 public class ClusterRerouteManager {
 
     private final ElasticsearchConnection connection;
@@ -41,7 +23,7 @@ public class ClusterRerouteManager {
         this.clusterRerouteConfig = clusterRerouteConfig;
     }
 
-    public void reallocate() {
+    /*public void reallocate() {
         Map<String, NodeInfo> nodeIdVsNodeInfoMap = new HashMap<>();
         BiMap<String, String> nodeNameVsNodeId = HashBiMap.create();
         this.createNodeInfoMap(nodeIdVsNodeInfoMap);
@@ -168,6 +150,6 @@ public class ClusterRerouteManager {
             }
         }
         return vacantNodeIds;
-    }
+    }*/
 
 }

@@ -17,18 +17,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.util.SerDe;
-import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.core.config.GandalfConfiguration;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.KubernetesClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.querystore.impl.MarathonClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.querystore.impl.SimpleClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.flipkart.foxtrot.server.di.FoxtrotModule;
+import com.google.common.base.Strings;
 import com.google.inject.Stage;
 import com.phonepe.gandalf.client.GandalfBundle;
 import com.phonepe.gandalf.client.GandalfClient;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import com.phonepe.rosey.dwconfig.RoseyConfigSourceProvider;
+import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.Application;
@@ -140,7 +142,19 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
                     FoxtrotServerConfiguration configuration) {
-                return configuration.getSwagger();
+                final SwaggerBundleConfiguration swaggerBundleConfiguration = new SwaggerBundleConfiguration();
+                swaggerBundleConfiguration.setTitle("Foxtrot");
+                swaggerBundleConfiguration.setResourcePackage("com.flipkart.foxtrot.server.resources");
+                swaggerBundleConfiguration.setUriPrefix("/foxtrot");
+                swaggerBundleConfiguration.setDescription(
+                        "A store abstraction and analytics system for real-time event data.");
+                if (!Strings.isNullOrEmpty(configuration.getSwaggerHost())) {
+                    swaggerBundleConfiguration.setHost(configuration.getSwaggerHost());
+                }
+                if (!Strings.isNullOrEmpty(configuration.getSwaggerScheme())) {
+                    swaggerBundleConfiguration.setSchemes(new String[]{configuration.getSwaggerScheme()});
+                }
+                return swaggerBundleConfiguration;
             }
         });
 
@@ -186,6 +200,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.registerSubtypes(new NamedType(SimpleClusterDiscoveryConfig.class, "foxtrot_simple"));
         objectMapper.registerSubtypes(new NamedType(MarathonClusterDiscoveryConfig.class, "foxtrot_marathon"));
+        objectMapper.registerSubtypes(new NamedType(KubernetesClusterDiscoveryConfig.class, "foxtrot_kubernetes"));
         SerDe.init(objectMapper);
     }
 

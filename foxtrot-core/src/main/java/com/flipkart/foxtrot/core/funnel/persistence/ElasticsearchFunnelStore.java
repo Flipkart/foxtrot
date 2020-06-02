@@ -1,62 +1,9 @@
 package com.flipkart.foxtrot.core.funnel.persistence;
 
-import static com.collections.CollectionUtils.nullAndEmptySafeValueList;
-import static com.collections.CollectionUtils.nullSafeMap;
-import static com.flipkart.foxtrot.common.exception.ErrorCode.EXECUTION_EXCEPTION;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.APPROVAL_DATE;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.DELETED;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.END_PERCENTAGE;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.EVENT_ATTRIBUTES;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FIELD_VS_VALUES;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FUNNEL_STATUS;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.START_PERCENTAGE;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.DOT;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.TYPE;
-
-import com.collections.CollectionUtils;
-import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
-import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
-import com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes;
-import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
-import com.flipkart.foxtrot.core.funnel.model.EventAttributes;
-import com.flipkart.foxtrot.core.funnel.model.Funnel;
-import com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus;
-import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
-import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
 import com.flipkart.foxtrot.core.funnel.services.MappingService;
-import com.flipkart.foxtrot.core.funnel.services.PreProcessFilter;
-import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.inject.Inject;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.lucene.search.join.ScoreMode;
-import org.elasticsearch.action.DocWriteRequest.OpType;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.action.support.WriteRequest;
-import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.ExistsQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.index.query.TermsQueryBuilder;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +30,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     }
 
 
-    @Override
+    /*@Override
     public void save(Funnel funnel) {
         try {
             connection.getClient()
@@ -416,8 +363,8 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                 if (eventAttributeField.get(eventAttributes) != null) {
                     String key = EVENT_ATTRIBUTES + DOT + eventAttributeField.getName();
                     if (!eventAttributesMap.containsKey(key)) {
-                        eventAttributesMap.put(key, new ArrayList<>(
-                                Collections.singletonList(eventAttributeField.get(eventAttributes))));
+                        eventAttributesMap.put(key,
+                                new ArrayList<>(Collections.singletonList(eventAttributeField.get(eventAttributes))));
                     } else {
                         eventAttributesMap.get(key)
                                 .add(eventAttributeField.get(eventAttributes));
@@ -435,6 +382,6 @@ public class ElasticsearchFunnelStore implements FunnelStore {
             throw new FunnelException(EXECUTION_EXCEPTION,
                     String.format("Error in preProcessing filterRequest: %s", e.getMessage()), e);
         }
-    }
+    }*/
 
 }

@@ -12,7 +12,7 @@ import java.util.Map;
  ***/
 public interface FunnelStore {
 
-    void save(Funnel funnel);
+    /*void save(Funnel funnel);
 
     void update(Funnel funnel);
 
@@ -32,5 +32,5 @@ public interface FunnelStore {
 
     FunnelDropdownConfig getFunnelDropdownValues();
 
-    List<Funnel> fetchFunnels(List<Map<String, String>> fieldVsValueMaps, int bucket);
+    List<Funnel> fetchFunnels(List<Map<String, String>> fieldVsValueMaps, int bucket);*/
 }

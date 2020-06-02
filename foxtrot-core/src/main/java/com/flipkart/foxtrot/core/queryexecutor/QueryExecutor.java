@@ -53,7 +53,7 @@ public abstract class QueryExecutor {
 
     public <T extends ActionRequest> ActionResponse execute(T request) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Action action = null;
+        Action<T> action = null;
         ActionEvaluationResponse evaluationResponse = null;
         try {
             action = resolve(request);
@@ -101,8 +101,8 @@ public abstract class QueryExecutor {
         return dataToken;
     }
 
-    public <T extends ActionRequest> Action resolve(T request) {
-        Action action;
+    public <T extends ActionRequest> Action<T> resolve(T request) {
+        Action<T> action;
         action = analyticsLoader.getAction(request);
         if (null == action) {
             throw FoxtrotExceptions.createUnresolvableActionException(request);

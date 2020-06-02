@@ -10,17 +10,20 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package com.flipkart.foxtrot.common.query;
+package com.flipkart.foxtrot.common;
 
-import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.ActionRequestVisitor;
-import com.flipkart.foxtrot.common.Opcodes;
+import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.ResultSort;
 import java.util.List;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 13/03/14 Time: 6:38 PM
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class Query extends ActionRequest {
 
     private String table;
@@ -30,6 +33,9 @@ public class Query extends ActionRequest {
     private int from = 0;
 
     private int limit = 10;
+
+    private boolean scrollRequest = false;
+    private String scrollId;
 
     public Query() {
         super(Opcodes.QUERY);
@@ -48,16 +54,6 @@ public class Query extends ActionRequest {
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
         return visitor.visit(this);
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).append("table", table)
-                .append("filters", getFilters())
-                .append("sort", sort)
-                .append("from", from)
-                .append("limit", limit)
-                .toString();
     }
 
     public String getTable() {
@@ -90,6 +86,18 @@ public class Query extends ActionRequest {
 
     public void setLimit(int limit) {
         this.limit = limit;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("table", table)
+                .append("filters", getFilters())
+                .append("sort", sort)
+                .append("from", from)
+                .append("limit", limit)
+                .append("scroll", scrollRequest)
+                .append("scrollId", scrollId)
+                .toString();
     }
 
 }

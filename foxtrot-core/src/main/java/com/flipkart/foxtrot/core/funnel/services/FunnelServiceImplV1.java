@@ -45,7 +45,7 @@ public class FunnelServiceImplV1 implements FunnelService {
         this.random = new Random();
     }
 
-    @Override
+    /*@Override
     public Funnel save(Funnel funnel) {
 
         checkIfSimilarFunnelExists(funnel);
@@ -89,9 +89,9 @@ public class FunnelServiceImplV1 implements FunnelService {
         return funnel;
     }
 
-    /*
+    *//*
         Assign funnel start and end percentage if not provided
-     */
+     *//*
     private void assignFunnelPercentage(Funnel funnel) {
         if (funnel.getStartPercentage() == 0 && funnel.getEndPercentage() == 0) {
             int startPercentage = (random.nextInt(100 - funnel.getPercentage()));
@@ -211,6 +211,6 @@ public class FunnelServiceImplV1 implements FunnelService {
         if (funnel.isDeleted()) {
             throw new FunnelException(INVALID_REQUEST, "Deleted funnel can not be updated");
         }
-    }
+    }*/
 
 }
