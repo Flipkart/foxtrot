@@ -91,8 +91,6 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /**
@@ -527,8 +525,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 final Double percentile = percentiles.percentile(i);
                 values[(i / 10) - 1] = percentile.isNaN() ? 0 : percentile;
             }
-            log.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, type, "percentile",
-                    values);
+            log.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, type, "percentile", values);
             estimationDataMap.put(key, PercentileEstimationData.builder()
                     .values(values)
                     .count(hits)

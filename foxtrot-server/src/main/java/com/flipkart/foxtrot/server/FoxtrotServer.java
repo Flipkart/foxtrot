@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.core.querystore.impl.KubernetesClusterDiscoveryConfi
 import com.flipkart.foxtrot.core.querystore.impl.MarathonClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.querystore.impl.SimpleClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.util.MetricUtil;
+import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.di.FoxtrotModule;
 import com.google.common.base.Strings;
 import com.google.inject.Stage;
@@ -30,7 +31,6 @@ import com.phonepe.gandalf.client.GandalfBundle;
 import com.phonepe.gandalf.client.GandalfClient;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import com.phonepe.rosey.dwconfig.RoseyConfigSourceProvider;
-import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.Application;

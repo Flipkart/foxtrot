@@ -1,31 +1,10 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
-import static com.flipkart.foxtrot.common.exception.ErrorCode.DOCUMENT_NOT_FOUND;
-import static com.flipkart.foxtrot.common.exception.ErrorCode.EXECUTION_EXCEPTION;
-import static com.flipkart.foxtrot.common.exception.ErrorCode.INVALID_REQUEST;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.START_ID;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.UNASSIGNED_FUNNEL_ID;
-import static com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus.APPROVED;
-import static com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus.WAITING_FOR_APPROVAL;
-
-import com.collections.CollectionUtils;
-import com.flipkart.foxtrot.common.exception.ErrorCode;
-import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
-import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
-import com.flipkart.foxtrot.core.funnel.model.Funnel;
-import com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus;
-import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
-import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
 import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
 import com.flipkart.foxtrot.core.lock.LockedExecutor;
-import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.util.List;
 import java.util.Random;
-import java.util.UUID;
-import java.util.function.Function;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
