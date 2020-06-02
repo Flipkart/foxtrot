@@ -73,18 +73,20 @@ public class FunnelServiceImplV1 implements FunnelService {
         Funnel savedFunnel = funnelStore.getByDocumentId(documentId);
         validateFunnelUpdateRequest(savedFunnel);
 
-        if (isFunnelWaitingForApproval(savedFunnel)) {
-            assignFunnelPercentage(funnel);
-
-            // set parameters which are not updatable
-            funnel.setDocumentId(documentId);
-            funnel.setCreatedAt(savedFunnel.getCreatedAt());
-            funnel.setId(savedFunnel.getId());
-            funnel.setFunnelStatus(savedFunnel.getFunnelStatus());
-            funnel.setDeleted(savedFunnel.isDeleted());
-
-            funnelStore.update(funnel);
+        if (!isFunnelWaitingForApproval(savedFunnel)) {
+            return funnel;
         }
+
+        assignFunnelPercentage(funnel);
+
+        // set parameters which are not updatable
+        funnel.setDocumentId(documentId);
+        funnel.setCreatedAt(savedFunnel.getCreatedAt());
+        funnel.setId(savedFunnel.getId());
+        funnel.setFunnelStatus(savedFunnel.getFunnelStatus());
+        funnel.setDeleted(savedFunnel.isDeleted());
+
+        funnelStore.update(funnel);
         return funnel;
     }
 
