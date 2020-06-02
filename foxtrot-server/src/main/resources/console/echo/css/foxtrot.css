@@ -852,15 +852,16 @@ th, td {
   border: 1px solid #d0d7e7;
   top: 15px;
   left: 15px;
-  padding: 7px;
+  padding: 5px 0px 0px 0px;
   font-family: Open Sans;
-  height: 36px;
+  height: 30px;
   background: #fff;
 }
 
 .global-filters div {
   border-right: 1px solid #aeb8bd;
   height: 22px;
+  width: 39%;
 }
 
 .global-filter-switch-div{
@@ -874,7 +875,7 @@ th, td {
   border: none;
   font-family: Open Sans;
   cursor: pointer;
-    margin-right: 40px;
+  margin: 0px  10px;
 }
 
 .listConsole {
@@ -3464,7 +3465,7 @@ div.tab button:first-child {
 }
 .global-date{
   position: relative;
-  left: 116px;
+  left: 131px;
   top: -21px;
   cursor: pointer;
 }
@@ -3493,7 +3494,7 @@ div.tab button:first-child {
 }
 #selected-global-date {
   position: absolute;
-  right: -41px;
+  right: -71px;
   top: -37px;
   font-size: 14px;
   background: #000;
@@ -3502,6 +3503,7 @@ div.tab button:first-child {
   padding: 10px;
   height: 27px;
   display: none;
+  width:auto;
 }
 #selected-global-date span {
   position: relative;
@@ -3708,7 +3710,7 @@ div.tab button:first-child {
   float: left;
   position: relative;
   top: 14px;
-  right: 25px;
+  right: 40px;
 }
 .template-filter-content {
   display: none;
