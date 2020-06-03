@@ -99,7 +99,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     }
 
     @Override
-    public Funnel get(final String documentId) {
+    public Funnel getByDocumentId(final String documentId) {
         try {
             GetResponse response = connection.getClient()
                     .prepareGet()
