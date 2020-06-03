@@ -76,8 +76,10 @@ public class FilterAction extends Action<Query> {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        filterHashKey += 31 * (query.getSort() != null ? query.getSort()
-                .hashCode() : "SORT".hashCode());
+        filterHashKey += 31 * (query.getSort() != null
+                ? query.getSort()
+                .hashCode()
+                : "SORT".hashCode());
 
         return String.format("%s-%d-%d-%d", query.getTable(), query.getFrom(), query.getLimit(), filterHashKey);
     }
@@ -133,7 +135,9 @@ public class FilterAction extends Action<Query> {
                     .setFrom(parameter.getFrom())
                     .addSort(Utils.storedFieldName(parameter.getSort()
                             .getField()), ResultSort.Order.desc == parameter.getSort()
-                            .getOrder() ? SortOrder.DESC : SortOrder.ASC)
+                            .getOrder()
+                            ? SortOrder.DESC
+                            : SortOrder.ASC)
                     .setSize(parameter.getLimit());
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);

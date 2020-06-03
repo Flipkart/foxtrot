@@ -142,7 +142,9 @@ public class QueryTranslator extends SqlElementVisitor {
             FilterParser filterParser = new FilterParser();
             plainSelect.getWhere()
                     .accept(filterParser);
-            filters = (filterParser.filters.isEmpty()) ? null : filterParser.filters;
+            filters = (filterParser.filters.isEmpty())
+                    ? null
+                    : filterParser.filters;
         }
 
         handleDistinct(plainSelect);
@@ -340,7 +342,9 @@ public class QueryTranslator extends SqlElementVisitor {
         Column sortColumn = (Column) orderByElement.getExpression();
         ResultSort resultSortColumn = new ResultSort();
         resultSortColumn.setField(sortColumn.getFullyQualifiedName());
-        resultSortColumn.setOrder(orderByElement.isAsc() ? ResultSort.Order.asc : ResultSort.Order.desc);
+        resultSortColumn.setOrder(orderByElement.isAsc()
+                ? ResultSort.Order.asc
+                : ResultSort.Order.desc);
         logger.info("ResultSort: {}", resultSortColumn);
         return resultSortColumn;
     }
@@ -354,7 +358,9 @@ public class QueryTranslator extends SqlElementVisitor {
             Column sortColumn = (Column) orderByElement.getExpression();
             ResultSort resultSortColumn = new ResultSort();
             resultSortColumn.setField(sortColumn.getFullyQualifiedName());
-            resultSortColumn.setOrder(orderByElement.isAsc() ? ResultSort.Order.asc : ResultSort.Order.desc);
+            resultSortColumn.setOrder(orderByElement.isAsc()
+                    ? ResultSort.Order.asc
+                    : ResultSort.Order.desc);
             resultSortList.add(resultSortColumn);
         }
         return resultSortList;

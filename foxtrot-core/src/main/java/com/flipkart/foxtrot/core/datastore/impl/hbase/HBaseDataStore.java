@@ -180,8 +180,9 @@ public class HBaseDataStore implements DataStore {
                 byte[] metadata = getResult.getValue(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME);
                 byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                 long time = Bytes.toLong(timestamp);
-                DocumentMetadata documentMetadata =
-                        (null != metadata) ? mapper.readValue(metadata, DocumentMetadata.class) : null;
+                DocumentMetadata documentMetadata = (null != metadata)
+                        ? mapper.readValue(metadata, DocumentMetadata.class)
+                        : null;
                 return translator.translateBack(new Document(id, time, documentMetadata, mapper.readTree(data)));
             } else {
                 logger.error("ID missing in HBase - {}", id);
@@ -219,10 +220,13 @@ public class HBaseDataStore implements DataStore {
                     byte[] metadata = getResult.getValue(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME);
                     byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                     long time = Bytes.toLong(timestamp);
-                    DocumentMetadata documentMetadata =
-                            (null != metadata) ? mapper.readValue(metadata, DocumentMetadata.class) : null;
-                    final String docId = (null == metadata) ? Bytes.toString(getResult.getRow())
-                            .split(":")[0] : documentMetadata.getRawStorageId();
+                    DocumentMetadata documentMetadata = (null != metadata)
+                            ? mapper.readValue(metadata, DocumentMetadata.class)
+                            : null;
+                    final String docId = (null == metadata)
+                            ? Bytes.toString(getResult.getRow())
+                            .split(":")[0]
+                            : documentMetadata.getRawStorageId();
                     results.add(translator.translateBack(
                             new Document(docId, time, documentMetadata, mapper.readTree(data))));
                 } else {

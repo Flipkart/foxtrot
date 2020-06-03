@@ -87,8 +87,10 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                 .hashCode();
         hashKey += 31 * statsRequest.getTimestamp()
                 .hashCode();
-        hashKey += 31 * (statsRequest.getField() != null ? statsRequest.getField()
-                .hashCode() : "FIELD".hashCode());
+        hashKey += 31 * (statsRequest.getField() != null
+                ? statsRequest.getField()
+                .hashCode()
+                : "FIELD".hashCode());
         return String.format("stats-trend-%s-%s-%s-%d", statsRequest.getTable(), statsRequest.getField(),
                 statsRequest.getPeriod(), hashKey);
     }
@@ -200,8 +202,9 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     private List<BucketResponse<List<StatsTrendValue>>> buildNestedTrendStats(List<String> nesting,
                                                                               Aggregations aggregations) {
         final String field = nesting.get(0);
-        final List<String> remainingFields =
-                (nesting.size() > 1) ? nesting.subList(1, nesting.size()) : new ArrayList<>();
+        final List<String> remainingFields = (nesting.size() > 1)
+                ? nesting.subList(1, nesting.size())
+                : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         List<BucketResponse<List<StatsTrendValue>>> bucketResponses = Lists.newArrayList();
         for (Terms.Bucket bucket : terms.getBuckets()) {

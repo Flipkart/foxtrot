@@ -143,14 +143,16 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public CardinalityConfig cardinalityConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getCardinality() ? new CardinalityConfig("false",
-                String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)) : configuration.getCardinality();
+        return null == configuration.getCardinality()
+                ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
+                : configuration.getCardinality();
     }
 
     @Provides
     @Singleton
     public EsIndexOptimizationConfig esIndexOptimizationConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getEsIndexOptimizationConfig() ? new EsIndexOptimizationConfig()
+        return null == configuration.getEsIndexOptimizationConfig()
+                ? new EsIndexOptimizationConfig()
                 : configuration.getEsIndexOptimizationConfig();
     }
 
@@ -163,14 +165,16 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public ConsoleHistoryConfig consoleHistoryConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getConsoleHistoryConfig() ? new ConsoleHistoryConfig()
+        return null == configuration.getConsoleHistoryConfig()
+                ? new ConsoleHistoryConfig()
                 : configuration.getConsoleHistoryConfig();
     }
 
     @Provides
     @Singleton
     public ClusterRerouteConfig clusterRerouteConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getClusterRerouteConfig() ? new ClusterRerouteConfig()
+        return null == configuration.getClusterRerouteConfig()
+                ? new ClusterRerouteConfig()
                 : configuration.getClusterRerouteConfig();
     }
 
@@ -239,7 +243,8 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public FunnelConfiguration funnelConfig(FoxtrotServerConfiguration configuration) {
-        return configuration.getFunnelConfiguration() != null ? configuration.getFunnelConfiguration()
+        return configuration.getFunnelConfiguration() != null
+                ? configuration.getFunnelConfiguration()
                 : FunnelConfiguration.builder()
                         .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
                                 .eventType("APP_LOADED")

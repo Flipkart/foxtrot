@@ -10,6 +10,7 @@ public final class FunnelConstants {
     public static final String TYPE = "funnel_data";
     public static final String START_ID = "1";
     public static final String DEVICE_ID = "deviceId";
+
     private FunnelConstants() {
         throw new IllegalStateException("Utility class");
     }

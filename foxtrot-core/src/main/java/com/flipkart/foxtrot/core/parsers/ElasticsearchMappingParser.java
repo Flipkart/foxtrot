@@ -50,8 +50,9 @@ public class ElasticsearchMappingParser {
                     .startsWith(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME)) {
                 continue;
             }
-            String currentField =
-                    (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField, entry.getKey()));
+            String currentField = (parentField == null)
+                    ? entry.getKey()
+                    : (String.format("%s.%s", parentField, entry.getKey()));
             if (entry.getValue()
                     .has(PROPERTIES)) {
                 fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue()

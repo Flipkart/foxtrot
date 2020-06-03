@@ -112,8 +112,10 @@ public class TrendAction extends Action<TrendRequest> {
                 .hashCode();
         filterHashKey += 31 * query.getTimestamp()
                 .hashCode();
-        filterHashKey += 31 * (query.getField() != null ? query.getField()
-                .hashCode() : "FIELD".hashCode());
+        filterHashKey += 31 * (query.getField() != null
+                ? query.getField()
+                .hashCode()
+                : "FIELD".hashCode());
 
         return String.format("%s-%s-%s-%d", query.getTable(), query.getField(), query.getPeriod(), filterHashKey);
     }

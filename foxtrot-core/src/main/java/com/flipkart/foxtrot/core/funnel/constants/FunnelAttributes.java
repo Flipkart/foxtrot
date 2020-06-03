@@ -10,6 +10,7 @@ public final class FunnelAttributes {
     public static final String DELETED = "deleted";
     public static final String FUNNEL_STATUS = "funnelStatus";
     public static final String APPROVAL_DATE = "approvedAt";
+
     private FunnelAttributes() {
         throw new IllegalStateException("Utility class");
     }

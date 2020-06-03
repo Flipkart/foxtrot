@@ -171,7 +171,9 @@ public class DistinctAction extends Action<DistinctRequest> {
                          List<List<String>> responseList,
                          Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
+        final List<String> remainingFields = (fields.size() > 1)
+                ? fields.subList(1, fields.size())
+                : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
@@ -185,7 +187,9 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     private String getProperKey(String parentKey,
                                 String currentKey) {
-        return parentKey == null ? currentKey : parentKey + Constants.SEPARATOR + currentKey;
+        return parentKey == null
+                ? currentKey
+                : parentKey + Constants.SEPARATOR + currentKey;
     }
 
     private List<String> getValueList(String parentKey,

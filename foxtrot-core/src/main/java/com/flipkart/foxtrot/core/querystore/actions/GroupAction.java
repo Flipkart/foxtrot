@@ -338,8 +338,10 @@ public class GroupAction extends Action<GroupRequest> {
     private long extractMaxDocCount(Map<String, FieldMetadata> metaMap) {
         return metaMap.values()
                 .stream()
-                .map(x -> x.getEstimationData() == null ? 0 : x.getEstimationData()
-                        .getCount())
+                .map(x -> x.getEstimationData() == null
+                        ? 0
+                        : x.getEstimationData()
+                                .getCount())
                 .max(Comparator.naturalOrder())
                 .orElse((long) 0);
     }
@@ -682,25 +684,27 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private Long getValidCount(Long count) {
-        return count == null ? 0 : count;
+        return count == null
+                ? 0
+                : count;
     }
 
     private AbstractAggregationBuilder buildAggregation(GroupRequest parameter) {
         return Utils.buildTermsAggregation(getParameter().getNesting()
-                        .stream()
-                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                        .collect(Collectors.toList()),
-                !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn()) ? Sets.newHashSet(
-                        Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(), parameter.accept(
-                                new CountPrecisionThresholdVisitorAdapter(
-                                        elasticsearchTuningConfig.getPrecisionThreshold())))) : Sets.newHashSet(),
-                elasticsearchTuningConfig.getAggregationSize());
+                .stream()
+                .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                .collect(Collectors.toList()), !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())
+                ? Sets.newHashSet(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(), parameter.accept(
+                new CountPrecisionThresholdVisitorAdapter(elasticsearchTuningConfig.getPrecisionThreshold()))))
+                : Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize());
     }
 
     private Map<String, Object> getMap(List<String> fields,
                                        Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
+        final List<String> remainingFields = (fields.size() > 1)
+                ? fields.subList(1, fields.size())
+                : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         Map<String, Object> levelCount = Maps.newHashMap();
         for (Terms.Bucket bucket : terms.getBuckets()) {

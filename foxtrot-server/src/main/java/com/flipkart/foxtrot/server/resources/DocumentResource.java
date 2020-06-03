@@ -107,8 +107,10 @@ public class DocumentResource {
             } catch (BadRequestException e) {
                 badRequestException = e;
             } catch (Exception e) {
-                exceptionMessages.add(Objects.nonNull(e.getCause()) ? e.getCause()
-                        .getMessage() : e.getMessage());
+                exceptionMessages.add(Objects.nonNull(e.getCause())
+                        ? e.getCause()
+                        .getMessage()
+                        : e.getMessage());
             }
         }
 

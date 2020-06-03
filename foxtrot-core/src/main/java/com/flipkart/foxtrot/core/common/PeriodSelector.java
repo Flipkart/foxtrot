@@ -53,8 +53,12 @@ public class PeriodSelector extends FilterVisitorAdapter<Void> {
                 filter.accept(this);
             }
         }
-        timeWindow.setStartTime(timeWindow.getStartTime() == Long.MAX_VALUE ? 0 : timeWindow.getStartTime());
-        timeWindow.setEndTime(timeWindow.getEndTime() == Long.MIN_VALUE ? currentTime : timeWindow.getEndTime());
+        timeWindow.setStartTime(timeWindow.getStartTime() == Long.MAX_VALUE
+                ? 0
+                : timeWindow.getStartTime());
+        timeWindow.setEndTime(timeWindow.getEndTime() == Long.MIN_VALUE
+                ? currentTime
+                : timeWindow.getEndTime());
         return new Interval(timeWindow.getStartTime(), timeWindow.getEndTime());
     }
 

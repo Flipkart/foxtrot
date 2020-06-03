@@ -314,7 +314,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                         .map(x -> FieldMetadata.builder()
                                 .field(x.getField())
                                 .type(x.getType())
-                                .estimationData(withCardinality ? x.getEstimationData() : null)
+                                .estimationData(withCardinality
+                                        ? x.getEstimationData()
+                                        : null)
                                 .build())
                         .collect(Collectors.toSet()))
                 .build();
@@ -539,7 +541,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             double[] values = new double[10];
             for (int i = 10; i <= 100; i += 10) {
                 final Double percentile = percentiles.percentile(i);
-                values[(i / 10) - 1] = percentile.isNaN() ? 0 : percentile;
+                values[(i / 10) - 1] = percentile.isNaN()
+                        ? 0
+                        : percentile;
             }
             logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, type, "percentile",
                     values);
