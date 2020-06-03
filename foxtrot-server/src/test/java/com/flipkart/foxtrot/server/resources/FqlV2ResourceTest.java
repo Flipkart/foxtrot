@@ -21,6 +21,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -99,6 +100,7 @@ public class FqlV2ResourceTest extends FoxtrotResourceTest {
         Assert.assertEquals(query, fqlStoreResponse.getQuery());
     }
 
+    @Ignore
     @Test
     public void testGetSavedFqlStore() throws InterruptedException {
         String title = "title1";
