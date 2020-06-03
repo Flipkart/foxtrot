@@ -11,6 +11,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.ResponseVisitor;
 import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
+import com.flipkart.foxtrot.common.exception.FqlParsingException;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
@@ -20,7 +21,6 @@ import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
-import com.flipkart.foxtrot.common.exception.FqlParsingException;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FieldHeader;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.flipkart.foxtrot.sql.responseprocessors.model.MetaData;
@@ -43,7 +43,9 @@ public class Flattener implements ResponseVisitor<FlatRepresentation> {
     private ActionRequest request;
 
 
-    public Flattener(ObjectMapper objectMapper, ActionRequest request, List<String> fieldsToReturn) {
+    public Flattener(ObjectMapper objectMapper,
+                     ActionRequest request,
+                     List<String> fieldsToReturn) {
         this.objectMapper = objectMapper;
         this.request = request;
         this.fieldsToReturn = fieldsToReturn;
@@ -107,9 +109,7 @@ public class Flattener implements ResponseVisitor<FlatRepresentation> {
     public FlatRepresentation visit(QueryResponse queryResponse) {
         Map<String, Integer> fieldNames = Maps.newTreeMap();
         List<Map<String, Object>> rows = Lists.newArrayList();
-        Set<String> fieldToLookup = (null == fieldsToReturn)
-                                    ? Collections.emptySet()
-                                    : new HashSet<>(fieldsToReturn);
+        Set<String> fieldToLookup = (null == fieldsToReturn) ? Collections.emptySet() : new HashSet<>(fieldsToReturn);
         boolean isAllFields = fieldToLookup.isEmpty();
         for (Document document : queryResponse.getDocuments()) {
             Map<String, MetaData> docFields = generateFieldMappings(null, objectMapper.valueToTree(document));
@@ -265,7 +265,8 @@ public class Flattener implements ResponseVisitor<FlatRepresentation> {
         throw new FqlParsingException("Fql query not supported for this operation");
     }
 
-    private int lengthMax(int currMax, final String rhs) {
+    private int lengthMax(int currMax,
+                          final String rhs) {
         return currMax > rhs.length() ? currMax : rhs.length();
     }
 

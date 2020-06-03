@@ -19,7 +19,8 @@ import com.flipkart.foxtrot.common.ActionResponse;
  */
 public interface Cache {
 
-    public ActionResponse put(final String key, ActionResponse data);
+    public ActionResponse put(final String key,
+                              ActionResponse data);
 
     public ActionResponse get(final String key);
 

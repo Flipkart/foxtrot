@@ -96,8 +96,10 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
             put("iphone", iPhoneResponse);
         }});
 
-        AsyncDataToken dataToken = getQueryExecutorFactory().getExecutor(groupRequest).executeAsync(groupRequest);
-        await().pollDelay(1000, TimeUnit.MILLISECONDS).until(() -> true);
+        AsyncDataToken dataToken = getQueryExecutorFactory().getExecutor(groupRequest)
+                .executeAsync(groupRequest);
+        await().pollDelay(1000, TimeUnit.MILLISECONDS)
+                .until(() -> true);
 
         GroupResponse groupResponse = resources.client()
                 .target("/v1/async/" + dataToken.getAction() + "/" + dataToken.getKey())
@@ -112,8 +114,10 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        AsyncDataToken dataToken = getQueryExecutorFactory().getExecutor(groupRequest).executeAsync(groupRequest);
-        await().pollDelay(1000, TimeUnit.MILLISECONDS).until(() -> true);
+        AsyncDataToken dataToken = getQueryExecutorFactory().getExecutor(groupRequest)
+                .executeAsync(groupRequest);
+        await().pollDelay(1000, TimeUnit.MILLISECONDS)
+                .until(() -> true);
         GroupResponse response = resources.client()
                 .target(String.format("/v1/async/distinct/%s", dataToken.getKey()))
                 .request()
@@ -127,8 +131,10 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        AsyncDataToken dataToken = getQueryExecutorFactory().getExecutor(groupRequest).executeAsync(groupRequest);
-        await().pollDelay(1000, TimeUnit.MILLISECONDS).until(() -> true);
+        AsyncDataToken dataToken = getQueryExecutorFactory().getExecutor(groupRequest)
+                .executeAsync(groupRequest);
+        await().pollDelay(1000, TimeUnit.MILLISECONDS)
+                .until(() -> true);
 
         GroupResponse response = resources.client()
                 .target(String.format("/v1/async/%s/dummy", dataToken.getAction()))
@@ -174,8 +180,10 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
             put("iphone", iPhoneResponse);
         }});
 
-        AsyncDataToken dataToken = getQueryExecutorFactory().getExecutor(groupRequest).executeAsync(groupRequest);
-        await().pollDelay(5000, TimeUnit.MILLISECONDS).until(() -> true);
+        AsyncDataToken dataToken = getQueryExecutorFactory().getExecutor(groupRequest)
+                .executeAsync(groupRequest);
+        await().pollDelay(5000, TimeUnit.MILLISECONDS)
+                .until(() -> true);
 
         Entity<AsyncDataToken> asyncDataTokenEntity = Entity.json(dataToken);
 

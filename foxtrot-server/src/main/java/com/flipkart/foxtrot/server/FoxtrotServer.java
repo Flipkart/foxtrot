@@ -19,13 +19,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.flipkart.foxtrot.common.util.SerDe;
 import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.core.config.GandalfConfiguration;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.MarathonClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.querystore.impl.SimpleClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.util.MetricUtil;
-import com.flipkart.foxtrot.common.util.SerDe;
 import com.flipkart.foxtrot.server.di.FoxtrotModule;
 import com.google.inject.Stage;
 import com.phonepe.gandalf.client.GandalfBundle;
@@ -120,14 +120,12 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             }
 
             @Override
-            protected GandalfClientConfig getGandalfClientConfig(
-                    FoxtrotServerConfiguration foxtrotServerConfiguration) {
+            protected GandalfClientConfig getGandalfClientConfig(FoxtrotServerConfiguration foxtrotServerConfiguration) {
                 return foxtrotServerConfiguration.getGandalfConfig();
             }
 
             @Override
-            protected PrimerBundleConfiguration getGandalfPrimerConfig(
-                    FoxtrotServerConfiguration foxtrotServerConfiguration) {
+            protected PrimerBundleConfiguration getGandalfPrimerConfig(FoxtrotServerConfiguration foxtrotServerConfiguration) {
                 return foxtrotServerConfiguration.getPrimerBundleConfiguration();
             }
         };
@@ -148,19 +146,18 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             }
         });
 
-        bootstrap.addBundle(GuiceBundle.<FoxtrotServerConfiguration>builder()
-                                    .enableAutoConfig("com.flipkart.foxtrot")
-                                    .modules(
-                                            new FoxtrotModule(serviceDiscoveryBundle))
-                                    .useWebInstallers()
-                                    .printDiagnosticInfo()
-                                    .build(Stage.PRODUCTION));
+        bootstrap.addBundle(GuiceBundle.<FoxtrotServerConfiguration>builder().enableAutoConfig("com.flipkart.foxtrot")
+                .modules(new FoxtrotModule(serviceDiscoveryBundle))
+                .useWebInstallers()
+                .printDiagnosticInfo()
+                .build(Stage.PRODUCTION));
         bootstrap.addCommand(new InitializerCommand());
         configureObjectMapper(bootstrap.getObjectMapper());
     }
 
     @Override
-    public void run(FoxtrotServerConfiguration configuration, Environment environment) throws Exception {
+    public void run(FoxtrotServerConfiguration configuration,
+                    Environment environment) throws Exception {
 
         // Enable CORS headers
         final FilterRegistration.Dynamic cors = environment.servlets()
@@ -181,12 +178,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         GandalfConfiguration gandalfConfiguration = configuration.getGandalfConfiguration();
         if (gandalfConfiguration != null && StringUtils.isNotEmpty(gandalfConfiguration.getRedirectUrl())) {
             GandalfClient.initializeUrlPatternsAuthentication(gandalfConfiguration.getRedirectUrl(),
-                                                              gandalfConfiguration.getServiceBaseUrl(),
-                                                              "/echo/*",
-                                                              "/cluster/*",
-                                                              "/fql/*",
-                                                              "/",
-                                                              "/index.html");
+                    gandalfConfiguration.getServiceBaseUrl(), "/echo/*", "/cluster/*", "/fql/*", "/", "/index.html");
         }
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
 

@@ -5,8 +5,6 @@ import com.flipkart.foxtrot.core.jobs.BaseJobManager;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.flipkart.foxtrot.core.util.MetricUtil;
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
 import java.time.Instant;
 import java.util.List;
@@ -44,7 +42,8 @@ public class EsIndexOptimizationManager extends BaseJobManager {
 
     @Inject
     public EsIndexOptimizationManager(ScheduledExecutorService scheduledExecutorService,
-                                      EsIndexOptimizationConfig esIndexOptimizationConfig, ElasticsearchConnection elasticsearchConnection,
+                                      EsIndexOptimizationConfig esIndexOptimizationConfig,
+                                      ElasticsearchConnection elasticsearchConnection,
                                       HazelcastConnection hazelcastConnection) {
         super(esIndexOptimizationConfig, scheduledExecutorService, hazelcastConnection);
         this.esIndexOptimizationConfig = esIndexOptimizationConfig;
@@ -53,7 +52,8 @@ public class EsIndexOptimizationManager extends BaseJobManager {
 
 
     @Override
-    protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
+    protected void runImpl(LockingTaskExecutor executor,
+                           Instant lockAtMostUntil) {
         executor.executeWithLock(() -> {
             try {
                 IndicesSegmentsRequest indicesSegmentsRequest = new IndicesSegmentsRequest();
@@ -71,24 +71,23 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                 }
                 optimizeIndices(indicesToOptimize);
                 LOGGER.info("No of indexes optimized : {}", indicesToOptimize.size());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOGGER.error("Error occurred while calling optimization API", e);
             }
         }, new LockConfiguration(esIndexOptimizationConfig.getJobName(), lockAtMostUntil));
     }
 
-    private void extractIndicesToOptimizeForIndex(
-            String index, IndexSegments indexShardSegments,
-            Set<String> indicesToOptimize) {
+    private void extractIndicesToOptimizeForIndex(String index,
+                                                  IndexSegments indexShardSegments,
+                                                  Set<String> indicesToOptimize) {
 
         String table = ElasticsearchUtils.getTableNameFromIndex(index);
         if (StringUtils.isEmpty(table)) {
             return;
         }
         String currentIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis());
-        String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() +
-                TimeUnit.DAYS.toMillis(1));
+        String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table,
+                System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
         if (index.equals(currentIndex) || index.equals(nextDayIndex)) {
             return;
         }

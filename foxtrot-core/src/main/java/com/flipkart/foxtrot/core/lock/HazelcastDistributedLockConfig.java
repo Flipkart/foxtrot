@@ -7,5 +7,6 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HazelcastDistributedLockConfig {
+
     private Map<String, DistributedLockGroupConfig> locksConfig;
 }

@@ -30,7 +30,8 @@ public class QueryResponse extends ActionResponse {
         super(Opcodes.QUERY);
     }
 
-    public QueryResponse(List<Document> documents, long totalHits) {
+    public QueryResponse(List<Document> documents,
+                         long totalHits) {
         super(Opcodes.QUERY);
         this.documents = documents;
         this.totalHits = totalHits;

@@ -13,7 +13,8 @@ public class AuthorizationException extends FoxtrotException {
 
     private final ActionRequest actionRequest;
 
-    protected AuthorizationException(ActionRequest actionRequest, Throwable cause) {
+    protected AuthorizationException(ActionRequest actionRequest,
+                                     Throwable cause) {
         super(ErrorCode.AUTHORIZATION_EXCEPTION, cause);
         this.actionRequest = actionRequest;
     }

@@ -44,7 +44,8 @@ public class TableFieldMappingResource {
     private final TableMetadataManager tableMetadataManager;
 
     @Inject
-    public TableFieldMappingResource(TableManager tableManager, TableMetadataManager tableMetadataManager) {
+    public TableFieldMappingResource(TableManager tableManager,
+                                     TableMetadataManager tableMetadataManager) {
         this.tableManager = tableManager;
         this.tableMetadataManager = tableMetadataManager;
     }
@@ -53,10 +54,9 @@ public class TableFieldMappingResource {
     @Timed
     @Path("/{name}/fields")
     @ApiOperation("Get fields")
-    public Response get(
-            @PathParam("name") final String table,
-            @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
-            @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) {
+    public Response get(@PathParam("name") final String table,
+                        @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
+                        @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) {
         return Response.ok(tableMetadataManager.getFieldMappings(table, withCardinality, calculateCardinality))
                 .build();
     }
@@ -66,16 +66,14 @@ public class TableFieldMappingResource {
     @Timed
     @Path("/fields")
     @ApiOperation("Get all Fields")
-    public Response getAllFields(
-            @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
-            @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) {
+    public Response getAllFields(@QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
+                                 @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) {
         return Response.ok()
                 .entity(tableManager.getAll()
-                                .stream()
-                                .collect(Collectors.toMap(Table::getName,
-                                                          table -> tableMetadataManager.getFieldMappings(
-                                                                  table.getName(), withCardinality,
-                                                                  calculateCardinality))))
+                        .stream()
+                        .collect(Collectors.toMap(Table::getName,
+                                table -> tableMetadataManager.getFieldMappings(table.getName(), withCardinality,
+                                        calculateCardinality))))
                 .build();
     }
 
@@ -83,13 +81,9 @@ public class TableFieldMappingResource {
     @Timed
     @Path("/{name}/fields/update")
     @ApiOperation("Update Fields")
-    public Response updateEstimation(
-            @PathParam("name") final String table,
-            @QueryParam("time") @DefaultValue("0") long epoch) {
-        tableMetadataManager.updateEstimationData(table,
-                                                  0 == epoch
-                                                  ? System.currentTimeMillis()
-                                                  : epoch);
+    public Response updateEstimation(@PathParam("name") final String table,
+                                     @QueryParam("time") @DefaultValue("0") long epoch) {
+        tableMetadataManager.updateEstimationData(table, 0 == epoch ? System.currentTimeMillis() : epoch);
         return Response.ok()
                 .build();
     }

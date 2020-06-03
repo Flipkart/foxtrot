@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 public class UserPermissionAdditionException extends FoxtrotException {
+
     private final String message;
 
     public UserPermissionAdditionException(String message) {
@@ -13,7 +14,8 @@ public class UserPermissionAdditionException extends FoxtrotException {
         this.message = message;
     }
 
-    public UserPermissionAdditionException(String message, Throwable event) {
+    public UserPermissionAdditionException(String message,
+                                           Throwable event) {
         super(ErrorCode.USER_PERMISSION_ADDITION_FAILURE, event);
         this.message = message;
     }

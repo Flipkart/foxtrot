@@ -14,7 +14,8 @@ public class DocumentMissingException extends FoxtrotException {
     private final String table;
     private final List<String> ids;
 
-    protected DocumentMissingException(String table, List<String> ids) {
+    protected DocumentMissingException(String table,
+                                       List<String> ids) {
         super(ErrorCode.DOCUMENT_NOT_FOUND);
         this.table = table;
         this.ids = ids;

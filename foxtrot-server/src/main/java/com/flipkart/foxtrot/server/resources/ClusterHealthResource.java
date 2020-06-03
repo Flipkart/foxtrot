@@ -50,10 +50,9 @@ public class ClusterHealthResource {
     private final TableMetadataManager tableMetadataManager;
 
     @Inject
-    public ClusterHealthResource(
-            QueryStore queryStore,
-            TableManager tableManager,
-            TableMetadataManager tableMetadataManager) {
+    public ClusterHealthResource(QueryStore queryStore,
+                                 TableManager tableManager,
+                                 TableMetadataManager tableMetadataManager) {
         this.queryStore = queryStore;
         this.tableManager = tableManager;
         this.tableMetadataManager = tableMetadataManager;
@@ -82,14 +81,12 @@ public class ClusterHealthResource {
     public FoxtrotIndicesStatsResponse getIndicesStat() throws ExecutionException, InterruptedException {
         return FoxtrotIndicesStatsResponse.builder()
                 .indicesStatsResponse(queryStore.getIndicesStats())
-                .tableColumnCount(tableManager.getAll().stream()
-                                          .map(table -> tableMetadataManager.getFieldMappings(table.getName(),
-                                                                                              false,
-                                                                                              false))
-                                          .collect(Collectors.toMap(TableFieldMapping::getTable,
-                                                                    tableFieldMapping -> tableFieldMapping.getMappings()
-                                                                            .size()))
-                                 )
+                .tableColumnCount(tableManager.getAll()
+                        .stream()
+                        .map(table -> tableMetadataManager.getFieldMappings(table.getName(), false, false))
+                        .collect(Collectors.toMap(TableFieldMapping::getTable,
+                                tableFieldMapping -> tableFieldMapping.getMappings()
+                                        .size())))
                 .build();
     }
 }

@@ -16,9 +16,9 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.noncacheable.NonCacheableActionRequest;
-import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
@@ -44,6 +44,7 @@ public class NonCacheableActionTest extends ActionTest {
 
     @Test
     public void checkCacheability() throws FoxtrotException {
-        Assert.assertFalse(getQueryExecutor().execute(new NonCacheableActionRequest()).isFromCache());
+        Assert.assertFalse(getQueryExecutor().execute(new NonCacheableActionRequest())
+                .isFromCache());
     }
 }

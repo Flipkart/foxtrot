@@ -35,13 +35,13 @@ import javax.ws.rs.core.Response;
 @Api(value = "/v1/cache/update")
 @Singleton
 public class CacheUpdateResource {
+
     private ExecutorService executorService;
     private TableMetadataManager tableMetadataManager;
 
     @Inject
-    public CacheUpdateResource(
-            ExecutorService executorService,
-            TableMetadataManager tableMetadataManager) {
+    public CacheUpdateResource(ExecutorService executorService,
+                               TableMetadataManager tableMetadataManager) {
         this.executorService = executorService;
         this.tableMetadataManager = tableMetadataManager;
     }

@@ -34,7 +34,9 @@ public class LessEqualFilter extends NumericBinaryFilter {
     }
 
     @Builder
-    public LessEqualFilter(String field, Number value, boolean temporal) {
+    public LessEqualFilter(String field,
+                           Number value,
+                           boolean temporal) {
         super(FilterOperator.less_equal, field, value, temporal);
     }
 

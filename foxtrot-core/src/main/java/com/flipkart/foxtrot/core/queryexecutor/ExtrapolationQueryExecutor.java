@@ -21,10 +21,11 @@ public class ExtrapolationQueryExecutor extends QueryExecutor {
     private final FunnelConfiguration funnelConfiguration;
 
     public ExtrapolationQueryExecutor(final AnalyticsLoader analyticsLoader,
-            final ExecutorService executorService,
-            final List<ActionExecutionObserver> executionObservers,
-            final long funnelId, final QueryExecutor queryExecutor,
-            final FunnelConfiguration funnelConfiguration) {
+                                      final ExecutorService executorService,
+                                      final List<ActionExecutionObserver> executionObservers,
+                                      final long funnelId,
+                                      final QueryExecutor queryExecutor,
+                                      final FunnelConfiguration funnelConfiguration) {
         super(analyticsLoader, executorService, executionObservers);
         this.funnelId = funnelId;
         this.simpleQueryExecutor = queryExecutor;
@@ -32,7 +33,8 @@ public class ExtrapolationQueryExecutor extends QueryExecutor {
     }
 
     @Override
-    protected <T extends ActionRequest> ActionResponse execute(T actionRequest, Action action) {
+    protected <T extends ActionRequest> ActionResponse execute(T actionRequest,
+                                                               Action action) {
         ActionResponse originalResponse = action.execute();
         FunnelExtrapolationResponseVisitor extrapolationResponseVisitor = new FunnelExtrapolationResponseVisitor(
                 funnelId, actionRequest, simpleQueryExecutor, funnelConfiguration.getBaseFunnelEventConfig());

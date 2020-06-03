@@ -22,6 +22,8 @@ import static org.junit.Assert.assertTrue;
 
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.MalformedQueryException;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
@@ -31,8 +33,6 @@ import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.common.exception.FoxtrotException;
-import com.flipkart.foxtrot.common.exception.MalformedQueryException;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -77,7 +77,8 @@ public class StatsActionTest extends ActionTest {
                 .get("count")
                 .intValue());
         assertNull(statsResponse.getBuckets());
-        assertNotNull(statsResponse.getResult().getPercentiles());
+        assertNotNull(statsResponse.getResult()
+                .getPercentiles());
     }
 
     @Test
@@ -99,7 +100,8 @@ public class StatsActionTest extends ActionTest {
                 .get("count")
                 .intValue());
         assertNull(statsResponse.getBuckets());
-        assertTrue(CollectionUtils.isEmpty(statsResponse.getResult().getPercentiles()));
+        assertTrue(CollectionUtils.isEmpty(statsResponse.getResult()
+                .getPercentiles()));
     }
 
     @Test
@@ -117,7 +119,8 @@ public class StatsActionTest extends ActionTest {
                 .get("count")
                 .intValue());
         assertNull(statsResponse.getBuckets());
-        assertTrue(CollectionUtils.isEmpty(statsResponse.getResult().getPercentiles()));
+        assertTrue(CollectionUtils.isEmpty(statsResponse.getResult()
+                .getPercentiles()));
     }
 
     @Test
@@ -126,9 +129,9 @@ public class StatsActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setField("battery");
         request.setStats(EnumSet.allOf(Stat.class)
-                                 .stream()
-                                 .filter(x -> !x.isExtended())
-                                 .collect(Collectors.toSet()));
+                .stream()
+                .filter(x -> !x.isExtended())
+                .collect(Collectors.toSet()));
 
         StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
@@ -152,8 +155,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("count"));
+                .getStats()
+                .containsKey("count"));
     }
 
     @Test
@@ -170,8 +173,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("max"));
+                .getStats()
+                .containsKey("max"));
     }
 
     @Test
@@ -188,8 +191,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("min"));
+                .getStats()
+                .containsKey("min"));
     }
 
 
@@ -207,8 +210,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("avg"));
+                .getStats()
+                .containsKey("avg"));
     }
 
     @Test
@@ -222,8 +225,8 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("sum"));
+                .getStats()
+                .containsKey("sum"));
     }
 
     @Test
@@ -247,8 +250,8 @@ public class StatsActionTest extends ActionTest {
                 .getPercentiles()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getPercentiles()
-                           .containsKey(5d));
+                .getPercentiles()
+                .containsKey(5d));
     }
 
     @Test

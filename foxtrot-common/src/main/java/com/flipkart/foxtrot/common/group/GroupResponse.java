@@ -44,4 +44,5 @@ public class GroupResponse extends ActionResponse {
     @Override
     public <T> T accept(ResponseVisitor<T> visitor) {
         return visitor.visit(this);
-    }}
+    }
+}

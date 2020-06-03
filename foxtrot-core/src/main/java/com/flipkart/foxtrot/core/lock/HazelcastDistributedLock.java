@@ -16,25 +16,26 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class HazelcastDistributedLock implements DistributedLock {
 
-    private final HazelcastConnection hazelcastConnection;
-    private final HazelcastDistributedLockConfig lockConfig;
-
     private static final DistributedLockGroupConfig defaultDistributedLockGroupConfig;
-
-    @Inject
-    public HazelcastDistributedLock(final HazelcastDistributedLockConfig distributedLockConfig,
-            final HazelcastConnection hazelcastConnection) {
-        this.hazelcastConnection = hazelcastConnection;
-        this.lockConfig = distributedLockConfig;
-    }
 
     static {
         defaultDistributedLockGroupConfig = new DistributedLockGroupConfig();
         defaultDistributedLockGroupConfig.setLockExpiryTimeInMs(2000);
     }
 
+    private final HazelcastConnection hazelcastConnection;
+    private final HazelcastDistributedLockConfig lockConfig;
+
+    @Inject
+    public HazelcastDistributedLock(final HazelcastDistributedLockConfig distributedLockConfig,
+                                    final HazelcastConnection hazelcastConnection) {
+        this.hazelcastConnection = hazelcastConnection;
+        this.lockConfig = distributedLockConfig;
+    }
+
     @Override
-    public Lock achieveLock(String lockUniqueId, String lockGroup) throws RuntimeException {
+    public Lock achieveLock(String lockUniqueId,
+                            String lockGroup) throws RuntimeException {
         if (Strings.isNullOrEmpty(lockUniqueId)) {
             log.error("Failed to take HZ lock as lock id is null or empty: lockUniqueId={}", lockUniqueId);
             throw new RuntimeException("Failed to take HZ lock as lock id is null or empty");
@@ -45,10 +46,12 @@ public class HazelcastDistributedLock implements DistributedLock {
                 .containsKey(lockGroup)) {
             lockGroupConfig = defaultDistributedLockGroupConfig;
         } else {
-            lockGroupConfig = lockConfig.getLocksConfig().get(lockGroup);
+            lockGroupConfig = lockConfig.getLocksConfig()
+                    .get(lockGroup);
         }
 
-        ILock lock = hazelcastConnection.getHazelcast().getLock(lockUniqueId);
+        ILock lock = hazelcastConnection.getHazelcast()
+                .getLock(lockUniqueId);
         try {
             log.debug("(HazelcastDistributedLock:group={}) try lock={}, timeout={}", lockGroup, lockUniqueId,
                     lockGroupConfig.getLockExpiryTimeInMs());
@@ -75,7 +78,8 @@ public class HazelcastDistributedLock implements DistributedLock {
             throw new RuntimeException("Failed to take HZ lock as lock id is null or empty");
         }
 
-        ILock lock = hazelcastConnection.getHazelcast().getLock(lockUniqueId);
+        ILock lock = hazelcastConnection.getHazelcast()
+                .getLock(lockUniqueId);
         try {
             log.debug("(HazelcastDistributedLock) try lock={}", lockUniqueId);
             if (!lock.tryLock(lock.getRemainingLeaseTime(), MILLISECONDS)) {
@@ -91,7 +95,8 @@ public class HazelcastDistributedLock implements DistributedLock {
     }
 
     @Override
-    public void releaseLock(Lock lock, String lockUniqueId) {
+    public void releaseLock(Lock lock,
+                            String lockUniqueId) {
         try {
             log.debug("(HazelcastDistributedLock) release lock={}", lockUniqueId);
             lock.unlock();

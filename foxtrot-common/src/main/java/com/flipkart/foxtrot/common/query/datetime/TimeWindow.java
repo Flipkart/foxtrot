@@ -13,7 +13,8 @@ public class TimeWindow {
     }
 
     @Builder
-    public TimeWindow(long startTime, long endTime) {
+    public TimeWindow(long startTime,
+                      long endTime) {
         this.startTime = startTime;
         this.endTime = endTime;
     }

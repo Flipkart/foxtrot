@@ -11,7 +11,8 @@ import java.io.IOException;
 public class StatsValueDeserializer extends KeyDeserializer {
 
     @Override
-    public Number deserializeKey(String key, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public Number deserializeKey(String key,
+                                 DeserializationContext ctxt) throws IOException, JsonProcessingException {
         if (key == null) {
             return null;
         }

@@ -34,7 +34,9 @@ public class GreaterEqualFilter extends NumericBinaryFilter {
     }
 
     @Builder
-    public GreaterEqualFilter(String field, Number value, boolean temporal) {
+    public GreaterEqualFilter(String field,
+                              Number value,
+                              boolean temporal) {
         super(FilterOperator.greater_equal, field, value, temporal);
     }
 

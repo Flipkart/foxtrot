@@ -59,14 +59,19 @@ public class Document implements Serializable {
         this.date = new Date(DateTime.now());
     }
 
-    public Document(String id, long timestamp, JsonNode data) {
+    public Document(String id,
+                    long timestamp,
+                    JsonNode data) {
         this.id = id;
         this.timestamp = timestamp;
         this.data = data;
         this.date = Utils.getDate(timestamp);
     }
 
-    public Document(String id, long timestamp, JsonNode data, Date date) {
+    public Document(String id,
+                    long timestamp,
+                    JsonNode data,
+                    Date date) {
         this.id = id;
         this.timestamp = timestamp;
         this.data = data;
@@ -74,7 +79,10 @@ public class Document implements Serializable {
     }
 
     @Builder
-    public Document(String id, long timestamp, DocumentMetadata metadata, JsonNode data) {
+    public Document(String id,
+                    long timestamp,
+                    DocumentMetadata metadata,
+                    JsonNode data) {
         this.id = id;
         this.timestamp = timestamp;
         this.metadata = metadata;

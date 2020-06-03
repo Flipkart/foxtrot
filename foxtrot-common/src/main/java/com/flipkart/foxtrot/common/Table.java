@@ -49,7 +49,10 @@ public class Table implements Serializable {
     private int defaultRegions = 4;
 
     @Builder
-    public Table(String name, int ttl, boolean seggregatedBackend, int defaultRegions) {
+    public Table(String name,
+                 int ttl,
+                 boolean seggregatedBackend,
+                 int defaultRegions) {
         this.name = name;
         this.ttl = ttl;
         this.seggregatedBackend = seggregatedBackend;

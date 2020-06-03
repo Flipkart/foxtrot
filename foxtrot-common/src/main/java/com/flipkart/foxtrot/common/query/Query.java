@@ -38,7 +38,11 @@ public class Query extends ActionRequest {
         this.sort.setOrder(ResultSort.Order.desc);
     }
 
-    public Query(List<Filter> filters, String table, ResultSort sort, int from, int limit) {
+    public Query(List<Filter> filters,
+                 String table,
+                 ResultSort sort,
+                 int from,
+                 int limit) {
         super(Opcodes.QUERY, filters);
         this.table = table;
         this.sort = sort;

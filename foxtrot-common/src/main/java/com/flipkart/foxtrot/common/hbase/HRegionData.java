@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class HRegionData {
+
     String regionName;
     String startKey;
     String endKey;

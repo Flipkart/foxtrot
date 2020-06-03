@@ -60,7 +60,8 @@ public class DocumentTranslator {
         this.unmarshallerConfig = translatorConfig.getUnmarshallerConfig();
     }
 
-    public List<Document> translate(final Table table, final List<Document> inDocuments) {
+    public List<Document> translate(final Table table,
+                                    final List<Document> inDocuments) {
         ImmutableList.Builder<Document> docListBuilder = ImmutableList.builder();
         for (Document document : inDocuments) {
             docListBuilder.add(translate(table, document));
@@ -68,7 +69,8 @@ public class DocumentTranslator {
         return docListBuilder.build();
     }
 
-    public Document translate(final Table table, final Document inDocument) {
+    public Document translate(final Table table,
+                              final Document inDocument) {
         Document document = new Document();
         DocumentMetadata metadata = metadata(table, inDocument);
 
@@ -81,14 +83,14 @@ public class DocumentTranslator {
                 document.setId(metadata.getRawStorageId());
                 break;
             default:
-                throw new IllegalArgumentException(
-                        String.format(EXCEPTION_MESSAGE, rawKeyVersion));
+                throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, rawKeyVersion));
         }
 
-        ObjectNode dataNode = inDocument.getData().deepCopy();
+        ObjectNode dataNode = inDocument.getData()
+                .deepCopy();
 
-        if (unmarshallerConfig.isUnmarshallingEnabled()
-                && unmarshallerConfig.getTableVsUnmarshallJsonPath().containsKey(table.getName())) {
+        if (unmarshallerConfig.isUnmarshallingEnabled() && unmarshallerConfig.getTableVsUnmarshallJsonPath()
+                .containsKey(table.getName())) {
             List<String> unmarshallJsonPaths = unmarshallerConfig.getTableVsUnmarshallJsonPath()
                     .get(table.getName());
             unmarshallStringJsonFields(dataNode, unmarshallJsonPaths);
@@ -102,7 +104,8 @@ public class DocumentTranslator {
         return document;
     }
 
-    private void unmarshallStringJsonFields(ObjectNode dataNode, List<String> unmarshallJsonPaths) {
+    private void unmarshallStringJsonFields(ObjectNode dataNode,
+                                            List<String> unmarshallJsonPaths) {
         for (String jsonPath : nullSafeList(unmarshallJsonPaths)) {
             try {
                 JsonPointer valueNodePointer = JsonPointer.compile(jsonPath);
@@ -115,7 +118,8 @@ public class DocumentTranslator {
                     //e.g. if pointer is /parentObject/object/field
                     //JsonPointer.last() will give you /field
                     //remember to take out the / character
-                    String fieldName = valueNodePointer.last().toString();
+                    String fieldName = valueNodePointer.last()
+                            .toString();
                     fieldName = fieldName.replace(JSON_PATH_SEPARATOR, StringUtils.EMPTY);
                     JsonNode fieldValueNode = parentObjectNode.get(fieldName);
 
@@ -140,7 +144,8 @@ public class DocumentTranslator {
         return document;
     }
 
-    public DocumentMetadata metadata(final Table table, final Document inDocument) {
+    public DocumentMetadata metadata(final Table table,
+                                     final Document inDocument) {
         final String rowKey = generateScalableKey(rawStorageIdFromDocument(table, inDocument));
         DocumentMetadata metadata = new DocumentMetadata();
         metadata.setRawStorageId(rowKey);
@@ -150,18 +155,17 @@ public class DocumentTranslator {
     }
 
 
-    public String rawStorageIdFromDocument(final Table table, final Document document) {
+    public String rawStorageIdFromDocument(final Table table,
+                                           final Document document) {
         switch (rawKeyVersion) {
             case "1.0":
                 return document.getId() + ":" + table.getName();
             case "2.0":
             case "3.0":
                 return String.format("%s:%020d:%s:%s", table.getName(), document.getTimestamp(), document.getId(),
-                        Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get(rawKeyVersion)
-                );
+                        Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get(rawKeyVersion));
             default:
-                throw new IllegalArgumentException(
-                        String.format(EXCEPTION_MESSAGE, rawKeyVersion));
+                throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, rawKeyVersion));
         }
     }
 
@@ -170,9 +174,10 @@ public class DocumentTranslator {
         return new String(keyDistributor.getDistributedKey(Bytes.toBytes(id)));
     }
 
-    public String rawStorageIdFromDocumentId(Table table, String id) {
-        if (id.endsWith(Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("2.0")) || id
-                .endsWith(Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("3.0"))) {
+    public String rawStorageIdFromDocumentId(Table table,
+                                             String id) {
+        if (id.endsWith(Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("2.0")) || id.endsWith(
+                Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("3.0"))) {
             return id;
         }
 

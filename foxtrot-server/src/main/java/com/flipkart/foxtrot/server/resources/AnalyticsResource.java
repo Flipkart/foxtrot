@@ -62,7 +62,8 @@ public class AnalyticsResource {
 
     @Inject
     public AnalyticsResource(final QueryExecutorFactory executorFactory,
-                             final ObjectMapper objectMapper,final QueryConfig queryConfig) {
+                             final ObjectMapper objectMapper,
+                             final QueryConfig queryConfig) {
         this.executorFactory = executorFactory;
         this.objectMapper = objectMapper;
         this.queryConfig = queryConfig;
@@ -73,7 +74,8 @@ public class AnalyticsResource {
     @ApiOperation("runSync")
     public ActionResponse runSync(@Valid final ActionRequest request) {
         preprocess(request);
-        return executorFactory.getExecutor(request).execute(request);
+        return executorFactory.getExecutor(request)
+                .execute(request);
     }
 
     @POST
@@ -81,7 +83,8 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("runSyncAsync")
     public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) {
-        return executorFactory.getExecutor(request).executeAsync(request);
+        return executorFactory.getExecutor(request)
+                .executeAsync(request);
     }
 
     @POST
@@ -89,7 +92,8 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("validateQuery")
     public ActionValidationResponse validateQuery(@Valid final ActionRequest request) {
-        return executorFactory.getExecutor(request).validate(request);
+        return executorFactory.getExecutor(request)
+                .validate(request);
     }
 
     @POST
@@ -98,7 +102,8 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("downloadAnalytics")
     public StreamingOutput download(@Valid final ActionRequest actionRequest) {
-        ActionResponse actionResponse = executorFactory.getExecutor(actionRequest).execute(actionRequest);
+        ActionResponse actionResponse = executorFactory.getExecutor(actionRequest)
+                .execute(actionRequest);
         Flattener flattener = new Flattener(objectMapper, actionRequest, new ArrayList<>());
         FlatRepresentation flatRepresentation = actionResponse.accept(flattener);
         return output -> FlatToCsvConverter.convert(flatRepresentation, new OutputStreamWriter(output));
@@ -108,8 +113,7 @@ public class AnalyticsResource {
         if (queryConfig.isLogQueries()) {
             if (ElasticsearchUtils.isTimeFilterPresent(request.getFilters())) {
                 log.info("Analytics Query");
-            }
-            else {
+            } else {
                 log.info("Analytics Query where time filter is not specified, request: {}", request.toString());
             }
         }

@@ -34,7 +34,9 @@ public class GreaterThanFilter extends NumericBinaryFilter {
     }
 
     @Builder
-    public GreaterThanFilter(String field, Number value, boolean temporal) {
+    public GreaterThanFilter(String field,
+                             Number value,
+                             boolean temporal) {
         super(FilterOperator.greater_than, field, value, temporal);
     }
 

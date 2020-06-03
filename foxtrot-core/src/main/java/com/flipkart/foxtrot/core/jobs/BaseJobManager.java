@@ -29,9 +29,9 @@ public abstract class BaseJobManager implements Managed {
     private final ScheduledExecutorService scheduledExecutorService;
     private final HazelcastConnection hazelcastConnection;
 
-    public BaseJobManager(
-            BaseJobConfig baseJobConfig, ScheduledExecutorService scheduledExecutorService,
-            HazelcastConnection hazelcastConnection) {
+    public BaseJobManager(BaseJobConfig baseJobConfig,
+                          ScheduledExecutorService scheduledExecutorService,
+                          HazelcastConnection hazelcastConnection) {
         this.baseJobConfig = baseJobConfig;
         this.scheduledExecutorService = scheduledExecutorService;
         this.hazelcastConnection = hazelcastConnection;
@@ -74,8 +74,7 @@ public abstract class BaseJobManager implements Managed {
                 Instant lockAtMostUntil = Instant.now()
                         .plusSeconds(TimeUnit.MINUTES.toSeconds(lockAtMost));
                 runImpl(executor, lockAtMostUntil);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOGGER.error("Error occurred while running the job : ", e);
             }
         }, initialDelay, baseJobConfig.getInterval(), TimeUnit.SECONDS);
@@ -88,6 +87,7 @@ public abstract class BaseJobManager implements Managed {
         LOGGER.info("Stopped {} Job Manager", baseJobConfig.getJobName());
     }
 
-    protected abstract void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil);
+    protected abstract void runImpl(LockingTaskExecutor executor,
+                                    Instant lockAtMostUntil);
 
 }

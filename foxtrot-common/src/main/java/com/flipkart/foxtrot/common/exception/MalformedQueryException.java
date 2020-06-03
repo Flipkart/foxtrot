@@ -15,13 +15,16 @@ public class MalformedQueryException extends FoxtrotException {
     private final ActionRequest actionRequest;
     private final List<String> reasons;
 
-    protected MalformedQueryException(ActionRequest actionRequest, List<String> reasons) {
+    protected MalformedQueryException(ActionRequest actionRequest,
+                                      List<String> reasons) {
         super(ErrorCode.MALFORMED_QUERY);
         this.actionRequest = actionRequest;
         this.reasons = reasons;
     }
 
-    protected MalformedQueryException(ErrorCode errorCode, ActionRequest actionRequest, List<String> reasons) {
+    protected MalformedQueryException(ErrorCode errorCode,
+                                      ActionRequest actionRequest,
+                                      List<String> reasons) {
         super(errorCode);
         this.actionRequest = actionRequest;
         this.reasons = reasons;

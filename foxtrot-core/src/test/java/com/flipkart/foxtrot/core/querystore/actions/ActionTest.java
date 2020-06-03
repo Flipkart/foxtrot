@@ -57,12 +57,6 @@ import org.slf4j.LoggerFactory;
 public abstract class ActionTest {
 
     protected static final int MAX_CARDINALITY = 15000;
-
-    static {
-        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(Level.WARN);
-    }
-
     private static HazelcastInstance hazelcastInstance;
     @Getter
     private static ElasticsearchConnection elasticsearchConnection;
@@ -76,9 +70,13 @@ public abstract class ActionTest {
     private static DistributedTableMetadataManager tableMetadataManager;
     @Getter
     private static CacheManager cacheManager;
-
     @Getter
     private static HbaseTableConnection tableConnection;
+
+    static {
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.WARN);
+    }
 
     @BeforeClass
     public static void setupClass() throws Exception {
@@ -106,18 +104,15 @@ public abstract class ActionTest {
                 .ttl(30)
                 .build());
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
-                                         TextNodeRemoverConfiguration.builder().build()));
+                TextNodeRemoverConfiguration.builder()
+                        .build()));
         tableConnection = Mockito.mock(HbaseTableConnection.class);
         DataStore dataStore = TestUtils.getDataStore(tableConnection);
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators,
+                mapper, cardinalityConfig);
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager,
-                                                              dataStore,
-                                                              queryStore,
-                                                              elasticsearchConnection,
-                                                              cacheManager,
-                                                              mapper,
-                                                              new ElasticsearchTuningConfig());
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
+                elasticsearchConnection, cacheManager, mapper, new ElasticsearchTuningConfig());
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
 

@@ -23,13 +23,14 @@ public class AccessServiceImpl implements AccessService {
 
     @Inject
     public AccessServiceImpl(FoxtrotServerConfiguration foxtrotConfiguration,
-            ActionRequestVisitor<String> actionRequestVisitor) {
+                             ActionRequestVisitor<String> actionRequestVisitor) {
         this.restrictAccess = foxtrotConfiguration.isRestrictAccess();
         this.actionRequestVisitor = actionRequestVisitor;
     }
 
     @Override
-    public boolean hasAccess(@Valid final ActionRequest request, UserDetails userDetails) {
+    public boolean hasAccess(@Valid final ActionRequest request,
+                             UserDetails userDetails) {
         if (!restrictAccess) {
             return true;
         }

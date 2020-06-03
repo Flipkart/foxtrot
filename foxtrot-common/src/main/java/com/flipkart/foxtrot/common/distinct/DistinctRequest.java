@@ -39,7 +39,9 @@ public class DistinctRequest extends ActionRequest {
         super(Opcodes.DISTINCT);
     }
 
-    public DistinctRequest(List<Filter> filters, String table, List<ResultSort> nesting) {
+    public DistinctRequest(List<Filter> filters,
+                           String table,
+                           List<ResultSort> nesting) {
         super(Opcodes.DISTINCT, filters);
         this.table = table;
         this.nesting = nesting;

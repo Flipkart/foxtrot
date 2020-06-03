@@ -24,8 +24,6 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.List;
-import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -56,12 +54,11 @@ public class GroupRequest extends ActionRequest {
         super(Opcodes.GROUP);
     }
 
-    public GroupRequest(
-            List<Filter> filters,
-            String table,
-            String uniqueCountOn,
-            List<String> nesting,
-            String consoleId) {
+    public GroupRequest(List<Filter> filters,
+                        String table,
+                        String uniqueCountOn,
+                        List<String> nesting,
+                        String consoleId) {
         super(Opcodes.GROUP, filters);
         this.table = table;
         this.uniqueCountOn = uniqueCountOn;

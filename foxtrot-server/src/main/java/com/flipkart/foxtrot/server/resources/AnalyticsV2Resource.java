@@ -4,9 +4,9 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.config.QueryConfig;
-import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.gandalf.access.AccessService;
@@ -17,7 +17,6 @@ import com.phonepe.gandalf.models.user.UserDetails;
 import io.dropwizard.primer.auth.annotation.Authorize;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import javax.inject.Named;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -43,7 +42,9 @@ public class AnalyticsV2Resource {
     private final QueryConfig queryConfig;
 
     @Inject
-    public AnalyticsV2Resource(final QueryExecutorFactory executorFactory, AccessService accessService, QueryConfig queryConfig) {
+    public AnalyticsV2Resource(final QueryExecutorFactory executorFactory,
+                               AccessService accessService,
+                               QueryConfig queryConfig) {
         this.executorFactory = executorFactory;
         this.accessService = accessService;
         this.queryConfig = queryConfig;
@@ -53,9 +54,11 @@ public class AnalyticsV2Resource {
     @Timed
     @ApiOperation("runSync")
     @Authorize(value = {})
-    public ActionResponse runSync(@Valid final ActionRequest request, @GandalfUserContext UserDetails userDetails) {
+    public ActionResponse runSync(@Valid final ActionRequest request,
+                                  @GandalfUserContext UserDetails userDetails) {
         preprocess(request, userDetails);
-        return executorFactory.getExecutor(request).execute(request);
+        return executorFactory.getExecutor(request)
+                .execute(request);
     }
 
     @POST
@@ -63,19 +66,18 @@ public class AnalyticsV2Resource {
     @Timed
     @ApiOperation("runSyncAsync")
     @Authorize(value = {})
-    public AsyncDataToken runSyncAsync(
-            @Valid final ActionRequest request,
-            @GandalfUserContext UserDetails userDetails) {
+    public AsyncDataToken runSyncAsync(@Valid final ActionRequest request,
+                                       @GandalfUserContext UserDetails userDetails) {
         try {
             if (!accessService.hasAccess(request, userDetails)) {
                 throw FoxtrotExceptions.createAuthorizationException(request,
-                                                                     new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
+                        new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
-        return executorFactory.getExecutor(request).executeAsync(request);
+        return executorFactory.getExecutor(request)
+                .executeAsync(request);
     }
 
     @POST
@@ -83,29 +85,28 @@ public class AnalyticsV2Resource {
     @Timed
     @ApiOperation("validateQuery")
     @Authorize(value = {})
-    public ActionValidationResponse validateQuery(
-            @Valid final ActionRequest request,
-            @GandalfUserContext UserDetails userDetails) {
+    public ActionValidationResponse validateQuery(@Valid final ActionRequest request,
+                                                  @GandalfUserContext UserDetails userDetails) {
         try {
             if (!accessService.hasAccess(request, userDetails)) {
                 throw FoxtrotExceptions.createAuthorizationException(request,
-                                                                     new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
+                        new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
-        return executorFactory.getExecutor(request).validate(request);
+        return executorFactory.getExecutor(request)
+                .validate(request);
     }
 
-    private void preprocess(@Valid ActionRequest request, @GandalfUserContext UserDetails userDetails) {
+    private void preprocess(@Valid ActionRequest request,
+                            @GandalfUserContext UserDetails userDetails) {
         try {
             if (!accessService.hasAccess(request, userDetails)) {
                 throw FoxtrotExceptions.createAuthorizationException(request,
-                                                                     new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
+                        new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
         if (queryConfig.isBlockConsoleQueries()) {
@@ -115,8 +116,7 @@ public class AnalyticsV2Resource {
         if (queryConfig.isLogQueries()) {
             if (ElasticsearchUtils.isTimeFilterPresent(request.getFilters())) {
                 log.info("Console Query : " + request.toString());
-            }
-            else {
+            } else {
                 log.info("Console Query where time filter is not specified, request: {}", request.toString());
             }
         }

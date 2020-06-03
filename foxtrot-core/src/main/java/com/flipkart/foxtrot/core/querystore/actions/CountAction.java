@@ -5,12 +5,12 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.ExistsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
@@ -33,7 +33,8 @@ public class CountAction extends Action<CountRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public CountAction(CountRequest parameter, AnalyticsLoader analyticsLoader) {
+    public CountAction(CountRequest parameter,
+                       AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
@@ -44,7 +45,8 @@ public class CountAction extends Action<CountRequest> {
         // Null field implies complete doc count
         if (getParameter().getField() != null) {
             Filter existsFilter = new ExistsFilter(getParameter().getField());
-            if (!getParameter().getFilters().contains(existsFilter)){
+            if (!getParameter().getFilters()
+                    .contains(existsFilter)) {
                 getParameter().getFilters()
                         .add(new ExistsFilter(getParameter().getField()));
             }
@@ -74,13 +76,9 @@ public class CountAction extends Action<CountRequest> {
             filterHashKey += 31 * filter.hashCode();
         }
 
-        filterHashKey += 31 * (request.isDistinct()
-                               ? "TRUE".hashCode()
-                               : "FALSE".hashCode());
-        filterHashKey += 31 * (request.getField() != null
-                               ? request.getField()
-                                       .hashCode()
-                               : "COLUMN".hashCode());
+        filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode());
+        filterHashKey += 31 * (request.getField() != null ? request.getField()
+                .hashCode() : "COLUMN".hashCode());
         return String.format("count-%s-%d", request.getTable(), filterHashKey);
     }
 
@@ -112,8 +110,8 @@ public class CountAction extends Action<CountRequest> {
                         .setIndicesOptions(Utils.indicesOptions())
                         .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                        .addAggregation(Utils.buildCardinalityAggregation(
-                                parameter.getField(), parameter.accept(new CountPrecisionThresholdVisitorAdapter(
+                        .addAggregation(Utils.buildCardinalityAggregation(parameter.getField(), parameter.accept(
+                                new CountPrecisionThresholdVisitorAdapter(
                                         elasticsearchTuningConfig.getPrecisionThreshold()))));
                 return query;
             } catch (Exception e) {
@@ -135,7 +133,8 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, CountRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      CountRequest parameter) {
         if (parameter.isDistinct()) {
             Aggregations aggregations = ((SearchResponse) response).getAggregations();
             Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
@@ -145,8 +144,8 @@ public class CountAction extends Action<CountRequest> {
                 return new CountResponse(cardinality.getValue());
             }
         } else {
-            return new CountResponse(((SearchResponse)response).getHits()
-                                             .getTotalHits());
+            return new CountResponse(((SearchResponse) response).getHits()
+                    .getTotalHits());
         }
 
     }

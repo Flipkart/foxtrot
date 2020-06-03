@@ -10,12 +10,15 @@ public class FlatRepresentation {
     private List<FieldHeader> headers = Lists.newArrayList();
     private List<Map<String, Object>> rows = Lists.newArrayList();
 
-    public FlatRepresentation(List<FieldHeader> headers, List<Map<String, Object>> rows) {
+    public FlatRepresentation(List<FieldHeader> headers,
+                              List<Map<String, Object>> rows) {
         this.headers = headers;
         this.rows = rows;
     }
 
-    public FlatRepresentation(String opcode, List<FieldHeader> headers, List<Map<String, Object>> rows) {
+    public FlatRepresentation(String opcode,
+                              List<FieldHeader> headers,
+                              List<Map<String, Object>> rows) {
         this.opcode = opcode;
         this.headers = headers;
         this.rows = rows;

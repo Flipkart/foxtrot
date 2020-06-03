@@ -21,13 +21,13 @@ import static org.junit.Assert.assertTrue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
@@ -146,7 +146,6 @@ public class HistogramActionTest extends ActionTest {
         lessThanFilter.setField("_timestamp");
         lessThanFilter.setValue(System.currentTimeMillis());
         histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
-
 
         HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
         filterNonZeroCounts(response);

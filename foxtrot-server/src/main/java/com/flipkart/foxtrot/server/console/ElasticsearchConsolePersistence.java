@@ -44,18 +44,19 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class ElasticsearchConsolePersistence implements ConsolePersistence {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConsolePersistence.class);
     public static final String INDEX = "consoles";
     public static final String INDEX_V2 = "consoles_v2";
-    private static final String TYPE = "console_data";
     public static final String INDEX_HISTORY = "consoles_history";
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConsolePersistence.class);
+    private static final String TYPE = "console_data";
     private static final int SCROLL_SIZE = 500;
     private static final long SCROLL_TIMEOUT = TimeUnit.MINUTES.toMillis(2);
     private ElasticsearchConnection connection;
     private ObjectMapper mapper;
 
     @Inject
-    public ElasticsearchConsolePersistence(ElasticsearchConnection connection, ObjectMapper mapper) {
+    public ElasticsearchConsolePersistence(ElasticsearchConnection connection,
+                                           ObjectMapper mapper) {
         this.connection = connection;
         this.mapper = mapper;
     }
@@ -148,7 +149,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public void saveV2(ConsoleV2 console, boolean newConsole) {
+    public void saveV2(ConsoleV2 console,
+                       boolean newConsole) {
         preProcess(console, newConsole);
         try {
             connection.getClient()
@@ -192,7 +194,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 .setTypes(TYPE)
                 .setQuery(boolQuery().must(matchAllQuery()))
                 .setSize(SCROLL_SIZE)
-                .addSort(fieldSort("name.keyword").order(SortOrder.DESC).unmappedType("keyword"))
+                .addSort(fieldSort("name.keyword").order(SortOrder.DESC)
+                        .unmappedType("keyword"))
                 .setScroll(new TimeValue(SCROLL_TIMEOUT))
                 .execute()
                 .actionGet();
@@ -229,8 +232,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             return;
         }
         if (oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt()) {
-            throw new ConsolePersistenceException(console.getId(), "Updated version of console exists. Kindly refresh" +
-                    " your dashboard");
+            throw new ConsolePersistenceException(console.getId(),
+                    "Updated version of console exists. Kindly refresh" + " your dashboard");
         }
         console.setUpdatedAt(System.currentTimeMillis());
 
@@ -248,21 +251,21 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .actionGet();
             logger.info("Deleted Console : {}", id);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(id, "console deletion_failed", e);
         }
     }
 
     @Override
-    public List<ConsoleV2> getAllOldVersions(final String name, final String sortBy) {
+    public List<ConsoleV2> getAllOldVersions(final String name,
+                                             final String sortBy) {
         try {
             SearchHits searchHits = connection.getClient()
                     .prepareSearch(INDEX_HISTORY)
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setQuery(QueryBuilders.termQuery("name.keyword", name))
                     .addSort(SortBuilders.fieldSort(sortBy)
-                                     .order(SortOrder.DESC))
+                            .order(SortOrder.DESC))
                     .setFrom(0)
                     .setSize(10)
                     .execute()
@@ -309,8 +312,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .actionGet();
             logger.info("Deleted Old Console : {}", id);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsolePersistenceException(id, "old console deletion_failed", e);
         }
     }
@@ -325,7 +327,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         }
     }
 
-    private void preProcess(ConsoleV2 console, boolean newConsole) {
+    private void preProcess(ConsoleV2 console,
+                            boolean newConsole) {
         if (console.getUpdatedAt() == 0L) {
             console.setUpdatedAt(System.currentTimeMillis());
         }
@@ -346,8 +349,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             return;
         }
         if (oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt() && newConsole) {
-            throw new ConsolePersistenceException(console.getId(), "Updated version of console exists. Kindly refresh" +
-                    " your dashboard");
+            throw new ConsolePersistenceException(console.getId(),
+                    "Updated version of console exists. Kindly refresh" + " your dashboard");
         }
 
         String sortBy = "version";

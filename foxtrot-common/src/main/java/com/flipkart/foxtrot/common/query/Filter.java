@@ -53,15 +53,16 @@ import org.hibernate.validator.constraints.NotEmpty;
         @JsonSubTypes.Type(value = BetweenFilter.class, name = FilterOperator.between),
 
         //General
-        @JsonSubTypes.Type(value = EqualsFilter.class, name = FilterOperator.equals), @JsonSubTypes
-        .Type(value = InFilter.class, name = FilterOperator.in), @JsonSubTypes.Type(value = NotInFilter.class, name =
-        FilterOperator.not_in), @JsonSubTypes.Type(value = NotEqualsFilter.class, name = FilterOperator.not_equals),
-        @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any), @JsonSubTypes.Type
-        (value = ExistsFilter.class, name = FilterOperator.exists),
+        @JsonSubTypes.Type(value = EqualsFilter.class, name = FilterOperator.equals),
+        @JsonSubTypes.Type(value = InFilter.class, name = FilterOperator.in),
+        @JsonSubTypes.Type(value = NotInFilter.class, name = FilterOperator.not_in),
+        @JsonSubTypes.Type(value = NotEqualsFilter.class, name = FilterOperator.not_equals),
+        @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any),
+        @JsonSubTypes.Type(value = ExistsFilter.class, name = FilterOperator.exists),
         @JsonSubTypes.Type(value = MissingFilter.class, name = FilterOperator.missing),
         //String
-        @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains), @JsonSubTypes
-        .Type(value = WildCardFilter.class, name = FilterOperator.wildcard),
+        @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains),
+        @JsonSubTypes.Type(value = WildCardFilter.class, name = FilterOperator.wildcard),
 
         //String
         @JsonSubTypes.Type(value = LastFilter.class, name = FilterOperator.last)})
@@ -77,7 +78,8 @@ public abstract class Filter implements Serializable {
         this.operator = operator;
     }
 
-    protected Filter(String operator, String field) {
+    protected Filter(String operator,
+                     String field) {
         this.operator = operator;
         this.field = field;
     }

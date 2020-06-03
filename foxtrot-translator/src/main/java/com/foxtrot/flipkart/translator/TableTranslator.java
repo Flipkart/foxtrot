@@ -23,24 +23,28 @@ public class TableTranslator {
 
     @Inject
     public TableTranslator(final SegregationConfiguration segregationConfiguration) {
-        if(segregationConfiguration != null) {
-            segregationConfiguration.getTableSegregationConfigs().forEach(tableSegregationConfig -> {
-                tableVsSegregationConfig.putIfAbsent(tableSegregationConfig.getOldTable(), tableSegregationConfig);
-                tableSegregationConfig.getNewTableVsEventTypes().forEach((newTable, eventTypes) -> {
-                    if(CollectionUtils.isNotEmpty(eventTypes)) {
-                        eventTypes.forEach(s -> eventTypeVsNewTable.putIfAbsent(s, newTable));
-                    }
-                });
-            });
+        if (segregationConfiguration != null) {
+            segregationConfiguration.getTableSegregationConfigs()
+                    .forEach(tableSegregationConfig -> {
+                        tableVsSegregationConfig.putIfAbsent(tableSegregationConfig.getOldTable(),
+                                tableSegregationConfig);
+                        tableSegregationConfig.getNewTableVsEventTypes()
+                                .forEach((newTable, eventTypes) -> {
+                                    if (CollectionUtils.isNotEmpty(eventTypes)) {
+                                        eventTypes.forEach(s -> eventTypeVsNewTable.putIfAbsent(s, newTable));
+                                    }
+                                });
+                    });
         }
 
     }
 
-    public String getTable(String table, Document document) {
-        if(!isTransformableTable(table)) {
+    public String getTable(String table,
+                           Document document) {
+        if (!isTransformableTable(table)) {
             return table;
         }
-        if(document.getData()
+        if (document.getData()
                 .has(EVENT_TYPE)) {
             String eventType = document.getData()
                     .get(EVENT_TYPE)
@@ -54,7 +58,8 @@ public class TableTranslator {
         return tableVsSegregationConfig.get(table) != null;
     }
 
-    private String getSegregatedTableName(String table, String eventType) {
+    private String getSegregatedTableName(String table,
+                                          String eventType) {
         return eventTypeVsNewTable.getOrDefault(eventType, table);
     }
 

@@ -34,29 +34,30 @@ public class DistributedCache implements Cache {
     private final IMap<String, String> distributedMap;
     private final ObjectMapper mapper;
 
-    public DistributedCache(HazelcastConnection hazelcastConnection, String name, ObjectMapper mapper) {
+    public DistributedCache(HazelcastConnection hazelcastConnection,
+                            String name,
+                            ObjectMapper mapper) {
         this.distributedMap = hazelcastConnection.getHazelcast()
                 .getMap(CACHE_NAME_PREFIX + name);
         this.mapper = mapper;
     }
 
     @Override
-    public ActionResponse put(String key, ActionResponse data) {
+    public ActionResponse put(String key,
+                              ActionResponse data) {
         try {
             final String serializedData = mapper.writeValueAsString(data);
             if (serializedData != null) {
                 // Only cache if size is less that 256 KB
                 if (serializedData.length() <= 256 * 1024) {
                     distributedMap.put(key, mapper.writeValueAsString(data));
-                }
-                else {
+                } else {
                     String responsePart = serializedData.substring(0, 1024);
                     logger.error("Size of response is too big for cache. Skipping it. Response Part : {}",
-                                 responsePart);
+                            responsePart);
                 }
             }
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             logger.error("Error saving value to map: ", e);
         }
         return data;
@@ -71,8 +72,7 @@ public class DistributedCache implements Cache {
         if (null != data) {
             try {
                 return mapper.readValue(data, ActionResponse.class);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 logger.error("Error deserializing: ", e);
             }
         }

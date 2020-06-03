@@ -116,14 +116,6 @@ public final class Stopwatch {
         return new Stopwatch(ticker).start();
     }
 
-    public long elapsedTime(TimeUnit desiredUnit) {
-        return desiredUnit.convert(this.elapsedNanos(), TimeUnit.NANOSECONDS);
-    }
-
-    public long elapsedMillis() {
-        return this.elapsedTime(TimeUnit.MILLISECONDS);
-    }
-
     private static TimeUnit chooseUnit(long nanos) {
         if (DAYS.convert(nanos, NANOSECONDS) > 0) {
             return DAYS;
@@ -169,6 +161,14 @@ public final class Stopwatch {
             default:
                 throw new AssertionError();
         }
+    }
+
+    public long elapsedTime(TimeUnit desiredUnit) {
+        return desiredUnit.convert(this.elapsedNanos(), TimeUnit.NANOSECONDS);
+    }
+
+    public long elapsedMillis() {
+        return this.elapsedTime(TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -231,9 +231,7 @@ public final class Stopwatch {
     }
 
     private long elapsedNanos() {
-        return isRunning
-               ? ticker.read() - startTick + elapsedNanos
-               : elapsedNanos;
+        return isRunning ? ticker.read() - startTick + elapsedNanos : elapsedNanos;
     }
 
     /**

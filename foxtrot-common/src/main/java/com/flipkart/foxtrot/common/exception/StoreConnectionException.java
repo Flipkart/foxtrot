@@ -12,7 +12,8 @@ public class StoreConnectionException extends FoxtrotException {
 
     private final String table;
 
-    protected StoreConnectionException(String table, Throwable cause) {
+    protected StoreConnectionException(String table,
+                                       Throwable cause) {
         super(ErrorCode.STORE_CONNECTION_ERROR, cause);
         this.table = table;
     }

@@ -19,7 +19,6 @@ import com.flipkart.foxtrot.common.histogram.HistogramResponse.Count;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
-import com.flipkart.foxtrot.common.query.MultiTimeQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
 import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
@@ -36,7 +35,6 @@ import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,8 +57,10 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
 
     private final TableActionRequestVisitor tableActionRequestVisitor;
 
-    public FunnelExtrapolationResponseVisitor(final Long funnelId, final ActionRequest actionRequest,
-            final QueryExecutor queryExecutor, final BaseFunnelEventConfig funnelEventConfig) {
+    public FunnelExtrapolationResponseVisitor(final Long funnelId,
+                                              final ActionRequest actionRequest,
+                                              final QueryExecutor queryExecutor,
+                                              final BaseFunnelEventConfig funnelEventConfig) {
         this.funnelId = funnelId;
         this.actionRequest = actionRequest;
         this.queryExecutor = queryExecutor;
@@ -80,11 +80,14 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
                 histogramRequest.getField(), histogramRequest.getPeriod());
 
         // assuming order is preserved in histogramResponse and calculated extrapolation factors
-        if (CollectionUtils.isNotEmpty(histogramResponse.getCounts())
-                && histogramResponse.getCounts().size() == extrapolationFactors.size()) {
-            for (int i = 0; i < histogramResponse.getCounts().size(); i++) {
-                Count count = histogramResponse.getCounts().get(i);
-                count.setCount(count.getCount() * extrapolationFactors.get(i).getCount());
+        if (CollectionUtils.isNotEmpty(histogramResponse.getCounts()) && histogramResponse.getCounts()
+                .size() == extrapolationFactors.size()) {
+            for (int i = 0; i < histogramResponse.getCounts()
+                    .size(); i++) {
+                Count count = histogramResponse.getCounts()
+                        .get(i);
+                count.setCount(count.getCount() * extrapolationFactors.get(i)
+                        .getCount());
             }
         }
         return histogramResponse;
@@ -97,8 +100,10 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
 
     public ActionResponse visit(StatsResponse statsResponse) {
         double extrapolationFactor = computeExtrapolationFactor();
-        Map<String, Number> originalStats = statsResponse.getResult().getStats();
-        statsResponse.getResult().setStats(extrapolateStats(extrapolationFactor, originalStats));
+        Map<String, Number> originalStats = statsResponse.getResult()
+                .getStats();
+        statsResponse.getResult()
+                .setStats(extrapolateStats(extrapolationFactor, originalStats));
 
         List<BucketResponse<StatsValue>> buckets = statsResponse.getBuckets();
         extrapolateStatsBuckets(extrapolationFactor, buckets);
@@ -128,16 +133,19 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
                 trendRequest.getTimestamp(), trendRequest.getPeriod());
 
         if (CollectionUtils.isNotEmpty(trendResponse.getTrends())) {
-            trendResponse.getTrends().values().forEach(
-                    counts -> {
+            trendResponse.getTrends()
+                    .values()
+                    .forEach(counts -> {
                         if (counts.size() == extrapolationFactors.size()) {
                             for (int i = 0; i < counts.size(); i++) {
-                                long originalCount = counts.get(i).getCount();
-                                counts.get(i).setCount(originalCount * extrapolationFactors.get(i).getCount());
+                                long originalCount = counts.get(i)
+                                        .getCount();
+                                counts.get(i)
+                                        .setCount(originalCount * extrapolationFactors.get(i)
+                                                .getCount());
                             }
                         }
-                    }
-            );
+                    });
         }
         return trendResponse;
     }
@@ -156,12 +164,13 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
     public ActionResponse visit(MultiQueryResponse multiQueryResponse) {
         MultiQueryRequest multiQueryRequest = (MultiQueryRequest) actionRequest;
         if (CollectionUtils.isNotEmpty(multiQueryResponse.getResponses())) {
-            for (Map.Entry<String, ActionResponse> entry : multiQueryResponse.getResponses().entrySet()) {
-                FunnelExtrapolationResponseVisitor funnelExtrapolationResponseVisitor =
-                        new FunnelExtrapolationResponseVisitor(funnelId,
-                                multiQueryRequest.getRequests().get(entry.getKey()), queryExecutor,
-                                funnelEventConfig);
-                entry.setValue(entry.getValue().accept(funnelExtrapolationResponseVisitor));
+            for (Map.Entry<String, ActionResponse> entry : multiQueryResponse.getResponses()
+                    .entrySet()) {
+                FunnelExtrapolationResponseVisitor funnelExtrapolationResponseVisitor = new FunnelExtrapolationResponseVisitor(
+                        funnelId, multiQueryRequest.getRequests()
+                        .get(entry.getKey()), queryExecutor, funnelEventConfig);
+                entry.setValue(entry.getValue()
+                        .accept(funnelExtrapolationResponseVisitor));
             }
         }
         return multiQueryResponse;
@@ -172,7 +181,7 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
     }
 
     private Map<String, Object> extrapolateGroupResponse(double extrapolationFactor,
-            Map<String, Object> groupResponseResult) {
+                                                         Map<String, Object> groupResponseResult) {
         for (Map.Entry<String, Object> entry : groupResponseResult.entrySet()) {
             if (entry.getValue() instanceof Long) {
                 entry.setValue((long) (((Long) entry.getValue()) * extrapolationFactor));
@@ -184,18 +193,21 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         return groupResponseResult;
     }
 
-    private void extrapolateStatsBuckets(double extrapolationFactor, List<BucketResponse<StatsValue>> buckets) {
+    private void extrapolateStatsBuckets(double extrapolationFactor,
+                                         List<BucketResponse<StatsValue>> buckets) {
         if (CollectionUtils.isNotEmpty(buckets)) {
             for (BucketResponse<StatsValue> bucketResponse : buckets) {
-                Map<String, Number> originalBucketStats = bucketResponse.getResult().getStats();
-                bucketResponse.getResult().setStats(extrapolateStats(extrapolationFactor, originalBucketStats));
+                Map<String, Number> originalBucketStats = bucketResponse.getResult()
+                        .getStats();
+                bucketResponse.getResult()
+                        .setStats(extrapolateStats(extrapolationFactor, originalBucketStats));
                 extrapolateStatsBuckets(extrapolationFactor, bucketResponse.getBuckets());
             }
         }
     }
 
     private Map<String, Number> extrapolateStats(double extrapolationFactor,
-            Map<String, Number> originalStats) {
+                                                 Map<String, Number> originalStats) {
         if (CollectionUtils.isNotEmpty(originalStats)) {
             Map<String, Number> extrapolatedStats = new HashMap<>(originalStats);
             for (Map.Entry<String, Number> entry : extrapolatedStats.entrySet()) {
@@ -210,7 +222,7 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
 
 
     private void extrapolateStatsTrendBuckets(List<Count> extrapolationFactors,
-            List<BucketResponse<List<StatsTrendValue>>> buckets) {
+                                              List<BucketResponse<List<StatsTrendValue>>> buckets) {
         if (CollectionUtils.isNotEmpty(buckets)) {
             for (BucketResponse<List<StatsTrendValue>> bucketResponse : buckets) {
                 extrapolateStatsTrendValues(extrapolationFactors, bucketResponse.getResult());
@@ -219,14 +231,16 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         }
     }
 
-    private void extrapolateStatsTrendValues(List<Count> extrapolationFactors, List<StatsTrendValue> statsTrendValues) {
-        if (CollectionUtils.isNotEmpty(statsTrendValues)
-                && extrapolationFactors.size() == statsTrendValues.size()) {
+    private void extrapolateStatsTrendValues(List<Count> extrapolationFactors,
+                                             List<StatsTrendValue> statsTrendValues) {
+        if (CollectionUtils.isNotEmpty(statsTrendValues) && extrapolationFactors.size() == statsTrendValues.size()) {
             for (int i = 0; i < statsTrendValues.size(); i++) {
-                Map<String, Number> originalStats = statsTrendValues.get(i).getStats();
-                Map<String, Number> extrapolatedStats = extrapolateStats(extrapolationFactors.get(i).getCount(),
-                        originalStats);
-                statsTrendValues.get(i).setStats(extrapolatedStats);
+                Map<String, Number> originalStats = statsTrendValues.get(i)
+                        .getStats();
+                Map<String, Number> extrapolatedStats = extrapolateStats(extrapolationFactors.get(i)
+                        .getCount(), originalStats);
+                statsTrendValues.get(i)
+                        .setStats(extrapolatedStats);
             }
         }
     }
@@ -243,7 +257,9 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         return 1.0;
     }
 
-    private Number extrapolatedValue(String key, Number value, double extrapolationFactor) {
+    private Number extrapolatedValue(String key,
+                                     Number value,
+                                     double extrapolationFactor) {
         switch (key) {
             case Utils.COUNT:
                 return (long) (value.longValue() * extrapolationFactor);
@@ -255,10 +271,12 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         }
     }
 
-    private long getBaseEventCountForFunnelId(long funnelId, String table) {
+    private long getBaseEventCountForFunnelId(long funnelId,
+                                              String table) {
         CountRequest countRequest = buildBaseEventCountRequest(table);
 
-        countRequest.getFilters().add(funnelIdFilter(funnelId));
+        countRequest.getFilters()
+                .add(funnelIdFilter(funnelId));
 
         return ((CountResponse) queryExecutor.execute(countRequest)).getCount();
     }
@@ -300,11 +318,12 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         return filters;
     }
 
-    private List<Count> computeExtrapolationFactors(String table, String field, Period period) {
+    private List<Count> computeExtrapolationFactors(String table,
+                                                    String field,
+                                                    Period period) {
         List<Count> extrapolationFactors = new ArrayList<>();
         List<Count> totalBaseEventCounts = getTotalBaseEventCount(table, field, period).getCounts();
-        List<Count> baseEventCountsForFunnelId = getBaseEventCountForFunnelId(table, field, period)
-                .getCounts();
+        List<Count> baseEventCountsForFunnelId = getBaseEventCountForFunnelId(table, field, period).getCounts();
 
         if (totalBaseEventCounts.size() != baseEventCountsForFunnelId.size()) {
             log.error("Counts different for total base event count and base event with "
@@ -317,19 +336,25 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         // Assuming order is preserved in totalBaseEventCounts histogram response and
         // baseEventCountsForFunnelId histogram response we can take ratio at same indices
         for (int i = 0; i < totalBaseEventCounts.size(); i++) {
-            if (baseEventCountsForFunnelId.get(i).getCount() != 0) {
-                long extrapolationFactor = (long) ((double) totalBaseEventCounts.get(i).getCount()
-                        / baseEventCountsForFunnelId.get(i).getCount());
-                extrapolationCounts.add(new Count(totalBaseEventCounts.get(i).getPeriod(), extrapolationFactor));
+            if (baseEventCountsForFunnelId.get(i)
+                    .getCount() != 0) {
+                long extrapolationFactor = (long) ((double) totalBaseEventCounts.get(i)
+                        .getCount() / baseEventCountsForFunnelId.get(i)
+                        .getCount());
+                extrapolationCounts.add(new Count(totalBaseEventCounts.get(i)
+                        .getPeriod(), extrapolationFactor));
             } else {
-                extrapolationCounts.add(new Count(totalBaseEventCounts.get(i).getPeriod(), 1));
+                extrapolationCounts.add(new Count(totalBaseEventCounts.get(i)
+                        .getPeriod(), 1));
             }
         }
         log.info("Calculated extrapolation counts: {} for actionRequest:{}", extrapolationCounts, actionRequest);
         return extrapolationCounts;
     }
 
-    private HistogramResponse getBaseEventCountForFunnelId(String table, String field, Period period) {
+    private HistogramResponse getBaseEventCountForFunnelId(String table,
+                                                           String field,
+                                                           Period period) {
         List<Filter> filters = baseEventFilter();
         filters.add(funnelIdFilter(funnelId));
 
@@ -338,7 +363,9 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         return (HistogramResponse) queryExecutor.execute(histogramRequest);
     }
 
-    private HistogramResponse getTotalBaseEventCount(String table, String field, Period period) {
+    private HistogramResponse getTotalBaseEventCount(String table,
+                                                     String field,
+                                                     Period period) {
         List<Filter> filters = baseEventFilter();
 
         HistogramRequest histogramRequest = new HistogramRequest(filters, table, field, null, period);

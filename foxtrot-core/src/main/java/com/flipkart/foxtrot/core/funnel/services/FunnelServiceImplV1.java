@@ -32,15 +32,13 @@ import org.slf4j.LoggerFactory;
 public class FunnelServiceImplV1 implements FunnelService {
 
     private static final Logger logger = LoggerFactory.getLogger(FunnelServiceImplV1.class);
-
+    private static final String FUNNEL_APPROVAL_LOCK_KEY = "FUNNEL_APPROVAL";
     private final FunnelStore funnelStore;
-
     private LockedExecutor lockedExecutor;
 
-    private static final String FUNNEL_APPROVAL_LOCK_KEY = "FUNNEL_APPROVAL";
-
     @Inject
-    public FunnelServiceImplV1(final FunnelStore funnelStore, final LockedExecutor lockedExecutor) {
+    public FunnelServiceImplV1(final FunnelStore funnelStore,
+                               final LockedExecutor lockedExecutor) {
         this.funnelStore = funnelStore;
         this.lockedExecutor = lockedExecutor;
     }
@@ -56,7 +54,8 @@ public class FunnelServiceImplV1 implements FunnelService {
             funnel.setCreatedAt(new DateTime().toDate());
             funnel.setId(UNASSIGNED_FUNNEL_ID);
             if (Strings.isNullOrEmpty(funnel.getDocumentId())) {
-                funnel.setDocumentId(UUID.randomUUID().toString());
+                funnel.setDocumentId(UUID.randomUUID()
+                        .toString());
             }
             funnel.setFunnelStatus(WAITING_FOR_APPROVAL);
             funnel.setDeleted(false);
@@ -69,7 +68,8 @@ public class FunnelServiceImplV1 implements FunnelService {
     }
 
     @Override
-    public Funnel update(String documentId, Funnel funnel) {
+    public Funnel update(String documentId,
+                         Funnel funnel) {
         Funnel savedFunnel = funnelStore.getByDocumentId(documentId);
         validateFunnelUpdateRequest(savedFunnel);
 
@@ -103,10 +103,9 @@ public class FunnelServiceImplV1 implements FunnelService {
 
     @Override
     public Funnel approve(String documentId) {
-        return lockedExecutor
-                .doItInLockV6(documentId, approveAndGenerateFunnelId(), documentId1 -> {
-                    throw new FunnelException(EXECUTION_EXCEPTION, "Could not acquire lock to approve funnel");
-                }, FUNNEL_APPROVAL_LOCK_KEY);
+        return lockedExecutor.doItInLockV6(documentId, approveAndGenerateFunnelId(), documentId1 -> {
+            throw new FunnelException(EXECUTION_EXCEPTION, "Could not acquire lock to approve funnel");
+        }, FUNNEL_APPROVAL_LOCK_KEY);
     }
 
     @Override
@@ -148,8 +147,8 @@ public class FunnelServiceImplV1 implements FunnelService {
     }
 
     private boolean isFunnelWaitingForApproval(Funnel savedFunnel) {
-        return UNASSIGNED_FUNNEL_ID.equals(savedFunnel.getId())
-                && WAITING_FOR_APPROVAL.equals(savedFunnel.getFunnelStatus());
+        return UNASSIGNED_FUNNEL_ID.equals(savedFunnel.getId()) && WAITING_FOR_APPROVAL.equals(
+                savedFunnel.getFunnelStatus());
     }
 
 

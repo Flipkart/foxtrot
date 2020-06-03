@@ -29,7 +29,8 @@ public class ResultSort implements Serializable {
     public ResultSort() {
     }
 
-    public ResultSort(String field, Order order) {
+    public ResultSort(String field,
+                      Order order) {
         this.field = field;
         this.order = order;
     }
@@ -53,7 +54,8 @@ public class ResultSort implements Serializable {
     @Override
     public int hashCode() {
         int result = field.hashCode();
-        result = 31 * result + order.name().hashCode();
+        result = 31 * result + order.name()
+                .hashCode();
         return result;
     }
 

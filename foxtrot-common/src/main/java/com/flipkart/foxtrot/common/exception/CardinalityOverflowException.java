@@ -18,13 +18,12 @@ public class CardinalityOverflowException extends FoxtrotException {
     private final ActionRequest actionRequest;
     private final double probability;
 
-    public CardinalityOverflowException(
-            ActionRequest actionRequest,
-            String requestStr,
-            String field,
-            double probability) {
+    public CardinalityOverflowException(ActionRequest actionRequest,
+                                        String requestStr,
+                                        String field,
+                                        double probability) {
         super(ErrorCode.CARDINALITY_OVERFLOW,
-              "Query blocked due to high cardinality. Consider using shorter time period");
+                "Query blocked due to high cardinality. Consider using shorter time period");
         this.requestStr = requestStr;
         this.field = field;
         this.actionRequest = actionRequest;
@@ -33,8 +32,7 @@ public class CardinalityOverflowException extends FoxtrotException {
 
     @Override
     public Map<String, Object> toMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put("field", this.field)
+        return ImmutableMap.<String, Object>builder().put("field", this.field)
                 .put("probability", this.probability)
                 .put("request", this.actionRequest)
                 .put("requestStr", this.requestStr)

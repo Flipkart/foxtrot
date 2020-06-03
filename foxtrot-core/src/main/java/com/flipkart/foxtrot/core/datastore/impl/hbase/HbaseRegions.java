@@ -1,9 +1,9 @@
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
-import com.flipkart.foxtrot.common.hbase.HRegionData;
-import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.exception.HbaseRegionExtractionException;
 import com.flipkart.foxtrot.common.exception.HbaseRegionMergeException;
+import com.flipkart.foxtrot.common.hbase.HRegionData;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,8 +38,9 @@ public class HbaseRegions {
         }
     }
 
-    public List<List<HRegionData>> getMergeableRegions(TableName tablename, double threshSizeInGB) {
-        long threshSize = (long)(threshSizeInGB * BYTES_IN_GB);
+    public List<List<HRegionData>> getMergeableRegions(TableName tablename,
+                                                       double threshSizeInGB) {
+        long threshSize = (long) (threshSizeInGB * BYTES_IN_GB);
         Map<String, HRegionData> hash = getRegionsMap(tablename);
         if (hash.isEmpty()) {
             return Collections.emptyList();
@@ -68,8 +69,10 @@ public class HbaseRegions {
         }
     }
 
-    public void mergeRegions(TableName tablename, double threshSizeInGB, int numberOfMerges) {
-        long threshSize = (long)(threshSizeInGB * BYTES_IN_GB);
+    public void mergeRegions(TableName tablename,
+                             double threshSizeInGB,
+                             int numberOfMerges) {
+        long threshSize = (long) (threshSizeInGB * BYTES_IN_GB);
         if (numberOfMerges == -1) {
             numberOfMerges = Integer.MAX_VALUE;
         }
@@ -86,14 +89,12 @@ public class HbaseRegions {
             while (!StringUtils.isEmpty(currentRegion.getEndKey()) && count < numberOfMerges) {
                 nextRegion = hash.get(currentRegion.getEndKey());
                 if (currentRegion.getRegionSize() + nextRegion.getRegionSize() <= threshSize) {
-                    log.info(String.format("Starting to Merge regions : %s startKey : %s endKey : %s and %s startKey : %s endKey : %s",
-                            currentRegion.getRegionName(),
-                            currentRegion.getStartKey(),
-                            currentRegion.getEndKey(),
-                            nextRegion.getRegionName(),
-                            nextRegion.getStartKey(),
-                            nextRegion.getEndKey()));
-                    hBaseAdmin.mergeRegions(currentRegion.getEncodedNameAsBytes(), nextRegion.getEncodedNameAsBytes(), false);
+                    log.info(String.format(
+                            "Starting to Merge regions : %s startKey : %s endKey : %s and %s startKey : %s endKey : %s",
+                            currentRegion.getRegionName(), currentRegion.getStartKey(), currentRegion.getEndKey(),
+                            nextRegion.getRegionName(), nextRegion.getStartKey(), nextRegion.getEndKey()));
+                    hBaseAdmin.mergeRegions(currentRegion.getEncodedNameAsBytes(), nextRegion.getEncodedNameAsBytes(),
+                            false);
                     log.info("Merged!!!");
                     count++;
                     if (StringUtils.isEmpty(nextRegion.getEndKey())) {
@@ -120,15 +121,13 @@ public class HbaseRegions {
                 return Collections.emptyMap();
             }
             for (HRegionInfo region : regions) {
-                regionsMap.put(new String(region.getStartKey()),
-                        HRegionData.builder()
-                                .regionName(region.getRegionNameAsString())
-                                .startKey(new String(region.getStartKey()))
-                                .endKey(new String(region.getEndKey()))
-                                .encodedNameAsBytes(region.getEncodedNameAsBytes())
-                                .regionSize(regionSizeCalculator.getRegionSize(region.getRegionName()))
-                                .build()
-                );
+                regionsMap.put(new String(region.getStartKey()), HRegionData.builder()
+                        .regionName(region.getRegionNameAsString())
+                        .startKey(new String(region.getStartKey()))
+                        .endKey(new String(region.getEndKey()))
+                        .encodedNameAsBytes(region.getEncodedNameAsBytes())
+                        .regionSize(regionSizeCalculator.getRegionSize(region.getRegionName()))
+                        .build());
             }
             return regionsMap;
         } catch (Exception e) {

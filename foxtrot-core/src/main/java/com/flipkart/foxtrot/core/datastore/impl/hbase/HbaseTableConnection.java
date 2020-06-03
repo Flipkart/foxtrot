@@ -55,7 +55,8 @@ public class HbaseTableConnection implements Managed {
     private Admin hBaseAdmin;
 
     @Inject
-    public HbaseTableConnection(Configuration configuration, HbaseConfig hbaseConfig) {
+    public HbaseTableConnection(Configuration configuration,
+                                HbaseConfig hbaseConfig) {
         this.configuration = configuration;
         this.hbaseConfig = hbaseConfig;
     }
@@ -67,8 +68,7 @@ public class HbaseTableConnection implements Managed {
                         .reloginFromKeytab();
             }
             return connection.getTable(TableName.valueOf(TableUtil.getTableName(hbaseConfig, table)));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
     }

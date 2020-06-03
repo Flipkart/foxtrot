@@ -15,7 +15,8 @@ public class FoxtrotExceptions {
     private FoxtrotExceptions() {
     }
 
-    public static TableInitializationException createTableInitializationException(Table table, String message) {
+    public static TableInitializationException createTableInitializationException(Table table,
+                                                                                  String message) {
         return new TableInitializationException(table.getName(), message);
     }
 
@@ -23,54 +24,61 @@ public class FoxtrotExceptions {
         return new TableMissingException(table);
     }
 
-    public static StoreConnectionException createConnectionException(Table table, Exception e) {
+    public static StoreConnectionException createConnectionException(Table table,
+                                                                     Exception e) {
         return new StoreConnectionException(table.getName(), e);
     }
 
 
-    public static BadRequestException createBadRequestException(String table, String reason) {
+    public static BadRequestException createBadRequestException(String table,
+                                                                String reason) {
         return createBadRequestException(table, Collections.singletonList(reason));
     }
 
-    public static BadRequestException createBadRequestException(String table, List<String> reasons) {
+    public static BadRequestException createBadRequestException(String table,
+                                                                List<String> reasons) {
         return new BadRequestException(table, reasons);
     }
 
-    public static BadRequestException createBadRequestException(Table table, Exception e) {
+    public static BadRequestException createBadRequestException(Table table,
+                                                                Exception e) {
         return createBadRequestException(table.getName(), e);
     }
 
-    public static BadRequestException createBadRequestException(String table, Exception e) {
+    public static BadRequestException createBadRequestException(String table,
+                                                                Exception e) {
         return new BadRequestException(table, e);
     }
 
-    public static MalformedQueryException createMalformedQueryException(
-            ActionRequest actionRequest,
-            List<String> reasons) {
+    public static MalformedQueryException createMalformedQueryException(ActionRequest actionRequest,
+                                                                        List<String> reasons) {
         return new MalformedQueryException(actionRequest, reasons);
     }
 
-    public static CardinalityOverflowException createCardinalityOverflow(
-            ActionRequest actionRequest,
-            String requestStr,
-            String field,
-            double probability) {
+    public static CardinalityOverflowException createCardinalityOverflow(ActionRequest actionRequest,
+                                                                         String requestStr,
+                                                                         String field,
+                                                                         double probability) {
         return new CardinalityOverflowException(actionRequest, requestStr, field, probability);
     }
 
-    public static DocumentMissingException createMissingDocumentException(Table table, String id) {
+    public static DocumentMissingException createMissingDocumentException(Table table,
+                                                                          String id) {
         return new DocumentMissingException(table.getName(), Collections.singletonList(id));
     }
 
-    public static DocumentMissingException createMissingDocumentsException(Table table, List<String> ids) {
+    public static DocumentMissingException createMissingDocumentsException(Table table,
+                                                                           List<String> ids) {
         return new DocumentMissingException(table.getName(), ids);
     }
 
-    public static StoreExecutionException createExecutionException(String table, Exception e) {
+    public static StoreExecutionException createExecutionException(String table,
+                                                                   Exception e) {
         return new StoreExecutionException(table, e);
     }
 
-    public static ActionExecutionException createQueryExecutionException(ActionRequest actionRequest, Exception e) {
+    public static ActionExecutionException createQueryExecutionException(ActionRequest actionRequest,
+                                                                         Exception e) {
         return new ActionExecutionException(actionRequest, e);
     }
 
@@ -78,19 +86,23 @@ public class FoxtrotExceptions {
         return new TableExistsException(table);
     }
 
-    public static DataCleanupException createDataCleanupException(String message, Exception e) {
+    public static DataCleanupException createDataCleanupException(String message,
+                                                                  Exception e) {
         return new DataCleanupException(message, e);
     }
 
-    public static ServerException createServerException(String message, Exception e) {
+    public static ServerException createServerException(String message,
+                                                        Exception e) {
         return new ServerException(message, e);
     }
 
-    public static QueryCreationException queryCreationException(ActionRequest actionRequest, Exception e) {
+    public static QueryCreationException queryCreationException(ActionRequest actionRequest,
+                                                                Exception e) {
         return new QueryCreationException(actionRequest, e);
     }
 
-    public static ActionResolutionException createActionResolutionException(ActionRequest actionRequest, Exception e) {
+    public static ActionResolutionException createActionResolutionException(ActionRequest actionRequest,
+                                                                            Exception e) {
         return new ActionResolutionException(actionRequest, e);
     }
 
@@ -98,7 +110,8 @@ public class FoxtrotExceptions {
         return new UnresolvableActionException(actionRequest);
     }
 
-    public static AuthorizationException createAuthorizationException(ActionRequest actionRequest, Exception e) {
+    public static AuthorizationException createAuthorizationException(ActionRequest actionRequest,
+                                                                      Exception e) {
         return new AuthorizationException(actionRequest, e);
     }
 

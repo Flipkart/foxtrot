@@ -19,25 +19,25 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton
 public class QueryExecutorFactory {
 
+    private static int POOL_EXPIRY = 300;
+    private static int POOL_SIZE = 1000;
     private final QueryExecutor simpleQueryExecutor;
-
     // Flyweight pool to not create unnecessary new objects for every request
     // with same funnel id
     private LoadingCache<Long, QueryExecutor> extrapolationQueryExecutors;
 
-    private static int POOL_EXPIRY = 300;
-    private static int POOL_SIZE = 1000;
-
     @Inject
-    public QueryExecutorFactory(final AnalyticsLoader analyticsLoader, final ExecutorService executorService,
-            final List<ActionExecutionObserver> executionObservers, final FunnelConfiguration funnelConfiguration) {
+    public QueryExecutorFactory(final AnalyticsLoader analyticsLoader,
+                                final ExecutorService executorService,
+                                final List<ActionExecutionObserver> executionObservers,
+                                final FunnelConfiguration funnelConfiguration) {
         this.simpleQueryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService, executionObservers);
 
         this.extrapolationQueryExecutors = Caffeine.newBuilder()
                 .expireAfterWrite(POOL_EXPIRY, TimeUnit.SECONDS)
                 .maximumSize(POOL_SIZE)
-                .build(funnelId -> new ExtrapolationQueryExecutor(analyticsLoader, executorService,
-                        executionObservers, funnelId, simpleQueryExecutor, funnelConfiguration));
+                .build(funnelId -> new ExtrapolationQueryExecutor(analyticsLoader, executorService, executionObservers,
+                        funnelId, simpleQueryExecutor, funnelConfiguration));
     }
 
     public <T extends ActionRequest> QueryExecutor getExecutor(T request) {

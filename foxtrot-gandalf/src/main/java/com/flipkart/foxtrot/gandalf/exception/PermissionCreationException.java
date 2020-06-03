@@ -6,9 +6,11 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 public class PermissionCreationException extends FoxtrotException {
+
     private final String message;
 
-    public PermissionCreationException(String message, Throwable event) {
+    public PermissionCreationException(String message,
+                                       Throwable event) {
         super(ErrorCode.PERMISSION_CREATION_FAILURE, event);
         this.message = message;
     }

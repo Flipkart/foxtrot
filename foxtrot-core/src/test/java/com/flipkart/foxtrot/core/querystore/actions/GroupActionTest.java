@@ -21,14 +21,14 @@ import static org.mockito.Mockito.doReturn;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.common.exception.ErrorCode;
-import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.Maps;
 import java.util.Arrays;
@@ -124,7 +124,8 @@ public class GroupActionTest extends ActionTest {
     }
 
     @Test
-    public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter() throws FoxtrotException, JsonProcessingException {
+    public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter()
+            throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -240,7 +241,6 @@ public class GroupActionTest extends ActionTest {
             put("ipad", iPadResponse);
             put("iphone", iPhoneResponse);
         }});
-
 
         GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         assertEquals(response, actualResult.getResult());

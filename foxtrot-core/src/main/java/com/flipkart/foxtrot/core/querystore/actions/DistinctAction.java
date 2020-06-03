@@ -5,11 +5,11 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
@@ -39,7 +39,8 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader) {
+    public DistinctAction(DistinctRequest parameter,
+                          AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
@@ -58,8 +59,7 @@ public class DistinctAction extends Action<DistinctRequest> {
 
         if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
             validationErrors.add("At least one nesting parameter is required");
-        }
-        else {
+        } else {
             for (ResultSort resultSort : com.collections.CollectionUtils.nullSafeList(parameter.getNesting())) {
 
                 if (CollectionUtils.isNullOrEmpty(resultSort.getField())) {
@@ -130,8 +130,8 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .setIndicesOptions(Utils.indicesOptions());
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
-                    .addAggregation(Utils.buildTermsAggregation(
-                            request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
+                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet(),
+                            elasticsearchTuningConfig.getAggregationSize()));
 
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
@@ -140,7 +140,8 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DistinctRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      DistinctRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         // Check if any aggregation is present or not
         if (aggregations == null) {
@@ -150,7 +151,8 @@ public class DistinctAction extends Action<DistinctRequest> {
         return getDistinctResponse(parameter, aggregations);
     }
 
-    private DistinctResponse getDistinctResponse(DistinctRequest request, Aggregations aggregations) {
+    private DistinctResponse getDistinctResponse(DistinctRequest request,
+                                                 Aggregations aggregations) {
         DistinctResponse response = new DistinctResponse();
         List<String> headerList = request.getNesting()
                 .stream()
@@ -164,30 +166,30 @@ public class DistinctAction extends Action<DistinctRequest> {
         return response;
     }
 
-    private void flatten(
-            String parentKey, List<String> fields, List<List<String>> responseList,
-            Aggregations aggregations) {
+    private void flatten(String parentKey,
+                         List<String> fields,
+                         List<List<String>> responseList,
+                         Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1)
-                                             ? fields.subList(1, fields.size())
-                                             : new ArrayList<>();
+        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
                 responseList.add(getValueList(parentKey, String.valueOf(bucket.getKey())));
             } else {
-                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList, bucket.getAggregations());
+                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList,
+                        bucket.getAggregations());
             }
         }
     }
 
-    private String getProperKey(String parentKey, String currentKey) {
-        return parentKey == null
-               ? currentKey
-               : parentKey + Constants.SEPARATOR + currentKey;
+    private String getProperKey(String parentKey,
+                                String currentKey) {
+        return parentKey == null ? currentKey : parentKey + Constants.SEPARATOR + currentKey;
     }
 
-    private List<String> getValueList(String parentKey, String currentKey) {
+    private List<String> getValueList(String parentKey,
+                                      String currentKey) {
         String finalValue = getProperKey(parentKey, currentKey);
         String[] valuesList = finalValue.split(Constants.SEPARATOR);
         return Arrays.asList(valuesList);

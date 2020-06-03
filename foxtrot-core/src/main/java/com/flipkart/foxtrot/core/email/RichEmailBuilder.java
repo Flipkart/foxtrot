@@ -17,14 +17,18 @@ public class RichEmailBuilder {
     private final EmailBodyBuilder bodyBuilder;
 
     @Inject
-    public RichEmailBuilder(EmailSubjectBuilder subjectBuilder, EmailBodyBuilder bodyBuilder) {
+    public RichEmailBuilder(EmailSubjectBuilder subjectBuilder,
+                            EmailBodyBuilder bodyBuilder) {
         this.subjectBuilder = subjectBuilder;
         this.bodyBuilder = bodyBuilder;
     }
 
-    public final Email build(final String id, final List<String> recipients, final Map<String, Object> context) {
+    public final Email build(final String id,
+                             final List<String> recipients,
+                             final Map<String, Object> context) {
         if (null == subjectBuilder || null == bodyBuilder) {
-            return Email.builder().build();
+            return Email.builder()
+                    .build();
         }
         return new Email(subjectBuilder.content(id, context), bodyBuilder.content(id, context), recipients);
     }

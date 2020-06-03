@@ -24,8 +24,8 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
-import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.core.config.QueryConfig;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -168,9 +168,10 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                 .target("/v1/analytics/async")
                 .request()
                 .post(serviceUserEntity, AsyncDataToken.class);
-        await().pollDelay(2000, TimeUnit.MILLISECONDS).until(() -> true);
+        await().pollDelay(2000, TimeUnit.MILLISECONDS)
+                .until(() -> true);
         GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(response.getAction())
-                                                                        .get(response.getKey()));
+                .get(response.getKey()));
         assertEquals(expectedResponse, actualResponse.getResult());
     }
 
@@ -186,9 +187,11 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                 .target("/v1/analytics/async")
                 .request()
                 .post(serviceUserEntity, AsyncDataToken.class);
-        await().pollDelay(2000, TimeUnit.MILLISECONDS).until(() -> true);
-        GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(asyncDataToken.getAction())
-                                                                        .get(asyncDataToken.getKey()));
+        await().pollDelay(2000, TimeUnit.MILLISECONDS)
+                .until(() -> true);
+        GroupResponse actualResponse = GroupResponse.class.cast(
+                getCacheManager().getCacheFor(asyncDataToken.getAction())
+                        .get(asyncDataToken.getKey()));
         assertEquals(expectedResponse.getResult(), actualResponse.getResult());
     }
 }

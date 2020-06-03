@@ -39,7 +39,9 @@ public class DistributedCacheFactory implements CacheFactory {
     private final ObjectMapper mapper;
 
     @Inject
-    public DistributedCacheFactory(HazelcastConnection connection, ObjectMapper mapper, CacheConfig cacheConfig) {
+    public DistributedCacheFactory(HazelcastConnection connection,
+                                   ObjectMapper mapper,
+                                   CacheConfig cacheConfig) {
         this.connection = connection;
         this.mapper = mapper;
         this.connection.getHazelcastConfig()
@@ -59,15 +61,13 @@ public class DistributedCacheFactory implements CacheFactory {
 
         if (cacheConfig.getMaxIdleSeconds() == 0) {
             mapConfig.setMaxIdleSeconds(DEFAULT_MAX_IDLE_SECONDS);
-        }
-        else {
+        } else {
             mapConfig.setMaxIdleSeconds(cacheConfig.getMaxIdleSeconds());
         }
 
         if (cacheConfig.getTimeToLiveSeconds() == 0) {
             mapConfig.setTimeToLiveSeconds(DEFAULT_TIME_TO_LIVE_SECONDS);
-        }
-        else {
+        } else {
             mapConfig.setTimeToLiveSeconds(cacheConfig.getTimeToLiveSeconds());
         }
 
@@ -75,8 +75,7 @@ public class DistributedCacheFactory implements CacheFactory {
         maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE);
         if (cacheConfig.getSize() == 0) {
             maxSizeConfig.setSize(DEFAULT_SIZE);
-        }
-        else {
+        } else {
             maxSizeConfig.setSize(cacheConfig.getSize());
         }
         mapConfig.setMaxSizeConfig(maxSizeConfig);

@@ -5,11 +5,11 @@ import com.google.common.base.Preconditions;
 
 public class SerDe {
 
+    private static ObjectMapper mapper;
+
     private SerDe() {
         throw new IllegalStateException("Utility class");
     }
-
-    private static ObjectMapper mapper;
 
     public static void init(ObjectMapper objectMapper) {
         mapper = objectMapper;

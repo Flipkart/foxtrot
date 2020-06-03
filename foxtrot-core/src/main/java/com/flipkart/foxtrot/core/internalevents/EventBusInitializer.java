@@ -16,9 +16,8 @@ public class EventBusInitializer implements Managed {
     private final InternalEventBusConsumer eventBusConsumer;
 
     @Inject
-    public EventBusInitializer(
-            InternalEventBus eventBus,
-            InternalEventBusConsumer eventBusConsumer) {
+    public EventBusInitializer(InternalEventBus eventBus,
+                               InternalEventBusConsumer eventBusConsumer) {
         this.eventBus = eventBus;
         this.eventBusConsumer = eventBusConsumer;
     }

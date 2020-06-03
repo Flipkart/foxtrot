@@ -46,9 +46,9 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
     }
 
     @Override
-    protected void run(
-            Bootstrap<FoxtrotServerConfiguration> bootstrap, Namespace namespace,
-            FoxtrotServerConfiguration configuration) throws Exception {
+    protected void run(Bootstrap<FoxtrotServerConfiguration> bootstrap,
+                       Namespace namespace,
+                       FoxtrotServerConfiguration configuration) throws Exception {
         ElasticsearchConfig esConfig = configuration.getElasticsearch();
         ElasticsearchConnection connection = new ElasticsearchConnection(esConfig);
         connection.start();
@@ -59,9 +59,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 .health(new ClusterHealthRequest())
                 .actionGet();
         int numDataNodes = clusterHealth.getNumberOfDataNodes();
-        int numReplicas = (numDataNodes < 2)
-                          ? 0
-                          : 1;
+        int numReplicas = (numDataNodes < 2) ? 0 : 1;
 
         logger.info("# data nodes: {}, Setting replica count to: {}", numDataNodes, numReplicas);
 
@@ -85,7 +83,9 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 .getTableName());
     }
 
-    private void createMetaIndex(final ElasticsearchConnection connection, final String indexName, int replicaCount) {
+    private void createMetaIndex(final ElasticsearchConnection connection,
+                                 final String indexName,
+                                 int replicaCount) {
         try {
             logger.info("'{}' creation started", indexName);
             Settings settings = Settings.builder()
@@ -104,7 +104,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 logger.error("Index {} could not be created.", indexName);
             }
         } catch (Exception e) {
-            if(null != e.getCause()) {
+            if (null != e.getCause()) {
                 logger.error("Index {} could not be created: {}", indexName, e.getCause()
                         .getLocalizedMessage());
             } else {

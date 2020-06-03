@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UnmarshallerConfig {
 
-    private boolean unmarshallingEnabled;
     /**
      * List of jsonPaths for fields in tables which need to be unmarshalled to jsonNode
      * e.g. phonepe_consumer_app_android -> ["/eventData/funnelInfo", "/eventData/funnelInfo/funnelData"]
      */
     Map<String, List<String>> tableVsUnmarshallJsonPath = new HashMap<>();
+    private boolean unmarshallingEnabled;
 }

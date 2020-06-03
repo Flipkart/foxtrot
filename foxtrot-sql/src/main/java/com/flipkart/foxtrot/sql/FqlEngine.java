@@ -6,7 +6,6 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -21,7 +20,6 @@ import com.google.common.collect.Lists;
 import com.phonepe.gandalf.models.user.UserDetails;
 import java.util.List;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,21 +35,23 @@ public class FqlEngine {
     private ObjectMapper mapper;
 
     @Inject
-    public FqlEngine(final TableMetadataManager tableMetadataManager, final QueryStore queryStore,
-         final QueryExecutorFactory executorFactory, final ObjectMapper mapper) {
+    public FqlEngine(final TableMetadataManager tableMetadataManager,
+                     final QueryStore queryStore,
+                     final QueryExecutorFactory executorFactory,
+                     final ObjectMapper mapper) {
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
         this.executorFactory = executorFactory;
         this.mapper = mapper;
     }
 
-    public FlatRepresentation parse(final String fql, UserDetails userDetails, AccessService accessService)
-            throws JsonProcessingException {
+    public FlatRepresentation parse(final String fql,
+                                    UserDetails userDetails,
+                                    AccessService accessService) throws JsonProcessingException {
         QueryTranslator translator = new QueryTranslator();
         FqlQuery query = translator.translate(fql);
         FlatRepresentation response = new QueryProcessor(tableMetadataManager, queryStore, executorFactory, mapper,
-                userDetails, accessService)
-                .process(query);
+                userDetails, accessService).process(query);
         logger.debug("Flat Response: " + mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(response));
         return response;
@@ -68,9 +68,12 @@ public class FqlEngine {
 
         private FlatRepresentation result;
 
-        private QueryProcessor(TableMetadataManager tableMetadataManager, QueryStore queryStore,
-                QueryExecutorFactory executorFactory, ObjectMapper mapper, UserDetails userDetails,
-                AccessService accessService) {
+        private QueryProcessor(TableMetadataManager tableMetadataManager,
+                               QueryStore queryStore,
+                               QueryExecutorFactory executorFactory,
+                               ObjectMapper mapper,
+                               UserDetails userDetails,
+                               AccessService accessService) {
             this.tableMetadataManager = tableMetadataManager;
             this.queryStore = queryStore;
             this.executorFactory = executorFactory;
@@ -88,15 +91,14 @@ public class FqlEngine {
         public void visit(FqlDescribeTable fqlDescribeTable) {
             TableFieldMapping fieldMetaData = queryStore.getFieldMappings(fqlDescribeTable.getTableName());
             result = FlatteningUtils.genericMultiRowParse(mapper.valueToTree(fieldMetaData.getMappings()),
-                    Lists.newArrayList("field", "type"), "field"
-            );
+                    Lists.newArrayList("field", "type"), "field");
         }
 
         @Override
         public void visit(FqlShowTablesQuery fqlShowTablesQuery) {
             List<Table> tables = tableMetadataManager.get();
-            result = FlatteningUtils
-                    .genericMultiRowParse(mapper.valueToTree(tables), Lists.newArrayList("name", "ttl"), "name");
+            result = FlatteningUtils.genericMultiRowParse(mapper.valueToTree(tables), Lists.newArrayList("name", "ttl"),
+                    "name");
         }
 
         @Override
@@ -104,7 +106,7 @@ public class FqlEngine {
             try {
                 if (userDetails != null && !accessService.hasAccess(fqlActionQuery.getActionRequest(), userDetails)) {
                     throw FoxtrotExceptions.createAuthorizationException(fqlActionQuery.getActionRequest(),
-                                                                         new Exception("User not Authorised"));
+                            new Exception("User not Authorised"));
                 }
             } catch (Exception e) {
                 throw FoxtrotExceptions.createAuthorizationException(fqlActionQuery.getActionRequest(), e);

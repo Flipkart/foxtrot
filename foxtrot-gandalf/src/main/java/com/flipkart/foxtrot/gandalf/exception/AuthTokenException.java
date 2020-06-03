@@ -9,7 +9,8 @@ public class AuthTokenException extends FoxtrotException {
 
     private final String message;
 
-    public AuthTokenException(String message, Throwable event) {
+    public AuthTokenException(String message,
+                              Throwable event) {
         super(ErrorCode.AUTH_TOKEN_EXCEPTION, event);
         this.message = message;
     }

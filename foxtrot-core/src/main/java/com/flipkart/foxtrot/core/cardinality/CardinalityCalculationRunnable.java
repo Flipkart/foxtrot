@@ -47,8 +47,7 @@ public class CardinalityCalculationRunnable implements Runnable {
                     LOGGER.info("Cardinality calculated for table: {}", table);
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("Error occurred while calculating cardinality {}", e);
         }
     }

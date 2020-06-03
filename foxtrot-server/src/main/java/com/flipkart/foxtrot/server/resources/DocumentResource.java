@@ -63,7 +63,8 @@ public class DocumentResource {
     private final TableTranslator tableTranslator;
 
     @Inject
-    public DocumentResource(QueryStore queryStore, TableTranslator tableTranslator) {
+    public DocumentResource(QueryStore queryStore,
+                            TableTranslator tableTranslator) {
         this.queryStore = queryStore;
         this.tableTranslator = tableTranslator;
     }
@@ -72,12 +73,13 @@ public class DocumentResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
     @ApiOperation("Save Document")
-    public Response saveDocument(@PathParam("table") String table, @Valid final Document document) {
+    public Response saveDocument(@PathParam("table") String table,
+                                 @Valid final Document document) {
         String tableName = tableTranslator.getTable(table, document);
-        if(tableName != null) {
+        if (tableName != null) {
             queryStore.save(tableName, document);
         }
-        if(tableName != null && !table.equals(tableName)) {
+        if (tableName != null && !table.equals(tableName)) {
             queryStore.save(table, document);
         }
         return Response.created(URI.create("/" + document.getId()))
@@ -89,7 +91,8 @@ public class DocumentResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
     @ApiOperation("Save list of documents")
-    public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents) {
+    public Response saveDocuments(@PathParam("table") String table,
+                                  @Valid final List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = getTableVsDocuments(table, documents);
 
         // Catch all StoreExecutionException and append error messages to a list
@@ -98,15 +101,14 @@ public class DocumentResource {
         List<String> exceptionMessages = new ArrayList<>();
         BadRequestException badRequestException = null;
 
-        for(Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
+        for (Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
             try {
                 queryStore.save(entry.getKey(), entry.getValue());
             } catch (BadRequestException e) {
                 badRequestException = e;
             } catch (Exception e) {
-                exceptionMessages.add(Objects.nonNull(e.getCause())
-                        ? e.getCause().getMessage()
-                        : e.getMessage());
+                exceptionMessages.add(Objects.nonNull(e.getCause()) ? e.getCause()
+                        .getMessage() : e.getMessage());
             }
         }
 
@@ -125,7 +127,8 @@ public class DocumentResource {
     @Path("/{id}")
     @Timed
     @ApiOperation("Get Document")
-    public Response getDocument(@PathParam("table") final String table, @PathParam("id") @NotNull final String id) {
+    public Response getDocument(@PathParam("table") final String table,
+                                @PathParam("id") @NotNull final String id) {
         return Response.ok(queryStore.get(table, id))
                 .build();
     }
@@ -133,19 +136,21 @@ public class DocumentResource {
     @GET
     @Timed
     @ApiOperation("Get Documents")
-    public Response getDocuments(@PathParam("table") final String table, @QueryParam("id") @NotNull final List<String> ids) {
+    public Response getDocuments(@PathParam("table") final String table,
+                                 @QueryParam("id") @NotNull final List<String> ids) {
         return Response.ok(queryStore.getAll(table, ids))
                 .build();
     }
 
 
-    private Map<String, List<Document>> getTableVsDocuments(String table, List<Document> documents) {
+    private Map<String, List<Document>> getTableVsDocuments(String table,
+                                                            List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = new HashMap<>();
-        if(tableTranslator.isTransformableTable(table)) {
-            for(Document document : CollectionUtils.nullSafeList(documents)) {
+        if (tableTranslator.isTransformableTable(table)) {
+            for (Document document : CollectionUtils.nullSafeList(documents)) {
                 String tableName = tableTranslator.getTable(table, document);
 
-                if(tableVsDocuments.containsKey(tableName)) {
+                if (tableVsDocuments.containsKey(tableName)) {
                     tableVsDocuments.get(tableName)
                             .add(document);
                 } else {

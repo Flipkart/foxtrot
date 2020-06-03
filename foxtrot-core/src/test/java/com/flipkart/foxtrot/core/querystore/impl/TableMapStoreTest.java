@@ -57,8 +57,8 @@ public class TableMapStoreTest {
     public static final String TEST_TABLE = "test-table";
     public static final String TABLE_META_INDEX = "table-meta";
     public static final String TABLE_META_TYPE = "table-meta";
-    private ObjectMapper mapper = new ObjectMapper();
     private static ElasticsearchConnection elasticsearchConnection;
+    private ObjectMapper mapper = new ObjectMapper();
     private TableMapStore tableMapStore;
 
 
@@ -103,7 +103,8 @@ public class TableMapStoreTest {
         compareTables(table, mapper.readValue(response.getSourceAsBytes(), Table.class));
     }
 
-    private void compareTables(Table expected, Table actual) {
+    private void compareTables(Table expected,
+                               Table actual) {
         assertNotNull(actual);
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getTtl(), actual.getTtl());
@@ -139,7 +140,7 @@ public class TableMapStoreTest {
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
-                                  .toString());
+                    .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
         }
@@ -153,7 +154,7 @@ public class TableMapStoreTest {
         Map<String, Table> responseTables = Maps.newHashMap();
         for (MultiGetItemResponse multiGetItemResponse : response) {
             Table table = mapper.readValue(multiGetItemResponse.getResponse()
-                                                   .getSourceAsString(), Table.class);
+                    .getSourceAsString(), Table.class);
             responseTables.put(table.getName(), table);
         }
         for (Map.Entry<String, Table> entry : tables.entrySet()) {
@@ -172,7 +173,7 @@ public class TableMapStoreTest {
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
-                                  .toString());
+                    .toString());
             table.setTtl(20);
             tables.put(null, table);
         }
@@ -184,7 +185,7 @@ public class TableMapStoreTest {
         Map<String, Table> tables = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             tables.put(UUID.randomUUID()
-                               .toString(), null);
+                    .toString(), null);
         }
         tableMapStore.storeAll(tables);
     }
@@ -204,14 +205,14 @@ public class TableMapStoreTest {
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
-                                  .toString());
+                    .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
         }
 
         Table table = new Table();
         table.setName(UUID.randomUUID()
-                              .toString());
+                .toString());
         table.setTtl(20);
         tables.put(null, table);
         tableMapStore.storeAll(tables);
@@ -223,14 +224,14 @@ public class TableMapStoreTest {
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
-                                  .toString());
+                    .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
         }
 
         Table table = new Table();
         table.setName(UUID.randomUUID()
-                              .toString());
+                .toString());
         table.setTtl(20);
         tables.put(table.getName(), null);
         tableMapStore.storeAll(tables);
@@ -242,7 +243,7 @@ public class TableMapStoreTest {
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
-                                  .toString());
+                    .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
         }
@@ -294,7 +295,7 @@ public class TableMapStoreTest {
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
-                                  .toString());
+                    .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
         }
@@ -360,14 +361,14 @@ public class TableMapStoreTest {
     @Test
     public void testLoadMissingKey() throws Exception {
         assertNull(tableMapStore.load(UUID.randomUUID()
-                                              .toString()));
+                .toString()));
     }
 
     //TODO Why not an error ?
     @Test
     public void testLoadNullKey() throws Exception {
         assertNull(tableMapStore.load(UUID.randomUUID()
-                                              .toString()));
+                .toString()));
     }
 
     // Exception Caught because of Runtime. Not an IOException
@@ -391,7 +392,7 @@ public class TableMapStoreTest {
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
-                                  .toString());
+                    .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
             Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
@@ -439,7 +440,7 @@ public class TableMapStoreTest {
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
-                                  .toString());
+                    .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
             Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);

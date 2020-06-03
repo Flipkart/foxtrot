@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.AnalyticsRequestFlags;
@@ -13,7 +14,6 @@ import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
@@ -43,19 +43,21 @@ public class StatsAction extends Action<StatsRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public StatsAction(StatsRequest parameter, AnalyticsLoader analyticsLoader) {
+    public StatsAction(StatsRequest parameter,
+                       AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
-    private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
+    private static StatsValue buildStatsValue(String field,
+                                              Aggregations aggregations) {
         String metricKey = Utils.getExtendedStatsAggregationKey(field);
         String percentileMetricKey = Utils.getPercentileAggregationKey(field);
 
         // Build top level stats
         StatsValue statsValue = new StatsValue();
         statsValue.setStats(Utils.toStats(aggregations.getAsMap()
-                                                  .get(metricKey)));
+                .get(metricKey)));
         Percentiles internalPercentile = (Percentiles) aggregations.getAsMap()
                 .get(percentileMetricKey);
         if (null != internalPercentile) {
@@ -114,8 +116,7 @@ public class StatsAction extends Action<StatsRequest> {
             SearchResponse response = searchRequestBuilder.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        }
-        catch (ElasticsearchException e) {
+        } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -137,13 +138,12 @@ public class StatsAction extends Action<StatsRequest> {
             final AbstractAggregationBuilder extendedStats;
             if (isNumericField) {
                 if (!AnalyticsRequestFlags.hasFlag(parameter.getFlags(),
-                                                   AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
+                        AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
                     percentiles = Utils.buildPercentileAggregation(field, getParameter().getPercentiles());
                     searchRequestBuilder.addAggregation(percentiles);
                 }
                 extendedStats = Utils.buildStatsAggregation(field, getParameter().getStats());
-            }
-            else {
+            } else {
                 extendedStats = Utils.buildStatsAggregation(field, Collections.singleton(Stat.COUNT));
             }
             searchRequestBuilder.addAggregation(extendedStats);
@@ -153,22 +153,21 @@ public class StatsAction extends Action<StatsRequest> {
                 if (null != percentiles) {
                     subAggregations.add(percentiles);
                 }
-                searchRequestBuilder.addAggregation(
-                        Utils.buildTermsAggregation(getParameter().getNesting()
-                                                            .stream()
-                                                            .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                                                            .collect(Collectors.toList()),
-                                                    subAggregations, elasticsearchTuningConfig.getAggregationSize()));
+                searchRequestBuilder.addAggregation(Utils.buildTermsAggregation(getParameter().getNesting()
+                                .stream()
+                                .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                                .collect(Collectors.toList()), subAggregations,
+                        elasticsearchTuningConfig.getAggregationSize()));
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return searchRequestBuilder;
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      StatsRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         if (aggregations != null) {
             return buildResponse(parameter, aggregations);
@@ -176,7 +175,8 @@ public class StatsAction extends Action<StatsRequest> {
         return null;
     }
 
-    private StatsResponse buildResponse(StatsRequest request, Aggregations aggregations) {
+    private StatsResponse buildResponse(StatsRequest request,
+                                        Aggregations aggregations) {
         // First build root level stats value
         StatsValue statsValue = buildStatsValue(request.getField(), aggregations);
 
@@ -193,12 +193,11 @@ public class StatsAction extends Action<StatsRequest> {
         return statsResponse;
     }
 
-    private List<BucketResponse<StatsValue>> buildNestedStats(List<String> nesting, Aggregations aggregations) {
+    private List<BucketResponse<StatsValue>> buildNestedStats(List<String> nesting,
+                                                              Aggregations aggregations) {
         final String field = nesting.get(0);
-        final List<String> remainingFields = (nesting.size() > 1)
-                                             ? nesting.subList(1, nesting.size())
-                                             :
-                                             new ArrayList<>();
+        final List<String> remainingFields =
+                (nesting.size() > 1) ? nesting.subList(1, nesting.size()) : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         List<BucketResponse<StatsValue>> bucketResponses = Lists.newArrayList();
         for (Terms.Bucket bucket : terms.getBuckets()) {
@@ -206,8 +205,7 @@ public class StatsAction extends Action<StatsRequest> {
             bucketResponse.setKey(String.valueOf(bucket.getKey()));
             if (nesting.size() == 1) {
                 bucketResponse.setResult(buildStatsValue(getParameter().getField(), bucket.getAggregations()));
-            }
-            else {
+            } else {
                 bucketResponse.setBuckets(buildNestedStats(remainingFields, bucket.getAggregations()));
             }
             bucketResponses.add(bucketResponse);

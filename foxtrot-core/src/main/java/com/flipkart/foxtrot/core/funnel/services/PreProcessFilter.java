@@ -115,8 +115,9 @@ public class PreProcessFilter implements FilterVisitor<Void> {
         return null;
     }
 
-    public void preProcess(FilterRequest filterRequest, MappingService mappingService, String funnelIndex)
-            throws Exception {
+    public void preProcess(FilterRequest filterRequest,
+                           MappingService mappingService,
+                           String funnelIndex) throws Exception {
         String textType = "text";
         String keywordType = "keyword";
         for (Filter filter : CollectionUtils.nullAndEmptySafeValueList(filterRequest.getFilters())) {

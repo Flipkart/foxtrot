@@ -13,7 +13,8 @@ public class FlatToCsvConverter {
     private FlatToCsvConverter() {
     }
 
-    public static void convert(final FlatRepresentation representation, Writer writer) throws IOException {
+    public static void convert(final FlatRepresentation representation,
+                               Writer writer) throws IOException {
         CSVWriter data = new CSVWriter(writer);
         List<FieldHeader> headers = representation.getHeaders();
         String[] headerNames = new String[headers.size()];
@@ -33,8 +34,7 @@ public class FlatToCsvConverter {
                             .toString()
                             .replaceAll("\"", "")
                             .replaceAll("null", "");
-                }
-                else {
+                } else {
                     rowData[i++] = "";
                 }
             }

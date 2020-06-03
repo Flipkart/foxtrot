@@ -23,6 +23,7 @@ public class GuavaInternalEventBusTest {
 
     @Data
     private class GenericEvent implements InternalSystemEvent {
+
         private final String data;
 
         @Override

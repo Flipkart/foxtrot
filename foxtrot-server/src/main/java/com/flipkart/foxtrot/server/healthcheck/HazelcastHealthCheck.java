@@ -11,30 +11,34 @@ import ru.vyarus.dropwizard.guice.module.installer.feature.health.NamedHealthChe
 @Singleton
 public class HazelcastHealthCheck extends NamedHealthCheck {
 
-    private HazelcastConnection hazelcastConnection;
     private static final String HAZELCAST_HEALTHCHECK = "hazelcastHealthcheck";
-
-    @Inject
-    public HazelcastHealthCheck(final HazelcastConnection hazelcastConnection){
-        this.hazelcastConnection = hazelcastConnection;
-    }
+    private HazelcastConnection hazelcastConnection;
     /**
      * A random UUID to healthcheck
      */
-    private String uuid = UUID.randomUUID().toString();
-
+    private String uuid = UUID.randomUUID()
+            .toString();
     /**
      * A counter for healthcheck
      */
     private int counter = 0;
+
+    @Inject
+    public HazelcastHealthCheck(final HazelcastConnection hazelcastConnection) {
+        this.hazelcastConnection = hazelcastConnection;
+    }
 
     @Override
     protected Result check() throws Exception {
         // Update the counter and store in the map
         counter = counter + 1;
         try {
-            hazelcastConnection.getHazelcast().getMap(HEALTHCHECK_MAP).put(uuid, counter);
-            int toCheck = (int) hazelcastConnection.getHazelcast().getMap(HEALTHCHECK_MAP).get(uuid);
+            hazelcastConnection.getHazelcast()
+                    .getMap(HEALTHCHECK_MAP)
+                    .put(uuid, counter);
+            int toCheck = (int) hazelcastConnection.getHazelcast()
+                    .getMap(HEALTHCHECK_MAP)
+                    .get(uuid);
             return toCheck == counter ? Result.healthy("UUID:" + uuid + ", counter: " + counter + " - OK")
                     : Result.unhealthy("UUID:" + uuid + ", counter: " + counter
                             + " Something is wrong: healthCheck count is not updating");

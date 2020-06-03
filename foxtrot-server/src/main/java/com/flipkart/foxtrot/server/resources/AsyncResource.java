@@ -51,7 +51,8 @@ public class AsyncResource {
     @Path("/{action}/{id}")
     @Timed
     @ApiOperation("getResponse")
-    public Response getResponse(@PathParam("action") final String action, @NotNull @PathParam("id") final String id) {
+    public Response getResponse(@PathParam("action") final String action,
+                                @NotNull @PathParam("id") final String id) {
         return Response.ok(getData(new AsyncDataToken(action, id)))
                 .build();
     }

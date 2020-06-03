@@ -21,9 +21,11 @@ public class JsonUtils {
     }
 
     @SneakyThrows
-    public static <T> T fromJson(String json, Class<T> clazz) {
+    public static <T> T fromJson(String json,
+                                 Class<T> clazz) {
         try {
-            return SerDe.mapper().readValue(json, clazz);
+            return SerDe.mapper()
+                    .readValue(json, clazz);
         } catch (IOException e) {
             log.error("Error while deserializing in fromJson for json: {}, error: {}", json, e);
             throw new SerDeException(DESERIALIZATION_ERROR, "Unable to deserialize data from json");
@@ -31,20 +33,23 @@ public class JsonUtils {
     }
 
     @SneakyThrows
-    public static <T> T fromJson(byte[] bytes, Class<T> clazz) {
+    public static <T> T fromJson(byte[] bytes,
+                                 Class<T> clazz) {
         try {
-            return SerDe.mapper().readValue(bytes, clazz);
+            return SerDe.mapper()
+                    .readValue(bytes, clazz);
         } catch (IOException e) {
-            log.error("Error while deserializing in fromJson for bytes : {}, error: {}",
-                    new String(bytes), e);
+            log.error("Error while deserializing in fromJson for bytes : {}, error: {}", new String(bytes), e);
             throw new SerDeException(DESERIALIZATION_ERROR, "Unable to deserialize data with class");
         }
     }
 
     @SneakyThrows
-    public static <T> T fromJson(String json, TypeReference<T> typeReference) {
+    public static <T> T fromJson(String json,
+                                 TypeReference<T> typeReference) {
         try {
-            return SerDe.mapper().readValue(json, typeReference);
+            return SerDe.mapper()
+                    .readValue(json, typeReference);
         } catch (IOException e) {
             log.error("Error while deserializing in fromJson for json : {}, error: {}", json, e);
             throw new SerDeException(DESERIALIZATION_ERROR, "Unable to deserialize data with type reference");
@@ -76,12 +81,13 @@ public class JsonUtils {
     }
 
     @SneakyThrows
-    public static <T> T fromJson(byte[] bytes, TypeReference<T> typeReference) {
+    public static <T> T fromJson(byte[] bytes,
+                                 TypeReference<T> typeReference) {
         try {
-            return SerDe.mapper().readValue(bytes, typeReference);
+            return SerDe.mapper()
+                    .readValue(bytes, typeReference);
         } catch (IOException e) {
-            log.error("Error while deserializing in fromJson for json : {}, error: {}", new String(bytes),
-                    e);
+            log.error("Error while deserializing in fromJson for json : {}, error: {}", new String(bytes), e);
             throw new SerDeException(DESERIALIZATION_ERROR, "Unable to deserialize data with type reference");
         }
     }
@@ -89,7 +95,8 @@ public class JsonUtils {
     @SneakyThrows
     public static String toJson(Object obj) {
         try {
-            return SerDe.mapper().writeValueAsString(obj);
+            return SerDe.mapper()
+                    .writeValueAsString(obj);
         } catch (IOException e) {
             log.error("Error while serializing in toJson for object: {}, error: {}", obj, e);
             throw new SerDeException(SERIALIZATION_ERROR, "Unable to serialize data to json");
@@ -99,7 +106,8 @@ public class JsonUtils {
     @SneakyThrows
     public static byte[] toBytes(Object obj) {
         try {
-            return SerDe.mapper().writeValueAsBytes(obj);
+            return SerDe.mapper()
+                    .writeValueAsBytes(obj);
         } catch (IOException e) {
             log.error("Error while serializing in toJson for object : {}, error: {}", obj, e);
             throw new SerDeException(SERIALIZATION_ERROR, "Unable to serialize data from object");
@@ -109,7 +117,8 @@ public class JsonUtils {
     @SneakyThrows
     public static JsonNode toJsonNode(String json) {
         try {
-            return SerDe.mapper().readTree(json);
+            return SerDe.mapper()
+                    .readTree(json);
         } catch (IOException e) {
             log.error("Error while deserializing toJsonNode for json: {}, error: {}", json, e);
             throw new SerDeException(DESERIALIZATION_ERROR, "Unable to deserialize data from json");
@@ -117,9 +126,11 @@ public class JsonUtils {
     }
 
     @SneakyThrows
-    public static <T> T toObject(Object obj, Class<T> clazz) throws SerDeException {
+    public static <T> T toObject(Object obj,
+                                 Class<T> clazz) throws SerDeException {
         try {
-            return SerDe.mapper().convertValue(obj, clazz);
+            return SerDe.mapper()
+                    .convertValue(obj, clazz);
         } catch (Exception e) {
             log.error("Error while converting toObject for object: {}, error: {}, {}", obj, e.getCause(),
                     e.getMessage());
@@ -128,9 +139,11 @@ public class JsonUtils {
     }
 
     @SneakyThrows
-    public static <T> T toObject(Object obj, TypeReference<T> typeReference) {
+    public static <T> T toObject(Object obj,
+                                 TypeReference<T> typeReference) {
         try {
-            return SerDe.mapper().convertValue(obj, typeReference);
+            return SerDe.mapper()
+                    .convertValue(obj, typeReference);
         } catch (Exception e) {
             log.error("Error while converting toObject for object: {}, error: {}, {}", obj, e.getCause(),
                     e.getMessage());

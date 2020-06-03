@@ -82,9 +82,8 @@ import net.sf.jsqlparser.statement.select.WithItem;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
 
-public class SqlElementVisitor
-        implements StatementVisitor, SelectVisitor, FromItemVisitor, ItemsListVisitor, ExpressionVisitor,
-        SelectItemVisitor, ExtendedSqlStatementVisitor {
+public class SqlElementVisitor implements StatementVisitor, SelectVisitor, FromItemVisitor, ItemsListVisitor,
+        ExpressionVisitor, SelectItemVisitor, ExtendedSqlStatementVisitor {
 
     @Override
     public void visit(NullValue nullValue) {

@@ -5,7 +5,6 @@ import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import io.dropwizard.util.Duration;
 import javax.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -30,15 +29,17 @@ public class MultiTimeQueryRequest extends ActionRequest {
         super(Opcodes.MULTI_TIME_QUERY);
     }
 
-    public <T> T accept(ActionRequestVisitor<T> visitor) {
-        return visitor.visit(this);
-    }
-
-    public MultiTimeQueryRequest(int sampleSize, Duration skipDuration, ActionRequest actionRequest) {
+    public MultiTimeQueryRequest(int sampleSize,
+                                 Duration skipDuration,
+                                 ActionRequest actionRequest) {
         super(Opcodes.MULTI_TIME_QUERY);
         this.sampleSize = sampleSize;
         this.skipDuration = skipDuration;
         this.actionRequest = actionRequest;
+    }
+
+    public <T> T accept(ActionRequestVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     @Override

@@ -36,7 +36,10 @@ public abstract class NumericBinaryFilter extends Filter {
         super(operator);
     }
 
-    protected NumericBinaryFilter(final String operator, String field, Number value, boolean temporal) {
+    protected NumericBinaryFilter(final String operator,
+                                  String field,
+                                  Number value,
+                                  boolean temporal) {
         super(operator, field);
         this.value = value;
         this.temporal = temporal;
@@ -63,7 +66,8 @@ public abstract class NumericBinaryFilter extends Filter {
         if (!getField().equals("_timestamp")) {
             result = result * 21 + (getValue() == null ? 43 : getValue().hashCode());
         } else {
-            result = result * 21 + Long.valueOf(getValue().longValue() / (long)30000).hashCode();
+            result = result * 21 + Long.valueOf(getValue().longValue() / (long) 30000)
+                    .hashCode();
         }
         result = result * 59 + (this.isTemporal() ? 79 : 97);
         return result;
@@ -79,7 +83,7 @@ public abstract class NumericBinaryFilter extends Filter {
 
         NumericBinaryFilter that = (NumericBinaryFilter) o;
 
-        return getField().equals(that.getField()) && getOperator().equals(that.getOperator()) &&
-                isFilterTemporal() == that.isFilterTemporal() && getValue().equals(that.getValue());
+        return getField().equals(that.getField()) && getOperator().equals(that.getOperator())
+                && isFilterTemporal() == that.isFilterTemporal() && getValue().equals(that.getValue());
     }
 }

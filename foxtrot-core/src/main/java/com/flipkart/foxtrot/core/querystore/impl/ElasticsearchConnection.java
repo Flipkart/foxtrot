@@ -55,11 +55,9 @@ public class ElasticsearchConnection implements Managed {
                 .build();
 
         TransportClient esClient = new CustomESTransportClient(settings);
-        final int port = config.getPort() == null
-            ? 9300
-            : config.getPort();
+        final int port = config.getPort() == null ? 9300 : config.getPort();
 
-        for(String host : config.getHosts()) {
+        for (String host : config.getHosts()) {
             String[] tokenizedHosts = host.split(",");
             for (String tokenizedHost : tokenizedHosts) {
                 esClient.addTransportAddress(new TransportAddress(InetAddress.getByName(tokenizedHost), port));

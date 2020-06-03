@@ -1,10 +1,10 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.exception.CardinalityOverflowException;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.common.exception.CardinalityOverflowException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.Lists;
 import java.util.Collections;
