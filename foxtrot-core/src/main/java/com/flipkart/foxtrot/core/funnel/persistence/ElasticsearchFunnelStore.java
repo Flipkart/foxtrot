@@ -12,6 +12,7 @@ import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.DOT;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.TYPE;
 
 import com.collections.CollectionUtils;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
@@ -351,8 +352,8 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                 if (eventAttributeField.get(eventAttributes) != null) {
                     String key = EVENT_ATTRIBUTES + DOT + eventAttributeField.getName();
                     if (!eventAttributesMap.containsKey(key)) {
-                        eventAttributesMap.put(key, new ArrayList<>(
-                                Collections.singletonList(eventAttributeField.get(eventAttributes))));
+                        eventAttributesMap.put(key,
+                                new ArrayList<>(Collections.singletonList(eventAttributeField.get(eventAttributes))));
                     } else {
                         eventAttributesMap.get(key)
                                 .add(eventAttributeField.get(eventAttributes));
