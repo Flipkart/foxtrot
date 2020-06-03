@@ -29,10 +29,10 @@ public class FqlEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(FqlEngine.class.getSimpleName());
 
-    private TableMetadataManager tableMetadataManager;
-    private QueryStore queryStore;
-    private QueryExecutorFactory executorFactory;
-    private ObjectMapper mapper;
+    private final TableMetadataManager tableMetadataManager;
+    private final QueryStore queryStore;
+    private final QueryExecutorFactory executorFactory;
+    private final ObjectMapper mapper;
 
     @Inject
     public FqlEngine(final TableMetadataManager tableMetadataManager,
@@ -52,19 +52,21 @@ public class FqlEngine {
         FqlQuery query = translator.translate(fql);
         FlatRepresentation response = new QueryProcessor(tableMetadataManager, queryStore, executorFactory, mapper,
                 userDetails, accessService).process(query);
-        logger.debug("Flat Response: " + mapper.writerWithDefaultPrettyPrinter()
-                .writeValueAsString(response));
+        if (logger.isDebugEnabled()) {
+            logger.debug("Flat Response: {}", mapper.writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(response));
+        }
         return response;
     }
 
     private static final class QueryProcessor implements FqlQueryVisitor {
 
-        private TableMetadataManager tableMetadataManager;
-        private QueryStore queryStore;
-        private QueryExecutorFactory executorFactory;
-        private ObjectMapper mapper;
-        private UserDetails userDetails;
-        private AccessService accessService;
+        private final TableMetadataManager tableMetadataManager;
+        private final QueryStore queryStore;
+        private final QueryExecutorFactory executorFactory;
+        private final ObjectMapper mapper;
+        private final UserDetails userDetails;
+        private final AccessService accessService;
 
         private FlatRepresentation result;
 
