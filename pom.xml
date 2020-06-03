@@ -162,6 +162,7 @@
             **com/flipkart/foxtrot/sql/query/FqlDescribeTable.java,
             **com/flipkart/foxtrot/sql/query/FqlShowTablesQuery.java,
             **com/flipkart/foxtrot/sql/responseprocessors/model/**,
+            **Test.java,
             *.js,
             *.css,
             **console/**/*,

@@ -58,7 +58,6 @@ import javax.ws.rs.core.Response;
 @Singleton
 public class DocumentResource {
 
-    private static final String EVENT_TYPE = "eventType";
     private final QueryStore queryStore;
     private final TableTranslator tableTranslator;
 
