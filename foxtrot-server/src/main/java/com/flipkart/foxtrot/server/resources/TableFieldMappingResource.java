@@ -84,8 +84,8 @@ public class TableFieldMappingResource {
     public Response updateEstimation(@PathParam("name") final String table,
                                      @QueryParam("time") @DefaultValue("0") long epoch) {
         tableMetadataManager.updateEstimationData(table, 0 == epoch
-                ? System.currentTimeMillis()
-                : epoch);
+                                                         ? System.currentTimeMillis()
+                                                         : epoch);
         return Response.ok()
                 .build();
     }

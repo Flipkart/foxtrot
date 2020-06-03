@@ -77,12 +77,12 @@ public class CountAction extends Action<CountRequest> {
         }
 
         filterHashKey += 31 * (request.isDistinct()
-                ? "TRUE".hashCode()
-                : "FALSE".hashCode());
+                               ? "TRUE".hashCode()
+                               : "FALSE".hashCode());
         filterHashKey += 31 * (request.getField() != null
-                ? request.getField()
-                .hashCode()
-                : "COLUMN".hashCode());
+                               ? request.getField()
+                                       .hashCode()
+                               : "COLUMN".hashCode());
         return String.format("count-%s-%d", request.getTable(), filterHashKey);
     }
 

@@ -37,9 +37,9 @@ public class FunnelException extends FoxtrotException {
     public Map<String, Object> toMap() {
         Map<String, Object> map = Maps.newHashMap();
         map.put("message", this.getCause() != null
-                ? this.getCause()
-                .getMessage()
-                : this.getMessage());
+                           ? this.getCause()
+                                   .getMessage()
+                           : this.getMessage());
         return map;
     }
 }

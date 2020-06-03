@@ -110,8 +110,8 @@ public class Flattener implements ResponseVisitor<FlatRepresentation> {
         Map<String, Integer> fieldNames = Maps.newTreeMap();
         List<Map<String, Object>> rows = Lists.newArrayList();
         Set<String> fieldToLookup = (null == fieldsToReturn)
-                ? Collections.emptySet()
-                : new HashSet<>(fieldsToReturn);
+                                    ? Collections.emptySet()
+                                    : new HashSet<>(fieldsToReturn);
         boolean isAllFields = fieldToLookup.isEmpty();
         for (Document document : queryResponse.getDocuments()) {
             Map<String, MetaData> docFields = generateFieldMappings(null, objectMapper.valueToTree(document));
@@ -270,8 +270,8 @@ public class Flattener implements ResponseVisitor<FlatRepresentation> {
     private int lengthMax(int currMax,
                           final String rhs) {
         return currMax > rhs.length()
-                ? currMax
-                : rhs.length();
+               ? currMax
+               : rhs.length();
     }
 
     private List<FieldHeader> getFieldsFromList(Map<String, Integer> fieldNames) {

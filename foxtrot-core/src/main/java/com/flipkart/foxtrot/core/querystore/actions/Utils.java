@@ -192,10 +192,10 @@ public class Utils {
                                                                         Collection<Double> inputPercentiles,
                                                                         double compression) {
         double[] percentiles = inputPercentiles != null
-                ? inputPercentiles.stream()
-                .mapToDouble(x -> x)
-                .toArray()
-                : DEFAULT_PERCENTILES;
+                               ? inputPercentiles.stream()
+                                       .mapToDouble(x -> x)
+                                       .toArray()
+                               : DEFAULT_PERCENTILES;
         if (compression == 0.0) {
             compression = DEFAULT_COMPRESSION;
         }
@@ -317,15 +317,15 @@ public class Utils {
 
     public static double ensurePositive(long number) {
         return number <= 0.0
-                ? 0.0
-                : number;
+               ? 0.0
+               : number;
     }
 
 
     public static double ensureOne(long number) {
         return number <= 0
-                ? 1
-                : number;
+               ? 1
+               : number;
     }
 
     public static Map<String, Number> toStats(Aggregation statAggregation) {

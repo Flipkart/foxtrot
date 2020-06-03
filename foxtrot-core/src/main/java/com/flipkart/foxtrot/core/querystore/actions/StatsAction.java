@@ -197,8 +197,8 @@ public class StatsAction extends Action<StatsRequest> {
                                                               Aggregations aggregations) {
         final String field = nesting.get(0);
         final List<String> remainingFields = (nesting.size() > 1)
-                ? nesting.subList(1, nesting.size())
-                : new ArrayList<>();
+                                             ? nesting.subList(1, nesting.size())
+                                             : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         List<BucketResponse<StatsValue>> bucketResponses = Lists.newArrayList();
         for (Terms.Bucket bucket : terms.getBuckets()) {

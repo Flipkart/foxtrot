@@ -87,8 +87,8 @@ public class FoxtrotTableManager implements TableManager {
                 .trim()
                 .isEmpty() || table.getTtl() <= 0) {
             throw FoxtrotExceptions.createBadRequestException(table != null
-                    ? table.getName()
-                    : null, "Invalid Table Params");
+                                                              ? table.getName()
+                                                              : null, "Invalid Table Params");
         }
     }
 }

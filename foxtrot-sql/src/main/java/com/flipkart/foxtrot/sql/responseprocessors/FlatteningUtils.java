@@ -113,8 +113,8 @@ public class FlatteningUtils {
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = iterator.next();
             String currentField = (parentField == null)
-                    ? entry.getKey()
-                    : (String.format("%s%s%s", parentField, separator, entry.getKey()));
+                                  ? entry.getKey()
+                                  : (String.format("%s%s%s", parentField, separator, entry.getKey()));
             if (isArrayOrObject(entry.getValue())) {
                 fields.putAll(generateFieldMappings(currentField, entry.getValue(), separator));
             } else {

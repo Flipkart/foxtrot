@@ -232,8 +232,8 @@ public final class Stopwatch {
 
     private long elapsedNanos() {
         return isRunning
-                ? ticker.read() - startTick + elapsedNanos
-                : elapsedNanos;
+               ? ticker.read() - startTick + elapsedNanos
+               : elapsedNanos;
     }
 
     /**

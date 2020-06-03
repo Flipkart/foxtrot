@@ -40,9 +40,9 @@ public class HazelcastHealthCheck extends NamedHealthCheck {
                     .getMap(HEALTHCHECK_MAP)
                     .get(uuid);
             return toCheck == counter
-                    ? Result.healthy("UUID:" + uuid + ", counter: " + counter + " - OK")
-                    : Result.unhealthy("UUID:" + uuid + ", counter: " + counter
-                            + " Something is wrong: healthCheck count is not updating");
+                   ? Result.healthy("UUID:" + uuid + ", counter: " + counter + " - OK")
+                   : Result.unhealthy("UUID:" + uuid + ", counter: " + counter
+                           + " Something is wrong: healthCheck count is not updating");
         } catch (Exception e) {
             return Result.healthy("UUID:" + uuid + " - Error: " + e.getMessage());
         }

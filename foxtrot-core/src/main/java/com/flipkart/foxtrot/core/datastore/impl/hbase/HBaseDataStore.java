@@ -181,8 +181,8 @@ public class HBaseDataStore implements DataStore {
                 byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                 long time = Bytes.toLong(timestamp);
                 DocumentMetadata documentMetadata = (null != metadata)
-                        ? mapper.readValue(metadata, DocumentMetadata.class)
-                        : null;
+                                                    ? mapper.readValue(metadata, DocumentMetadata.class)
+                                                    : null;
                 return translator.translateBack(new Document(id, time, documentMetadata, mapper.readTree(data)));
             } else {
                 logger.error("ID missing in HBase - {}", id);
@@ -221,12 +221,12 @@ public class HBaseDataStore implements DataStore {
                     byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                     long time = Bytes.toLong(timestamp);
                     DocumentMetadata documentMetadata = (null != metadata)
-                            ? mapper.readValue(metadata, DocumentMetadata.class)
-                            : null;
+                                                        ? mapper.readValue(metadata, DocumentMetadata.class)
+                                                        : null;
                     final String docId = (null == metadata)
-                            ? Bytes.toString(getResult.getRow())
-                            .split(":")[0]
-                            : documentMetadata.getRawStorageId();
+                                         ? Bytes.toString(getResult.getRow())
+                                                 .split(":")[0]
+                                         : documentMetadata.getRawStorageId();
                     results.add(translator.translateBack(
                             new Document(docId, time, documentMetadata, mapper.readTree(data))));
                 } else {

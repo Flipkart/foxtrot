@@ -51,8 +51,8 @@ public class ElasticsearchMappingParser {
                 continue;
             }
             String currentField = (parentField == null)
-                    ? entry.getKey()
-                    : (String.format("%s.%s", parentField, entry.getKey()));
+                                  ? entry.getKey()
+                                  : (String.format("%s.%s", parentField, entry.getKey()));
             if (entry.getValue()
                     .has(PROPERTIES)) {
                 fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue()

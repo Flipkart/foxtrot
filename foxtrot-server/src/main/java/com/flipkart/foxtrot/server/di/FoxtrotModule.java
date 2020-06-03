@@ -144,16 +144,16 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public CardinalityConfig cardinalityConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getCardinality()
-                ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
-                : configuration.getCardinality();
+               ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
+               : configuration.getCardinality();
     }
 
     @Provides
     @Singleton
     public EsIndexOptimizationConfig esIndexOptimizationConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getEsIndexOptimizationConfig()
-                ? new EsIndexOptimizationConfig()
-                : configuration.getEsIndexOptimizationConfig();
+               ? new EsIndexOptimizationConfig()
+               : configuration.getEsIndexOptimizationConfig();
     }
 
     @Provides
@@ -166,16 +166,16 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ConsoleHistoryConfig consoleHistoryConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getConsoleHistoryConfig()
-                ? new ConsoleHistoryConfig()
-                : configuration.getConsoleHistoryConfig();
+               ? new ConsoleHistoryConfig()
+               : configuration.getConsoleHistoryConfig();
     }
 
     @Provides
     @Singleton
     public ClusterRerouteConfig clusterRerouteConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getClusterRerouteConfig()
-                ? new ClusterRerouteConfig()
-                : configuration.getClusterRerouteConfig();
+               ? new ClusterRerouteConfig()
+               : configuration.getClusterRerouteConfig();
     }
 
     @Provides
@@ -244,14 +244,14 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public FunnelConfiguration funnelConfig(FoxtrotServerConfiguration configuration) {
         return configuration.getFunnelConfiguration() != null
-                ? configuration.getFunnelConfiguration()
-                : FunnelConfiguration.builder()
-                        .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
-                                .eventType("APP_LOADED")
-                                .category("APP_LOADED")
-                                .build())
-                        .querySize(100)
-                        .build();
+               ? configuration.getFunnelConfiguration()
+               : FunnelConfiguration.builder()
+                       .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
+                               .eventType("APP_LOADED")
+                               .category("APP_LOADED")
+                               .build())
+                       .querySize(100)
+                       .build();
     }
 
     @Provides

@@ -137,9 +137,9 @@ public class DocumentTranslator {
     public Document translateBack(final Document inDocument) {
         Document document = new Document();
         document.setId(inDocument.getMetadata() != null
-                ? inDocument.getMetadata()
-                .getId()
-                : inDocument.getId());
+                       ? inDocument.getMetadata()
+                               .getId()
+                       : inDocument.getId());
         document.setTimestamp(inDocument.getTimestamp());
         document.setData(inDocument.getData());
         document.setDate(Utils.getDate(inDocument.getTimestamp()));

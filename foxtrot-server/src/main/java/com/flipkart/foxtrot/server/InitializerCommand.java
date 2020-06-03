@@ -60,8 +60,8 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 .actionGet();
         int numDataNodes = clusterHealth.getNumberOfDataNodes();
         int numReplicas = (numDataNodes < 2)
-                ? 0
-                : 1;
+                          ? 0
+                          : 1;
 
         logger.info("# data nodes: {}, Setting replica count to: {}", numDataNodes, numReplicas);
 

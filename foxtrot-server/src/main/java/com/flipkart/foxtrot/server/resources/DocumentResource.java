@@ -108,9 +108,9 @@ public class DocumentResource {
                 badRequestException = e;
             } catch (Exception e) {
                 exceptionMessages.add(Objects.nonNull(e.getCause())
-                        ? e.getCause()
-                        .getMessage()
-                        : e.getMessage());
+                                      ? e.getCause()
+                                              .getMessage()
+                                      : e.getMessage());
             }
         }
 
