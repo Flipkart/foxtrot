@@ -5,11 +5,11 @@ import java.util.concurrent.locks.Lock;
 public interface DistributedLock {
 
     default Lock achieveLock(String lockUniqueId,
-                             String lockGroup) throws RuntimeException {
+                             String lockGroup) {
         return achieveLock(lockUniqueId);
     }
 
-    Lock achieveLock(String lockUniqueId) throws RuntimeException;
+    Lock achieveLock(String lockUniqueId);
 
     void releaseLock(Lock lock,
                      String lockUniqueId);

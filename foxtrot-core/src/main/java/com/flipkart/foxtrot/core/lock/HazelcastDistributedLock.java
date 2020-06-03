@@ -37,7 +37,7 @@ public class HazelcastDistributedLock implements DistributedLock {
 
     @Override
     public Lock achieveLock(String lockUniqueId,
-                            String lockGroup) throws RuntimeException {
+                            String lockGroup) {
         if (Strings.isNullOrEmpty(lockUniqueId)) {
             log.error("Failed to take HZ lock as lock id is null or empty: lockUniqueId={}", lockUniqueId);
             throw new FunnelException(ErrorCode.FUNNEL_EXCEPTION, "Failed to take HZ lock as lock id is null or empty");
@@ -76,7 +76,7 @@ public class HazelcastDistributedLock implements DistributedLock {
     }
 
     @Override
-    public Lock achieveLock(String lockUniqueId) throws RuntimeException {
+    public Lock achieveLock(String lockUniqueId) {
         if (Strings.isNullOrEmpty(lockUniqueId)) {
             log.error("Failed to take HZ lock as lock id is null or empty: lockUniqueId={}", lockUniqueId);
             throw new FunnelException(ErrorCode.FUNNEL_EXCEPTION, "Failed to take HZ lock as lock id is null or empty");
@@ -114,10 +114,12 @@ public class HazelcastDistributedLock implements DistributedLock {
 
     @Override
     public void start() {
+        //To implement
     }
 
     @Override
     public void shutdown() {
+        //To implement
     }
 
 }
