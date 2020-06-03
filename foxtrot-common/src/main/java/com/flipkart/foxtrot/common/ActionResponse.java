@@ -30,7 +30,9 @@ import com.flipkart.foxtrot.common.trend.TrendResponse;
 import lombok.Data;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 25/03/14 Time: 9:17 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 25/03/14
+ * Time: 9:17 PM
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "opcode")
 @JsonSubTypes({@JsonSubTypes.Type(value = CountResponse.class, name = Opcodes.COUNT),

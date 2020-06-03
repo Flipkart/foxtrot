@@ -45,8 +45,7 @@ public class ConsoleResource {
     @POST
     @ApiOperation("Save Console")
     public Console save(Console console) {
-        consolePersistence.
-                save(console);
+        consolePersistence.save(console);
         return console;
     }
 

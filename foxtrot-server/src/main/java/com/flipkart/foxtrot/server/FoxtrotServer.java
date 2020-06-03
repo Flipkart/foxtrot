@@ -57,7 +57,9 @@ import ru.vyarus.dropwizard.guice.GuiceBundle;
 
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 9:38 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 15/03/14
+ * Time: 9:38 PM
  */
 public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
