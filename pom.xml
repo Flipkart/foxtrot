@@ -12,7 +12,7 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-81</version>
+    <version>6.3.1-82-SNAPSHOT</version>
 
     <parent>
         <groupId>com.phonepe</groupId>
@@ -74,11 +74,9 @@
         <dropwizard.version>1.0.6</dropwizard.version>
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
         <lombok.version>1.16.16</lombok.version>
-        <project.version>6.3.1-2</project.version>
         <es.container.version>1.0.4</es.container.version>
         <gandalf.version>1.2.35</gandalf.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
-        <project.version>6.3.1-3</project.version>
         <es.container.version>1.0.4</es.container.version>
         <caffeine.version>2.6.2</caffeine.version>
         <maven.deploy.skip>true</maven.deploy.skip>
