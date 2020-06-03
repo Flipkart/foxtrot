@@ -78,6 +78,14 @@ public class ElasticsearchUtils {
         }
     }
 
+    private static String getIndexPrefix(final String table) {
+        return String.format("%s-%s-%s-", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
+    }
+
+    public static String getIndices(final String table) {
+        return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
+    }
+
     public static String[] getIndices(final String table, final ActionRequest request) {
         return getIndices(table, request, new PeriodSelector(request.getFilters()).analyze());
     }
@@ -106,11 +114,6 @@ public class ElasticsearchUtils {
                 .getSimpleName(), indices);
         return indices.toArray(new String[0]);
     }
-
-    public static String getIndices(final String table) {
-        return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
-    }
-
 
     public static String getCurrentIndex(final String table, long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
@@ -327,9 +330,5 @@ public class ElasticsearchUtils {
             }
         });
         return timeFilterPresent.get();
-    }
-
-    private static String getIndexPrefix(final String table) {
-        return String.format("%s-%s-%s-", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 }
