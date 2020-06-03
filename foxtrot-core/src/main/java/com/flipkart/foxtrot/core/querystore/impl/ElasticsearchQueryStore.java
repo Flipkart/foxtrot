@@ -80,6 +80,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     private static final String DATA_STORE = "dataStore";
     private static final String QUERY_STORE = "queryStore";
     private static final String UNKNOWN_TABLE_ERROR_MESSAGE = "unknown_table table:%s";
+    private static final String ERROR_SAVING_DOCUMENTS = "Error while saving documents to table";
 
     private final ElasticsearchConnection connection;
     private final DataStore dataStore;
@@ -245,32 +246,32 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             }
         } catch (JsonProcessingException e) {
-            log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents,
-                    e.getMessage());
-            logger.error("Error while saving documents to table: {}", table, e);
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            logAndRegister(table, documents, stopwatch, action, e);
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents,
                     e.getMessage());
-            logger.error("Error while saving documents to table: {}", table, e);
+            log.error("Error while saving documents to table: {}", table, e);
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             Thread.currentThread()
                     .interrupt();
             throw FoxtrotExceptions.createExecutionException(table, e);
+        } catch (FoxtrotException e) {
+            logAndRegister(table, documents, stopwatch, action, e);
+            throw e;
         } catch (Exception e) {
-            log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents,
-                    e.getMessage());
-            logger.error("Error while saving documents to table: {}", table, e);
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            if (e instanceof FoxtrotException) {
-                throw e;
-            }
+            logAndRegister(table, documents, stopwatch, action, e);
             throw FoxtrotExceptions.createExecutionException(table, e);
         }
+    }
+
+    private void logAndRegister(String table, List<Document> documents, Stopwatch stopwatch, String action,
+            Exception e) {
+        log.debug("{}: {}, documents :{}, error: {}", ERROR_SAVING_DOCUMENTS, table, documents, e.getMessage());
+        log.error("{}: {}", ERROR_SAVING_DOCUMENTS, table, e);
+        MetricUtil.getInstance()
+                .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     private void printFailedDocuments(String table,
@@ -340,8 +341,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             SearchResponse response = connection.getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(table))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setQuery(boolQuery().filter(termsQuery(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME,
-                            ids.toArray(new String[ids.size()]))))
+                    .setQuery(boolQuery().filter(termsQuery(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME, ids)))
                     .setFetchSource(false)
                     .addStoredField(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME) // Used for compatibility
                     .setSize(ids.size())
@@ -408,7 +408,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public NodesStatsResponse getNodeStats() throws ExecutionException, InterruptedException {
+    public NodesStatsResponse getNodeStats() {
         NodesStatsRequest nodesStatsRequest = new NodesStatsRequest();
         nodesStatsRequest.clear()
                 .jvm(true)
