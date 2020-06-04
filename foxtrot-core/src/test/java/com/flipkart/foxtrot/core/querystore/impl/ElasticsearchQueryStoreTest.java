@@ -226,7 +226,7 @@ public class ElasticsearchQueryStoreTest {
                 "testField", "testField.analyzed", "_all", "date.dayOfWeek", "date.minuteOfDay", "_parent",
                 "date.monthOfYear", "__FOXTROT_METADATA__.time", "time.date", "_version", "date.weekOfYear", "_routing",
                 "__FOXTROT_METADATA__.rawStorageId", "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay", "_seq_no",
-                "_field_names", "_source", "_id", "time", "_uid", "_ignored");
+                "_field_names", "_source", "_id", "time", "_uid", "_ignored", "eventData.funnelInfo.funnelId");
         assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings()
                 .get(currentIndex)
                 .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
@@ -264,7 +264,7 @@ public class ElasticsearchQueryStoreTest {
                 "date.dayOfWeek", "date.minuteOfDay", "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
                 "time.date", "_version", "date.weekOfYear", "_routing", "__FOXTROT_METADATA__.rawStorageId", "_type",
                 "__FOXTROT_METADATA__.id", "date.hourOfDay", "_seq_no", "_field_names", "_source", "_id", "time",
-                "_uid", "_ignored");
+                "_uid", "_ignored", "eventData.funnelInfo.funnelId");
         final Set<String> received = mappings.mappings()
                 .get(currentIndex)
                 .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
@@ -305,7 +305,7 @@ public class ElasticsearchQueryStoreTest {
                 "testField", "testField.analyzed", "_all", "date.dayOfWeek", "date.minuteOfDay", "_parent",
                 "date.monthOfYear", "__FOXTROT_METADATA__.time", "time.date", "_version", "date.weekOfYear", "_routing",
                 "__FOXTROT_METADATA__.rawStorageId", "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay", "_seq_no",
-                "_field_names", "_source", "_id", "time", "_uid", "_ignored");
+                "_field_names", "_source", "_id", "time", "_uid", "_ignored", "eventData.funnelInfo.funnelId");
         final Set<String> received = mappings.mappings()
                 .get(currentIndex)
                 .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
@@ -347,7 +347,7 @@ public class ElasticsearchQueryStoreTest {
                 "__FOXTROT_METADATA__.rawStorageId", "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay", "_seq_no",
                 "_field_names", "_source", "_id", "time", "_uid", "_ignored",
                 "testLargeField.testField.testField.testField.testField_array",
-                "testLargeField.testField.testField.testField.testField_array.analyzed");
+                "testLargeField.testField.testField.testField.testField_array.analyzed", "eventData.funnelInfo.funnelId");
         assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings()
                 .get(currentIndex)
                 .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME)

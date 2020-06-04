@@ -46,10 +46,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import lombok.SneakyThrows;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.GetIndexResponse;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -777,11 +777,11 @@ public class FilterActionTest extends ActionTest {
                                     ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp())),
                             RequestOptions.DEFAULT);
         }
-        GetIndexResponse response = getElasticsearchConnection().getClient()
+        GetIndexResponse indexResponse = getElasticsearchConnection().getClient()
                 .indices()
-                .get(new GetIndexRequest(), RequestOptions.DEFAULT);
+                .get(new GetIndexRequest("*"), RequestOptions.DEFAULT);
         // Find all indices returned for this table name.. (using regex to match)
-        assertEquals(3, Arrays.stream(response.getIndices())
+        assertEquals(3, Arrays.stream(indexResponse.getIndices())
                 .filter(index -> index.matches(".*-" + TestUtils.TEST_TABLE_NAME + "-.*"))
                 .count());
 
@@ -829,8 +829,8 @@ public class FilterActionTest extends ActionTest {
 
     }
 
-
-    public void compare(List<Document> expectedDocuments, List<Document> actualDocuments) {
+    public void compare(List<Document> expectedDocuments,
+                        List<Document> actualDocuments) {
         assertEquals(expectedDocuments.size(), actualDocuments.size());
         for (int i = 0; i < expectedDocuments.size(); i++) {
             Document expected = expectedDocuments.get(i);

@@ -58,8 +58,8 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                 .build();
     }
 
-    @Ignore
     @Test
+    @Ignore
     public void testGet() throws Exception {
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
         await().pollDelay(500, TimeUnit.MILLISECONDS)
@@ -147,6 +147,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
     }
 
     @Test
+    @Ignore
     public void getAllFields() throws Exception {
         doNothing().when(getQueryStore())
                 .initializeTable(any(String.class));
