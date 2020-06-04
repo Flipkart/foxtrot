@@ -1,10 +1,30 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
+import static com.flipkart.foxtrot.common.exception.ErrorCode.DOCUMENT_NOT_FOUND;
+import static com.flipkart.foxtrot.common.exception.ErrorCode.EXECUTION_EXCEPTION;
+import static com.flipkart.foxtrot.common.exception.ErrorCode.INVALID_REQUEST;
+import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.START_ID;
+import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.UNASSIGNED_FUNNEL_ID;
+import static com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus.APPROVED;
+import static com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus.WAITING_FOR_APPROVAL;
+
+import com.collections.CollectionUtils;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
+import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
+import com.flipkart.foxtrot.core.funnel.model.Funnel;
+import com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus;
+import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
+import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
 import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
 import com.flipkart.foxtrot.core.lock.LockedExecutor;
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.util.Random;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Function;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,18 +34,16 @@ public class FunnelServiceImplV1 implements FunnelService {
     private static final Logger logger = LoggerFactory.getLogger(FunnelServiceImplV1.class);
     private static final String FUNNEL_APPROVAL_LOCK_KEY = "FUNNEL_APPROVAL";
     private final FunnelStore funnelStore;
-    private final LockedExecutor lockedExecutor;
-    private final Random random;
+    private LockedExecutor lockedExecutor;
 
     @Inject
     public FunnelServiceImplV1(final FunnelStore funnelStore,
                                final LockedExecutor lockedExecutor) {
         this.funnelStore = funnelStore;
         this.lockedExecutor = lockedExecutor;
-        this.random = new Random();
     }
 
-    /*@Override
+    @Override
     public Funnel save(Funnel funnel) {
 
         checkIfSimilarFunnelExists(funnel);
@@ -50,31 +68,34 @@ public class FunnelServiceImplV1 implements FunnelService {
     }
 
     @Override
-    public Funnel update(String documentId, Funnel funnel) {
-        Funnel savedFunnel = funnelStore.get(documentId);
+    public Funnel update(String documentId,
+                         Funnel funnel) {
+        Funnel savedFunnel = funnelStore.getByDocumentId(documentId);
         validateFunnelUpdateRequest(savedFunnel);
 
-        if (isFunnelWaitingForApproval(savedFunnel)) {
-            assignFunnelPercentage(funnel);
-
-            // set parameters which are not updatable
-            funnel.setDocumentId(documentId);
-            funnel.setCreatedAt(savedFunnel.getCreatedAt());
-            funnel.setId(savedFunnel.getId());
-            funnel.setFunnelStatus(savedFunnel.getFunnelStatus());
-            funnel.setDeleted(savedFunnel.isDeleted());
-
-            funnelStore.update(funnel);
+        if (!isFunnelWaitingForApproval(savedFunnel)) {
+            return funnel;
         }
+
+        assignFunnelPercentage(funnel);
+
+        // set parameters which are not updatable
+        funnel.setDocumentId(documentId);
+        funnel.setCreatedAt(savedFunnel.getCreatedAt());
+        funnel.setId(savedFunnel.getId());
+        funnel.setFunnelStatus(savedFunnel.getFunnelStatus());
+        funnel.setDeleted(savedFunnel.isDeleted());
+
+        funnelStore.update(funnel);
         return funnel;
     }
 
-    *//*
+    /*
         Assign funnel start and end percentage if not provided
-     *//*
+     */
     private void assignFunnelPercentage(Funnel funnel) {
         if (funnel.getStartPercentage() == 0 && funnel.getEndPercentage() == 0) {
-            int startPercentage = (random.nextInt(100 - funnel.getPercentage()));
+            int startPercentage = (int) Math.ceil(Math.random() * (100 - funnel.getPercentage()));
             funnel.setStartPercentage(startPercentage);
             funnel.setEndPercentage(startPercentage + funnel.getPercentage());
         }
@@ -89,7 +110,7 @@ public class FunnelServiceImplV1 implements FunnelService {
 
     @Override
     public Funnel reject(String documentId) {
-        Funnel savedFunnel = funnelStore.get(documentId);
+        Funnel savedFunnel = funnelStore.getByDocumentId(documentId);
 
         validateFunnelUpdateRequest(savedFunnel);
 
@@ -106,7 +127,7 @@ public class FunnelServiceImplV1 implements FunnelService {
 
     private Function<String, Funnel> approveAndGenerateFunnelId() {
         return documentId -> {
-            Funnel savedFunnel = funnelStore.get(documentId);
+            Funnel savedFunnel = funnelStore.getByDocumentId(documentId);
             validateFunnelUpdateRequest(savedFunnel);
 
             if (isFunnelWaitingForApproval(savedFunnel)) {
@@ -137,8 +158,13 @@ public class FunnelServiceImplV1 implements FunnelService {
 
 
     @Override
-    public Funnel getFunnel(String funnelId) {
+    public Funnel getFunnelByFunnelId(String funnelId) {
         return funnelStore.getByFunnelId(funnelId);
+    }
+
+    @Override
+    public Funnel getFunnelByDocumentId(String documentId) {
+        return funnelStore.getByDocumentId(documentId);
     }
 
     @Override
@@ -191,6 +217,6 @@ public class FunnelServiceImplV1 implements FunnelService {
         if (funnel.isDeleted()) {
             throw new FunnelException(INVALID_REQUEST, "Deleted funnel can not be updated");
         }
-    }*/
+    }
 
 }

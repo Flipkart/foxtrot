@@ -1,10 +1,20 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
+import static com.flipkart.foxtrot.core.funnel.util.FunnelUtil.APPROVAL_REQUEST_SUBJECT;
+import static com.flipkart.foxtrot.core.funnel.util.FunnelUtil.getApprovalRequestBody;
+
+import com.flipkart.foxtrot.core.email.Email;
 import com.flipkart.foxtrot.core.email.EmailClient;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
+import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
+import com.flipkart.foxtrot.core.funnel.model.Funnel;
+import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
+import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import java.util.Collections;
+import java.util.List;
 
 @Singleton
 public class FunnelServiceImplV2 implements FunnelService {
@@ -25,7 +35,7 @@ public class FunnelServiceImplV2 implements FunnelService {
         this.funnelConfiguration = funnelConfiguration;
     }
 
-    /*@Override
+    @Override
     public Funnel save(Funnel funnel) {
         Funnel savedFunnel = funnelService.save(funnel);
         sendForApproval(savedFunnel.getApproverEmailId(), savedFunnel.getName(), savedFunnel.getDesc());
@@ -33,7 +43,8 @@ public class FunnelServiceImplV2 implements FunnelService {
     }
 
     @Override
-    public Funnel update(String documentId, Funnel funnel) {
+    public Funnel update(String documentId,
+                         Funnel funnel) {
         Funnel updatedFunnel = funnelService.update(documentId, funnel);
         sendForApproval(updatedFunnel.getApproverEmailId(), updatedFunnel.getName(), updatedFunnel.getDesc());
         return updatedFunnel;
@@ -50,8 +61,13 @@ public class FunnelServiceImplV2 implements FunnelService {
     }
 
     @Override
-    public Funnel getFunnel(String funnelId) {
-        return funnelService.getFunnel(funnelId);
+    public Funnel getFunnelByFunnelId(String funnelId) {
+        return funnelService.getFunnelByFunnelId(funnelId);
+    }
+
+    @Override
+    public Funnel getFunnelByDocumentId(String documentId) {
+        return funnelService.getFunnelByDocumentId(documentId);
     }
 
     @Override
@@ -74,7 +90,9 @@ public class FunnelServiceImplV2 implements FunnelService {
         return funnelService.getAll(deleted);
     }
 
-    private void sendForApproval(String mailId, String name, String description) {
+    private void sendForApproval(String mailId,
+                                 String name,
+                                 String description) {
         String body = getApprovalRequestBody(name, description, funnelConfiguration.getFunnelConsoleUrl());
         Email email = Email.builder()
                 .subject(APPROVAL_REQUEST_SUBJECT)
@@ -82,5 +100,5 @@ public class FunnelServiceImplV2 implements FunnelService {
                 .recipients(Collections.singletonList(mailId))
                 .build();
         emailClient.sendEmail(email);
-    }*/
+    }
 }

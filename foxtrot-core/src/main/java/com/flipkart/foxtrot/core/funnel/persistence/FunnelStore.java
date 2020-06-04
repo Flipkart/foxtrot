@@ -1,17 +1,23 @@
 package com.flipkart.foxtrot.core.funnel.persistence;
 
+import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
+import com.flipkart.foxtrot.core.funnel.model.Funnel;
+import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
+import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
+import java.util.List;
+
 /***
  Created by nitish.goyal on 25/09/18
  ***/
 public interface FunnelStore {
 
-    /*void save(Funnel funnel);
+    void save(Funnel funnel);
 
     void update(Funnel funnel);
 
     void delete(final String documentId);
 
-    Funnel get(final String documentId);
+    Funnel getByDocumentId(final String documentId);
 
     Funnel getByFunnelId(final String funnelId);
 
@@ -24,6 +30,4 @@ public interface FunnelStore {
     Funnel getLatestFunnel();
 
     FunnelDropdownConfig getFunnelDropdownValues();
-
-    List<Funnel> fetchFunnels(List<Map<String, String>> fieldVsValueMaps, int bucket);*/
 }

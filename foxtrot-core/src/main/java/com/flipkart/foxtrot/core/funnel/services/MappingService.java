@@ -1,10 +1,19 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
 
+import com.collections.CollectionUtils;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
+import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import java.io.IOException;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.slf4j.Logger;
@@ -34,7 +43,7 @@ public class MappingService {
         this.funnelConfiguration = funnelConfiguration;
     }
 
-    /*private Map<String, Object> getMapping(String index) {
+    private Map<String, Object> getMapping(String index) {
         if (allMappings == null || allMappings.isEmpty()) {
             allMappings = getAllMapping(elasticsearchConnection);
         }
@@ -43,19 +52,22 @@ public class MappingService {
                 .sourceAsMap();
     }
 
-    private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> getAllMapping(
-            ElasticsearchConnection elasticsearchConnection) {
+    private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> getAllMapping(ElasticsearchConnection elasticsearchConnection) {
         GetMappingsRequest request = new GetMappingsRequest().indices(funnelConfiguration.getFunnelIndex())
                 .types(TYPE);
-        GetMappingsResponse getMappingsResponse = elasticsearchConnection.getClient()
-                .admin()
-                .indices()
-                .getMappings(request)
-                .actionGet();
-        return getMappingsResponse.mappings();
+        try {
+
+            GetMappingsResponse getMappingsResponse = elasticsearchConnection.getClient()
+                    .indices()
+                    .getMapping(request, RequestOptions.DEFAULT);
+            return getMappingsResponse.mappings();
+        } catch (IOException e) {
+            throw new FunnelException(ErrorCode.FUNNEL_EXCEPTION, e);
+        }
     }
 
-    public String getFieldType(String fieldName, String index) {
+    public String getFieldType(String fieldName,
+                               String index) {
         String defaultFieldType = TEXT;
         String[] fieldArray = fieldName.split("\\.", 5);
         if (fieldArray.length == 0) {
@@ -83,7 +95,8 @@ public class MappingService {
         return defaultFieldType;
     }
 
-    public String getAnalyzedFieldName(String fieldName, String index) {
+    public String getAnalyzedFieldName(String fieldName,
+                                       String index) {
         String defaultFieldName = "id" + DOT + TEXT;
         String[] fieldArray = fieldName.split("\\.", 5);
         if (fieldArray.length == 0) {
@@ -114,5 +127,5 @@ public class MappingService {
         }
         LOGGER.info("Issue in field mapping. Sorting on id");
         return defaultFieldName;
-    }*/
+    }
 }
