@@ -16,13 +16,11 @@ public class FunnelException extends FoxtrotException {
         super(errorCode);
     }
 
-    public FunnelException(ErrorCode errorCode,
-                           String message) {
+    public FunnelException(ErrorCode errorCode, String message) {
         super(errorCode, message);
     }
 
-    public FunnelException(ErrorCode errorCode,
-                           Throwable cause) {
+    public FunnelException(ErrorCode errorCode, Throwable cause) {
         super(errorCode, cause);
     }
 
