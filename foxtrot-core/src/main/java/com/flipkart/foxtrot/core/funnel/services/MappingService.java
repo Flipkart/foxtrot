@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import lombok.Builder;
+import lombok.Data;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -38,7 +40,7 @@ public class MappingService {
 
     @Inject
     public MappingService(final ElasticsearchConnection elasticsearchConnection,
-                          final FunnelConfiguration funnelConfiguration) {
+            final FunnelConfiguration funnelConfiguration) {
         this.elasticsearchConnection = elasticsearchConnection;
         this.funnelConfiguration = funnelConfiguration;
     }
@@ -52,7 +54,8 @@ public class MappingService {
                 .sourceAsMap();
     }
 
-    private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> getAllMapping(ElasticsearchConnection elasticsearchConnection) {
+    private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> getAllMapping(
+            ElasticsearchConnection elasticsearchConnection) {
         GetMappingsRequest request = new GetMappingsRequest().indices(funnelConfiguration.getFunnelIndex())
                 .types(TYPE);
         try {
@@ -67,27 +70,16 @@ public class MappingService {
     }
 
     public String getFieldType(String fieldName,
-                               String index) {
+            String index) {
         String defaultFieldType = TEXT;
-        String[] fieldArray = fieldName.split("\\.", 5);
-        if (fieldArray.length == 0) {
-            fieldArray = new String[]{fieldName};
+
+        MappingAnalysisResult mappingAnalysisResult = analyze(fieldName,index);
+
+        if (!mappingAnalysisResult.isFieldPresent()) {
+            return defaultFieldType;
         }
-        Object value;
-        Map<String, Object> indexMapping = getMapping(index);
-        for (String field : CollectionUtils.nullAndEmptySafeValueList(fieldArray)) {
-            value = indexMapping.get(PROPERTIES);
-            indexMapping = JsonUtils.readMapFromObject(value);
-            if (indexMapping.containsKey(field)) {
-                value = indexMapping.get(field);
-            } else {
-                LOGGER.info("Field not present: {}", field);
-                return defaultFieldType;
-            }
-            indexMapping = JsonUtils.readMapFromObject(value);
-        }
-        if (indexMapping.containsKey(INDEX_TYPE)) {
-            return indexMapping.get(INDEX_TYPE)
+        if (mappingAnalysisResult.getIndexMapping().containsKey(INDEX_TYPE)) {
+            return mappingAnalysisResult.getIndexMapping().get(INDEX_TYPE)
                     .toString();
         } else {
             LOGGER.info("Field does not have type in the mapping: {}", fieldName);
@@ -96,27 +88,17 @@ public class MappingService {
     }
 
     public String getAnalyzedFieldName(String fieldName,
-                                       String index) {
+            String index) {
         String defaultFieldName = "id" + DOT + TEXT;
-        String[] fieldArray = fieldName.split("\\.", 5);
-        if (fieldArray.length == 0) {
-            fieldArray = new String[]{fieldName};
+
+        MappingAnalysisResult mappingAnalysisResult = analyze(fieldName,index);
+
+        if (!mappingAnalysisResult.isFieldPresent()) {
+            return fieldName + DOT + TEXT;
         }
-        Object value;
-        Map<String, Object> indexMapping = getMapping(index);
-        for (String field : CollectionUtils.nullAndEmptySafeValueList(fieldArray)) {
-            value = indexMapping.get(PROPERTIES);
-            indexMapping = JsonUtils.readMapFromObject(value);
-            if (indexMapping.containsKey(field)) {
-                value = indexMapping.get(field);
-            } else {
-                LOGGER.info("Field not present: {}", field);
-                return fieldName + DOT + TEXT;
-            }
-            indexMapping = JsonUtils.readMapFromObject(value);
-        }
-        if (indexMapping.containsKey(INDEX_TYPE)) {
-            if (indexMapping.get(INDEX_TYPE)
+
+        if (mappingAnalysisResult.getIndexMapping().containsKey(INDEX_TYPE)) {
+            if (mappingAnalysisResult.getIndexMapping().get(INDEX_TYPE)
                     .toString()
                     .equals(KEYWORD)) {
                 return fieldName + DOT + TEXT;
@@ -127,5 +109,40 @@ public class MappingService {
         }
         LOGGER.info("Issue in field mapping. Sorting on id");
         return defaultFieldName;
+    }
+
+    private MappingAnalysisResult analyze(String fieldName, String index){
+        String[] fieldArray = fieldName.split("\\.", 5);
+        if (fieldArray.length == 0) {
+            fieldArray = new String[]{fieldName};
+        }
+        Object value;
+
+        Map<String, Object> indexMapping = getMapping(index);
+        boolean fieldPresent = true;
+        for (String field : CollectionUtils.nullAndEmptySafeValueList(fieldArray)) {
+            value = indexMapping.get(PROPERTIES);
+            indexMapping = JsonUtils.readMapFromObject(value);
+            if (indexMapping.containsKey(field)) {
+                value = indexMapping.get(field);
+            } else {
+                LOGGER.info("Field not present: {}", field);
+                fieldPresent = false;
+                break;
+            }
+            indexMapping = JsonUtils.readMapFromObject(value);
+        }
+
+        return MappingAnalysisResult.builder()
+                        .fieldPresent(fieldPresent)
+                        .indexMapping(indexMapping)
+                .build();
+    }
+
+    @Data
+    @Builder
+    public static class MappingAnalysisResult {
+        private boolean fieldPresent;
+        private Map<String,Object> indexMapping;
     }
 }
