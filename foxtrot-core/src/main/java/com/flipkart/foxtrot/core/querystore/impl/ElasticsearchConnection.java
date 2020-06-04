@@ -48,7 +48,7 @@ public class ElasticsearchConnection implements Managed {
     public void start() throws Exception {
         logger.info("Starting ElasticSearch Client");
         final int defaultPort = config.getConnectionType() == ElasticsearchConfig.ConnectionType.HTTP ? 80 : 443;
-        int port = config.getPort() == 0 ? defaultPort : config.getPort();
+        int port = config.getPort() == null ? defaultPort : config.getPort();
         val hosts = config.getHosts()
                 .stream()
                 .map(host -> {

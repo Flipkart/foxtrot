@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 public class BaseJobConfig {
 
     @Min(3600)
-    private int interval;
+    private int interval = 86400 ;
 
     /*
     Initial day in hours. Used to run the config at ith hour of the day
