@@ -53,6 +53,8 @@ import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
+import com.flipkart.foxtrot.gandalf.access.AccessService;
+import com.flipkart.foxtrot.gandalf.access.AccessServiceImpl;
 import com.flipkart.foxtrot.server.auth.AuthConfig;
 import com.flipkart.foxtrot.server.auth.AuthStore;
 import com.flipkart.foxtrot.server.auth.ESAuthStore;
@@ -127,6 +129,7 @@ public class FoxtrotModule extends AbstractModule {
         bind(DataStore.class).to(HBaseDataStore.class);
         bind(QueryStore.class).to(ElasticsearchQueryStore.class);
         bind(FqlStoreService.class).to(FqlStoreServiceImpl.class);
+        bind(AccessService.class).to(AccessServiceImpl.class);
         bind(CacheFactory.class).to(DistributedCacheFactory.class);
         bind(InternalEventBus.class).to(GuavaInternalEventBus.class);
         bind(InternalEventBusConsumer.class).to(AlertingSystemEventConsumer.class);
