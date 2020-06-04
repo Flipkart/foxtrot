@@ -28,13 +28,13 @@ public class LockedExecutor {
      * distributed lock provider
      */
     private final LockProvider lockProvider;
-    private final HazelcastDistributedLockConfig lockConfig;
+    private final HazelcastDistributedLockConfig distributedLockConfig;
 
     @Inject
     public LockedExecutor(final HazelcastDistributedLockConfig distributedLockConfig,
             final HazelcastConnection hazelcastConnection) {
         this.lockProvider = new HazelcastLockProvider(hazelcastConnection.getHazelcast());
-        this.lockConfig = distributedLockConfig;
+        this.distributedLockConfig = distributedLockConfig;
     }
 
     /**
@@ -76,11 +76,11 @@ public class LockedExecutor {
 
     private Instant getLockAtMostUntil(String lockGroupName) {
         DistributedLockGroupConfig lockGroupConfig;
-        if (lockConfig == null || lockConfig.getLocksConfig() == null || !lockConfig.getLocksConfig()
-                .containsKey(lockGroupName)) {
+        if (distributedLockConfig == null || distributedLockConfig.getLocksConfig() == null
+                || !distributedLockConfig.getLocksConfig().containsKey(lockGroupName)) {
             lockGroupConfig = defaultDistributedLockGroupConfig;
         } else {
-            lockGroupConfig = lockConfig.getLocksConfig()
+            lockGroupConfig = distributedLockConfig.getLocksConfig()
                     .get(lockGroupName);
         }
 
