@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
 import com.collections.CollectionUtils;
+import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
@@ -17,6 +18,7 @@ import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.query.string.WildCardFilter;
+import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
 
 /***
  Created by mudit.g on Feb, 2019

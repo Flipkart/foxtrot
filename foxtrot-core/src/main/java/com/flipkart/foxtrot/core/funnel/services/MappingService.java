@@ -1,10 +1,15 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
 
+import com.collections.CollectionUtils;
+import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.slf4j.Logger;

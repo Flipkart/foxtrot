@@ -1,10 +1,20 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
+import static com.flipkart.foxtrot.core.funnel.util.FunnelUtil.APPROVAL_REQUEST_SUBJECT;
+import static com.flipkart.foxtrot.core.funnel.util.FunnelUtil.getApprovalRequestBody;
+
+import com.flipkart.foxtrot.core.email.Email;
 import com.flipkart.foxtrot.core.email.EmailClient;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
+import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
+import com.flipkart.foxtrot.core.funnel.model.Funnel;
+import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
+import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import java.util.Collections;
+import java.util.List;
 
 @Singleton
 public class FunnelServiceImplV2 implements FunnelService {

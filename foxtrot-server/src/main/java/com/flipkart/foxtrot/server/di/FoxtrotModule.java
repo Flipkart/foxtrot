@@ -11,6 +11,7 @@ import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
+import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.core.config.QueryConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
@@ -68,7 +69,6 @@ import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProvider;
 import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProviderConfig;
 import com.flipkart.foxtrot.server.auth.sessionstore.DistributedSessionDataStore;
 import com.flipkart.foxtrot.server.auth.sessionstore.SessionDataStore;
-import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
@@ -392,7 +392,7 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public boolean restrictAccess(FoxtrotServerConfiguration configuration) {
+    public boolean restrictAccess(FoxtrotServerConfiguration configuration){
         return configuration.isRestrictAccess();
     }
 

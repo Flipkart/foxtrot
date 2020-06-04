@@ -1,5 +1,12 @@
 package com.flipkart.foxtrot.core.funnel.persistence;
 
+import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
+import com.flipkart.foxtrot.core.funnel.model.Funnel;
+import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
+import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
+import java.util.List;
+import java.util.Map;
+
 /***
  Created by nitish.goyal on 25/09/18
  ***/

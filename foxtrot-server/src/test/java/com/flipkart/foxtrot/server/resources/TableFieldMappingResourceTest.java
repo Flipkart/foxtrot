@@ -15,6 +15,7 @@ package com.flipkart.foxtrot.server.resources;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -48,7 +49,6 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
     @Rule
     public ResourceTestRule resources;
-
     public TableFieldMappingResourceTest() throws Exception {
         super();
         FoxtrotTableManager tableManager = mock(FoxtrotTableManager.class);
