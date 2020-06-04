@@ -32,8 +32,6 @@ import com.flipkart.foxtrot.core.internalevents.InternalEventBus;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBusConsumer;
 import com.flipkart.foxtrot.core.internalevents.impl.GuavaInternalEventBus;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
-import com.flipkart.foxtrot.core.lock.DistributedLock;
-import com.flipkart.foxtrot.core.lock.HazelcastDistributedLock;
 import com.flipkart.foxtrot.core.lock.HazelcastDistributedLockConfig;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.EventPublisherActionExecutionObserver;
@@ -117,7 +115,6 @@ public class FoxtrotModule extends AbstractModule {
                 .to(FunnelServiceImplV1.class);
         bind(FunnelService.class).to(FunnelServiceImplV1.class);
         bind(FunnelStore.class).to(ElasticsearchFunnelStore.class);
-        bind(DistributedLock.class).to(HazelcastDistributedLock.class);
         bind(new TypeLiteral<List<HealthCheck>>() {
         }).toProvider(HealthcheckListProvider.class);
     }
