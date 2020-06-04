@@ -22,8 +22,9 @@ public class ElasticsearchFunnelStore implements FunnelStore {
 
 
     @Inject
-    public ElasticsearchFunnelStore(ElasticsearchConnection connection, MappingService mappingService,
-            FunnelConfiguration funnelConfiguration) {
+    public ElasticsearchFunnelStore(ElasticsearchConnection connection,
+                                    MappingService mappingService,
+                                    FunnelConfiguration funnelConfiguration) {
         this.connection = connection;
         this.mappingService = mappingService;
         this.funnelConfiguration = funnelConfiguration;

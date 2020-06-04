@@ -73,7 +73,8 @@ public class TrendResponse extends ActionResponse {
         public Count() {
         }
 
-        public Count(Number period, long count) {
+        public Count(Number period,
+                     long count) {
             this.period = period;
             this.count = count;
         }

@@ -29,7 +29,11 @@ public class FilterRequest {
     }
 
     @Builder
-    public FilterRequest(List<Filter> filters, int page, int size, String fieldName, SortOrder sortOrder) {
+    public FilterRequest(List<Filter> filters,
+                         int page,
+                         int size,
+                         String fieldName,
+                         SortOrder sortOrder) {
         this.filters = filters;
         if (page == 0) {
             this.page = 1;

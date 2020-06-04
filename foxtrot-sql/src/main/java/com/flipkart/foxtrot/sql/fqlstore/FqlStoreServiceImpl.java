@@ -36,7 +36,8 @@ public class FqlStoreServiceImpl implements FqlStoreService {
     private final ObjectMapper objectMapper;
 
     @Inject
-    public FqlStoreServiceImpl(ElasticsearchConnection elasticsearchConnection, ObjectMapper objectMapper) {
+    public FqlStoreServiceImpl(ElasticsearchConnection elasticsearchConnection,
+                               ObjectMapper objectMapper) {
         this.elasticsearchConnection = elasticsearchConnection;
         this.objectMapper = objectMapper;
     }

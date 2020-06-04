@@ -12,7 +12,8 @@ public class StoreExecutionException extends FoxtrotException {
 
     private final String table;
 
-    protected StoreExecutionException(String table, Throwable cause) {
+    protected StoreExecutionException(String table,
+                                      Throwable cause) {
         super(ErrorCode.STORE_EXECUTION_ERROR, cause);
         this.table = table;
     }

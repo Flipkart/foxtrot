@@ -12,7 +12,8 @@ public class ServerException extends FoxtrotException {
 
     private final String message;
 
-    protected ServerException(String message, Throwable cause) {
+    protected ServerException(String message,
+                              Throwable cause) {
         super(ErrorCode.EXECUTION_EXCEPTION, cause);
         this.message = message;
     }

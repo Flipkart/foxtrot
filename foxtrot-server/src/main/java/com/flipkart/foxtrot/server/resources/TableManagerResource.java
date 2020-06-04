@@ -78,7 +78,7 @@ public class TableManagerResource {
     @ApiOperation("Save Table")
     @RolesAllowed(FoxtrotRole.Value.SYSADMIN)
     public Response save(@Valid final Table table,
-            @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
+                         @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
         tableManager.save(table, forceCreate);
         return Response.ok(table)
@@ -91,7 +91,8 @@ public class TableManagerResource {
     @Path("/{name}")
     @ApiOperation("Update Table")
     @RolesAllowed(FoxtrotRole.Value.SYSADMIN)
-    public Response get(@PathParam("name") final String name, @Valid final Table table) {
+    public Response get(@PathParam("name") final String name,
+                        @Valid final Table table) {
         table.setName(name);
         tableManager.update(table);
         return Response.ok()

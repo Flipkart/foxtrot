@@ -47,13 +47,18 @@ public class ElasticsearchConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting ElasticSearch Client");
-        final int defaultPort = config.getConnectionType() == ElasticsearchConfig.ConnectionType.HTTP ? 80 : 443;
-        int port = config.getPort() == null ? defaultPort : config.getPort();
+        final int defaultPort = config.getConnectionType() == ElasticsearchConfig.ConnectionType.HTTP
+                                ? 80
+                                : 443;
+        int port = config.getPort() == null
+                   ? defaultPort
+                   : config.getPort();
         val hosts = config.getHosts()
                 .stream()
                 .map(host -> {
-                    final String scheme =
-                            config.getConnectionType() == ElasticsearchConfig.ConnectionType.HTTP ? "http" : "https";
+                    final String scheme = config.getConnectionType() == ElasticsearchConfig.ConnectionType.HTTP
+                                          ? "http"
+                                          : "https";
                     return new HttpHost(host, port, scheme);
                 })
                 .toArray(HttpHost[]::new);

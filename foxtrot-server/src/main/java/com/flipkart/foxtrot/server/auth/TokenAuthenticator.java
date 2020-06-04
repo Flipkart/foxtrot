@@ -22,7 +22,8 @@ public class TokenAuthenticator implements Authenticator<JwtContext, UserPrincip
     private final Provider<AuthStore> authStore;
 
     @Inject
-    public TokenAuthenticator(AuthConfig config, final Provider<AuthStore> authStore) {
+    public TokenAuthenticator(AuthConfig config,
+                              final Provider<AuthStore> authStore) {
         this.config = config;
         this.authStore = authStore;
     }

@@ -19,7 +19,8 @@ public interface AuthProvider {
         return true;
     }
 
-    Optional<Token> login(String authCode, String sessionId);
+    Optional<Token> login(String authCode,
+                          String sessionId);
 
     @Data
     @Builder

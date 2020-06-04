@@ -96,9 +96,12 @@ public class ElasticsearchQueryStore implements QueryStore {
     private final CardinalityConfig cardinalityConfig;
 
     @Inject
-    public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager, ElasticsearchConnection connection,
-            DataStore dataStore, List<IndexerEventMutator> mutators, ObjectMapper mapper,
-            CardinalityConfig cardinalityConfig) {
+    public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
+                                   ElasticsearchConnection connection,
+                                   DataStore dataStore,
+                                   List<IndexerEventMutator> mutators,
+                                   ObjectMapper mapper,
+                                   CardinalityConfig cardinalityConfig) {
         this.connection = connection;
         this.dataStore = dataStore;
         this.tableMetadataManager = tableMetadataManager;
@@ -122,7 +125,8 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     @Timed
-    public void save(String table, Document document) {
+    public void save(String table,
+                     Document document) {
         table = ElasticsearchUtils.getValidTableName(table);
         Stopwatch stopwatch = Stopwatch.createStarted();
         String action = StringUtils.EMPTY;
@@ -180,7 +184,8 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     @Timed
-    public void save(String table, List<Document> documents) {
+    public void save(String table,
+                     List<Document> documents) {
         table = ElasticsearchUtils.getValidTableName(table);
         Stopwatch stopwatch = Stopwatch.createStarted();
         String action = StringUtils.EMPTY;
@@ -260,16 +265,20 @@ public class ElasticsearchQueryStore implements QueryStore {
         }
     }
 
-    private void logAndRegister(String table, List<Document> documents, Stopwatch stopwatch, String action,
-            Exception e) {
+    private void logAndRegister(String table,
+                                List<Document> documents,
+                                Stopwatch stopwatch,
+                                String action,
+                                Exception e) {
         log.debug("{}: {}, documents :{}, error: {}", ERROR_SAVING_DOCUMENTS, table, documents, e.getMessage());
         log.error("{}: {}", ERROR_SAVING_DOCUMENTS, table, e);
         MetricUtil.getInstance()
                 .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
-    private void printFailedDocuments(String table, List<Document> documents, BulkResponse bulkResponse)
-            throws JsonProcessingException {
+    private void printFailedDocuments(String table,
+                                      List<Document> documents,
+                                      BulkResponse bulkResponse) throws JsonProcessingException {
         for (int i = 0; i < bulkResponse.getItems().length; i++) {
             BulkItemResponse itemResponse = bulkResponse.getItems()[i];
             if (itemResponse.isFailed()) {
@@ -282,7 +291,8 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     @Timed
-    public Document get(String table, String id) {
+    public Document get(String table,
+                        String id) {
         table = ElasticsearchUtils.getValidTableName(table);
         Table fxTable;
         if (!tableMetadataManager.exists(table)) {
@@ -316,13 +326,16 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public List<Document> getAll(String table, List<String> ids) {
+    public List<Document> getAll(String table,
+                                 List<String> ids) {
         return getAll(table, ids, false);
     }
 
     @Override
     @Timed
-    public List<Document> getAll(String table, List<String> ids, boolean bypassMetalookup) {
+    public List<Document> getAll(String table,
+                                 List<String> ids,
+                                 boolean bypassMetalookup) {
         table = ElasticsearchUtils.getValidTableName(table);
         if (!tableMetadataManager.exists(table)) {
             throw FoxtrotExceptions.createBadRequestException(table, String.format(UNKNOWN_TABLE_ERROR_MESSAGE, table));
@@ -434,7 +447,8 @@ public class ElasticsearchQueryStore implements QueryStore {
         return tableMetadataManager.getFieldMappings(table, false, false);
     }
 
-    private Map<String, Object> convert(String table, Document document) {
+    private Map<String, Object> convert(String table,
+                                        Document document) {
         JsonNode metaNode = mapper.valueToTree(document.getMetadata());
         ObjectNode dataNode = document.getData()
                 .deepCopy();
@@ -461,7 +475,8 @@ public class ElasticsearchQueryStore implements QueryStore {
         }
     }
 
-    private List<String> getIndicesToDelete(Set<String> tables, Collection<String> currentIndices) {
+    private List<String> getIndicesToDelete(Set<String> tables,
+                                            Collection<String> currentIndices) {
         List<String> indicesToDelete = new ArrayList<>();
         for (String currentIndex : currentIndices) {
             String table = ElasticsearchUtils.getTableNameFromIndex(currentIndex);

@@ -53,7 +53,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public StatsTrendAction(StatsTrendRequest parameter, AnalyticsLoader analyticsLoader) {
+    public StatsTrendAction(StatsTrendRequest parameter,
+                            AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
@@ -89,8 +90,10 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                 .hashCode();
         hashKey += 31 * statsRequest.getTimestamp()
                 .hashCode();
-        hashKey += 31 * (statsRequest.getField() != null ? statsRequest.getField()
-                .hashCode() : "FIELD".hashCode());
+        hashKey += 31 * (statsRequest.getField() != null
+                         ? statsRequest.getField()
+                                 .hashCode()
+                         : "FIELD".hashCode());
         return String.format("stats-trend-%s-%s-%s-%d", statsRequest.getTable(), statsRequest.getField(),
                 statsRequest.getPeriod(), hashKey);
     }
@@ -128,7 +131,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(StatsTrendRequest parameter, List<Filter> extraFilters) {
+    public SearchRequest getRequestBuilder(StatsTrendRequest parameter,
+                                           List<Filter> extraFilters) {
         return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
                 Utils.indicesOptions())
                 .source(new SearchSourceBuilder().size(0)
@@ -139,7 +143,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsTrendRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      StatsTrendRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         if (aggregations != null) {
             return buildResponse(parameter, aggregations);
@@ -147,7 +152,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         return null;
     }
 
-    private AbstractAggregationBuilder buildAggregation(StatsTrendRequest request, String table) {
+    private AbstractAggregationBuilder buildAggregation(StatsTrendRequest request,
+                                                        String table) {
         final String field = request.getField();
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         AbstractAggregationBuilder dateHistogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(),
@@ -173,7 +179,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                 elasticsearchTuningConfig.getAggregationSize());
     }
 
-    private StatsTrendResponse buildResponse(StatsTrendRequest request, Aggregations aggregations) {
+    private StatsTrendResponse buildResponse(StatsTrendRequest request,
+                                             Aggregations aggregations) {
         StatsTrendResponse response = new StatsTrendResponse();
 
         if (CollectionUtils.isNullOrEmpty(request.getNesting())) {
@@ -188,10 +195,11 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     private List<BucketResponse<List<StatsTrendValue>>> buildNestedTrendStats(List<String> nesting,
-            Aggregations aggregations) {
+                                                                              Aggregations aggregations) {
         final String field = nesting.get(0);
-        final List<String> remainingFields =
-                (nesting.size() > 1) ? nesting.subList(1, nesting.size()) : new ArrayList<>();
+        final List<String> remainingFields = (nesting.size() > 1)
+                                             ? nesting.subList(1, nesting.size())
+                                             : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         List<BucketResponse<List<StatsTrendValue>>> bucketResponses = Lists.newArrayList();
         for (Terms.Bucket bucket : terms.getBuckets()) {
@@ -207,7 +215,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         return bucketResponses;
     }
 
-    private List<StatsTrendValue> buildStatsTrendValue(String field, Aggregations aggregations) {
+    private List<StatsTrendValue> buildStatsTrendValue(String field,
+                                                       Aggregations aggregations) {
         String dateHistogramKey = Utils.getDateHistogramKey(getParameter().getTimestamp());
         Histogram dateHistogram = aggregations.get(dateHistogramKey);
         Collection<? extends Histogram.Bucket> buckets = dateHistogram.getBuckets();

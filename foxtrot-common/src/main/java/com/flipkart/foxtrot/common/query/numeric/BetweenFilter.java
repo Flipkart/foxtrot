@@ -40,7 +40,10 @@ public class BetweenFilter extends Filter {
     }
 
     @Builder
-    public BetweenFilter(String field, Number from, Number to, boolean temporal) {
+    public BetweenFilter(String field,
+                         Number from,
+                         Number to,
+                         boolean temporal) {
         super(FilterOperator.between, field);
         this.from = from;
         this.to = to;
@@ -84,15 +87,21 @@ public class BetweenFilter extends Filter {
         int result = getOperator().hashCode();
         result = 31 * result + getField().hashCode();
         if (!getField().equals("_timestamp")) {
-            result = result * 21 + (getFrom() == null ? 43 : getFrom().hashCode());
-            result = result * 23 + (getTo() == null ? 29 : getTo().hashCode());
+            result = result * 21 + (getFrom() == null
+                                    ? 43
+                                    : getFrom().hashCode());
+            result = result * 23 + (getTo() == null
+                                    ? 29
+                                    : getTo().hashCode());
         } else {
             result = result * 21 + Long.valueOf(getFrom().longValue() / (long) 30000)
                     .hashCode();
             result = result * 23 + Long.valueOf(getTo().longValue() / (long) 30000)
                     .hashCode();
         }
-        result = result * 59 + (this.isTemporal() ? 79 : 97);
+        result = result * 59 + (this.isTemporal()
+                                ? 79
+                                : 97);
         return result;
     }
 

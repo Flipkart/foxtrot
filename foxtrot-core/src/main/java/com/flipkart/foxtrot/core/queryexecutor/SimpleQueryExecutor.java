@@ -14,13 +14,15 @@ import javax.inject.Singleton;
 public class SimpleQueryExecutor extends QueryExecutor {
 
     @Inject
-    public SimpleQueryExecutor(final AnalyticsLoader analyticsLoader, final ExecutorService executorService,
-            final List<ActionExecutionObserver> executionObservers) {
+    public SimpleQueryExecutor(final AnalyticsLoader analyticsLoader,
+                               final ExecutorService executorService,
+                               final List<ActionExecutionObserver> executionObservers) {
         super(analyticsLoader, executorService, executionObservers);
     }
 
     @Override
-    protected <T extends ActionRequest> ActionResponse execute(T request, Action action) {
+    protected <T extends ActionRequest> ActionResponse execute(T request,
+                                                               Action action) {
         return action.execute();
     }
 }

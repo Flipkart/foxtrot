@@ -18,7 +18,8 @@ public class ClusterRerouteManager {
     private final ClusterRerouteConfig clusterRerouteConfig;
 
     @Inject
-    public ClusterRerouteManager(ElasticsearchConnection connection, ClusterRerouteConfig clusterRerouteConfig) {
+    public ClusterRerouteManager(ElasticsearchConnection connection,
+                                 ClusterRerouteConfig clusterRerouteConfig) {
         this.connection = connection;
         this.clusterRerouteConfig = clusterRerouteConfig;
     }

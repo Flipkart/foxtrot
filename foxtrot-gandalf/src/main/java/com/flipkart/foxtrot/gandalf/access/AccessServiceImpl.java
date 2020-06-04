@@ -21,13 +21,15 @@ public class AccessServiceImpl implements AccessService {
     private final ActionRequestVisitor<String> actionRequestVisitor;
 
     @Inject
-    public AccessServiceImpl(boolean restrictAccess, ActionRequestVisitor<String> actionRequestVisitor) {
+    public AccessServiceImpl(boolean restrictAccess,
+                             ActionRequestVisitor<String> actionRequestVisitor) {
         this.restrictAccess = restrictAccess;
         this.actionRequestVisitor = actionRequestVisitor;
     }
 
     @Override
-    public boolean hasAccess(@Valid final ActionRequest request, UserDetails userDetails) {
+    public boolean hasAccess(@Valid final ActionRequest request,
+                             UserDetails userDetails) {
         if (!restrictAccess) {
             return true;
         }

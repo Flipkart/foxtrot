@@ -13,7 +13,8 @@ public class TableInitializationException extends FoxtrotException {
     private final String table;
     private final String reason;
 
-    protected TableInitializationException(String table, String reason) {
+    protected TableInitializationException(String table,
+                                           String reason) {
         super(ErrorCode.TABLE_INITIALIZATION_ERROR);
         this.table = table;
         this.reason = reason;

@@ -1,27 +1,14 @@
 package com.flipkart.foxtrot.core.funnel.resources;
 
 import com.flipkart.foxtrot.core.funnel.model.Funnel;
-import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
-import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
 import com.flipkart.foxtrot.core.funnel.services.FunnelService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import java.util.List;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 /***
  Created by nitish.goyal on 25/09/18

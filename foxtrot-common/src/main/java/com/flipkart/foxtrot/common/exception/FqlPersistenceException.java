@@ -10,7 +10,8 @@ public class FqlPersistenceException extends FoxtrotException {
 
     private final String message;
 
-    public FqlPersistenceException(String message, Throwable cause) {
+    public FqlPersistenceException(String message,
+                                   Throwable cause) {
         super(ErrorCode.FQL_PERSISTENCE_EXCEPTION, message, cause);
         this.message = message;
     }

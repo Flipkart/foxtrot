@@ -20,8 +20,12 @@ public class ActionEvaluationResponse {
     private final long elapsedTime;
     private final boolean cached;
 
-    private ActionEvaluationResponse(Action executedAction, ActionRequest request, ActionResponse response,
-            FoxtrotException exception, long elapsedTime, boolean cached) {
+    private ActionEvaluationResponse(Action executedAction,
+                                     ActionRequest request,
+                                     ActionResponse response,
+                                     FoxtrotException exception,
+                                     long elapsedTime,
+                                     boolean cached) {
         this.executedAction = executedAction;
         this.request = request;
         this.response = response;
@@ -30,13 +34,18 @@ public class ActionEvaluationResponse {
         this.cached = cached;
     }
 
-    public static ActionEvaluationResponse success(final Action executedAction, final ActionRequest request,
-            final ActionResponse response, long elapsedTime, boolean cached) {
+    public static ActionEvaluationResponse success(final Action executedAction,
+                                                   final ActionRequest request,
+                                                   final ActionResponse response,
+                                                   long elapsedTime,
+                                                   boolean cached) {
         return new ActionEvaluationResponse(executedAction, request, response, null, elapsedTime, cached);
     }
 
-    public static ActionEvaluationResponse failure(final Action executedAction, final ActionRequest request,
-            final FoxtrotException exception, long elapsedTime) {
+    public static ActionEvaluationResponse failure(final Action executedAction,
+                                                   final ActionRequest request,
+                                                   final FoxtrotException exception,
+                                                   long elapsedTime) {
         return new ActionEvaluationResponse(executedAction, request, null, exception, elapsedTime, false);
     }
 }

@@ -22,46 +22,64 @@ public interface AuthStore {
 
     boolean deleteUser(final String id);
 
-    boolean updateUser(final String id, UnaryOperator<User> mutator);
+    boolean updateUser(final String id,
+                       UnaryOperator<User> mutator);
 
-    default boolean grantRole(final String userId, final FoxtrotRole role) {
+    default boolean grantRole(final String userId,
+                              final FoxtrotRole role) {
         return updateUser(userId, user -> {
-            val roles = user.getRoles() == null ? new HashSet<FoxtrotRole>() : user.getRoles();
+            val roles = user.getRoles() == null
+                        ? new HashSet<FoxtrotRole>()
+                        : user.getRoles();
             roles.add(role);
             return new User(userId, roles, user.getTables(), user.isSystemUser(), user.getCreated(), new Date());
         });
     }
 
-    default boolean revokeRole(final String userId, final FoxtrotRole role) {
+    default boolean revokeRole(final String userId,
+                               final FoxtrotRole role) {
         return updateUser(userId, user -> {
-            val roles = user.getRoles() == null ? new HashSet<FoxtrotRole>() : user.getRoles();
+            val roles = user.getRoles() == null
+                        ? new HashSet<FoxtrotRole>()
+                        : user.getRoles();
             roles.remove(role);
             return new User(userId, roles, user.getTables(), user.isSystemUser(), user.getCreated(), new Date());
         });
     }
 
-    default boolean grantTableAccess(final String userId, final String table) {
+    default boolean grantTableAccess(final String userId,
+                                     final String table) {
         return updateUser(userId, user -> {
-            val tables = user.getTables() == null ? new HashSet<String>() : user.getTables();
+            val tables = user.getTables() == null
+                         ? new HashSet<String>()
+                         : user.getTables();
             tables.add(table);
             return new User(userId, user.getRoles(), tables, user.isSystemUser(), user.getCreated(), new Date());
         });
     }
 
-    default boolean revokeTableAccess(final String userId, final String table) {
+    default boolean revokeTableAccess(final String userId,
+                                      final String table) {
         return updateUser(userId, user -> {
-            val tables = user.getTables() == null ? new HashSet<String>() : user.getTables();
+            val tables = user.getTables() == null
+                         ? new HashSet<String>()
+                         : user.getTables();
             tables.remove(table);
             return new User(userId, user.getRoles(), tables, user.isSystemUser(), user.getCreated(), new Date());
         });
     }
 
-    default Optional<Token> provisionToken(final String userId, TokenType tokenType, Date expiry) {
+    default Optional<Token> provisionToken(final String userId,
+                                           TokenType tokenType,
+                                           Date expiry) {
         return provisionToken(userId, UUID.randomUUID()
                 .toString(), tokenType, expiry);
     }
 
-    Optional<Token> provisionToken(final String userId, String tokenId, TokenType tokenType, Date expiry);
+    Optional<Token> provisionToken(final String userId,
+                                   String tokenId,
+                                   TokenType tokenType,
+                                   Date expiry);
 
     Optional<Token> getToken(final String tokenId);
 
@@ -70,5 +88,6 @@ public interface AuthStore {
 
     boolean deleteToken(final String tokenId);
 
-    boolean deleteExpiredTokens(Date date, Duration sessionDuration);
+    boolean deleteExpiredTokens(Date date,
+                                Duration sessionDuration);
 }

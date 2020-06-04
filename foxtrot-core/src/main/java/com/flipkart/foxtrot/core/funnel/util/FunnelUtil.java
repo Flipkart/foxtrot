@@ -11,7 +11,9 @@ public class FunnelUtil {
     private FunnelUtil() {
     }
 
-    public static String getApprovalRequestBody(String funnelName, String description, String endpoint) {
+    public static String getApprovalRequestBody(String funnelName,
+                                                String description,
+                                                String endpoint) {
         return "Funnel approval needed. <br>Funnel Name: " + funnelName + " <br>Description: " + description
                 + "<br>For details and to approve the funnel visit: " + endpoint;
     }

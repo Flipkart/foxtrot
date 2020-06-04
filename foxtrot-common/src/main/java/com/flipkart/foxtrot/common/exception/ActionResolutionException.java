@@ -13,7 +13,8 @@ public class ActionResolutionException extends FoxtrotException {
 
     private final ActionRequest actionRequest;
 
-    protected ActionResolutionException(ActionRequest actionRequest, Throwable cause) {
+    protected ActionResolutionException(ActionRequest actionRequest,
+                                        Throwable cause) {
         super(ErrorCode.ACTION_RESOLUTION_FAILURE, cause);
         this.actionRequest = actionRequest;
     }

@@ -45,8 +45,10 @@ public class FqlResource {
     private final AccessService accessService;
 
     @Inject
-    public FqlResource(final FqlEngine fqlEngine, final FqlStoreService fqlStoreService, AccessService accessService,
-            QueryConfig queryConfig) {
+    public FqlResource(final FqlEngine fqlEngine,
+                       final FqlStoreService fqlStoreService,
+                       AccessService accessService,
+                       QueryConfig queryConfig) {
         this.fqlEngine = fqlEngine;
         this.fqlStoreService = fqlStoreService;
         this.accessService = accessService;
@@ -59,8 +61,8 @@ public class FqlResource {
     @Timed
     @ApiOperation("runFqlGet")
     @Authorize(value = {})
-    public StreamingOutput runFqlGet(@QueryParam("q") final String query, @GandalfUserContext UserDetails userDetails)
-            throws JsonProcessingException {
+    public StreamingOutput runFqlGet(@QueryParam("q") final String query,
+                                     @GandalfUserContext UserDetails userDetails) throws JsonProcessingException {
         Preconditions.checkNotNull(query);
         preprocess(query, userDetails.getEmail());
         final FlatRepresentation representation = fqlEngine.parse(query, userDetails, accessService);
@@ -72,8 +74,8 @@ public class FqlResource {
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, FoxtrotExtraMediaType.TEXT_CSV})
     @ApiOperation("runFqlPost")
     @Authorize(value = {})
-    public FlatRepresentation runFqlPost(final String query, @GandalfUserContext UserDetails userDetails)
-            throws JsonProcessingException {
+    public FlatRepresentation runFqlPost(final String query,
+                                         @GandalfUserContext UserDetails userDetails) throws JsonProcessingException {
         return fqlEngine.parse(query, userDetails, accessService);
     }
 
@@ -105,7 +107,8 @@ public class FqlResource {
         return fqlStoreService.get(fqlGetRequest);
     }
 
-    private void preprocess(String query, String email) {
+    private void preprocess(String query,
+                            String email) {
         if (queryConfig.isLogQueries()) {
             if (query.contains("time")) {
                 log.info("Fql Query : " + query);

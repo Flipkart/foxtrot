@@ -29,7 +29,8 @@ public abstract class EstimationData implements Serializable {
         this.type = type;
     }
 
-    EstimationData(EstimationDataType type, long count) {
+    EstimationData(EstimationDataType type,
+                   long count) {
         this.type = type;
         this.count = count;
     }

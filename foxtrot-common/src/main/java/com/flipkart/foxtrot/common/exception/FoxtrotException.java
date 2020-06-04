@@ -16,17 +16,21 @@ public abstract class FoxtrotException extends RuntimeException {
         this.code = code;
     }
 
-    protected FoxtrotException(ErrorCode code, String message) {
+    protected FoxtrotException(ErrorCode code,
+                               String message) {
         super(message);
         this.code = code;
     }
 
-    protected FoxtrotException(ErrorCode code, Throwable cause) {
+    protected FoxtrotException(ErrorCode code,
+                               Throwable cause) {
         super(cause);
         this.code = code;
     }
 
-    protected FoxtrotException(ErrorCode code, String message, Throwable cause) {
+    protected FoxtrotException(ErrorCode code,
+                               String message,
+                               Throwable cause) {
         super(message, cause);
         this.code = code;
     }

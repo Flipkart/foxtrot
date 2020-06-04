@@ -21,7 +21,8 @@ public abstract class AuthProviderConfig {
         this.type = type;
     }
 
-    protected AuthProviderConfig(AuthType type, boolean enabled) {
+    protected AuthProviderConfig(AuthType type,
+                                 boolean enabled) {
         this(type);
         this.enabled = enabled;
     }

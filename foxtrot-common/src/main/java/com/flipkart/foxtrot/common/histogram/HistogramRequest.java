@@ -53,7 +53,11 @@ public class HistogramRequest extends ActionRequest {
         this.period = Period.minutes;
     }
 
-    public HistogramRequest(List<Filter> filters, String table, String field, String uniqueCountOn, Period period) {
+    public HistogramRequest(List<Filter> filters,
+                            String table,
+                            String field,
+                            String uniqueCountOn,
+                            Period period) {
         super(Opcodes.HISTOGRAM, filters);
         this.table = table;
         this.field = field;

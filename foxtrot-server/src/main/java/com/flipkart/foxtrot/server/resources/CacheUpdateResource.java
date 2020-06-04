@@ -42,7 +42,8 @@ public class CacheUpdateResource {
     private final TableMetadataManager tableMetadataManager;
 
     @Inject
-    public CacheUpdateResource(ExecutorService executorService, TableMetadataManager tableMetadataManager) {
+    public CacheUpdateResource(ExecutorService executorService,
+                               TableMetadataManager tableMetadataManager) {
         this.executorService = executorService;
         this.tableMetadataManager = tableMetadataManager;
     }

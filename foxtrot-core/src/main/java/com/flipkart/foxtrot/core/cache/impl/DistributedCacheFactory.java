@@ -39,7 +39,9 @@ public class DistributedCacheFactory implements CacheFactory {
     private final ObjectMapper mapper;
 
     @Inject
-    public DistributedCacheFactory(HazelcastConnection connection, ObjectMapper mapper, CacheConfig cacheConfig) {
+    public DistributedCacheFactory(HazelcastConnection connection,
+                                   ObjectMapper mapper,
+                                   CacheConfig cacheConfig) {
         this.connection = connection;
         this.mapper = mapper;
         this.connection.getHazelcastConfig()

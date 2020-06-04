@@ -9,5 +9,6 @@ import javax.validation.Valid;
  ***/
 public interface AccessService {
 
-    boolean hasAccess(@Valid final ActionRequest request, UserDetails userDetails);
+    boolean hasAccess(@Valid final ActionRequest request,
+                      UserDetails userDetails);
 }

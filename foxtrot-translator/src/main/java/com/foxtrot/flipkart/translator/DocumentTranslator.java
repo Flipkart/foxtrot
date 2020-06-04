@@ -60,7 +60,8 @@ public class DocumentTranslator {
         this.unmarshallerConfig = translatorConfig.getUnmarshallerConfig();
     }
 
-    public List<Document> translate(final Table table, final List<Document> inDocuments) {
+    public List<Document> translate(final Table table,
+                                    final List<Document> inDocuments) {
         ImmutableList.Builder<Document> docListBuilder = ImmutableList.builder();
         for (Document document : inDocuments) {
             docListBuilder.add(translate(table, document));
@@ -68,7 +69,8 @@ public class DocumentTranslator {
         return docListBuilder.build();
     }
 
-    public Document translate(final Table table, final Document inDocument) {
+    public Document translate(final Table table,
+                              final Document inDocument) {
         Document document = new Document();
         DocumentMetadata metadata = metadata(table, inDocument);
 
@@ -102,7 +104,8 @@ public class DocumentTranslator {
         return document;
     }
 
-    private void unmarshallStringJsonFields(ObjectNode dataNode, List<String> unmarshallJsonPaths) {
+    private void unmarshallStringJsonFields(ObjectNode dataNode,
+                                            List<String> unmarshallJsonPaths) {
         for (String jsonPath : nullSafeList(unmarshallJsonPaths)) {
             try {
                 JsonPointer valueNodePointer = JsonPointer.compile(jsonPath);
@@ -133,15 +136,18 @@ public class DocumentTranslator {
 
     public Document translateBack(final Document inDocument) {
         Document document = new Document();
-        document.setId(inDocument.getMetadata() != null ? inDocument.getMetadata()
-                .getId() : inDocument.getId());
+        document.setId(inDocument.getMetadata() != null
+                       ? inDocument.getMetadata()
+                               .getId()
+                       : inDocument.getId());
         document.setTimestamp(inDocument.getTimestamp());
         document.setData(inDocument.getData());
         document.setDate(Utils.getDate(inDocument.getTimestamp()));
         return document;
     }
 
-    public DocumentMetadata metadata(final Table table, final Document inDocument) {
+    public DocumentMetadata metadata(final Table table,
+                                     final Document inDocument) {
         final String rowKey = generateScalableKey(rawStorageIdFromDocument(table, inDocument));
         DocumentMetadata metadata = new DocumentMetadata();
         metadata.setRawStorageId(rowKey);
@@ -151,7 +157,8 @@ public class DocumentTranslator {
     }
 
 
-    public String rawStorageIdFromDocument(final Table table, final Document document) {
+    public String rawStorageIdFromDocument(final Table table,
+                                           final Document document) {
         switch (rawKeyVersion) {
             case "1.0":
                 return document.getId() + ":" + table.getName();
@@ -169,7 +176,8 @@ public class DocumentTranslator {
         return new String(keyDistributor.getDistributedKey(Bytes.toBytes(id)));
     }
 
-    public String rawStorageIdFromDocumentId(Table table, String id) {
+    public String rawStorageIdFromDocumentId(Table table,
+                                             String id) {
         if (id.endsWith(Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("2.0")) || id.endsWith(
                 Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("3.0"))) {
             return id;

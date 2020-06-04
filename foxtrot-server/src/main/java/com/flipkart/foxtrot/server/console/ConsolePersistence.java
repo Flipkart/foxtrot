@@ -24,7 +24,8 @@ public interface ConsolePersistence {
 
     void delete(final String id);
 
-    void saveV2(ConsoleV2 console, boolean freshConsole);
+    void saveV2(ConsoleV2 console,
+                boolean freshConsole);
 
     ConsoleV2 getV2(final String id);
 
@@ -32,7 +33,8 @@ public interface ConsolePersistence {
 
     void deleteV2(final String id);
 
-    List<ConsoleV2> getAllOldVersions(final String name, final String sortBy);
+    List<ConsoleV2> getAllOldVersions(final String name,
+                                      final String sortBy);
 
     ConsoleV2 getOldVersion(final String id);
 

@@ -35,16 +35,19 @@ public class FqlEngine {
     private final ObjectMapper mapper;
 
     @Inject
-    public FqlEngine(final TableMetadataManager tableMetadataManager, final QueryStore queryStore,
-            final QueryExecutorFactory executorFactory, final ObjectMapper mapper) {
+    public FqlEngine(final TableMetadataManager tableMetadataManager,
+                     final QueryStore queryStore,
+                     final QueryExecutorFactory executorFactory,
+                     final ObjectMapper mapper) {
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
         this.executorFactory = executorFactory;
         this.mapper = mapper;
     }
 
-    public FlatRepresentation parse(final String fql, UserDetails userDetails, AccessService accessService)
-            throws JsonProcessingException {
+    public FlatRepresentation parse(final String fql,
+                                    UserDetails userDetails,
+                                    AccessService accessService) throws JsonProcessingException {
         QueryTranslator translator = new QueryTranslator();
         FqlQuery query = translator.translate(fql);
         FlatRepresentation response = new QueryProcessor(tableMetadataManager, queryStore, executorFactory, mapper,
@@ -67,9 +70,12 @@ public class FqlEngine {
 
         private FlatRepresentation result;
 
-        private QueryProcessor(TableMetadataManager tableMetadataManager, QueryStore queryStore,
-                QueryExecutorFactory executorFactory, ObjectMapper mapper, UserDetails userDetails,
-                AccessService accessService) {
+        private QueryProcessor(TableMetadataManager tableMetadataManager,
+                               QueryStore queryStore,
+                               QueryExecutorFactory executorFactory,
+                               ObjectMapper mapper,
+                               UserDetails userDetails,
+                               AccessService accessService) {
             this.tableMetadataManager = tableMetadataManager;
             this.queryStore = queryStore;
             this.executorFactory = executorFactory;

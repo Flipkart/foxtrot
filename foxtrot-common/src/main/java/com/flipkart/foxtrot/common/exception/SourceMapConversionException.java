@@ -10,7 +10,8 @@ public class SourceMapConversionException extends FoxtrotException {
 
     private final String message;
 
-    public SourceMapConversionException(String message, Throwable cause) {
+    public SourceMapConversionException(String message,
+                                        Throwable cause) {
         super(ErrorCode.SOURCE_MAP_CONVERSION_FAILURE, message, cause);
         this.message = message;
     }

@@ -28,8 +28,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /***
@@ -50,8 +48,10 @@ public class ConsoleHistoryManager extends BaseJobManager {
 
     @Inject
     public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService,
-            ConsoleHistoryConfig consoleHistoryConfig, ElasticsearchConnection connection,
-            HazelcastConnection hazelcastConnection, ObjectMapper mapper) {
+                                 ConsoleHistoryConfig consoleHistoryConfig,
+                                 ElasticsearchConnection connection,
+                                 HazelcastConnection hazelcastConnection,
+                                 ObjectMapper mapper) {
         super(consoleHistoryConfig, scheduledExecutorService, hazelcastConnection);
         this.consoleHistoryConfig = consoleHistoryConfig;
         this.connection = connection;
@@ -60,7 +60,8 @@ public class ConsoleHistoryManager extends BaseJobManager {
     }
 
     @Override
-    protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
+    protected void runImpl(LockingTaskExecutor executor,
+                           Instant lockAtMostUntil) {
         executor.executeWithLock(() -> {
             try {
                 SearchResponse searchResponse = connection.getClient()

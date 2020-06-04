@@ -33,16 +33,19 @@ public class ElasticsearchQueryUtils {
     private ElasticsearchQueryUtils() {
     }
 
-    public static Map<String, Object> toMap(ObjectMapper mapper, Object value) {
+    public static Map<String, Object> toMap(ObjectMapper mapper,
+                                            Object value) {
         return mapper.convertValue(value, new TypeReference<Map<String, Object>>() {
         });
     }
 
-    public static QueryBuilder translateFilter(ActionRequest request, List<Filter> extraFilters) {
-        val filters = (null == extraFilters || extraFilters.isEmpty()) ? request.getFilters()
-                : ImmutableList.<Filter>builder().addAll(request.getFilters())
-                        .addAll(extraFilters)
-                        .build();
+    public static QueryBuilder translateFilter(ActionRequest request,
+                                               List<Filter> extraFilters) {
+        val filters = (null == extraFilters || extraFilters.isEmpty())
+                      ? request.getFilters()
+                      : ImmutableList.<Filter>builder().addAll(request.getFilters())
+                              .addAll(extraFilters)
+                              .build();
         return new ElasticSearchQueryGenerator().genFilter(filters);
     }
 }

@@ -24,8 +24,10 @@ public class LockedExecutor {
     /**
      * Do work in single lock
      */
-    public <T, R> R doItInLock(T dataForProcessing, Function<T, R> runFuncInsideLock,
-            Function<T, String> uniqueLockIdFunc, R defaultDataWhenLockNotAcquired) {
+    public <T, R> R doItInLock(T dataForProcessing,
+                               Function<T, R> runFuncInsideLock,
+                               Function<T, String> uniqueLockIdFunc,
+                               R defaultDataWhenLockNotAcquired) {
         String lockString = uniqueLockIdFunc.apply(dataForProcessing);
         Lock lock = null;
         try {
@@ -43,9 +45,12 @@ public class LockedExecutor {
         }
     }
 
-    public <T, R> R doItInLock(T dataForProcessing, Function<T, R> runFuncInsideLock,
-            Function<T, R> runFuncIfLockNotAcquired, Function<T, String> uniqueLockIdFunc, String lockGroupName,
-            R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
+    public <T, R> R doItInLock(T dataForProcessing,
+                               Function<T, R> runFuncInsideLock,
+                               Function<T, R> runFuncIfLockNotAcquired,
+                               Function<T, String> uniqueLockIdFunc,
+                               String lockGroupName,
+                               R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
         String lockString = uniqueLockIdFunc.apply(dataForProcessing);
         Lock lock = null;
         try {
@@ -70,42 +75,56 @@ public class LockedExecutor {
     }
 
     // Method for convenience
-    public <T, R> R doItInLockV1(T dataForProcessing, Function<T, R> runFuncInsideLock,
-            Function<T, R> runFuncIfLockNotAcquired, String lockString, String lockGroupName) {
+    public <T, R> R doItInLockV1(T dataForProcessing,
+                                 Function<T, R> runFuncInsideLock,
+                                 Function<T, R> runFuncIfLockNotAcquired,
+                                 String lockString,
+                                 String lockGroupName) {
         return doItInLock(dataForProcessing, runFuncInsideLock, runFuncIfLockNotAcquired, t -> lockString,
                 lockGroupName, null);
     }
 
     // Method for convenience
-    public <T, R> R doItInLockV2(T dataForProcessing, Function<T, R> runFuncInsideLock,
-            Function<T, String> uniqueLockIdFunc, String lockGroupName,
-            R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
+    public <T, R> R doItInLockV2(T dataForProcessing,
+                                 Function<T, R> runFuncInsideLock,
+                                 Function<T, String> uniqueLockIdFunc,
+                                 String lockGroupName,
+                                 R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
         return doItInLock(dataForProcessing, runFuncInsideLock, null, uniqueLockIdFunc, lockGroupName,
                 defaultDataWhenLockNotAcquiredOrNoFailFunction);
     }
 
     // Method for convenience
-    public <T, R> R doItInLockV3(T dataForProcessing, Function<T, R> runFuncInsideLock, String lockString,
-            String lockGroupName, R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
+    public <T, R> R doItInLockV3(T dataForProcessing,
+                                 Function<T, R> runFuncInsideLock,
+                                 String lockString,
+                                 String lockGroupName,
+                                 R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
         return doItInLock(dataForProcessing, runFuncInsideLock, null, t -> lockString, lockGroupName,
                 defaultDataWhenLockNotAcquiredOrNoFailFunction);
     }
 
     // Method for convenience
-    public <T, R> R doItInLockV4(T dataForProcessing, Function<T, R> runFuncInsideLock,
-            Function<T, String> uniqueLockIdFunc, String lockGroupName) {
+    public <T, R> R doItInLockV4(T dataForProcessing,
+                                 Function<T, R> runFuncInsideLock,
+                                 Function<T, String> uniqueLockIdFunc,
+                                 String lockGroupName) {
         return doItInLock(dataForProcessing, runFuncInsideLock, null, uniqueLockIdFunc, lockGroupName, null);
     }
 
     // Method for convenience
-    public <T, R> R doItInLockV5(T dataForProcessing, Function<T, R> runFuncInsideLock, String lockString,
-            String lockGroupName) {
+    public <T, R> R doItInLockV5(T dataForProcessing,
+                                 Function<T, R> runFuncInsideLock,
+                                 String lockString,
+                                 String lockGroupName) {
         return doItInLock(dataForProcessing, runFuncInsideLock, null, t -> lockString, lockGroupName, null);
     }
 
     // Method for convenience
-    public <T, R> R doItInLockV6(T dataForProcessing, Function<T, R> runFuncInsideLock,
-            Function<T, R> runFuncIfLockNotAcquired, String lockString) {
+    public <T, R> R doItInLockV6(T dataForProcessing,
+                                 Function<T, R> runFuncInsideLock,
+                                 Function<T, R> runFuncIfLockNotAcquired,
+                                 String lockString) {
         return doItInLock(dataForProcessing, runFuncInsideLock, runFuncIfLockNotAcquired, t -> lockString, "default",
                 null);
     }

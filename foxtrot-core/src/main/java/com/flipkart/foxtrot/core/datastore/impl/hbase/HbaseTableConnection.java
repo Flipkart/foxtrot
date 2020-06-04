@@ -50,7 +50,8 @@ public class HbaseTableConnection implements Managed {
     private Admin hBaseAdmin;
 
     @Inject
-    public HbaseTableConnection(Configuration configuration, HbaseConfig hbaseConfig) {
+    public HbaseTableConnection(Configuration configuration,
+                                HbaseConfig hbaseConfig) {
         this.configuration = configuration;
         this.hbaseConfig = hbaseConfig;
     }

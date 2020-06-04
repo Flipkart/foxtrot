@@ -49,8 +49,10 @@ public class UserAuthenticationFilter implements Filter {
     private final Provider<Authenticator<JwtContext, UserPrincipal>> authenticator;
 
     @Inject
-    public UserAuthenticationFilter(AuthConfig authConfig, Provider<SessionDataStore> sessionDataStore,
-            JwtConsumer consumer, Provider<Authenticator<JwtContext, UserPrincipal>> authenticator) {
+    public UserAuthenticationFilter(AuthConfig authConfig,
+                                    Provider<SessionDataStore> sessionDataStore,
+                                    JwtConsumer consumer,
+                                    Provider<Authenticator<JwtContext, UserPrincipal>> authenticator) {
         this.authConfig = authConfig;
         this.sessionDataStore = sessionDataStore;
         this.consumer = consumer;
@@ -63,8 +65,9 @@ public class UserAuthenticationFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+    public void doFilter(ServletRequest request,
+                         ServletResponse response,
+                         FilterChain chain) throws IOException, ServletException {
         if (!authConfig.isEnabled()) {
             log.trace("Auth disabled");
             chain.doFilter(request, response);
@@ -95,7 +98,9 @@ public class UserAuthenticationFilter implements Filter {
             }
         }
         val referrer = httpRequest.getHeader(org.apache.http.HttpHeaders.REFERER);
-        val source = Strings.isNullOrEmpty(referrer) ? requestURI : referrer;
+        val source = Strings.isNullOrEmpty(referrer)
+                     ? requestURI
+                     : referrer;
         httpResponse.addCookie(new Cookie("redirection", source));
         httpResponse.sendRedirect("/foxtrot/google/login");
     }
@@ -107,7 +112,9 @@ public class UserAuthenticationFilter implements Filter {
 
     private Optional<String> getTokenFromCookieOrHeader(HttpServletRequest servletRequest) {
         val tokenFromHeader = getTokenFromHeader(servletRequest);
-        return tokenFromHeader.isPresent() ? tokenFromHeader : getTokenFromCookie(servletRequest);
+        return tokenFromHeader.isPresent()
+               ? tokenFromHeader
+               : getTokenFromCookie(servletRequest);
     }
 
     private Optional<String> getTokenFromHeader(HttpServletRequest servletRequest) {

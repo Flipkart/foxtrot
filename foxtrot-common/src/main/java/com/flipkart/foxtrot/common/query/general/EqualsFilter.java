@@ -38,7 +38,8 @@ public class EqualsFilter extends Filter {
     }
 
     @Builder
-    public EqualsFilter(String field, Object value) {
+    public EqualsFilter(String field,
+                        Object value) {
         super(FilterOperator.equals, field);
         this.value = value;
     }

@@ -21,7 +21,9 @@ public class FoxtrotTableManager implements TableManager {
     private final DataStore dataStore;
 
     @Inject
-    public FoxtrotTableManager(TableMetadataManager metadataManager, QueryStore queryStore, DataStore dataStore) {
+    public FoxtrotTableManager(TableMetadataManager metadataManager,
+                               QueryStore queryStore,
+                               DataStore dataStore) {
         this.metadataManager = metadataManager;
         this.queryStore = queryStore;
         this.dataStore = dataStore;
@@ -39,7 +41,8 @@ public class FoxtrotTableManager implements TableManager {
     }
 
     @Override
-    public void save(Table table, boolean forceCreateTable) {
+    public void save(Table table,
+                     boolean forceCreateTable) {
         validateTableParams(table);
         if (metadataManager.exists(table.getName())) {
             throw FoxtrotExceptions.createTableExistsException(table.getName());
@@ -83,8 +86,9 @@ public class FoxtrotTableManager implements TableManager {
         if (table == null || table.getName() == null || table.getName()
                 .trim()
                 .isEmpty() || table.getTtl() <= 0) {
-            throw FoxtrotExceptions.createBadRequestException(table != null ? table.getName() : null,
-                    "Invalid Table Params");
+            throw FoxtrotExceptions.createBadRequestException(table != null
+                                                              ? table.getName()
+                                                              : null, "Invalid Table Params");
         }
     }
 }

@@ -347,7 +347,8 @@ public class ElasticsearchQueryStoreTest {
                 "__FOXTROT_METADATA__.rawStorageId", "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay", "_seq_no",
                 "_field_names", "_source", "_id", "time", "_uid", "_ignored",
                 "testLargeField.testField.testField.testField.testField_array",
-                "testLargeField.testField.testField.testField.testField_array.analyzed", "eventData.funnelInfo.funnelId");
+                "testLargeField.testField.testField.testField.testField_array.analyzed",
+                "eventData.funnelInfo.funnelId");
         assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings()
                 .get(currentIndex)
                 .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
@@ -811,7 +812,8 @@ public class ElasticsearchQueryStoreTest {
     }
 
 
-    private ObjectNode createNestedObject(String field, String value) {
+    private ObjectNode createNestedObject(String field,
+                                          String value) {
         ObjectNode objectNode = mapper.createObjectNode();
         objectNode.with(field)
                 .with(field)
@@ -820,7 +822,8 @@ public class ElasticsearchQueryStoreTest {
         return objectNode;
     }
 
-    private ObjectNode createNestedArray(String field, String value) {
+    private ObjectNode createNestedArray(String field,
+                                         String value) {
         ObjectNode objectNode = mapper.createObjectNode();
         objectNode.with(field)
                 .with(field)

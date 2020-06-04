@@ -18,7 +18,8 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
     private final TextNodeRemoverConfiguration configuration;
     private final Random random;
 
-    public LargeTextNodeRemover(ObjectMapper objectMapper, TextNodeRemoverConfiguration textNodeRemoverConfiguration) {
+    public LargeTextNodeRemover(ObjectMapper objectMapper,
+                                TextNodeRemoverConfiguration textNodeRemoverConfiguration) {
         this.objectMapper = objectMapper;
         this.configuration = textNodeRemoverConfiguration;
         this.random = new Random();
@@ -26,12 +27,16 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
 
 
     @Override
-    public void mutate(final String table, final String documentId, JsonNode data) {
+    public void mutate(final String table,
+                       final String documentId,
+                       JsonNode data) {
         walkTree(table, documentId, data);
     }
 
 
-    private void walkTree(final String table, final String documentId, JsonNode node) {
+    private void walkTree(final String table,
+                          final String documentId,
+                          JsonNode node) {
         if (node == null || node.isNull()) {
             return;
         }
@@ -42,7 +47,9 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         }
     }
 
-    private void handleObjectNode(final String table, final String documentId, ObjectNode objectNode) {
+    private void handleObjectNode(final String table,
+                                  final String documentId,
+                                  ObjectNode objectNode) {
         if (objectNode == null || objectNode.isNull()) {
             return;
         }
@@ -65,8 +72,10 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         objectNode.remove(toBeRemoved);
     }
 
-    private void handleArrayNode(final String table, final String documentId, final String parentKey,
-            ArrayNode arrayNode) {
+    private void handleArrayNode(final String table,
+                                 final String documentId,
+                                 final String parentKey,
+                                 ArrayNode arrayNode) {
         if (arrayNode == null || arrayNode.isNull()) {
             return;
         }
@@ -89,7 +98,10 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         arrayNode.addAll(copy);
     }
 
-    private boolean evaluateForRemoval(final String table, final String documentId, final String key, JsonNode node) {
+    private boolean evaluateForRemoval(final String table,
+                                       final String documentId,
+                                       final String key,
+                                       JsonNode node) {
         if (!node.isTextual()) {
             return false;
         }

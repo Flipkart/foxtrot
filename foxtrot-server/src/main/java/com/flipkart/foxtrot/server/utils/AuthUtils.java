@@ -21,7 +21,8 @@ import org.jose4j.keys.HmacKey;
 public class AuthUtils {
 
     @SneakyThrows
-    public static String createJWT(final Token token, final JwtConfig jwtConfig) {
+    public static String createJWT(final Token token,
+                                   final JwtConfig jwtConfig) {
         JwtClaims claims = new JwtClaims();
         claims.setIssuer(jwtConfig.getIssuerId());
         claims.setGeneratedJwtId();
@@ -47,6 +48,8 @@ public class AuthUtils {
     public static Duration sessionDuration(AuthConfig authConfig) {
         final Duration dynamicSessionDuration = authConfig.getJwt()
                 .getSessionDuration();
-        return dynamicSessionDuration != null ? dynamicSessionDuration : Duration.days(30);
+        return dynamicSessionDuration != null
+               ? dynamicSessionDuration
+               : Duration.days(30);
     }
 }

@@ -36,7 +36,8 @@ public abstract class HBaseUtil {
     private HBaseUtil() {
     }
 
-    public static void createTable(final HbaseConfig hbaseConfig, final String tableName) throws IOException {
+    public static void createTable(final HbaseConfig hbaseConfig,
+                                   final String tableName) throws IOException {
         HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
         HColumnDescriptor columnDescriptor = new HColumnDescriptor("d");
         columnDescriptor.setCompressionType(Compression.Algorithm.GZ);

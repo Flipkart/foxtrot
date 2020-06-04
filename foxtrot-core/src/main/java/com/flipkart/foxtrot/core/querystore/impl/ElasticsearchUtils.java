@@ -86,12 +86,15 @@ public class ElasticsearchUtils {
         return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
-    public static String[] getIndices(final String table, final ActionRequest request) {
+    public static String[] getIndices(final String table,
+                                      final ActionRequest request) {
         return getIndices(table, request, new PeriodSelector(request.getFilters()).analyze());
     }
 
     @VisibleForTesting
-    public static String[] getIndices(final String table, final ActionRequest request, final Interval interval) {
+    public static String[] getIndices(final String table,
+                                      final ActionRequest request,
+                                      final Interval interval) {
         DateTime start = interval.getStart()
                 .toLocalDate()
                 .toDateTimeAtStartOfDay();
@@ -115,7 +118,8 @@ public class ElasticsearchUtils {
         return indices.toArray(new String[0]);
     }
 
-    public static String getCurrentIndex(final String table, long timestamp) {
+    public static String getCurrentIndex(final String table,
+                                         long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String datePostfix = FORMATTER.print(timestamp);
         return String.format("%s-%s-%s-%s", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX,
@@ -279,12 +283,14 @@ public class ElasticsearchUtils {
                 .toLowerCase();
     }
 
-    private static boolean isIndexValidForTable(String index, String table) {
+    private static boolean isIndexValidForTable(String index,
+                                                String table) {
         String indexPrefix = getIndexPrefix(table);
         return index.startsWith(indexPrefix);
     }
 
-    static boolean isIndexEligibleForDeletion(String index, Table table) {
+    static boolean isIndexEligibleForDeletion(String index,
+                                              Table table) {
         if (index == null || table == null || !isIndexValidForTable(index, table.getName())) {
             return false;
         }
@@ -296,7 +302,8 @@ public class ElasticsearchUtils {
         return creationDate.isAfter(startTime) && creationDate.isBefore(endTime);
     }
 
-    public static DateTime parseIndexDate(String index, String table) {
+    public static DateTime parseIndexDate(String index,
+                                          String table) {
         String indexPrefix = getIndexPrefix(table);
         String creationDateString = index.substring(index.indexOf(indexPrefix) + indexPrefix.length());
         return DATE_TIME_FORMATTER.parseDateTime(creationDateString);

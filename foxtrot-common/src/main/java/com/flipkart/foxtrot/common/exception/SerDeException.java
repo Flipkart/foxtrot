@@ -9,15 +9,19 @@ public class SerDeException extends FoxtrotException {
         super(code);
     }
 
-    public SerDeException(ErrorCode code, String message) {
+    public SerDeException(ErrorCode code,
+                          String message) {
         super(code, message);
     }
 
-    public SerDeException(ErrorCode code, Throwable cause) {
+    public SerDeException(ErrorCode code,
+                          Throwable cause) {
         super(code, cause);
     }
 
-    public SerDeException(ErrorCode code, String message, Throwable cause) {
+    public SerDeException(ErrorCode code,
+                          String message,
+                          Throwable cause) {
         super(code, message, cause);
     }
 

@@ -67,7 +67,8 @@ public class Utils {
     }
 
     public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields,
-            Set<AggregationBuilder> subAggregations, int aggregationSize) {
+                                                                Set<AggregationBuilder> subAggregations,
+                                                                int aggregationSize) {
         TermsAggregationBuilder rootBuilder = null;
         TermsAggregationBuilder termsBuilder = null;
         for (ResultSort nestingField : fields) {
@@ -113,7 +114,8 @@ public class Utils {
         return field;
     }
 
-    public static AbstractAggregationBuilder buildStatsAggregation(String field, Set<Stat> stats) {
+    public static AbstractAggregationBuilder buildStatsAggregation(String field,
+                                                                   Set<Stat> stats) {
         String metricKey = getExtendedStatsAggregationKey(field);
 
         boolean anyExtendedStat = stats == null || stats.stream()
@@ -183,15 +185,18 @@ public class Utils {
     }
 
     public static AbstractAggregationBuilder buildPercentileAggregation(String field,
-            Collection<Double> inputPercentiles) {
+                                                                        Collection<Double> inputPercentiles) {
         return buildPercentileAggregation(field, inputPercentiles, DEFAULT_COMPRESSION);
     }
 
     public static AbstractAggregationBuilder buildPercentileAggregation(String field,
-            Collection<Double> inputPercentiles, double compression) {
-        double[] percentiles = inputPercentiles != null ? inputPercentiles.stream()
-                .mapToDouble(x -> x)
-                .toArray() : DEFAULT_PERCENTILES;
+                                                                        Collection<Double> inputPercentiles,
+                                                                        double compression) {
+        double[] percentiles = inputPercentiles != null
+                               ? inputPercentiles.stream()
+                                       .mapToDouble(x -> x)
+                                       .toArray()
+                               : DEFAULT_PERCENTILES;
         if (compression == 0.0) {
             compression = DEFAULT_COMPRESSION;
         }
@@ -207,7 +212,7 @@ public class Utils {
     }
 
     public static DateHistogramAggregationBuilder buildDateHistogramAggregation(String field,
-            DateHistogramInterval interval) {
+                                                                                DateHistogramInterval interval) {
         String metricKey = getDateHistogramKey(field);
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(0)
@@ -220,7 +225,8 @@ public class Utils {
         return sanitizeFieldForAggregation(field) + "_date_histogram";
     }
 
-    public static CardinalityAggregationBuilder buildCardinalityAggregation(String field, int precisionThreshold) {
+    public static CardinalityAggregationBuilder buildCardinalityAggregation(String field,
+                                                                            int precisionThreshold) {
         if (0 == precisionThreshold) {
             precisionThreshold = PRECISION_THRESHOLD;
         }
@@ -311,12 +317,16 @@ public class Utils {
     }
 
     public static double ensurePositive(long number) {
-        return number <= 0.0 ? 0.0 : number;
+        return number <= 0.0
+               ? 0.0
+               : number;
     }
 
 
     public static double ensureOne(long number) {
-        return number <= 0 ? 1 : number;
+        return number <= 0
+               ? 1
+               : number;
     }
 
     public static Map<String, Number> toStats(Aggregation statAggregation) {
@@ -338,7 +348,9 @@ public class Utils {
         return new HashMap<>();
     }
 
-    public static boolean isNumericField(TableMetadataManager tableMetadataManager, String table, String field) {
+    public static boolean isNumericField(TableMetadataManager tableMetadataManager,
+                                         String table,
+                                         String field) {
         final TableFieldMapping fieldMappings = tableMetadataManager.getFieldMappings(table, false, false);
         final FieldMetadata fieldMetadata = fieldMappings.getMappings()
                 .stream()

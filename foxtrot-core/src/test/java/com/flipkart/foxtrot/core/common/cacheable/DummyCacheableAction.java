@@ -30,7 +30,8 @@ import org.elasticsearch.action.ActionRequest;
 @AnalyticsProvider(opcode = "cache-hit-test", request = DummyCacheableActionRequest.class, response = DummyCacheableActionResponse.class, cacheable = false)
 public class DummyCacheableAction extends Action<DummyCacheableActionRequest> {
 
-    public DummyCacheableAction(DummyCacheableActionRequest parameter, AnalyticsLoader analyticsLoader) {
+    public DummyCacheableAction(DummyCacheableActionRequest parameter,
+                                AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
     }
 
@@ -55,14 +56,14 @@ public class DummyCacheableAction extends Action<DummyCacheableActionRequest> {
     }
 
     @Override
-    public ActionRequest getRequestBuilder(DummyCacheableActionRequest parameter, List<Filter> extraFilters)
-            throws FoxtrotException {
+    public ActionRequest getRequestBuilder(DummyCacheableActionRequest parameter,
+                                           List<Filter> extraFilters) throws FoxtrotException {
         return null;
     }
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
-            DummyCacheableActionRequest parameter) throws FoxtrotException {
+                                      DummyCacheableActionRequest parameter) throws FoxtrotException {
         return null;
     }
 

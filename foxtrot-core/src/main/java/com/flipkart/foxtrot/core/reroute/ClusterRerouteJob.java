@@ -6,7 +6,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.time.Instant;
 import java.util.concurrent.ScheduledExecutorService;
-import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,15 +23,17 @@ public class ClusterRerouteJob extends BaseJobManager {
 
     @Inject
     public ClusterRerouteJob(ScheduledExecutorService scheduledExecutorService,
-            ClusterRerouteConfig clusterRerouteConfig, ClusterRerouteManager clusterRerouteManager,
-            HazelcastConnection hazelcastConnection) {
+                             ClusterRerouteConfig clusterRerouteConfig,
+                             ClusterRerouteManager clusterRerouteManager,
+                             HazelcastConnection hazelcastConnection) {
         super(clusterRerouteConfig, scheduledExecutorService, hazelcastConnection);
         this.clusterRerouteConfig = clusterRerouteConfig;
         this.clusterRerouteManager = clusterRerouteManager;
     }
 
     @Override
-    protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
+    protected void runImpl(LockingTaskExecutor executor,
+                           Instant lockAtMostUntil) {
         /*executor.executeWithLock(() -> {
             try {
                 clusterRerouteManager.reallocate();

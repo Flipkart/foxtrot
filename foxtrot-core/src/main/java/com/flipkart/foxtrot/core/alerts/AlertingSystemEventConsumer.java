@@ -20,7 +20,8 @@ public class AlertingSystemEventConsumer implements InternalEventBusConsumer {
     private final RichEmailBuilder richEmailBuilder;
 
     @Inject
-    public AlertingSystemEventConsumer(EmailClient emailClient, RichEmailBuilder richEmailBuilder) {
+    public AlertingSystemEventConsumer(EmailClient emailClient,
+                                       RichEmailBuilder richEmailBuilder) {
         this.emailClient = emailClient;
         this.richEmailBuilder = richEmailBuilder;
     }

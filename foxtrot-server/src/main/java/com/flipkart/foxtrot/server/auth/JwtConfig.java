@@ -29,7 +29,8 @@ public class JwtConfig {
     private Duration sessionDuration = Duration.days(30);
 
     @VisibleForTesting
-    public JwtConfig(String privateKey, String issuerId) {
+    public JwtConfig(String privateKey,
+                     String issuerId) {
         this.privateKey = privateKey;
         this.issuerId = issuerId;
     }

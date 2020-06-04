@@ -43,15 +43,17 @@ public class EsIndexOptimizationManager extends BaseJobManager {
 
     @Inject
     public EsIndexOptimizationManager(ScheduledExecutorService scheduledExecutorService,
-            EsIndexOptimizationConfig esIndexOptimizationConfig, ElasticsearchConnection elasticsearchConnection,
-            HazelcastConnection hazelcastConnection) {
+                                      EsIndexOptimizationConfig esIndexOptimizationConfig,
+                                      ElasticsearchConnection elasticsearchConnection,
+                                      HazelcastConnection hazelcastConnection) {
         super(esIndexOptimizationConfig, scheduledExecutorService, hazelcastConnection);
         this.esIndexOptimizationConfig = esIndexOptimizationConfig;
         this.elasticsearchConnection = elasticsearchConnection;
     }
 
     @Override
-    protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
+    protected void runImpl(LockingTaskExecutor executor,
+                           Instant lockAtMostUntil) {
         executor.executeWithLock(() -> {
             try {
                 val indexes = elasticsearchConnection.getClient()

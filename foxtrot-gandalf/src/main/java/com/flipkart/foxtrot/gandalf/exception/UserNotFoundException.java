@@ -14,7 +14,8 @@ public class UserNotFoundException extends FoxtrotException {
         this.message = message;
     }
 
-    public UserNotFoundException(String message, Throwable event) {
+    public UserNotFoundException(String message,
+                                 Throwable event) {
         super(ErrorCode.USER_NOT_FOUND, event);
         this.message = message;
     }

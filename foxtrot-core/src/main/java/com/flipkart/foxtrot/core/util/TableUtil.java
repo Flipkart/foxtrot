@@ -23,7 +23,8 @@ public class TableUtil {
 
     }
 
-    public static String getTableName(final HbaseConfig hbaseConfig, final Table table) {
+    public static String getTableName(final HbaseConfig hbaseConfig,
+                                      final Table table) {
         if (table.isSeggregatedBackend()) {
             final String tablePrefix = hbaseConfig.getSeggregatedTablePrefix();
             if (!Strings.isNullOrEmpty(tablePrefix)) {

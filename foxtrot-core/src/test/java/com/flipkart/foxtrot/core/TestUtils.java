@@ -89,7 +89,10 @@ public class TestUtils {
         return hBaseDataStore;
     }
 
-    public static Document getDocument(String id, long timestamp, Object[] args, ObjectMapper mapper) {
+    public static Document getDocument(String id,
+                                       long timestamp,
+                                       Object[] args,
+                                       ObjectMapper mapper) {
         Map<String, Object> data = Maps.newHashMap();
         for (int i = 0; i < args.length; i += 2) {
             data.put((String) args[i], args[i + 1]);
@@ -97,7 +100,8 @@ public class TestUtils {
         return new Document(id, timestamp, mapper.valueToTree(data));
     }
 
-    public static void registerActions(AnalyticsLoader analyticsLoader, ObjectMapper mapper) throws Exception {
+    public static void registerActions(AnalyticsLoader analyticsLoader,
+                                       ObjectMapper mapper) throws Exception {
         Reflections reflections = new Reflections("com.flipkart.foxtrot", new SubTypesScanner());
         Set<Class<? extends Action>> actions = reflections.getSubTypesOf(Action.class);
         if (actions.isEmpty()) {
@@ -144,11 +148,13 @@ public class TestUtils {
         return hbaseConfig;
     }
 
-    public static Document translatedDocumentWithRowKeyVersion1(Table table, Document document) {
+    public static Document translatedDocumentWithRowKeyVersion1(Table table,
+                                                                Document document) {
         return new DocumentTranslator(createTranslatorConfigWithRawKeyV1()).translate(table, document);
     }
 
-    public static Document translatedDocumentWithRowKeyVersion2(Table table, Document document) {
+    public static Document translatedDocumentWithRowKeyVersion2(Table table,
+                                                                Document document) {
         return new DocumentTranslator(createTranslatorConfigWithRawKeyV2()).translate(table, document);
     }
 
@@ -402,7 +408,8 @@ public class TestUtils {
         return documents;
     }
 
-    public static List<Document> getQueryDocumentsDifferentDate(ObjectMapper mapper, long startTimestamp) {
+    public static List<Document> getQueryDocumentsDifferentDate(ObjectMapper mapper,
+                                                                long startTimestamp) {
         List<Document> documents = new Vector<Document>();
         documents.add(TestUtils.getDocument("Z", startTimestamp,
                 new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
@@ -426,7 +433,8 @@ public class TestUtils {
         return documents;
     }
 
-    public static void ensureIndex(ElasticsearchConnection connection, final String table) throws IOException {
+    public static void ensureIndex(ElasticsearchConnection connection,
+                                   final String table) throws IOException {
         boolean exists = connection.getClient()
                 .indices()
                 .exists(new GetIndexRequest(table), RequestOptions.DEFAULT);

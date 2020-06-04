@@ -48,7 +48,8 @@ public abstract class Action<P extends ActionRequest> {
     private P parameter;
     private ElasticsearchConnection connection;
 
-    protected Action(P parameter, AnalyticsLoader analyticsLoader) {
+    protected Action(P parameter,
+                     AnalyticsLoader analyticsLoader) {
         this.parameter = parameter;
         this.tableMetadataManager = analyticsLoader.getTableMetadataManager();
         this.queryStore = analyticsLoader.getQueryStore();
@@ -132,9 +133,11 @@ public abstract class Action<P extends ActionRequest> {
 
     public abstract String getRequestCacheKey();
 
-    public abstract org.elasticsearch.action.ActionRequest getRequestBuilder(P parameter, List<Filter> extraFilters);
+    public abstract org.elasticsearch.action.ActionRequest getRequestBuilder(P parameter,
+                                                                             List<Filter> extraFilters);
 
-    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, P parameter);
+    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                               P parameter);
 
 
     public abstract void validateImpl(P parameter);

@@ -13,7 +13,8 @@ public class QueryCreationException extends FoxtrotException {
 
     private final ActionRequest actionRequest;
 
-    protected QueryCreationException(ActionRequest actionRequest, Throwable cause) {
+    protected QueryCreationException(ActionRequest actionRequest,
+                                     Throwable cause) {
         super(ErrorCode.MALFORMED_QUERY, cause);
         this.actionRequest = actionRequest;
     }

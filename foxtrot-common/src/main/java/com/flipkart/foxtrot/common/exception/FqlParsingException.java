@@ -10,7 +10,8 @@ public class FqlParsingException extends FoxtrotException {
 
     private final String message;
 
-    public FqlParsingException(String message, Throwable cause) {
+    public FqlParsingException(String message,
+                               Throwable cause) {
         super(ErrorCode.FQL_PARSE_ERROR, message, cause);
         this.message = message;
     }

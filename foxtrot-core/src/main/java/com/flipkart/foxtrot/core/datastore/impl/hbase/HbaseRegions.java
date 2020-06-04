@@ -38,7 +38,8 @@ public class HbaseRegions {
         }
     }
 
-    public List<List<HRegionData>> getMergeableRegions(TableName tablename, double threshSizeInGB) {
+    public List<List<HRegionData>> getMergeableRegions(TableName tablename,
+                                                       double threshSizeInGB) {
         long threshSize = (long) (threshSizeInGB * BYTES_IN_GB);
         Map<String, HRegionData> hash = getRegionsMap(tablename);
         if (hash.isEmpty()) {
@@ -68,7 +69,9 @@ public class HbaseRegions {
         }
     }
 
-    public void mergeRegions(TableName tablename, double threshSizeInGB, int numberOfMerges) {
+    public void mergeRegions(TableName tablename,
+                             double threshSizeInGB,
+                             int numberOfMerges) {
         long threshSize = (long) (threshSizeInGB * BYTES_IN_GB);
         if (numberOfMerges == -1) {
             numberOfMerges = Integer.MAX_VALUE;

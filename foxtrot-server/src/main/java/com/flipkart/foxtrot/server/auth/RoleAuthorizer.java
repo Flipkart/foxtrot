@@ -14,7 +14,8 @@ import lombok.val;
 public class RoleAuthorizer implements Authorizer<UserPrincipal> {
 
     @Override
-    public boolean authorize(UserPrincipal userPrincipal, String role) {
+    public boolean authorize(UserPrincipal userPrincipal,
+                             String role) {
         val user = userPrincipal.getUser();
         val foxtrotRole = FoxtrotRole.valueOf(role);
 

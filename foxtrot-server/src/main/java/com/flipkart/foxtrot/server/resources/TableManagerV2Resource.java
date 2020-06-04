@@ -47,7 +47,8 @@ public class TableManagerV2Resource {
     private final GandalfManager gandalfManager;
 
     @Inject
-    public TableManagerV2Resource(TableManager tableManager, GandalfManager gandalfManager) {
+    public TableManagerV2Resource(TableManager tableManager,
+                                  GandalfManager gandalfManager) {
         this.tableManager = tableManager;
         this.gandalfManager = gandalfManager;
     }
@@ -65,7 +66,7 @@ public class TableManagerV2Resource {
     @Timed
     @ApiOperation("Save Table")
     public Response save(@Valid final TableV2 table,
-            @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
+                         @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
         tableManager.save(toWireModel(table), forceCreate);
         gandalfManager.manage(table);
@@ -89,7 +90,8 @@ public class TableManagerV2Resource {
     @Timed
     @Path("/{name}")
     @ApiOperation("Update Table")
-    public Response update(@PathParam("name") final String name, @Valid final Table table) {
+    public Response update(@PathParam("name") final String name,
+                           @Valid final Table table) {
         table.setName(name);
         tableManager.update(table);
         return Response.ok()

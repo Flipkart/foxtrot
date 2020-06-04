@@ -13,12 +13,12 @@
 
 package com.flipkart.foxtrot.server;
 
-import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
+import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import io.dropwizard.cli.ConfiguredCommand;
@@ -44,8 +44,9 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
     }
 
     @Override
-    protected void run(Bootstrap<FoxtrotServerConfiguration> bootstrap, Namespace namespace,
-            FoxtrotServerConfiguration configuration) throws Exception {
+    protected void run(Bootstrap<FoxtrotServerConfiguration> bootstrap,
+                       Namespace namespace,
+                       FoxtrotServerConfiguration configuration) throws Exception {
         ElasticsearchConfig esConfig = configuration.getElasticsearch();
         ElasticsearchConnection connection = new ElasticsearchConnection(esConfig);
         connection.start();
@@ -54,7 +55,9 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 .cluster()
                 .health(new ClusterHealthRequest(), RequestOptions.DEFAULT);
         int numDataNodes = clusterHealth.getNumberOfDataNodes();
-        int numReplicas = (numDataNodes < 2) ? 0 : 1;
+        int numReplicas = (numDataNodes < 2)
+                          ? 0
+                          : 1;
 
         logger.info("# data nodes: {}, Setting replica count to: {}", numDataNodes, numReplicas);
 
@@ -78,7 +81,9 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 .getTableName());
     }
 
-    private void createMetaIndex(final ElasticsearchConnection connection, final String indexName, int replicaCount) {
+    private void createMetaIndex(final ElasticsearchConnection connection,
+                                 final String indexName,
+                                 int replicaCount) {
         try {
             logger.info("'{}' creation started", indexName);
             Settings settings = Settings.builder()

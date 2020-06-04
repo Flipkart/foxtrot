@@ -34,7 +34,8 @@ public class DistributedSessionDataStore implements SessionDataStore, Managed {
 
 
     @Override
-    public void put(String sessionId, Object data) {
+    public void put(String sessionId,
+                    Object data) {
         if (Strings.isNullOrEmpty(sessionId) || null == data) {
             return;
         }

@@ -23,12 +23,15 @@ public class ConsolePersistenceException extends FoxtrotException {
 
     private final String consoleId;
 
-    public ConsolePersistenceException(String consoleId, String message) {
+    public ConsolePersistenceException(String consoleId,
+                                       String message) {
         super(ErrorCode.CONSOLE_SAVE_EXCEPTION, message);
         this.consoleId = consoleId;
     }
 
-    public ConsolePersistenceException(String consoleId, String message, Throwable cause) {
+    public ConsolePersistenceException(String consoleId,
+                                       String message,
+                                       Throwable cause) {
         super(ErrorCode.CONSOLE_SAVE_EXCEPTION, message, cause);
         this.consoleId = consoleId;
     }

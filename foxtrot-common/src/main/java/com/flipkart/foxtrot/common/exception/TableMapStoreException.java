@@ -10,7 +10,8 @@ public class TableMapStoreException extends FoxtrotException {
 
     private final String message;
 
-    public TableMapStoreException(String message, Throwable cause) {
+    public TableMapStoreException(String message,
+                                  Throwable cause) {
         super(ErrorCode.TABLE_MAP_STORE_ERROR, message, cause);
         this.message = message;
     }

@@ -35,7 +35,10 @@ public class QueryResponse extends ActionResponse {
     }
 
     @Builder
-    public QueryResponse(List<Document> documents, long totalHits, String scrollId, boolean moreDataAvailable) {
+    public QueryResponse(List<Document> documents,
+                         long totalHits,
+                         String scrollId,
+                         boolean moreDataAvailable) {
         super(Opcodes.QUERY);
         this.documents = documents;
         this.totalHits = totalHits;

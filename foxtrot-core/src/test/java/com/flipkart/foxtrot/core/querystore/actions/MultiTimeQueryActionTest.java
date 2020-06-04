@@ -145,7 +145,8 @@ public class MultiTimeQueryActionTest extends ActionTest {
         }
     }
 
-    public void compare(List<Document> expectedDocuments, List<Document> actualDocuments) {
+    public void compare(List<Document> expectedDocuments,
+                        List<Document> actualDocuments) {
         assertEquals(expectedDocuments.size(), actualDocuments.size());
         for (int i = 0; i < expectedDocuments.size(); i++) {
             Document expected = expectedDocuments.get(i);

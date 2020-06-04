@@ -14,7 +14,8 @@ public class UserPermissionAdditionException extends FoxtrotException {
         this.message = message;
     }
 
-    public UserPermissionAdditionException(String message, Throwable event) {
+    public UserPermissionAdditionException(String message,
+                                           Throwable event) {
         super(ErrorCode.USER_PERMISSION_ADDITION_FAILURE, event);
         this.message = message;
     }

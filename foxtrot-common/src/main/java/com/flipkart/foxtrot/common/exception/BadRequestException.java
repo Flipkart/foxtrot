@@ -15,13 +15,15 @@ public class BadRequestException extends FoxtrotException {
     private final String table;
     private final List<String> messages;
 
-    protected BadRequestException(String table, List<String> messages) {
+    protected BadRequestException(String table,
+                                  List<String> messages) {
         super(ErrorCode.INVALID_REQUEST);
         this.table = table;
         this.messages = messages;
     }
 
-    public BadRequestException(String table, Exception e) {
+    public BadRequestException(String table,
+                               Exception e) {
         super(ErrorCode.INVALID_REQUEST, e);
         this.table = table;
         this.messages = Collections.singletonList(e.getMessage());

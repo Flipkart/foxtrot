@@ -61,8 +61,9 @@ public class AnalyticsResource {
     private final QueryConfig queryConfig;
 
     @Inject
-    public AnalyticsResource(final QueryExecutorFactory executorFactory, final ObjectMapper objectMapper,
-            final QueryConfig queryConfig) {
+    public AnalyticsResource(final QueryExecutorFactory executorFactory,
+                             final ObjectMapper objectMapper,
+                             final QueryConfig queryConfig) {
         this.executorFactory = executorFactory;
         this.objectMapper = objectMapper;
         this.queryConfig = queryConfig;
@@ -72,7 +73,8 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("runSync")
     @RolesAllowed(FoxtrotRole.Value.QUERY)
-    public ActionResponse runSync(@Auth final UserPrincipal userPrincipal, @Valid final ActionRequest request) {
+    public ActionResponse runSync(@Auth final UserPrincipal userPrincipal,
+                                  @Valid final ActionRequest request) {
         preprocess(request);
         return executorFactory.getExecutor(request)
                 .execute(request);
@@ -83,7 +85,8 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("runSyncAsync")
     @RolesAllowed(FoxtrotRole.Value.QUERY)
-    public AsyncDataToken runSyncAsync(@Auth final UserPrincipal userPrincipal, @Valid final ActionRequest request) {
+    public AsyncDataToken runSyncAsync(@Auth final UserPrincipal userPrincipal,
+                                       @Valid final ActionRequest request) {
         return executorFactory.getExecutor(request)
                 .executeAsync(request);
     }

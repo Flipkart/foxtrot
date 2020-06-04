@@ -40,8 +40,9 @@ public abstract class QueryExecutor {
     private final ExecutorService executorService;
     private final List<ActionExecutionObserver> executionObservers;
 
-    public QueryExecutor(final AnalyticsLoader analyticsLoader, final ExecutorService executorService,
-            final List<ActionExecutionObserver> executionObservers) {
+    public QueryExecutor(final AnalyticsLoader analyticsLoader,
+                         final ExecutorService executorService,
+                         final List<ActionExecutionObserver> executionObservers) {
         this.analyticsLoader = analyticsLoader;
         this.executorService = executorService;
         this.executionObservers = executionObservers;
@@ -80,7 +81,8 @@ public abstract class QueryExecutor {
         }
     }
 
-    protected abstract <T extends ActionRequest> ActionResponse execute(T request, Action action);
+    protected abstract <T extends ActionRequest> ActionResponse execute(T request,
+                                                                        Action action);
 
     public <T extends ActionRequest> AsyncDataToken executeAsync(T request) {
         final Action action = resolve(request);
@@ -125,8 +127,9 @@ public abstract class QueryExecutor {
                 actionExecutionObserver -> actionExecutionObserver.postExecution(evaluationResponse));
     }
 
-    private ActionResponse readCachedData(final CacheManager cacheManager, final ActionRequest request,
-            final Action action) {
+    private ActionResponse readCachedData(final CacheManager cacheManager,
+                                          final ActionRequest request,
+                                          final Action action) {
         final Cache cache = cacheManager.getCacheFor(request.getOpcode());
         if (null != cache && !request.isBypassCache()) {
             final String cacheKey = action.cacheKey();

@@ -21,15 +21,20 @@ import java.util.List;
  */
 public interface DataStore {
 
-    void initializeTable(final Table table, boolean forceTableCreate);
+    void initializeTable(final Table table,
+                         boolean forceTableCreate);
 
-    Document save(final Table table, final Document document);
+    Document save(final Table table,
+                  final Document document);
 
-    List<Document> saveAll(final Table table, final List<Document> documents);
+    List<Document> saveAll(final Table table,
+                           final List<Document> documents);
 
-    Document get(final Table table, final String id);
+    Document get(final Table table,
+                 final String id);
 
-    List<Document> getAll(final Table table, final List<String> ids);
+    List<Document> getAll(final Table table,
+                          final List<String> ids);
 
     void updateTable(final Table table);
 }

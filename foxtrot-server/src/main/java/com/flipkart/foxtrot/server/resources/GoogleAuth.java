@@ -36,8 +36,9 @@ public class GoogleAuth {
     private final Provider<SessionDataStore> sessionDataStore;
 
     @Inject
-    public GoogleAuth(AuthConfig authConfig, Provider<AuthProvider> authProvider,
-            Provider<SessionDataStore> sessionDataStore) {
+    public GoogleAuth(AuthConfig authConfig,
+                      Provider<AuthProvider> authProvider,
+                      Provider<SessionDataStore> sessionDataStore) {
         this.authConfig = authConfig;
         this.authProvider = authProvider;
         this.sessionDataStore = sessionDataStore;
@@ -46,14 +47,18 @@ public class GoogleAuth {
     @GET
     @Path("/login")
     public Response login(@CookieParam("redirection") final Cookie cookieReferrer,
-            @HeaderParam(HttpHeaders.REFERER) final String referrer) {
+                          @HeaderParam(HttpHeaders.REFERER) final String referrer) {
         final String sessionId = UUID.randomUUID()
                 .toString();
         final String redirectionURL = authProvider.get()
                 .redirectionURL(sessionId);
         log.debug("Redirection uri: {}", redirectionURL);
-        final String cookieReferrerUrl = null == cookieReferrer ? null : cookieReferrer.getValue();
-        val source = Strings.isNullOrEmpty(cookieReferrerUrl) ? referrer : cookieReferrerUrl;
+        final String cookieReferrerUrl = null == cookieReferrer
+                                         ? null
+                                         : cookieReferrer.getValue();
+        val source = Strings.isNullOrEmpty(cookieReferrerUrl)
+                     ? referrer
+                     : cookieReferrerUrl;
         log.debug("Call source: {} Referrer: {} Redirection: {}", source, referrer, cookieReferrerUrl);
         if (!Strings.isNullOrEmpty(source)) {
             sessionDataStore.get()
@@ -69,8 +74,9 @@ public class GoogleAuth {
     @GET
     @Path("/callback")
     public Response handleGoogleCallback(@CookieParam("gauth-state") final Cookie cookieState,
-            @Context HttpServletRequest requestContext, @QueryParam("state") final String sessionId,
-            @QueryParam("code") final String authCode) {
+                                         @Context HttpServletRequest requestContext,
+                                         @QueryParam("state") final String sessionId,
+                                         @QueryParam("code") final String authCode) {
         log.info("Request Ctx: {}", requestContext);
         if (null == cookieState || !cookieState.getValue()
                 .equals(sessionId)) {
@@ -93,7 +99,9 @@ public class GoogleAuth {
                     .delete(token.getId());
         }
         log.debug("Got: {} against session: {}", existingReferrer, authCode);
-        final String finalRedirect = Strings.isNullOrEmpty((String) existingReferrer) ? "/" : (String) existingReferrer;
+        final String finalRedirect = Strings.isNullOrEmpty((String) existingReferrer)
+                                     ? "/"
+                                     : (String) existingReferrer;
         log.debug("Will be redirecting to: {}. Existing: {}", finalRedirect, existingReferrer);
         return Response.seeOther(URI.create(finalRedirect))
                 .cookie(new NewCookie("token", AuthUtils.createJWT(token, authConfig.getJwt()), "/", null,

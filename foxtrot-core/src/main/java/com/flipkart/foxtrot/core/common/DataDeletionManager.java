@@ -32,8 +32,10 @@ public class DataDeletionManager implements Managed {
     private final HazelcastConnection hazelcastConnection;
 
     @Inject
-    public DataDeletionManager(DataDeletionManagerConfig deletionManagerConfig, QueryStore queryStore,
-            ScheduledExecutorService scheduledExecutorService, HazelcastConnection hazelcastConnection) {
+    public DataDeletionManager(DataDeletionManagerConfig deletionManagerConfig,
+                               QueryStore queryStore,
+                               ScheduledExecutorService scheduledExecutorService,
+                               HazelcastConnection hazelcastConnection) {
         this.config = deletionManagerConfig;
         this.queryStore = queryStore;
         this.hazelcastConnection = hazelcastConnection;

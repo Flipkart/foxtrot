@@ -55,7 +55,8 @@ public class HistogramAction extends Action<HistogramRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public HistogramAction(HistogramRequest parameter, AnalyticsLoader analyticsLoader) {
+    public HistogramAction(HistogramRequest parameter,
+                           AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
@@ -133,7 +134,8 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(HistogramRequest parameter, List<Filter> extraFilters) {
+    public SearchRequest getRequestBuilder(HistogramRequest parameter,
+                                           List<Filter> extraFilters) {
         return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
                 Utils.indicesOptions())
                 .source(new SearchSourceBuilder().size(QUERY_SIZE)
@@ -143,7 +145,8 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, HistogramRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      HistogramRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         return buildResponse(aggregations);
     }

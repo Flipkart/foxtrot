@@ -15,9 +15,14 @@ package com.flipkart.foxtrot.core.table.impl;
  * limitations under the License.
  */
 
+import static io.appform.testcontainers.commons.ContainerUtils.containerLogsConsumer;
+import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContainerUtils.getCompositeWaitStrategy;
+import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContainerUtils.getJavaOpts;
+
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import io.appform.testcontainers.elasticsearch.config.ElasticsearchContainerConfiguration;
+import java.util.Collections;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -26,58 +31,11 @@ import org.elasticsearch.client.RequestOptions;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 import org.testcontainers.containers.GenericContainer;
 
-import java.util.Collections;
-
-import static io.appform.testcontainers.commons.ContainerUtils.containerLogsConsumer;
-import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContainerUtils.getCompositeWaitStrategy;
-import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContainerUtils.getJavaOpts;
-
 /***
  Created by nitish.goyal on 02/08/18
  ***/
 @Slf4j
 public class ElasticsearchTestUtils {
-
-    /**
-     * Class to make sure we run the server only once.
-     */
-    private static class ElasticsearchContainerHolder {
-
-        @SuppressWarnings("unused")
-        private static boolean containerLoaded;
-
-        @Getter
-        private static ElasticsearchConfig elasticsearchConfig;
-
-        static {
-            try {
-                ElasticsearchContainerConfiguration configuration = new ElasticsearchContainerConfiguration();
-                configuration.setDockerImage("docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.8");
-                configuration.setClusterRamMb(100);
-                GenericContainer esContainer = new FixedHostPortGenericContainer(configuration.getDockerImage())
-                        .withExposedPorts(configuration.getHttpPort(), configuration.getTransportPort())
-                        .withEnv("cluster.name", "elasticsearch")
-                        .withEnv("discovery.type", "single-node")
-                        .withEnv("ES_JAVA_OPTS", getJavaOpts(configuration))
-                        .withLogConsumer(containerLogsConsumer(log))
-                        .waitingFor(getCompositeWaitStrategy(configuration))
-                        .withStartupTimeout(configuration.getTimeoutDuration());
-                esContainer.start();
-
-                Integer mappedPort = esContainer.getMappedPort(configuration.getHttpPort());
-
-                elasticsearchConfig = new ElasticsearchConfig();
-                elasticsearchConfig.setHosts(Collections.singletonList(configuration.getHost()));
-                elasticsearchConfig.setPort(mappedPort);
-                elasticsearchConfig.setConnectionType(ElasticsearchConfig.ConnectionType.HTTP);
-                elasticsearchConfig.setCluster("elasticsearch");
-                elasticsearchConfig.setTableNamePrefix("foxtrot");
-            } catch (Exception e) {
-                log.error("Error in initializing es test container , error :", e);
-                throw e;
-            }
-        }
-    }
 
     public static synchronized ElasticsearchConnection getConnection() throws Exception {
         // To make sure we load class which will start the server.
@@ -98,6 +56,48 @@ public class ElasticsearchTestUtils {
             log.info("Delete index response: {}", deleteIndexResponse);
         } catch (Exception e) {
             log.error("Index Cleanup failed", e);
+        }
+    }
+
+    /**
+     * Class to make sure we run the server only once.
+     */
+    private static class ElasticsearchContainerHolder {
+
+        @SuppressWarnings("unused")
+        private static boolean containerLoaded;
+
+        @Getter
+        private static ElasticsearchConfig elasticsearchConfig;
+
+        static {
+            try {
+                ElasticsearchContainerConfiguration configuration = new ElasticsearchContainerConfiguration();
+                configuration.setDockerImage("docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.8");
+                configuration.setClusterRamMb(100);
+                GenericContainer esContainer = new FixedHostPortGenericContainer(
+                        configuration.getDockerImage()).withExposedPorts(configuration.getHttpPort(),
+                        configuration.getTransportPort())
+                        .withEnv("cluster.name", "elasticsearch")
+                        .withEnv("discovery.type", "single-node")
+                        .withEnv("ES_JAVA_OPTS", getJavaOpts(configuration))
+                        .withLogConsumer(containerLogsConsumer(log))
+                        .waitingFor(getCompositeWaitStrategy(configuration))
+                        .withStartupTimeout(configuration.getTimeoutDuration());
+                esContainer.start();
+
+                Integer mappedPort = esContainer.getMappedPort(configuration.getHttpPort());
+
+                elasticsearchConfig = new ElasticsearchConfig();
+                elasticsearchConfig.setHosts(Collections.singletonList(configuration.getHost()));
+                elasticsearchConfig.setPort(mappedPort);
+                elasticsearchConfig.setConnectionType(ElasticsearchConfig.ConnectionType.HTTP);
+                elasticsearchConfig.setCluster("elasticsearch");
+                elasticsearchConfig.setTableNamePrefix("foxtrot");
+            } catch (Exception e) {
+                log.error("Error in initializing es test container , error :", e);
+                throw e;
+            }
         }
     }
 }

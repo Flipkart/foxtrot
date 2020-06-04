@@ -35,14 +35,17 @@ public class DistributedCache implements Cache {
     private final IMap<String, String> distributedMap;
     private final ObjectMapper mapper;
 
-    public DistributedCache(HazelcastConnection hazelcastConnection, String name, ObjectMapper mapper) {
+    public DistributedCache(HazelcastConnection hazelcastConnection,
+                            String name,
+                            ObjectMapper mapper) {
         this.distributedMap = hazelcastConnection.getHazelcast()
                 .getMap(CACHE_NAME_PREFIX + name);
         this.mapper = mapper;
     }
 
     @Override
-    public ActionResponse put(String key, ActionResponse data) {
+    public ActionResponse put(String key,
+                              ActionResponse data) {
         try {
             final String serializedData = mapper.writeValueAsString(data);
             if (serializedData != null) {

@@ -41,7 +41,8 @@ public class Auth {
     private final AuthConfig authConfig;
 
     @Inject
-    public Auth(Provider<AuthStore> authProvider, AuthConfig authConfig) {
+    public Auth(Provider<AuthStore> authProvider,
+                AuthConfig authConfig) {
         this.authProvider = authProvider;
         this.authConfig = authConfig;
     }
@@ -68,7 +69,7 @@ public class Auth {
     @PUT
     @Path("/users/{userId}/roles/grant/{role}")
     public Response grantRole(@NotNull @NotEmpty @PathParam("userId") final String userId,
-            @NotNull @PathParam("role") final FoxtrotRole role) {
+                              @NotNull @PathParam("role") final FoxtrotRole role) {
         val status = authProvider.get()
                 .grantRole(userId, role);
         return updateUserResponse(userId, status);
@@ -77,7 +78,7 @@ public class Auth {
     @PUT
     @Path("/users/{userId}/roles/revoke/{role}")
     public Response revokeRole(@NotNull @NotEmpty @PathParam("userId") final String userId,
-            @NotNull @PathParam("role") final FoxtrotRole role) {
+                               @NotNull @PathParam("role") final FoxtrotRole role) {
         val status = authProvider.get()
                 .revokeRole(userId, role);
         return updateUserResponse(userId, status);
@@ -86,7 +87,7 @@ public class Auth {
     @PUT
     @Path("/users/{userId}/tables/access/grant/{table}")
     public Response grantTableAccess(@NotNull @NotEmpty @PathParam("userId") final String userId,
-            @NotNull @NotEmpty @PathParam("table") final String table) {
+                                     @NotNull @NotEmpty @PathParam("table") final String table) {
         val status = authProvider.get()
                 .grantTableAccess(userId, table);
         return updateUserResponse(userId, status);
@@ -95,7 +96,7 @@ public class Auth {
     @PUT
     @Path("/users/{userId}/tables/access/revoke/{table}")
     public Response revokeTableAccess(@NotNull @NotEmpty @PathParam("userId") final String userId,
-            @NotNull @NotEmpty @PathParam("table") final String table) {
+                                      @NotNull @NotEmpty @PathParam("table") final String table) {
         val status = authProvider.get()
                 .revokeTableAccess(userId, table);
         return updateUserResponse(userId, status);
@@ -139,7 +140,7 @@ public class Auth {
     @DELETE
     @Path("/tokens/{userId}")
     public Response deleteToken(@NotNull @NotEmpty @PathParam("userId") final String userId,
-            @NotNull @NotEmpty @PathParam("tokenId") final String tokenId) {
+                                @NotNull @NotEmpty @PathParam("tokenId") final String tokenId) {
         val status = authProvider.get()
                 .deleteToken(tokenId);
         if (!status) {
@@ -150,7 +151,8 @@ public class Auth {
                 .build();
     }
 
-    private Response updateUserResponse(String userId, boolean status) {
+    private Response updateUserResponse(String userId,
+                                        boolean status) {
         if (!status) {
             return Response.notModified()
                     .build();

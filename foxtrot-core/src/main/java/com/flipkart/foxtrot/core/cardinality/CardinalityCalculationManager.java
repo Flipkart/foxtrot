@@ -43,15 +43,18 @@ public class CardinalityCalculationManager extends BaseJobManager {
     private final CardinalityConfig cardinalityConfig;
 
     @Inject
-    public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
-            HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
+    public CardinalityCalculationManager(TableMetadataManager tableMetadataManager,
+                                         CardinalityConfig cardinalityConfig,
+                                         HazelcastConnection hazelcastConnection,
+                                         ScheduledExecutorService scheduledExecutorService) {
         super(cardinalityConfig, scheduledExecutorService, hazelcastConnection);
         this.tableMetadataManager = tableMetadataManager;
         this.cardinalityConfig = cardinalityConfig;
     }
 
     @Override
-    protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
+    protected void runImpl(LockingTaskExecutor executor,
+                           Instant lockAtMostUntil) {
         executor.executeWithLock(() -> {
             try {
                 int maxTimeToRunJob = MAX_TIME_TO_RUN_JOB;

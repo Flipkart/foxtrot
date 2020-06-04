@@ -30,8 +30,10 @@ public class ExpiredSessionsCleaner extends BaseJobManager {
 
     @Inject
     public ExpiredSessionsCleaner(SessionCleanupConfig sessionCleanupConfig,
-            ScheduledExecutorService scheduledExecutorService, HazelcastConnection hazelcastConnection,
-            Provider<AuthStore> authStore, AuthConfig authConfig) {
+                                  ScheduledExecutorService scheduledExecutorService,
+                                  HazelcastConnection hazelcastConnection,
+                                  Provider<AuthStore> authStore,
+                                  AuthConfig authConfig) {
         super(sessionCleanupConfig, scheduledExecutorService, hazelcastConnection);
         this.sessionCleanupConfig = sessionCleanupConfig;
         this.authStore = authStore;
@@ -39,7 +41,8 @@ public class ExpiredSessionsCleaner extends BaseJobManager {
     }
 
     @Override
-    protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
+    protected void runImpl(LockingTaskExecutor executor,
+                           Instant lockAtMostUntil) {
         executor.executeWithLock(() -> {
             try {
                 authStore.get()

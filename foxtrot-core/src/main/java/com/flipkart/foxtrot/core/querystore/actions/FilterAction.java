@@ -53,7 +53,8 @@ public class FilterAction extends Action<Query> {
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
     private ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public FilterAction(Query parameter, AnalyticsLoader analyticsLoader) {
+    public FilterAction(Query parameter,
+                        AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
@@ -83,8 +84,10 @@ public class FilterAction extends Action<Query> {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        filterHashKey += 31 * (query.getSort() != null ? query.getSort()
-                .hashCode() : "SORT".hashCode());
+        filterHashKey += 31 * (query.getSort() != null
+                               ? query.getSort()
+                                       .hashCode()
+                               : "SORT".hashCode());
 
         return String.format("%s-%d-%d-%d", query.getTable(), query.getFrom(), query.getLimit(), filterHashKey);
     }
@@ -128,7 +131,8 @@ public class FilterAction extends Action<Query> {
 
 
     @Override
-    public SearchRequest getRequestBuilder(Query parameter, List<Filter> extraFilters) {
+    public SearchRequest getRequestBuilder(Query parameter,
+                                           List<Filter> extraFilters) {
         SearchRequest searchRequest = getSearchRequest(parameter, extraFilters);
         //Adding from here since from isn't supported in scroll request
         searchRequest.source()
@@ -137,7 +141,8 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, Query parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      Query parameter) {
         List<String> ids = new ArrayList<>();
         SearchHits searchHits = ((SearchResponse) response).getHits();
         for (SearchHit searchHit : searchHits) {
@@ -156,13 +161,15 @@ public class FilterAction extends Action<Query> {
     }
 
 
-    private SearchRequest getScrollRequestBuilder(Query parameter, List<Filter> extraFilters) {
+    private SearchRequest getScrollRequestBuilder(Query parameter,
+                                                  List<Filter> extraFilters) {
         SearchRequest searchRequest = getSearchRequest(parameter, extraFilters);
         searchRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
         return searchRequest;
     }
 
-    private SearchRequest getSearchRequest(Query parameter, List<Filter> extraFilters) {
+    private SearchRequest getSearchRequest(Query parameter,
+                                           List<Filter> extraFilters) {
         return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
                 Utils.indicesOptions())
                 .types(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
@@ -172,10 +179,13 @@ public class FilterAction extends Action<Query> {
                         .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
                         .sort(Utils.storedFieldName(parameter.getSort()
                                 .getField()), ResultSort.Order.desc == parameter.getSort()
-                                .getOrder() ? SortOrder.DESC : SortOrder.ASC));
+                                .getOrder()
+                                              ? SortOrder.DESC
+                                              : SortOrder.ASC));
     }
 
-    private ActionResponse executeScrollRequest(Query parameter, List<Filter> extraFilters) {
+    private ActionResponse executeScrollRequest(Query parameter,
+                                                List<Filter> extraFilters) {
         List<String> ids = new ArrayList<>();
         String scrollId;
         long totalHits = 0;
@@ -208,7 +218,10 @@ public class FilterAction extends Action<Query> {
         }
     }
 
-    private QueryResponse getResponse(Query parameter, long totalHits, List<String> ids, String scrollId) {
+    private QueryResponse getResponse(Query parameter,
+                                      long totalHits,
+                                      List<String> ids,
+                                      String scrollId) {
         if (ids.isEmpty()) {
             return QueryResponse.builder()
                     .documents(Collections.emptyList())
@@ -220,7 +233,9 @@ public class FilterAction extends Action<Query> {
                 .documents(getQueryStore().getAll(parameter.getTable(), ids, true))
                 .totalHits(totalHits)
                 .scrollId(scrollId)
-                .moreDataAvailable(StringUtils.isNotEmpty(scrollId) ? true : false)
+                .moreDataAvailable(StringUtils.isNotEmpty(scrollId)
+                                   ? true
+                                   : false)
                 .build();
     }
 

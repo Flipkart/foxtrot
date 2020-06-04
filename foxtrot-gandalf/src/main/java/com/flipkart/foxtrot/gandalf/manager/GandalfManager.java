@@ -46,9 +46,10 @@ public class GandalfManager {
     private final String password;
 
     @Inject
-    public GandalfManager(ObjectMapper mapper, @Named("GandalfOkHttpClient") OkHttpClient okHttp,
-            @Named("GandalfServiceEndpointProvider") ServiceEndpointProvider endpointProvider,
-            GandalfConfiguration gandalfConfiguration) {
+    public GandalfManager(ObjectMapper mapper,
+                          @Named("GandalfOkHttpClient") OkHttpClient okHttp,
+                          @Named("GandalfServiceEndpointProvider") ServiceEndpointProvider endpointProvider,
+                          GandalfConfiguration gandalfConfiguration) {
         this.mapper = mapper;
         this.endpointProvider = endpointProvider;
         this.okHttp = okHttp;
@@ -70,7 +71,8 @@ public class GandalfManager {
         }
     }
 
-    private String createPermission(String authToken, String tableName) {
+    private String createPermission(String authToken,
+                                    String tableName) {
         String permissionId;
         Request request;
         RequestBody body;
@@ -130,7 +132,9 @@ public class GandalfManager {
         }
     }
 
-    private void addPermissionToUser(String permissionId, String emailId, String authToken) {
+    private void addPermissionToUser(String permissionId,
+                                     String emailId,
+                                     String authToken) {
         RequestBody requestBody;
         okhttp3.Response response;
 
@@ -177,7 +181,8 @@ public class GandalfManager {
         }
     }
 
-    private User getUser(String emailId, String authToken) {
+    private User getUser(String emailId,
+                         String authToken) {
         okhttp3.Response response;
         byte[] responseBody;
 

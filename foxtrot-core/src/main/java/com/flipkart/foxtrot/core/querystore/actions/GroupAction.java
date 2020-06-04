@@ -89,7 +89,8 @@ public class GroupAction extends Action<GroupRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader) {
+    public GroupAction(GroupRequest parameter,
+                       AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
@@ -172,7 +173,8 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(GroupRequest parameter, List<Filter> extraFilters) {
+    public SearchRequest getRequestBuilder(GroupRequest parameter,
+                                           List<Filter> extraFilters) {
         return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
                 Utils.indicesOptions())
                 .source(new SearchSourceBuilder().size(QUERY_SIZE)
@@ -182,7 +184,8 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, GroupRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      GroupRequest parameter) {
         List<String> fields = parameter.getNesting();
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         // Check if any aggregation is present or not
@@ -192,7 +195,8 @@ public class GroupAction extends Action<GroupRequest> {
         return new GroupResponse(getMap(fields, aggregations));
     }
 
-    private double estimateProbability(TableFieldMapping tableFieldMapping, GroupRequest parameter) {
+    private double estimateProbability(TableFieldMapping tableFieldMapping,
+                                       GroupRequest parameter) {
         Set<FieldMetadata> mappings = tableFieldMapping.getMappings();
         Map<String, FieldMetadata> metaMap = mappings.stream()
                 .collect(Collectors.toMap(FieldMetadata::getField, mapping -> mapping));
@@ -296,8 +300,10 @@ public class GroupAction extends Action<GroupRequest> {
         }
     }
 
-    private long estimateDocCountBasedOnTime(long currentDocCount, GroupRequest parameter,
-            TableMetadataManager tableMetadataManager, String table) {
+    private long estimateDocCountBasedOnTime(long currentDocCount,
+                                             GroupRequest parameter,
+                                             TableMetadataManager tableMetadataManager,
+                                             String table) {
         Interval queryInterval = new PeriodSelector(parameter.getFilters()).analyze();
         long minutes = queryInterval.toDuration()
                 .getStandardMinutes();
@@ -323,14 +329,17 @@ public class GroupAction extends Action<GroupRequest> {
     private long extractMaxDocCount(Map<String, FieldMetadata> metaMap) {
         return metaMap.values()
                 .stream()
-                .map(x -> x.getEstimationData() == null ? 0 : x.getEstimationData()
-                        .getCount())
+                .map(x -> x.getEstimationData() == null
+                          ? 0
+                          : x.getEstimationData()
+                                  .getCount())
                 .max(Comparator.naturalOrder())
                 .orElse((long) 0);
     }
 
-    private long estimateDocCountWithFilters(long currentDocCount, Map<String, FieldMetadata> metaMap,
-            List<Filter> filters) {
+    private long estimateDocCountWithFilters(long currentDocCount,
+                                             Map<String, FieldMetadata> metaMap,
+                                             List<Filter> filters) {
         if (CollectionUtils.isNullOrEmpty(filters)) {
             return currentDocCount;
         }
@@ -357,7 +366,8 @@ public class GroupAction extends Action<GroupRequest> {
         return (long) (currentDocCount * overallFilterMultiplier);
     }
 
-    private EstimationDataVisitor<Double> getDocCountWithFilterEstimationDataVisitor(Filter filter, String cacheKey) {
+    private EstimationDataVisitor<Double> getDocCountWithFilterEstimationDataVisitor(Filter filter,
+                                                                                     String cacheKey) {
         return new EstimationDataVisitor<Double>() {
             @Override
             @SneakyThrows
@@ -429,8 +439,9 @@ public class GroupAction extends Action<GroupRequest> {
         };
     }
 
-    private FilterVisitorAdapter<Double> getPercentileFilterVisitorAdapter(double[] percentiles, String cacheKey,
-            long numMatches) {
+    private FilterVisitorAdapter<Double> getPercentileFilterVisitorAdapter(double[] percentiles,
+                                                                           String cacheKey,
+                                                                           long numMatches) {
         return new FilterVisitorAdapter<Double>(1.0) {
             @Override
             public Double visit(BetweenFilter betweenFilter) {
@@ -556,8 +567,7 @@ public class GroupAction extends Action<GroupRequest> {
         };
     }
 
-    private FilterVisitorAdapter<Double> getCardinalityFilterVisitorAdapter(
-            CardinalityEstimationData cardinalityEstimationData) {
+    private FilterVisitorAdapter<Double> getCardinalityFilterVisitorAdapter(CardinalityEstimationData cardinalityEstimationData) {
         return new FilterVisitorAdapter<Double>(1.0) {
 
             @Override
@@ -598,8 +608,8 @@ public class GroupAction extends Action<GroupRequest> {
         };
     }
 
-    private FilterVisitorAdapter<Double> getTermHistogramFilterVisitorAdapter(
-            TermHistogramEstimationData termEstimationData, long totalCount) {
+    private FilterVisitorAdapter<Double> getTermHistogramFilterVisitorAdapter(TermHistogramEstimationData termEstimationData,
+                                                                              long totalCount) {
         return new FilterVisitorAdapter<Double>(1.0) {
             @Override
             public Double visit(EqualsFilter equalsFilter) {
@@ -665,24 +675,28 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private Long getValidCount(Long count) {
-        return count == null ? 0 : count;
+        return count == null
+               ? 0
+               : count;
     }
 
     private AbstractAggregationBuilder buildAggregation(GroupRequest parameter) {
         return Utils.buildTermsAggregation(getParameter().getNesting()
-                        .stream()
-                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                        .collect(Collectors.toList()),
-                !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn()) ? Sets.newHashSet(
-                        Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(), parameter.accept(
-                                new CountPrecisionThresholdVisitorAdapter(
-                                        elasticsearchTuningConfig.getPrecisionThreshold())))) : Sets.newHashSet(),
-                elasticsearchTuningConfig.getAggregationSize());
+                .stream()
+                .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                .collect(Collectors.toList()), !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())
+                                               ? Sets.newHashSet(
+                Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(), parameter.accept(
+                        new CountPrecisionThresholdVisitorAdapter(elasticsearchTuningConfig.getPrecisionThreshold()))))
+                                               : Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize());
     }
 
-    private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
+    private Map<String, Object> getMap(List<String> fields,
+                                       Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
+        final List<String> remainingFields = (fields.size() > 1)
+                                             ? fields.subList(1, fields.size())
+                                             : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         Map<String, Object> levelCount = Maps.newHashMap();
         for (Terms.Bucket bucket : terms.getBuckets()) {

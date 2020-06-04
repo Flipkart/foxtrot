@@ -48,8 +48,10 @@ public class GoogleAuthProvider implements AuthProvider {
     private final AuthStore credentialsStorage;
 
     @Inject
-    public GoogleAuthProvider(GoogleAuthProviderConfig googleAuthConfig, AuthConfig authConfig, ObjectMapper mapper,
-            AuthStore credentialsStorage) {
+    public GoogleAuthProvider(GoogleAuthProviderConfig googleAuthConfig,
+                              AuthConfig authConfig,
+                              ObjectMapper mapper,
+                              AuthStore credentialsStorage) {
         this.authConfig = authConfig;
         final NetHttpTransport.Builder transportBuilder = new NetHttpTransport.Builder();
         Proxy proxy = Proxy.NO_PROXY;
@@ -75,9 +77,9 @@ public class GoogleAuthProvider implements AuthProvider {
         this.authorizationCodeFlow = new GoogleAuthorizationCodeFlow.Builder(transport, new JacksonFactory(),
                 googleAuthConfig.getClientId(), googleAuthConfig.getClientSecret(),
                 ImmutableSet.of("https://www.googleapis.com/auth/userinfo.email")).build();
-        this.redirectionUrl =
-                (googleAuthConfig.isSecureEndpoint() ? "https" : "http") + "://" + googleAuthConfig.getServer()
-                        + CALLBACK_PATH;
+        this.redirectionUrl = (googleAuthConfig.isSecureEndpoint()
+                               ? "https"
+                               : "http") + "://" + googleAuthConfig.getServer() + CALLBACK_PATH;
         this.googleAuthConfig = googleAuthConfig;
         this.mapper = mapper;
         this.credentialsStorage = credentialsStorage;
@@ -95,12 +97,14 @@ public class GoogleAuthProvider implements AuthProvider {
                 .setRedirectUri(this.redirectionUrl)
 //                .setRedirectUri("http://localhost:8080/auth/google")
                 .build();
-        return !Strings.isNullOrEmpty(googleAuthConfig.getLoginDomain()) ? (url + "&hd="
-                + googleAuthConfig.getLoginDomain()) : url;
+        return !Strings.isNullOrEmpty(googleAuthConfig.getLoginDomain())
+               ? (url + "&hd=" + googleAuthConfig.getLoginDomain())
+               : url;
     }
 
     @Override
-    public Optional<Token> login(String authToken, String sessionId) {
+    public Optional<Token> login(String authToken,
+                                 String sessionId) {
         if (Strings.isNullOrEmpty(authToken)) {
             return Optional.empty();
         }

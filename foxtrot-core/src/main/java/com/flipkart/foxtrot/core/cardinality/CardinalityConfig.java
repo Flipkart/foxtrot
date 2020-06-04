@@ -36,7 +36,8 @@ public class CardinalityConfig extends BaseJobConfig {
     @DefaultValue("50000")
     private long maxCardinality;
 
-    public CardinalityConfig(String enabled, String batchSize) {
+    public CardinalityConfig(String enabled,
+                             String batchSize) {
         this.enabled = enabled;
         this.batchSize = batchSize;
     }

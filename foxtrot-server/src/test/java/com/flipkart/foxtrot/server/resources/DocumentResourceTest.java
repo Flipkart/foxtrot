@@ -358,7 +358,8 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         }
     }
 
-    public void compare(Document expected, Document actual) throws Exception {
+    public void compare(Document expected,
+                        Document actual) throws Exception {
         assertNotNull(expected);
         assertNotNull(actual);
         assertNotNull("Actual document Id should not be null", actual.getId());

@@ -76,7 +76,8 @@ public abstract class Filter implements Serializable {
         this.operator = operator;
     }
 
-    protected Filter(String operator, String field) {
+    protected Filter(String operator,
+                     String field) {
         this.operator = operator;
         this.field = field;
     }

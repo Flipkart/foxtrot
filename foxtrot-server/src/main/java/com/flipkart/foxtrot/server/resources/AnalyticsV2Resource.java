@@ -42,8 +42,9 @@ public class AnalyticsV2Resource {
     private final QueryConfig queryConfig;
 
     @Inject
-    public AnalyticsV2Resource(final QueryExecutorFactory executorFactory, AccessService accessService,
-            QueryConfig queryConfig) {
+    public AnalyticsV2Resource(final QueryExecutorFactory executorFactory,
+                               AccessService accessService,
+                               QueryConfig queryConfig) {
         this.executorFactory = executorFactory;
         this.accessService = accessService;
         this.queryConfig = queryConfig;
@@ -53,7 +54,8 @@ public class AnalyticsV2Resource {
     @Timed
     @ApiOperation("runSync")
     @Authorize(value = {})
-    public ActionResponse runSync(@Valid final ActionRequest request, @GandalfUserContext UserDetails userDetails) {
+    public ActionResponse runSync(@Valid final ActionRequest request,
+                                  @GandalfUserContext UserDetails userDetails) {
         preprocess(request, userDetails);
         return executorFactory.getExecutor(request)
                 .execute(request);
@@ -65,7 +67,7 @@ public class AnalyticsV2Resource {
     @ApiOperation("runSyncAsync")
     @Authorize(value = {})
     public AsyncDataToken runSyncAsync(@Valid final ActionRequest request,
-            @GandalfUserContext UserDetails userDetails) {
+                                       @GandalfUserContext UserDetails userDetails) {
         try {
             if (!accessService.hasAccess(request, userDetails)) {
                 throw FoxtrotExceptions.createAuthorizationException(request,
@@ -84,7 +86,7 @@ public class AnalyticsV2Resource {
     @ApiOperation("validateQuery")
     @Authorize(value = {})
     public ActionValidationResponse validateQuery(@Valid final ActionRequest request,
-            @GandalfUserContext UserDetails userDetails) {
+                                                  @GandalfUserContext UserDetails userDetails) {
         try {
             if (!accessService.hasAccess(request, userDetails)) {
                 throw FoxtrotExceptions.createAuthorizationException(request,
@@ -97,7 +99,8 @@ public class AnalyticsV2Resource {
                 .validate(request);
     }
 
-    private void preprocess(@Valid ActionRequest request, @GandalfUserContext UserDetails userDetails) {
+    private void preprocess(@Valid ActionRequest request,
+                            @GandalfUserContext UserDetails userDetails) {
         try {
             if (!accessService.hasAccess(request, userDetails)) {
                 throw FoxtrotExceptions.createAuthorizationException(request,

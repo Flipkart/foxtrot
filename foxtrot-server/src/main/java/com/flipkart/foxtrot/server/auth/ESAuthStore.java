@@ -43,7 +43,8 @@ public class ESAuthStore implements AuthStore {
     private final ObjectMapper mapper;
 
     @Inject
-    public ESAuthStore(ElasticsearchConnection connection, ObjectMapper mapper) {
+    public ESAuthStore(ElasticsearchConnection connection,
+                       ObjectMapper mapper) {
         this.connection = connection;
         this.mapper = mapper;
     }
@@ -85,7 +86,8 @@ public class ESAuthStore implements AuthStore {
 
     @Override
     @SneakyThrows
-    public boolean updateUser(String id, UnaryOperator<User> mutator) {
+    public boolean updateUser(String id,
+                              UnaryOperator<User> mutator) {
         val user = getUser(id).orElse(null);
         if (null == user) {
             return false;
@@ -96,7 +98,10 @@ public class ESAuthStore implements AuthStore {
 
     @Override
     @SneakyThrows
-    public Optional<Token> provisionToken(String userId, String tokenId, TokenType tokenType, Date expiry) {
+    public Optional<Token> provisionToken(String userId,
+                                          String tokenId,
+                                          TokenType tokenType,
+                                          Date expiry) {
         val user = getUser(userId).orElse(null);
         if (null == user) {
             log.warn("No user found for is: {}", userId);
@@ -165,7 +170,8 @@ public class ESAuthStore implements AuthStore {
 
     @Override
     @SneakyThrows
-    public boolean deleteExpiredTokens(Date date, Duration sessionDuration) {
+    public boolean deleteExpiredTokens(Date date,
+                                       Duration sessionDuration) {
         log.info("Cleaning up sessions older than: {}", sessionDuration);
         Date oldestValidDate = new Date(date.getTime() - sessionDuration.toMilliseconds());
         val deletedCount = connection.getClient()
@@ -181,7 +187,8 @@ public class ESAuthStore implements AuthStore {
 
 
     @SneakyThrows
-    private RestStatus saveUser(User user, DocWriteRequest.OpType opType) {
+    private RestStatus saveUser(User user,
+                                DocWriteRequest.OpType opType) {
         return connection.getClient()
                 .index(new IndexRequest(USERS_INDEX).source(mapper.writeValueAsString(user), XContentType.JSON)
                         .id(user.getId())

@@ -110,7 +110,8 @@ public class HBaseDataStoreTest {
                 .getRawStorageId(), expectedDocument);
     }
 
-    public void validateSave(String id, Document expectedDocument) throws Exception {
+    public void validateSave(String id,
+                             Document expectedDocument) throws Exception {
         Get get = new Get(Bytes.toBytes(id));
         Result result = tableInterface.get(get);
         assertNotNull("Get for Id should not be null", result);
@@ -123,7 +124,8 @@ public class HBaseDataStoreTest {
         return String.format("%s:%s", id, TestUtils.TEST_TABLE_NAME);
     }
 
-    public void compare(Document expected, Document actual) throws Exception {
+    public void compare(Document expected,
+                        Document actual) throws Exception {
         assertNotNull(expected);
         assertNotNull(actual);
         assertNotNull("Actual document Id should not be null", actual.getId());

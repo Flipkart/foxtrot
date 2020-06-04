@@ -9,7 +9,9 @@ public class WindowUtil {
 
     }
 
-    public static TimeWindow calculate(long endTime, Duration duration, RoundingMode roundingMode) {
+    public static TimeWindow calculate(long endTime,
+                                       Duration duration,
+                                       RoundingMode roundingMode) {
         DateTime windowStartTime = new DateTime(endTime - duration.toMilliseconds());
         if (roundingMode == null || roundingMode == RoundingMode.NONE) {
             return new TimeWindow(windowStartTime.getMillis(), endTime);

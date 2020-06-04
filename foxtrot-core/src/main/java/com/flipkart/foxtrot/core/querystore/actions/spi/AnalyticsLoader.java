@@ -61,9 +61,13 @@ public class AnalyticsLoader implements Managed {
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     @Inject
-    public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
-            ElasticsearchTuningConfig elasticsearchTuningConfig) {
+    public AnalyticsLoader(TableMetadataManager tableMetadataManager,
+                           DataStore dataStore,
+                           QueryStore queryStore,
+                           ElasticsearchConnection elasticsearchConnection,
+                           CacheManager cacheManager,
+                           ObjectMapper objectMapper,
+                           ElasticsearchTuningConfig elasticsearchTuningConfig) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
@@ -95,7 +99,8 @@ public class AnalyticsLoader implements Managed {
         return null;
     }
 
-    public void register(ActionMetadata actionMetadata, String opcode) {
+    public void register(ActionMetadata actionMetadata,
+                         String opcode) {
         actions.put(actionMetadata.getRequest()
                 .getCanonicalName(), actionMetadata);
         if (actionMetadata.isCacheable()) {

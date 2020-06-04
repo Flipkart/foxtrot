@@ -21,7 +21,8 @@ public class JsonUtils {
     }
 
     @SneakyThrows
-    public static <T> T fromJson(String json, Class<T> clazz) {
+    public static <T> T fromJson(String json,
+                                 Class<T> clazz) {
         try {
             return SerDe.mapper()
                     .readValue(json, clazz);
@@ -32,7 +33,8 @@ public class JsonUtils {
     }
 
     @SneakyThrows
-    public static <T> T fromJson(byte[] bytes, Class<T> clazz) {
+    public static <T> T fromJson(byte[] bytes,
+                                 Class<T> clazz) {
         try {
             return SerDe.mapper()
                     .readValue(bytes, clazz);
@@ -43,7 +45,8 @@ public class JsonUtils {
     }
 
     @SneakyThrows
-    public static <T> T fromJson(String json, TypeReference<T> typeReference) {
+    public static <T> T fromJson(String json,
+                                 TypeReference<T> typeReference) {
         try {
             return SerDe.mapper()
                     .readValue(json, typeReference);
@@ -78,7 +81,8 @@ public class JsonUtils {
     }
 
     @SneakyThrows
-    public static <T> T fromJson(byte[] bytes, TypeReference<T> typeReference) {
+    public static <T> T fromJson(byte[] bytes,
+                                 TypeReference<T> typeReference) {
         try {
             return SerDe.mapper()
                     .readValue(bytes, typeReference);
@@ -122,7 +126,8 @@ public class JsonUtils {
     }
 
     @SneakyThrows
-    public static <T> T toObject(Object obj, Class<T> clazz) throws SerDeException {
+    public static <T> T toObject(Object obj,
+                                 Class<T> clazz) throws SerDeException {
         try {
             return SerDe.mapper()
                     .convertValue(obj, clazz);
@@ -134,7 +139,8 @@ public class JsonUtils {
     }
 
     @SneakyThrows
-    public static <T> T toObject(Object obj, TypeReference<T> typeReference) {
+    public static <T> T toObject(Object obj,
+                                 TypeReference<T> typeReference) {
         try {
             return SerDe.mapper()
                     .convertValue(obj, typeReference);

@@ -28,7 +28,8 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     private Action action;
     private MultiQueryRequest multiQueryRequest;
 
-    public MultiTimeQueryAction(MultiTimeQueryRequest parameter, AnalyticsLoader analyticsLoader) {
+    public MultiTimeQueryAction(MultiTimeQueryRequest parameter,
+                                AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.analyticsLoader = analyticsLoader;
     }
@@ -118,19 +119,20 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
 
     @Override
     public org.elasticsearch.action.ActionRequest getRequestBuilder(MultiTimeQueryRequest parameter,
-            List<Filter> extraFilters) {
+                                                                    List<Filter> extraFilters) {
         return action.getRequestBuilder(multiQueryRequest, extraFilters);
     }
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse,
-            MultiTimeQueryRequest parameter) {
+                                      MultiTimeQueryRequest parameter) {
         MultiQueryResponse multiQueryResponse = (MultiQueryResponse) action.getResponse(multiSearchResponse,
                 multiQueryRequest);
         return new MultiTimeQueryResponse(multiQueryResponse.getResponses());
     }
 
-    private MultiQueryRequest createMultiQueryRequests(int sampleSize, BetweenFilter betweenFilter) {
+    private MultiQueryRequest createMultiQueryRequests(int sampleSize,
+                                                       BetweenFilter betweenFilter) {
         MultiTimeQueryRequest multiTimeQueryRequest = getParameter();
         Map<String, ActionRequest> requests = new HashMap<>();
         long from = betweenFilter.getFrom()

@@ -11,7 +11,6 @@ import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
-import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.core.config.QueryConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
@@ -69,6 +68,7 @@ import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProvider;
 import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProviderConfig;
 import com.flipkart.foxtrot.server.auth.sessionstore.DistributedSessionDataStore;
 import com.flipkart.foxtrot.server.auth.sessionstore.SessionDataStore;
+import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
@@ -173,15 +173,17 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public CardinalityConfig cardinalityConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getCardinality() ? new CardinalityConfig("false",
-                String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)) : configuration.getCardinality();
+        return null == configuration.getCardinality()
+               ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
+               : configuration.getCardinality();
     }
 
     @Provides
     @Singleton
     public EsIndexOptimizationConfig esIndexOptimizationConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getEsIndexOptimizationConfig() ? new EsIndexOptimizationConfig()
-                : configuration.getEsIndexOptimizationConfig();
+        return null == configuration.getEsIndexOptimizationConfig()
+               ? new EsIndexOptimizationConfig()
+               : configuration.getEsIndexOptimizationConfig();
     }
 
     @Provides
@@ -193,20 +195,23 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public ConsoleHistoryConfig consoleHistoryConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getConsoleHistoryConfig() ? new ConsoleHistoryConfig()
-                : configuration.getConsoleHistoryConfig();
+        return null == configuration.getConsoleHistoryConfig()
+               ? new ConsoleHistoryConfig()
+               : configuration.getConsoleHistoryConfig();
     }
 
     @Provides
     @Singleton
     public ClusterRerouteConfig clusterRerouteConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getClusterRerouteConfig() ? new ClusterRerouteConfig()
-                : configuration.getClusterRerouteConfig();
+        return null == configuration.getClusterRerouteConfig()
+               ? new ClusterRerouteConfig()
+               : configuration.getClusterRerouteConfig();
     }
 
     public SessionCleanupConfig sessionCleanupConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getSessionCleanupConfig() ? new SessionCleanupConfig()
-                : configuration.getSessionCleanupConfig();
+        return null == configuration.getSessionCleanupConfig()
+               ? new SessionCleanupConfig()
+               : configuration.getSessionCleanupConfig();
     }
 
     @Provides
@@ -236,14 +241,14 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public List<IndexerEventMutator> provideMutators(FoxtrotServerConfiguration configuration,
-            ObjectMapper objectMapper) {
+                                                     ObjectMapper objectMapper) {
         return Collections.singletonList(new LargeTextNodeRemover(objectMapper, configuration.getTextNodeRemover()));
     }
 
     @Provides
     @Singleton
     public List<ActionExecutionObserver> actionExecutionObservers(CacheManager cacheManager,
-            InternalEventBus eventBus) {
+                                                                  InternalEventBus eventBus) {
         return ImmutableList.<ActionExecutionObserver>builder().add(new MetricRecorder())
                 .add(new ResponseCacheUpdater(cacheManager))
                 .add(new SlowQueryReporter())
@@ -274,14 +279,15 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public FunnelConfiguration funnelConfig(FoxtrotServerConfiguration configuration) {
-        return configuration.getFunnelConfiguration() != null ? configuration.getFunnelConfiguration()
-                : FunnelConfiguration.builder()
-                        .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
-                                .eventType("APP_LOADED")
-                                .category("APP_LOADED")
-                                .build())
-                        .querySize(100)
-                        .build();
+        return configuration.getFunnelConfiguration() != null
+               ? configuration.getFunnelConfiguration()
+               : FunnelConfiguration.builder()
+                       .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
+                               .eventType("APP_LOADED")
+                               .category("APP_LOADED")
+                               .build())
+                       .querySize(100)
+                       .build();
     }
 
     @Provides
@@ -331,7 +337,8 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public Authenticator<JwtContext, UserPrincipal> authenticator(final Environment environment,
-            final TokenAuthenticator authenticator, final AuthConfig authConfig) {
+                                                                  final TokenAuthenticator authenticator,
+                                                                  final AuthConfig authConfig) {
         return new CachingAuthenticator<>(environment.metrics(), authenticator, CacheBuilderSpec.parse(
                 authConfig.getJwt()
                         .getAuthCachePolicy()));
@@ -339,8 +346,9 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public Authorizer<UserPrincipal> authorizer(final Environment environment, final RoleAuthorizer authorizer,
-            final AuthConfig authConfig) {
+    public Authorizer<UserPrincipal> authorizer(final Environment environment,
+                                                final RoleAuthorizer authorizer,
+                                                final AuthConfig authConfig) {
         return new CachingAuthorizer<>(environment.metrics(), authorizer, CacheBuilderSpec.parse(authConfig.getJwt()
                 .getAuthCachePolicy()));
     }
@@ -355,7 +363,7 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     @Named("GandalfServiceEndpointProvider")
     ServiceEndpointProvider provideGandalfServiceEndpointProvider(FoxtrotServerConfiguration configuration,
-            Environment environment) {
+                                                                  Environment environment) {
         ServiceEndpointProviderFactory serviceEndpointFactory = new ServiceEndpointProviderFactory(
                 this.serviceDiscoveryBundle.getCurator());
         return serviceEndpointFactory.provider(configuration.getGandalfConfig()
@@ -365,7 +373,8 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     @Named("GandalfOkHttpClient")
-    OkHttpClient provideGandalfOkHttpClient(Environment environment, FoxtrotServerConfiguration configuration)
+    OkHttpClient provideGandalfOkHttpClient(Environment environment,
+                                            FoxtrotServerConfiguration configuration)
             throws GeneralSecurityException, IOException {
         return OkHttpUtils.createDefaultClient("foxtrot-gandalf-client", environment.metrics(),
                 configuration.getGandalfConfig()
@@ -392,7 +401,7 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public boolean restrictAccess(FoxtrotServerConfiguration configuration){
+    public boolean restrictAccess(FoxtrotServerConfiguration configuration) {
         return configuration.isRestrictAccess();
     }
 

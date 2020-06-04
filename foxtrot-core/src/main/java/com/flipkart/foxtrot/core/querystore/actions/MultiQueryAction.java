@@ -38,7 +38,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     private final AnalyticsLoader analyticsLoader;
     private final Map<ActionRequest, Action> requestActionMap = Maps.newHashMap();
 
-    public MultiQueryAction(MultiQueryRequest parameter, AnalyticsLoader analyticsLoader) {
+    public MultiQueryAction(MultiQueryRequest parameter,
+                            AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.analyticsLoader = analyticsLoader;
     }
@@ -117,7 +118,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     @Override
-    public MultiSearchRequest getRequestBuilder(MultiQueryRequest parameter, List<Filter> extraFilters) {
+    public MultiSearchRequest getRequestBuilder(MultiQueryRequest parameter,
+                                                List<Filter> extraFilters) {
 
         MultiSearchRequest multiSearchRequest = new MultiSearchRequest();
         val filterBuilder = ImmutableList.<Filter>builder();
@@ -146,7 +148,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse,
-            MultiQueryRequest parameter) {
+                                      MultiQueryRequest parameter) {
         Map<String, ActionResponse> queryVsQueryResponseMap = Maps.newHashMap();
         int queryCounter = 0;
         List<String> queryKeys = Lists.newArrayList();
@@ -206,7 +208,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
         }
     }
 
-    private String processForSubQueries(MultiQueryRequest multiQueryRequest, ActionInterface actionInterface) {
+    private String processForSubQueries(MultiQueryRequest multiQueryRequest,
+                                        ActionInterface actionInterface) {
         List<String> results = Lists.newArrayList();
         for (Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests()
                 .entrySet()) {

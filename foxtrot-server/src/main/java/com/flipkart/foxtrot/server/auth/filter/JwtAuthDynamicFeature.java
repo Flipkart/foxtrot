@@ -17,7 +17,9 @@ import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 public class JwtAuthDynamicFeature extends AuthDynamicFeature {
 
     @Inject
-    public JwtAuthDynamicFeature(AuthConfig authConfig, Authorizer<UserPrincipal> authorizer, Environment environment) {
+    public JwtAuthDynamicFeature(AuthConfig authConfig,
+                                 Authorizer<UserPrincipal> authorizer,
+                                 Environment environment) {
         super(new UserAuthorizationFilter(authConfig, authorizer));
         if (null != environment) {
             environment.jersey()

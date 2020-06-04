@@ -27,8 +27,10 @@ public class QueryExecutorFactory {
     private final LoadingCache<Long, QueryExecutor> extrapolationQueryExecutors;
 
     @Inject
-    public QueryExecutorFactory(final AnalyticsLoader analyticsLoader, final ExecutorService executorService,
-            final List<ActionExecutionObserver> executionObservers, final FunnelConfiguration funnelConfiguration) {
+    public QueryExecutorFactory(final AnalyticsLoader analyticsLoader,
+                                final ExecutorService executorService,
+                                final List<ActionExecutionObserver> executionObservers,
+                                final FunnelConfiguration funnelConfiguration) {
         this.simpleQueryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService, executionObservers);
 
         this.extrapolationQueryExecutors = Caffeine.newBuilder()

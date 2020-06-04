@@ -43,7 +43,8 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader) {
+    public DistinctAction(DistinctRequest parameter,
+                          AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
@@ -120,7 +121,8 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(DistinctRequest request, List<Filter> extraFilters) {
+    public SearchRequest getRequestBuilder(DistinctRequest request,
+                                           List<Filter> extraFilters) {
         try {
             return new SearchRequest(ElasticsearchUtils.getIndices(request.getTable(), request)).indicesOptions(
                     Utils.indicesOptions())
@@ -137,7 +139,8 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DistinctRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      DistinctRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         // Check if any aggregation is present or not
         if (aggregations == null) {
@@ -147,7 +150,8 @@ public class DistinctAction extends Action<DistinctRequest> {
         return getDistinctResponse(parameter, aggregations);
     }
 
-    private DistinctResponse getDistinctResponse(DistinctRequest request, Aggregations aggregations) {
+    private DistinctResponse getDistinctResponse(DistinctRequest request,
+                                                 Aggregations aggregations) {
         DistinctResponse response = new DistinctResponse();
         List<String> headerList = request.getNesting()
                 .stream()
@@ -161,10 +165,14 @@ public class DistinctAction extends Action<DistinctRequest> {
         return response;
     }
 
-    private void flatten(String parentKey, List<String> fields, List<List<String>> responseList,
-            Aggregations aggregations) {
+    private void flatten(String parentKey,
+                         List<String> fields,
+                         List<List<String>> responseList,
+                         Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
+        final List<String> remainingFields = (fields.size() > 1)
+                                             ? fields.subList(1, fields.size())
+                                             : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
@@ -176,11 +184,15 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
     }
 
-    private String getProperKey(String parentKey, String currentKey) {
-        return parentKey == null ? currentKey : parentKey + Constants.SEPARATOR + currentKey;
+    private String getProperKey(String parentKey,
+                                String currentKey) {
+        return parentKey == null
+               ? currentKey
+               : parentKey + Constants.SEPARATOR + currentKey;
     }
 
-    private List<String> getValueList(String parentKey, String currentKey) {
+    private List<String> getValueList(String parentKey,
+                                      String currentKey) {
         String finalValue = getProperKey(parentKey, currentKey);
         String[] valuesList = finalValue.split(Constants.SEPARATOR);
         return Arrays.asList(valuesList);

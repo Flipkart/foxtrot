@@ -62,7 +62,8 @@ public class TrendAction extends Action<TrendRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public TrendAction(TrendRequest parameter, AnalyticsLoader analyticsLoader) {
+    public TrendAction(TrendRequest parameter,
+                       AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
@@ -109,8 +110,10 @@ public class TrendAction extends Action<TrendRequest> {
                 .hashCode();
         filterHashKey += 31 * query.getTimestamp()
                 .hashCode();
-        filterHashKey += 31 * (query.getField() != null ? query.getField()
-                .hashCode() : "FIELD".hashCode());
+        filterHashKey += 31 * (query.getField() != null
+                               ? query.getField()
+                                       .hashCode()
+                               : "FIELD".hashCode());
 
         return String.format("%s-%s-%s-%d", query.getTable(), query.getField(), query.getPeriod(), filterHashKey);
     }
@@ -154,7 +157,8 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(TrendRequest parameter, List<Filter> extraFilters) {
+    public SearchRequest getRequestBuilder(TrendRequest parameter,
+                                           List<Filter> extraFilters) {
         return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
                 Utils.indicesOptions())
                 .source(new SearchSourceBuilder().size(QUERY_SIZE)
@@ -165,7 +169,8 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, TrendRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      TrendRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         if (aggregations != null) {
             return buildResponse(parameter, aggregations);
@@ -198,7 +203,8 @@ public class TrendAction extends Action<TrendRequest> {
                 Sets.newHashSet(histogramBuilder), elasticsearchTuningConfig.getAggregationSize());
     }
 
-    private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations) {
+    private TrendResponse buildResponse(TrendRequest request,
+                                        Aggregations aggregations) {
         String field = request.getField();
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));

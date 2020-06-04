@@ -14,7 +14,8 @@ public class FunnelFilterResponse {
 
     private List<Funnel> hits;
 
-    public FunnelFilterResponse(long hitsCount, List<Funnel> hits) {
+    public FunnelFilterResponse(long hitsCount,
+                                List<Funnel> hits) {
         this.hitsCount = hitsCount;
         this.hits = hits;
     }

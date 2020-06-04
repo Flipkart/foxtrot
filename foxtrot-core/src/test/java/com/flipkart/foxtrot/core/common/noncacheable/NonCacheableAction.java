@@ -30,7 +30,8 @@ import org.elasticsearch.action.ActionRequest;
 @AnalyticsProvider(opcode = "no-cache-test", request = NonCacheableActionRequest.class, response = NonCacheableActionResponse.class, cacheable = false)
 public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
-    public NonCacheableAction(NonCacheableActionRequest parameter, AnalyticsLoader analyticsLoader) {
+    public NonCacheableAction(NonCacheableActionRequest parameter,
+                              AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
     }
 
@@ -55,14 +56,14 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    public ActionRequest getRequestBuilder(NonCacheableActionRequest parameter, List<Filter> extraFilters)
-            throws FoxtrotException {
+    public ActionRequest getRequestBuilder(NonCacheableActionRequest parameter,
+                                           List<Filter> extraFilters) throws FoxtrotException {
         return null;
     }
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
-            NonCacheableActionRequest parameter) throws FoxtrotException {
+                                      NonCacheableActionRequest parameter) throws FoxtrotException {
         return null;
     }
 

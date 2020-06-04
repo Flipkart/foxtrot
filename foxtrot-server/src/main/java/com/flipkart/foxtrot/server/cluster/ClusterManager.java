@@ -40,8 +40,9 @@ public class ClusterManager implements Managed {
     private IMap<String, ClusterMember> members;
 
     @Inject
-    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks, ServerFactory serverFactory)
-            throws IOException {
+    public ClusterManager(HazelcastConnection connection,
+                          List<HealthCheck> healthChecks,
+                          ServerFactory serverFactory) throws IOException {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);
@@ -97,8 +98,9 @@ public class ClusterManager implements Managed {
         private final ClusterMember clusterMember;
         private final IMap<String, ClusterMember> members;
 
-        private NodeDataUpdater(List<HealthCheck> healthChecks, IMap<String, ClusterMember> members,
-                ClusterMember clusterMember) {
+        private NodeDataUpdater(List<HealthCheck> healthChecks,
+                                IMap<String, ClusterMember> members,
+                                ClusterMember clusterMember) {
             this.healthChecks = ImmutableList.copyOf(healthChecks);
             this.members = members;
             this.clusterMember = clusterMember;

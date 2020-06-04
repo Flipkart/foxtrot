@@ -37,7 +37,8 @@ public class UtilResource {
     private final ObjectMapper mapper;
 
     @Inject
-    public UtilResource(ElasticsearchConfig elasticsearch, ObjectMapper mapper) {
+    public UtilResource(ElasticsearchConfig elasticsearch,
+                        ObjectMapper mapper) {
         this.elasticsearch = elasticsearch;
         this.mapper = mapper;
     }

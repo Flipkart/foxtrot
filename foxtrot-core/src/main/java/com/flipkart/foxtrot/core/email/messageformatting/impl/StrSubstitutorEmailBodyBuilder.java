@@ -17,7 +17,8 @@ public class StrSubstitutorEmailBodyBuilder implements EmailBodyBuilder {
             .build();
 
     @Override
-    public String content(String identifier, Map<String, Object> context) {
+    public String content(String identifier,
+                          Map<String, Object> context) {
         if (!TEMPLATES.containsKey(identifier)) {
             return "";
         }

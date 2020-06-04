@@ -12,7 +12,8 @@ public class DataCleanupException extends FoxtrotException {
 
     private final String message;
 
-    protected DataCleanupException(String message, Throwable cause) {
+    protected DataCleanupException(String message,
+                                   Throwable cause) {
         super(ErrorCode.DATA_CLEANUP_ERROR, cause);
         this.message = message;
     }

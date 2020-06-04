@@ -39,7 +39,8 @@ public class TableTranslator {
 
     }
 
-    public String getTable(String table, Document document) {
+    public String getTable(String table,
+                           Document document) {
         if (!isTransformableTable(table)) {
             return table;
         }
@@ -57,7 +58,8 @@ public class TableTranslator {
         return tableVsSegregationConfig.get(table) != null;
     }
 
-    private String getSegregatedTableName(String table, String eventType) {
+    private String getSegregatedTableName(String table,
+                                          String eventType) {
         return eventTypeVsNewTable.getOrDefault(eventType, table);
     }
 

@@ -27,15 +27,21 @@ public interface QueryStore {
 
     void initializeTable(final String table);
 
-    void save(final String table, final Document document);
+    void save(final String table,
+              final Document document);
 
-    void save(final String table, final List<Document> documents);
+    void save(final String table,
+              final List<Document> documents);
 
-    Document get(final String table, final String id);
+    Document get(final String table,
+                 final String id);
 
-    List<Document> getAll(final String table, final List<String> ids);
+    List<Document> getAll(final String table,
+                          final List<String> ids);
 
-    List<Document> getAll(final String table, final List<String> ids, boolean bypassMetaLookup);
+    List<Document> getAll(final String table,
+                          final List<String> ids,
+                          boolean bypassMetaLookup);
 
     void cleanupAll();
 

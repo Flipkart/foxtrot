@@ -99,7 +99,8 @@ public class TableMapStoreTest {
         compareTables(table, mapper.readValue(response.getSourceAsBytes(), Table.class));
     }
 
-    private void compareTables(Table expected, Table actual) {
+    private void compareTables(Table expected,
+                               Table actual) {
         assertNotNull(actual);
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getTtl(), actual.getTtl());

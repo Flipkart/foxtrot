@@ -69,7 +69,8 @@ public class TableMapStore implements MapStore<String, Table>, Serializable {
     }
 
     @Override
-    public void store(String key, Table value) {
+    public void store(String key,
+                      Table value) {
         if (key == null || value == null || value.getName() == null) {
             throw new TableMapStoreException(String.format("Illegal Store Request - %s - %s", key, value));
         }
@@ -236,7 +237,8 @@ public class TableMapStore implements MapStore<String, Table>, Serializable {
         }
 
         @Override
-        public TableMapStore newMapStore(String mapName, Properties properties) {
+        public TableMapStore newMapStore(String mapName,
+                                         Properties properties) {
             return new TableMapStore(elasticsearchConnection);
         }
     }

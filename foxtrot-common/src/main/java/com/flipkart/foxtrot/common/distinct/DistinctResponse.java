@@ -29,7 +29,8 @@ public class DistinctResponse extends ActionResponse {
         super(Opcodes.DISTINCT);
     }
 
-    public DistinctResponse(List<String> headers, List<List<String>> result) {
+    public DistinctResponse(List<String> headers,
+                            List<List<String>> result) {
         super(Opcodes.DISTINCT);
         this.headers = headers;
         this.result = result;
@@ -67,16 +68,24 @@ public class DistinctResponse extends ActionResponse {
 
         DistinctResponse that = (DistinctResponse) o;
 
-        if (headers != null ? !headers.equals(that.headers) : that.headers != null) {
+        if (headers != null
+            ? !headers.equals(that.headers)
+            : that.headers != null) {
             return false;
         }
-        return result != null ? result.equals(that.result) : that.result == null;
+        return result != null
+               ? result.equals(that.result)
+               : that.result == null;
     }
 
     @Override
     public int hashCode() {
-        int result1 = headers != null ? headers.hashCode() : 0;
-        result1 = 31 * result1 + (result != null ? result.hashCode() : 0);
+        int result1 = headers != null
+                      ? headers.hashCode()
+                      : 0;
+        result1 = 31 * result1 + (result != null
+                                  ? result.hashCode()
+                                  : 0);
         return result1;
     }
 }

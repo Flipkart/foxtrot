@@ -18,8 +18,10 @@ public class CardinalityOverflowException extends FoxtrotException {
     private final ActionRequest actionRequest;
     private final double probability;
 
-    public CardinalityOverflowException(ActionRequest actionRequest, String requestStr, String field,
-            double probability) {
+    public CardinalityOverflowException(ActionRequest actionRequest,
+                                        String requestStr,
+                                        String field,
+                                        double probability) {
         super(ErrorCode.CARDINALITY_OVERFLOW,
                 "Query blocked due to high cardinality. Consider using shorter time period");
         this.requestStr = requestStr;

@@ -148,7 +148,9 @@ public class QueryTranslator extends SqlElementVisitor {
             FilterParser filterParser = new FilterParser();
             plainSelect.getWhere()
                     .accept(filterParser);
-            filters = (filterParser.filters.isEmpty()) ? null : filterParser.filters;
+            filters = (filterParser.filters.isEmpty())
+                      ? null
+                      : filterParser.filters;
         }
 
         handleDistinct(plainSelect);
@@ -347,7 +349,9 @@ public class QueryTranslator extends SqlElementVisitor {
         ResultSort resultSortColumn = new ResultSort();
         resultSortColumn.setField(sortColumn.getFullyQualifiedName()
                 .replaceAll(REGEX, REPLACEMENT));
-        resultSortColumn.setOrder(orderByElement.isAsc() ? ResultSort.Order.asc : ResultSort.Order.desc);
+        resultSortColumn.setOrder(orderByElement.isAsc()
+                                  ? ResultSort.Order.asc
+                                  : ResultSort.Order.desc);
         logger.info("ResultSort: {}", resultSortColumn);
         return resultSortColumn;
     }
@@ -362,7 +366,9 @@ public class QueryTranslator extends SqlElementVisitor {
             ResultSort resultSortColumn = new ResultSort();
             resultSortColumn.setField(sortColumn.getFullyQualifiedName()
                     .replaceAll(REGEX, REPLACEMENT));
-            resultSortColumn.setOrder(orderByElement.isAsc() ? ResultSort.Order.asc : ResultSort.Order.desc);
+            resultSortColumn.setOrder(orderByElement.isAsc()
+                                      ? ResultSort.Order.asc
+                                      : ResultSort.Order.desc);
             resultSortList.add(resultSortColumn);
         }
         return resultSortList;
@@ -499,7 +505,9 @@ public class QueryTranslator extends SqlElementVisitor {
             return histogramRequest;
         }
 
-        private ActionRequest parseCountRequest(ExpressionList expressionList, boolean allColumns, boolean isDistinct) {
+        private ActionRequest parseCountRequest(ExpressionList expressionList,
+                                                boolean allColumns,
+                                                boolean isDistinct) {
 
             CountRequest countRequest = new CountRequest();
             if (allColumns) {

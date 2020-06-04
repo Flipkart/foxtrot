@@ -51,7 +51,11 @@ public class TableV2 implements Serializable {
     private int defaultRegions = 4;
 
     @Builder
-    public TableV2(String name, String adminEmails, int ttl, boolean seggregatedBackend, int defaultRegions) {
+    public TableV2(String name,
+                   String adminEmails,
+                   int ttl,
+                   boolean seggregatedBackend,
+                   int defaultRegions) {
         this.name = name;
         this.adminEmails = adminEmails;
         this.ttl = ttl;

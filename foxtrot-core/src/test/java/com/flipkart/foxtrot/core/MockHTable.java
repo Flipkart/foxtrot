@@ -184,7 +184,10 @@ public class MockHTable implements Table {
      * @param column family:qualifier encoded value
      * @param val value
      */
-    private static void put(MockHTable ret, String row, String column, String val) {
+    private static void put(MockHTable ret,
+                            String row,
+                            String column,
+                            String val) {
         String[] fq = split(column);
         byte[] family = Bytes.toBytesBinary(fq[0]);
         byte[] qualifier = Bytes.toBytesBinary(fq[1]);
@@ -260,7 +263,8 @@ public class MockHTable implements Table {
      * @return List of KeyValue's
      */
     private static List<KeyValue> toKeyValue(byte[] row,
-            NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> rowdata, int maxVersions) {
+                                             NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> rowdata,
+                                             int maxVersions) {
         return toKeyValue(row, rowdata, 0, Long.MAX_VALUE, maxVersions);
     }
 
@@ -275,8 +279,10 @@ public class MockHTable implements Table {
      * @return List of KeyValue's
      */
     private static List<KeyValue> toKeyValue(byte[] row,
-            NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> rowdata, long timestampStart,
-            long timestampEnd, int maxVersions) {
+                                             NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> rowdata,
+                                             long timestampStart,
+                                             long timestampEnd,
+                                             int maxVersions) {
         List<KeyValue> ret = new ArrayList<KeyValue>();
         for (byte[] family : rowdata.keySet()) {
             for (byte[] qualifier : rowdata.get(family)
@@ -312,7 +318,9 @@ public class MockHTable implements Table {
      * @param newObject set key to this if not found
      * @return found value or newObject if not found
      */
-    private <K, V> V forceFind(NavigableMap<K, V> map, K key, V newObject) {
+    private <K, V> V forceFind(NavigableMap<K, V> map,
+                               K key,
+                               V newObject) {
         V data = map.get(key);
         if (data == null) {
             data = newObject;
@@ -382,7 +390,8 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public void batch(List<? extends Row> actions, Object[] results) throws IOException, InterruptedException {
+    public void batch(List<? extends Row> actions,
+                      Object[] results) throws IOException, InterruptedException {
         results = batch(actions);
     }
 
@@ -406,14 +415,15 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public <R> void batchCallback(List<? extends Row> actions, Object[] results, Callback<R> callback)
-            throws IOException, InterruptedException {
+    public <R> void batchCallback(List<? extends Row> actions,
+                                  Object[] results,
+                                  Callback<R> callback) throws IOException, InterruptedException {
 
     }
 
     @Override
-    public <R> Object[] batchCallback(List<? extends Row> actions, Callback<R> callback)
-            throws IOException, InterruptedException {
+    public <R> Object[] batchCallback(List<? extends Row> actions,
+                                      Callback<R> callback) throws IOException, InterruptedException {
         return new Object[0];
     }
 
@@ -637,7 +647,8 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public ResultScanner getScanner(byte[] family, byte[] qualifier) throws IOException {
+    public ResultScanner getScanner(byte[] family,
+                                    byte[] qualifier) throws IOException {
         Scan scan = new Scan();
         scan.addColumn(family, qualifier);
         return getScanner(scan);
@@ -671,7 +682,11 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier, byte[] value, Put put) throws IOException {
+    public boolean checkAndPut(byte[] row,
+                               byte[] family,
+                               byte[] qualifier,
+                               byte[] value,
+                               Put put) throws IOException {
         if (check(row, family, qualifier, value)) {
             put(put);
             return true;
@@ -688,7 +703,10 @@ public class MockHTable implements Table {
      * @param value value
      * @return true if value is not null and exists in db, or value is null and not exists in db, false otherwise
      */
-    private boolean check(byte[] row, byte[] family, byte[] qualifier, byte[] value) {
+    private boolean check(byte[] row,
+                          byte[] family,
+                          byte[] qualifier,
+                          byte[] value) {
         if (value == null || value.length == 0) {
             return !data.containsKey(row) || !data.get(row)
                     .containsKey(family) || !data.get(row)
@@ -710,8 +728,12 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp,
-            byte[] value, Put put) throws IOException {
+    public boolean checkAndPut(byte[] row,
+                               byte[] family,
+                               byte[] qualifier,
+                               CompareFilter.CompareOp compareOp,
+                               byte[] value,
+                               Put put) throws IOException {
         return false;
     }
 
@@ -766,8 +788,11 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public boolean checkAndDelete(byte[] row, byte[] family, byte[] qualifier, byte[] value, Delete delete)
-            throws IOException {
+    public boolean checkAndDelete(byte[] row,
+                                  byte[] family,
+                                  byte[] qualifier,
+                                  byte[] value,
+                                  Delete delete) throws IOException {
         if (check(row, family, qualifier, value)) {
             delete(delete);
             return true;
@@ -776,8 +801,12 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public boolean checkAndDelete(byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp,
-            byte[] value, Delete delete) throws IOException {
+    public boolean checkAndDelete(byte[] row,
+                                  byte[] family,
+                                  byte[] qualifier,
+                                  CompareFilter.CompareOp compareOp,
+                                  byte[] value,
+                                  Delete delete) throws IOException {
         return false;
     }
 
@@ -809,13 +838,19 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public long incrementColumnValue(byte[] row, byte[] family, byte[] qualifier, long amount) throws IOException {
+    public long incrementColumnValue(byte[] row,
+                                     byte[] family,
+                                     byte[] qualifier,
+                                     long amount) throws IOException {
         return incrementColumnValue(row, family, qualifier, amount, Durability.ASYNC_WAL);
     }
 
     @Override
-    public long incrementColumnValue(byte[] row, byte[] family, byte[] qualifier, long amount, Durability durability)
-            throws IOException {
+    public long incrementColumnValue(byte[] row,
+                                     byte[] family,
+                                     byte[] qualifier,
+                                     long amount,
+                                     Durability durability) throws IOException {
         if (check(row, family, qualifier, null)) {
             Put put = new Put(row);
             put.add(family, qualifier, Bytes.toBytes(amount));
@@ -844,14 +879,20 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public <T extends Service, R> Map<byte[], R> coprocessorService(Class<T> service, byte[] startKey, byte[] endKey,
-            Call<T, R> callable) throws ServiceException, Throwable {
+    public <T extends Service, R> Map<byte[], R> coprocessorService(Class<T> service,
+                                                                    byte[] startKey,
+                                                                    byte[] endKey,
+                                                                    Call<T, R> callable)
+            throws ServiceException, Throwable {
         return null;
     }
 
     @Override
-    public <T extends Service, R> void coprocessorService(Class<T> service, byte[] startKey, byte[] endKey,
-            Call<T, R> callable, Callback<R> callback) throws ServiceException, Throwable {
+    public <T extends Service, R> void coprocessorService(Class<T> service,
+                                                          byte[] startKey,
+                                                          byte[] endKey,
+                                                          Call<T, R> callable,
+                                                          Callback<R> callback) throws ServiceException, Throwable {
     }
 
     @Override
@@ -867,20 +908,31 @@ public class MockHTable implements Table {
 
     @Override
     public <R extends Message> Map<byte[], R> batchCoprocessorService(Descriptors.MethodDescriptor methodDescriptor,
-            Message request, byte[] startKey, byte[] endKey, R responsePrototype) throws ServiceException, Throwable {
+                                                                      Message request,
+                                                                      byte[] startKey,
+                                                                      byte[] endKey,
+                                                                      R responsePrototype)
+            throws ServiceException, Throwable {
         return null;
     }
 
     @Override
     public <R extends Message> void batchCoprocessorService(Descriptors.MethodDescriptor methodDescriptor,
-            Message request, byte[] startKey, byte[] endKey, R responsePrototype, Callback<R> callback)
-            throws ServiceException, Throwable {
+                                                            Message request,
+                                                            byte[] startKey,
+                                                            byte[] endKey,
+                                                            R responsePrototype,
+                                                            Callback<R> callback) throws ServiceException, Throwable {
 
     }
 
     @Override
-    public boolean checkAndMutate(byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp,
-            byte[] value, RowMutations mutation) throws IOException {
+    public boolean checkAndMutate(byte[] row,
+                                  byte[] family,
+                                  byte[] qualifier,
+                                  CompareFilter.CompareOp compareOp,
+                                  byte[] value,
+                                  RowMutations mutation) throws IOException {
         return false;
     }
 
@@ -891,7 +943,8 @@ public class MockHTable implements Table {
      * @param column family:qualifier of the data to read
      * @return value or null if row or column of the row does not exist
      */
-    public byte[] read(String rowid, String column) {
+    public byte[] read(String rowid,
+                       String column) {
         NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> row = data.get(
                 Bytes.toBytesBinary(rowid));
         if (row == null) {

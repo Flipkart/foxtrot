@@ -21,7 +21,8 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
     private final AuthConfig authConfig;
     private final Authorizer<UserPrincipal> authorizer;
 
-    public UserAuthorizationFilter(AuthConfig authConfig, Authorizer<UserPrincipal> authorizer) {
+    public UserAuthorizationFilter(AuthConfig authConfig,
+                                   Authorizer<UserPrincipal> authorizer) {
         this.authConfig = authConfig;
         this.authorizer = authorizer;
     }
@@ -40,7 +41,8 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
         throw new JWTAuthenticationFailure();
     }
 
-    private void updateContext(ContainerRequestContext requestContext, UserPrincipal principal) {
+    private void updateContext(ContainerRequestContext requestContext,
+                               UserPrincipal principal) {
         requestContext.setSecurityContext(new SecurityContext() {
 
             @Override

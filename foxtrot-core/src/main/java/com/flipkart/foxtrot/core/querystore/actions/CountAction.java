@@ -36,7 +36,8 @@ public class CountAction extends Action<CountRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public CountAction(CountRequest parameter, AnalyticsLoader analyticsLoader) {
+    public CountAction(CountRequest parameter,
+                       AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
@@ -78,9 +79,13 @@ public class CountAction extends Action<CountRequest> {
             filterHashKey += 31 * filter.hashCode();
         }
 
-        filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode());
-        filterHashKey += 31 * (request.getField() != null ? request.getField()
-                .hashCode() : "COLUMN".hashCode());
+        filterHashKey += 31 * (request.isDistinct()
+                               ? "TRUE".hashCode()
+                               : "FALSE".hashCode());
+        filterHashKey += 31 * (request.getField() != null
+                               ? request.getField()
+                                       .hashCode()
+                               : "COLUMN".hashCode());
         return String.format("count-%s-%d", request.getTable(), filterHashKey);
     }
 
@@ -103,7 +108,8 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(CountRequest parameter, List<Filter> extraFilters) {
+    public SearchRequest getRequestBuilder(CountRequest parameter,
+                                           List<Filter> extraFilters) {
         if (parameter.isDistinct()) {
             try {
                 return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
@@ -129,7 +135,8 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, CountRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      CountRequest parameter) {
         if (parameter.isDistinct()) {
             Aggregations aggregations = ((SearchResponse) response).getAggregations();
             Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));

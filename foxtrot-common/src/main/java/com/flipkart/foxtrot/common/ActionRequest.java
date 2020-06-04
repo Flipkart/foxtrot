@@ -38,7 +38,8 @@ public abstract class ActionRequest implements Serializable, Cloneable {
         this.opcode = opcode;
     }
 
-    protected ActionRequest(String opcode, List<Filter> filters) {
+    protected ActionRequest(String opcode,
+                            List<Filter> filters) {
         this.opcode = opcode;
         this.filters = filters;
     }

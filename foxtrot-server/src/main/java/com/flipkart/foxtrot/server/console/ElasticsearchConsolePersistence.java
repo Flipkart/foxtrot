@@ -62,7 +62,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     private final ObjectMapper mapper;
 
     @Inject
-    public ElasticsearchConsolePersistence(ElasticsearchConnection connection, ObjectMapper mapper) {
+    public ElasticsearchConsolePersistence(ElasticsearchConnection connection,
+                                           ObjectMapper mapper) {
         this.connection = connection;
         this.mapper = mapper;
     }
@@ -142,7 +143,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public void saveV2(ConsoleV2 console, boolean newConsole) {
+    public void saveV2(ConsoleV2 console,
+                       boolean newConsole) {
         preProcess(console, newConsole);
         try {
             connection.getClient()
@@ -202,7 +204,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public List<ConsoleV2> getAllOldVersions(final String name, final String sortBy) {
+    public List<ConsoleV2> getAllOldVersions(final String name,
+                                             final String sortBy) {
         try {
             SearchHits searchHits = connection.getClient()
                     .search(new SearchRequest(INDEX_HISTORY).searchType(SearchType.QUERY_THEN_FETCH)
@@ -246,7 +249,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         }
     }
 
-    private void preProcess(ConsoleV2 console, boolean newConsole) {
+    private void preProcess(ConsoleV2 console,
+                            boolean newConsole) {
         if (console.getUpdatedAt() == 0L) {
             console.setUpdatedAt(System.currentTimeMillis());
         }

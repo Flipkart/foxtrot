@@ -42,8 +42,10 @@ public class FqlV2Resource {
     private AccessService accessService;
 
     @Inject
-    public FqlV2Resource(final FqlEngine fqlEngine, final FqlStoreService fqlStoreService, AccessService accessService,
-            QueryConfig queryConfig) {
+    public FqlV2Resource(final FqlEngine fqlEngine,
+                         final FqlStoreService fqlStoreService,
+                         AccessService accessService,
+                         QueryConfig queryConfig) {
         this.fqlEngine = fqlEngine;
         this.fqlStoreService = fqlStoreService;
         this.accessService = accessService;

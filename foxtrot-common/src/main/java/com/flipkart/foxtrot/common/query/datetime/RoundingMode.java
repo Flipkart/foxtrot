@@ -8,7 +8,8 @@ public enum RoundingMode {
 
     FLOOR {
         @Override
-        public DateTime translate(DateTime dateTime, Duration duration) {
+        public DateTime translate(DateTime dateTime,
+                                  Duration duration) {
             switch (duration.getUnit()) {
                 case NANOSECONDS:
                 case MICROSECONDS:
@@ -35,7 +36,8 @@ public enum RoundingMode {
     },
     CEILING {
         @Override
-        public DateTime translate(DateTime dateTime, Duration duration) {
+        public DateTime translate(DateTime dateTime,
+                                  Duration duration) {
             switch (duration.getUnit()) {
                 case NANOSECONDS:
                 case MICROSECONDS:
@@ -62,11 +64,13 @@ public enum RoundingMode {
     },
     NONE {
         @Override
-        public DateTime translate(DateTime dateTime, Duration duration) {
+        public DateTime translate(DateTime dateTime,
+                                  Duration duration) {
             return dateTime;
         }
     };
 
-    public abstract DateTime translate(DateTime dateTime, Duration duration);
+    public abstract DateTime translate(DateTime dateTime,
+                                       Duration duration);
 
 }

@@ -43,8 +43,15 @@ public class GoogleAuthProviderConfig extends AuthProviderConfig {
     private int proxyPort;
 
     @Builder
-    public GoogleAuthProviderConfig(boolean enabled, String clientId, String clientSecret, String loginDomain,
-            String server, boolean secureEndpoint, Proxy.Type proxyType, String proxyHost, int proxyPort) {
+    public GoogleAuthProviderConfig(boolean enabled,
+                                    String clientId,
+                                    String clientSecret,
+                                    String loginDomain,
+                                    String server,
+                                    boolean secureEndpoint,
+                                    Proxy.Type proxyType,
+                                    String proxyHost,
+                                    int proxyPort) {
         super(AuthType.OAUTH_GOOGLE, enabled);
         this.clientId = clientId;
         this.clientSecret = clientSecret;
