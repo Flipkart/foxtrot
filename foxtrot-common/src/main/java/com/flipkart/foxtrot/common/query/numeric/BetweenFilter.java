@@ -22,7 +22,9 @@ import lombok.Data;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 2:10 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 14/03/14
+ * Time: 2:10 AM
  */
 @Data
 public class BetweenFilter extends Filter {

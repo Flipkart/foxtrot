@@ -20,7 +20,9 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 8:17 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 14/03/14
+ * Time: 8:17 PM
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

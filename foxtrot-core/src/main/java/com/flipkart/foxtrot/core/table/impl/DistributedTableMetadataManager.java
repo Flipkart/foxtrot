@@ -94,7 +94,9 @@ import org.joda.time.DateTime;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:11 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 15/03/14
+ * Time: 10:11 PM
  */
 @Singleton
 @Order(15)

@@ -63,7 +63,6 @@ cardinality:
 elasticsearchTuningConfig:
   precisionThreshold: 500
   aggregationSize: 10000
-  scrollSize: 100
   scrollTimeInSeconds: 120
   documentsLimitAllowed: 10000
 
@@ -212,12 +211,12 @@ auth:
   enabled: false
   jwt:
     issuerId: foxtrot-server
-    privateKey: ${PRIVATE_KEY}
+    privateKey: 123
     sessionDuration: 15d
 
   provider:
     type: OAUTH_GOOGLE
-    clientId: ${GOOGLE_CLIENT_ID}
-    clientSecret: ${GOOGLE_CLIENT_SECRET}
-    server: ${GOOGLE_CALLBACK_HOST_PORT}
+    clientId: 123
+    clientSecret: 123
+    server: abc
     secureEndpoint: false

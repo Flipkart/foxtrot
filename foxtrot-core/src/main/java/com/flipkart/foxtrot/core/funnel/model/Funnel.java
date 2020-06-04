@@ -63,7 +63,9 @@ public class Funnel {
 
 
     /**
-     * Funnels are similar if 1. all fieldVsValues entries are same 2. all eventAttributes are same
+     * Funnels are similar if
+     * 1. all fieldVsValues entries are same
+     * 2. all eventAttributes are same
      *
      * @param funnel {@link Funnel}
      * @return boolean

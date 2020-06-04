@@ -29,8 +29,8 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
- * An object that measures elapsed time in nanoseconds. It is useful to measure elapsed time using this class instead of
- * direct calls to {@link System#nanoTime} for a few reasons:
+ * An object that measures elapsed time in nanoseconds. It is useful to measure elapsed time using
+ * this class instead of direct calls to {@link System#nanoTime} for a few reasons:
  *
  * <ul>
  * <li>An alternate time source can be substituted, for testing or performance reasons.
@@ -218,8 +218,8 @@ public final class Stopwatch {
     }
 
     /**
-     * Returns the current elapsed time shown on this stopwatch, expressed in the desired time unit, with any fraction
-     * rounded down.
+     * Returns the current elapsed time shown on this stopwatch, expressed in the desired time unit,
+     * with any fraction rounded down.
      *
      * <p>Note that the overhead of measurement can be more than a microsecond, so it is generally not
      * useful to specify {@link TimeUnit#NANOSECONDS} precision here.

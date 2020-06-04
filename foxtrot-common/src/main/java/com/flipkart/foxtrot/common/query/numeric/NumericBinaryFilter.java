@@ -19,7 +19,9 @@ import lombok.Data;
 import lombok.ToString;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 2:25 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 14/03/14
+ * Time: 2:25 PM
  */
 @Data
 @ToString(callSuper = true)

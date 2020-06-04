@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function HostDetails(hostname, port) {
+ function HostDetails(hostname, port) {
   this.hostname = hostname;
   this.port = port;
 }

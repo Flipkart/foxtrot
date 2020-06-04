@@ -148,3 +148,63 @@ CountTile.prototype.render = function (displayValue) {
   displayValue = displayValue / Math.pow(10, (this.object.tileContext.ignoreDigits == undefined ? 0 : this.object.tileContext.ignoreDigits));
   chartDiv.append("<div id="+object.id+"><p class='trend-value-big bold'>"+numberWithCommas(displayValue)+"</p><dhr/><p class='trend-value-small'></p><div id='trend-'"+object.id+" class='trend-chart-health'></div><div class='trend-chart-health-percentage bold'></div></div>");
 }
+
+
+//  -------------------- Starts Added download widget 2 --------------------
+
+CountTile.prototype.downloadWidget = function(object) {
+  this.object = object;
+  var filters = [];
+  if(globalFilters) {
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+  } else {
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
+  }
+
+  var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+  if(templateFilters.length > 0) {
+    filters = filters.concat(templateFilters);
+  }
+
+  var data = {};
+
+  if(object.tileContext.field && object.tileContext.field != "none") {
+    data = {
+      "opcode": "count",
+      "table": object.tileContext.table,
+      "filters": filters,
+      "field": object.tileContext.field && object.tileContext.field != "none" ? object.tileContext.field : null,
+      "distinct": object.tileContext.isDistinct == undefined ? false : object.tileContext.isDistinct
+    }
+  } else {
+    data = {
+      "opcode": "count",
+      "table": object.tileContext.table,
+      "filters": filters
+    }
+  }
+  var refObject = this.object;
+  $.ajax({
+    url: apiUrl + "/v1/analytics/download",
+    type: 'POST',
+    data: JSON.stringify(data),
+    dataType: 'text',
+
+    contentType: 'application/json',
+    context: this,
+    success: function(response) {
+      downloadTextAsCSV(response, 'CountChart.csv')
+    },
+    error: function(xhr, textStatus, error ) {
+      console.log("error.........",error,textStatus,xhr)
+    }
+});
+}
+
+//  -------------------- ENDS Added download widget 2 --------------------

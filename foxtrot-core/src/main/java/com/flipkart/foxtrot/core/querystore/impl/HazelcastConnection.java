@@ -34,7 +34,9 @@ import org.slf4j.LoggerFactory;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:01 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 15/03/14
+ * Time: 10:01 PM
  */
 @Order(10)
 @Singleton

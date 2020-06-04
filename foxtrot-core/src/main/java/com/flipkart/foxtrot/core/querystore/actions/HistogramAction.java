@@ -48,7 +48,9 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.joda.time.DateTime;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 29/03/14 Time: 9:22 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 29/03/14
+ * Time: 9:22 PM
  */
 @AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {

@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 public class UnmarshallerConfig {
 
     /**
-     * List of jsonPaths for fields in tables which need to be unmarshalled to jsonNode e.g.
-     * phonepe_consumer_app_android -> ["/eventData/funnelInfo", "/eventData/funnelInfo/funnelData"]
+     * List of jsonPaths for fields in tables which need to be unmarshalled to jsonNode
+     * e.g. phonepe_consumer_app_android -> ["/eventData/funnelInfo", "/eventData/funnelInfo/funnelData"]
      */
     Map<String, List<String>> tableVsUnmarshallJsonPath = new HashMap<>();
     private boolean unmarshallingEnabled;

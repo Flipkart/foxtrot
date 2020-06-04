@@ -13,7 +13,9 @@
 package com.flipkart.foxtrot.common.query;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 2:22 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 14/03/14
+ * Time: 2:22 PM
  */
 public final class FilterOperator {
 

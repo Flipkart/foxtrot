@@ -20,5 +20,6 @@ public class ElasticsearchTuningConfig {
 
     private int scrollTimeInSeconds = 120;
 
+    @Builder.Default
     private int documentsLimitAllowed = 10000;
 }

@@ -206,21 +206,22 @@ function clearModal() {
 }
 
 function hideFilters() {
-  $(".global-filters").removeClass('col-sm-3');
+  // $(".global-filters").removeClass('col-sm-3');
   $(".global-filters").addClass('col-sm-2');
-  $(".global-filters").css({'width': "138px"});
+  $(".global-filters").css({'width': "auto"});
   $(".global-filter-switch-div").css({'border': "none"})
   $(".widget-btns").css({'left': "172px"});
-  $(".hide-filters").css({"display": "none"});
+  $(".hide-filters").css({"display": "block"});
 }
 
 function showFilters() {
-  $(".global-filters").removeClass('col-sm-2');
+  globalFilters = true;
+  // $(".global-filters").removeClass('col-sm-2');
   $(".global-filters").addClass('col-sm-3');
   $(".global-filter-switch-div").css({'border': "none"})
   $(".widget-btns").css({'left': "0px"});
   $(".hide-filters").css({"display": "block"});
-  $(".global-filter-switch-div").css({'border-right': "1px solid #aeb8bd"});
+  // $(".global-filter-switch-div").css({'border-right': "1px solid #aeb8bd"});
   $(".global-filters").css({'width': "auto"});
 }
 
@@ -385,7 +386,7 @@ function resetGloblaDateFilter() {
 function loadParticularConsole() { // reload page based on selected console
   var selectedConsole = $("#listConsole").val();
   if(window.location.href.indexOf("fql") > -1 || window.location.href.indexOf("browse") > -1) {
-    window.location.href = "/echo/index.htm?console=" + selectedConsole    
+    window.location.href = "/echo/index.htm?console=" + selectedConsole
  } else {
    //window.location.assign("index.htm?console=" + selectedConsole);
    loadConsolesWithoutRefreshing(selectedConsole)
@@ -920,4 +921,11 @@ function fetchTemplateFiltersFields(tableName) { // fetching field for particula
       checkIsRenderTemplateFilter(tableName);
     }
   });
+}
+
+/**
+ * get current console id
+ */
+function getCurrentConsoleId() {
+  return convertName(currentConsoleName);
 }

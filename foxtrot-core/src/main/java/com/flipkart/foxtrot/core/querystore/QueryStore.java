@@ -21,7 +21,9 @@ import java.util.Set;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 12/03/14 Time: 9:25 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 12/03/14
+ * Time: 9:25 PM
  */
 public interface QueryStore {
 

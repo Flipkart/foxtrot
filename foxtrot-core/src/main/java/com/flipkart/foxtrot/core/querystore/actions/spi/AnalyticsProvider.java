@@ -20,7 +20,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 27/03/14 Time: 12:15 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 27/03/14
+ * Time: 12:15 AM
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
