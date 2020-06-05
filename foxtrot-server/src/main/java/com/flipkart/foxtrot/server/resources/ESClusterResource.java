@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.server.resources;
 
-import com.flipkart.foxtrot.core.reroute.ClusterRerouteManager;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.swagger.annotations.Api;

@@ -44,17 +44,14 @@ public class UserAuthenticationFilter implements Filter {
             .add("^/foxtrot/auth.*")
             .build();
     private final AuthConfig authConfig;
-    private final Provider<SessionDataStore> sessionDataStore;
     private final JwtConsumer consumer;
     private final Provider<Authenticator<JwtContext, UserPrincipal>> authenticator;
 
     @Inject
     public UserAuthenticationFilter(AuthConfig authConfig,
-                                    Provider<SessionDataStore> sessionDataStore,
                                     JwtConsumer consumer,
                                     Provider<Authenticator<JwtContext, UserPrincipal>> authenticator) {
         this.authConfig = authConfig;
-        this.sessionDataStore = sessionDataStore;
         this.consumer = consumer;
         this.authenticator = authenticator;
     }
