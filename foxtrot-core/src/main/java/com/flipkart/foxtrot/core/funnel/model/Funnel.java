@@ -6,6 +6,7 @@ import static com.collections.CollectionUtils.nullSafeMap;
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,9 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Funnel {
+public class Funnel implements Serializable {
+
+    private static final long serialVersionUID = 3454974655532938232L;
 
     private String id;
 

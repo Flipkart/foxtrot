@@ -68,6 +68,7 @@ public class MappingService {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public String getFieldType(String fieldName,
                                String index) {
         String defaultFieldType = TEXT;
@@ -88,6 +89,7 @@ public class MappingService {
         return defaultFieldType;
     }
 
+    @SuppressWarnings("unchecked")
     public String getAnalyzedFieldName(String fieldName,
                                        String index) {
         String defaultFieldName = "id" + DOT + TEXT;

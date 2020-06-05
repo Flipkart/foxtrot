@@ -325,7 +325,6 @@ public class ElasticsearchFunnelStore implements FunnelStore {
 
     private BoolQueryBuilder buildEventAttributesQuery(Funnel funnel) {
         BoolQueryBuilder boolEventAttributesQueryBuilder = QueryBuilders.boolQuery();
-
         try {
             Map<String, List<Object>> eventAttributesMap = new HashMap<>();
             extractEventAttributes(funnel, eventAttributesMap);
