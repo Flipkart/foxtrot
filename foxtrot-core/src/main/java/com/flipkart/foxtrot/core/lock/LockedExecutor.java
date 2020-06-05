@@ -1,40 +1,24 @@
 package com.flipkart.foxtrot.core.lock;
 
-import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import com.flipkart.foxtrot.core.lock.DistributedLock.DistributedLockTryFailedWithTimeout;
+import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
-import net.javacrumbs.shedlock.core.LockConfiguration;
-import net.javacrumbs.shedlock.core.LockProvider;
-import net.javacrumbs.shedlock.core.SimpleLock;
-import net.javacrumbs.shedlock.provider.hazelcast.HazelcastLockProvider;
 
 @Slf4j
 @Singleton
 public class LockedExecutor {
 
-    private static final DistributedLockGroupConfig defaultDistributedLockGroupConfig;
-
-    static {
-        defaultDistributedLockGroupConfig = new DistributedLockGroupConfig();
-        defaultDistributedLockGroupConfig.setLockExpiryTimeInMs(2000);
-    }
-
     /**
-     * distributed lock provider
+     * distributed lock object
      */
-    private final LockProvider lockProvider;
-    private final HazelcastDistributedLockConfig distributedLockConfig;
+    private final DistributedLock distributedLock;
 
     @Inject
-    public LockedExecutor(final HazelcastDistributedLockConfig distributedLockConfig,
-                          final HazelcastConnection hazelcastConnection) {
-        this.lockProvider = new HazelcastLockProvider(hazelcastConnection.getHazelcast());
-        this.distributedLockConfig = distributedLockConfig;
+    public LockedExecutor(final DistributedLock distributedLock) {
+        this.distributedLock = distributedLock;
     }
 
     /**
@@ -42,51 +26,52 @@ public class LockedExecutor {
      */
     public <T, R> R doItInLock(T dataForProcessing,
                                Function<T, R> runFuncInsideLock,
+                               Function<T, String> uniqueLockIdFunc,
+                               R defaultDataWhenLockNotAcquired) {
+        String lockString = uniqueLockIdFunc.apply(dataForProcessing);
+        Lock lock = null;
+        try {
+            lock = distributedLock.achieveLock(lockString);
+            if (lock != null) {
+                return runFuncInsideLock.apply(dataForProcessing);
+            }
+            log.info("Lock was not taken for work, return default data: lockId={}, defaultData={}", lockString,
+                    defaultDataWhenLockNotAcquired);
+            return defaultDataWhenLockNotAcquired;
+        } finally {
+            if (lock != null) {
+                distributedLock.releaseLock(lock, lockString);
+            }
+        }
+    }
+
+    public <T, R> R doItInLock(T dataForProcessing,
+                               Function<T, R> runFuncInsideLock,
                                Function<T, R> runFuncIfLockNotAcquired,
                                Function<T, String> uniqueLockIdFunc,
                                String lockGroupName,
                                R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
         String lockString = uniqueLockIdFunc.apply(dataForProcessing);
-
-        Instant lockAtMostUntil = getLockAtMostUntil(lockGroupName);
-        LockConfiguration lockConfig = new LockConfiguration(lockString, lockAtMostUntil);
-
-        Optional<SimpleLock> lock = this.lockProvider.lock(lockConfig);
-
-        if (lock.isPresent()) {
+        Lock lock = null;
+        try {
             try {
-                log.debug("Locked {}.", lockConfig.getName());
-                return runFuncInsideLock.apply(dataForProcessing);
-            } finally {
-                ((SimpleLock) lock.get()).unlock();
-                log.debug("Unlocked {}.", lockConfig.getName());
+                lock = distributedLock.achieveLock(lockString, lockGroupName);
+                if (lock != null) {
+                    return runFuncInsideLock.apply(dataForProcessing);
+                }
+            } catch (DistributedLockTryFailedWithTimeout e) {
+                if (runFuncIfLockNotAcquired != null) {
+                    log.info("Lock was not taken for work, run default handler: lockId={}, lockGroupName={}",
+                            lockString, lockGroupName);
+                    return runFuncIfLockNotAcquired.apply(dataForProcessing);
+                }
             }
-        } else {
-            log.debug("Not executing {}. It's locked.", lockConfig.getName());
-            if (runFuncIfLockNotAcquired != null) {
-                log.info("Lock was not taken for work, run default handler: lockId={}, lockGroupName={}", lockString,
-                        lockGroupName);
-                return runFuncIfLockNotAcquired.apply(dataForProcessing);
-            }
-            log.info("Lock was not taken for work, return default data: lockId={}, lockGroupName={}", lockString,
-                    lockGroupName);
             return defaultDataWhenLockNotAcquiredOrNoFailFunction;
+        } finally {
+            if (lock != null) {
+                distributedLock.releaseLock(lock, lockString);
+            }
         }
-    }
-
-    private Instant getLockAtMostUntil(String lockGroupName) {
-        DistributedLockGroupConfig lockGroupConfig;
-        if (distributedLockConfig == null || distributedLockConfig.getLocksConfig() == null
-                || !distributedLockConfig.getLocksConfig()
-                .containsKey(lockGroupName)) {
-            lockGroupConfig = defaultDistributedLockGroupConfig;
-        } else {
-            lockGroupConfig = distributedLockConfig.getLocksConfig()
-                    .get(lockGroupName);
-        }
-
-        return Instant.now()
-                .plusSeconds(TimeUnit.MINUTES.toSeconds(lockGroupConfig.getLockExpiryTimeInMs()));
     }
 
     // Method for convenience

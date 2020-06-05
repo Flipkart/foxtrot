@@ -51,5 +51,4 @@ public enum ErrorCode {
     SERIALIZATION_ERROR,
 
     FUNNEL_EXCEPTION
-
 }
