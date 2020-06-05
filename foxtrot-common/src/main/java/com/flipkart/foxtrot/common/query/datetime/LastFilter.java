@@ -14,7 +14,7 @@ import lombok.ToString;
 
 @Data
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper =  true)
+@EqualsAndHashCode(callSuper = true)
 public class LastFilter extends Filter {
 
     private long currentTime;

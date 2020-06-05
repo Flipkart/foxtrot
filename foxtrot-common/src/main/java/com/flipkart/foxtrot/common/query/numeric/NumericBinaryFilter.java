@@ -26,7 +26,7 @@ import lombok.ToString;
  */
 @Data
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper =  true)
+@EqualsAndHashCode(callSuper = true)
 public abstract class NumericBinaryFilter extends Filter {
 
     @NotNull

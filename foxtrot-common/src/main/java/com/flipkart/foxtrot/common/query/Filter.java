@@ -31,15 +31,11 @@ import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.query.string.WildCardFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import lombok.Data;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -108,19 +104,19 @@ public abstract class Filter implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) {
+        if (this == o) {
             return true;
         }
-        if(!(o instanceof Filter)) {
+        if (!(o instanceof Filter)) {
             return false;
         }
 
         Filter filter = (Filter) o;
 
-        if(cachedResultsAccepted != filter.cachedResultsAccepted) {
+        if (cachedResultsAccepted != filter.cachedResultsAccepted) {
             return false;
         }
-        if(!operator.equals(filter.operator)) {
+        if (!operator.equals(filter.operator)) {
             return false;
         }
         return field.equals(filter.field);
@@ -142,7 +138,7 @@ public abstract class Filter implements Serializable {
                 .append("field", field)
                 .toString();
     }
-
+    
     @JsonIgnore
     public boolean isFilterTemporal() {
         return false;
