@@ -4,9 +4,11 @@ import static com.collections.CollectionUtils.nullAndEmptySafeValueList;
 import static com.collections.CollectionUtils.nullSafeMap;
 import static com.flipkart.foxtrot.common.exception.ErrorCode.EXECUTION_EXCEPTION;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.APPROVAL_DATE;
+import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.DELETED;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.EVENT_ATTRIBUTES;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FIELD_VS_VALUES;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FUNNEL_STATUS;
+import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.ID;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.DOT;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.TYPE;
 
@@ -126,10 +128,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
             val searchRequest = new SearchRequest(funnelConfiguration.getFunnelIndex()).types(TYPE)
                     .source(new SearchSourceBuilder().query(query)
                             .fetchSource(true)
-                            .sort(SortBuilders.fieldSort(APPROVAL_DATE)
-                                    .order(SortOrder.DESC))
                             .size(1))
-                    .indicesOptions(Utils.indicesOptions())
                     .searchType(SearchType.QUERY_THEN_FETCH);
             SearchHits response = connection.getClient()
                     .search(searchRequest)
@@ -266,15 +265,17 @@ public class ElasticsearchFunnelStore implements FunnelStore {
 
     @Override
     public Funnel getLatestFunnel() {
-        QueryBuilder query = new TermQueryBuilder(FUNNEL_STATUS, FunnelStatus.APPROVED.name());
-
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        TermQueryBuilder statusQueryBuilder = new TermQueryBuilder(FUNNEL_STATUS, FunnelStatus.APPROVED.name());
+        TermQueryBuilder deletedQueryBuilder = new TermQueryBuilder(DELETED, false);
+        boolQueryBuilder.must(statusQueryBuilder);
+        boolQueryBuilder.must(deletedQueryBuilder);
         try {
             val searchRequest = new SearchRequest(funnelConfiguration.getFunnelIndex()).types(TYPE)
-                    .source(new SearchSourceBuilder().query(query)
+                    .source(new SearchSourceBuilder().query(boolQueryBuilder)
                             .fetchSource(true)
-                            .sort(SortBuilders.fieldSort(APPROVAL_DATE)
-                                    .order(SortOrder.DESC))
-                            .size(funnelConfiguration.getQuerySize()))
+                            .sort(SortBuilders.fieldSort(ID)
+                                    .order(SortOrder.DESC)))
                     .indicesOptions(Utils.indicesOptions())
                     .searchType(SearchType.QUERY_THEN_FETCH);
             SearchResponse response = connection.getClient()
