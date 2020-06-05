@@ -50,14 +50,11 @@ public class HbaseTableConnection implements Managed {
     private static final String DEFAULT_FAMILY_NAME = "d";
 
     private final HbaseConfig hbaseConfig;
-    private Configuration configuration;
     private Connection connection;
     private Admin hBaseAdmin;
 
     @Inject
-    public HbaseTableConnection(Configuration configuration,
-                                HbaseConfig hbaseConfig) {
-        this.configuration = configuration;
+    public HbaseTableConnection(HbaseConfig hbaseConfig) {
         this.hbaseConfig = hbaseConfig;
     }
 

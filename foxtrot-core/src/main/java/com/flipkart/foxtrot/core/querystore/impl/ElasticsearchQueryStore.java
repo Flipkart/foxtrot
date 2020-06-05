@@ -8,7 +8,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import static com.flipkart.foxtrot.common.exception.FoxtrotExceptions.ERROR_DELIMITER;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
@@ -45,7 +44,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.Data;
@@ -81,6 +79,7 @@ import org.slf4j.LoggerFactory;
 @Data
 @Slf4j
 @Singleton
+@SuppressWarnings("deprecation")
 public class ElasticsearchQueryStore implements QueryStore {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
@@ -110,13 +109,6 @@ public class ElasticsearchQueryStore implements QueryStore {
         this.mutators = mutators;
         this.mapper = mapper;
         this.cardinalityConfig = cardinalityConfig;
-    }
-
-    private static String bulkSaveFailureMessage(BulkResponse bulkResponse) {
-        return Stream.of(bulkResponse.getItems())
-                .filter(BulkItemResponse::isFailed)
-                .map(BulkItemResponse::getFailureMessage)
-                .collect(Collectors.joining(ERROR_DELIMITER));
     }
 
     @Override
@@ -276,19 +268,6 @@ public class ElasticsearchQueryStore implements QueryStore {
         log.error("{}: {}", ERROR_SAVING_DOCUMENTS, table, e);
         MetricUtil.getInstance()
                 .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-    }
-
-    private void printFailedDocuments(String table,
-                                      List<Document> documents,
-                                      BulkResponse bulkResponse) throws JsonProcessingException {
-        for (int i = 0; i < bulkResponse.getItems().length; i++) {
-            BulkItemResponse itemResponse = bulkResponse.getItems()[i];
-            if (itemResponse.isFailed()) {
-                String failedDocument = mapper.writeValueAsString(documents.get(i));
-                logger.error("Table : {} Failure Message : {} Document : {}", table, itemResponse.getFailureMessage(),
-                        failedDocument);
-            }
-        }
     }
 
     @Override

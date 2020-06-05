@@ -47,11 +47,12 @@ import org.slf4j.LoggerFactory;
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 1:00 PM
  */
+@SuppressWarnings("deprecation")
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
 
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
-    private ElasticsearchTuningConfig elasticsearchTuningConfig;
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     public FilterAction(Query parameter,
                         AnalyticsLoader analyticsLoader) {
@@ -233,9 +234,7 @@ public class FilterAction extends Action<Query> {
                 .documents(getQueryStore().getAll(parameter.getTable(), ids, true))
                 .totalHits(totalHits)
                 .scrollId(scrollId)
-                .moreDataAvailable(StringUtils.isNotEmpty(scrollId)
-                                   ? true
-                                   : false)
+                .moreDataAvailable(StringUtils.isNotEmpty(scrollId))
                 .build();
     }
 

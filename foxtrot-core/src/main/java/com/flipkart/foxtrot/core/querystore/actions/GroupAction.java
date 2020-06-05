@@ -86,6 +86,7 @@ import org.joda.time.Interval;
  */
 @AnalyticsProvider(opcode = "group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
 @Slf4j
+@SuppressWarnings("deprecation")
 public class GroupAction extends Action<GroupRequest> {
 
     private static final long MAX_CARDINALITY = 50000;

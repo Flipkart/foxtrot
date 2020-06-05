@@ -6,16 +6,16 @@ import lombok.Getter;
  *
  */
 @Getter
+
 public enum FoxtrotRole {
     INGEST(Value.INGEST),
     CONSOLE(Value.CONSOLE),
     QUERY(Value.QUERY),
-    SYSADMIN(Value.SYSADMIN),
-    ;
+    SYSADMIN(Value.SYSADMIN);
 
     private final String value;
 
-    FoxtrotRole(String value) {
+    private FoxtrotRole(String value) {
         this.value = value;
     }
 
