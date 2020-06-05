@@ -115,9 +115,9 @@ public class GroupAction extends Action<GroupRequest> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         GroupRequest query = getParameter();
-        if (null != query.getFilters()) {
-            for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+        if(null != query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
 

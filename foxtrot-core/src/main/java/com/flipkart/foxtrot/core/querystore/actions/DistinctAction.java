@@ -55,6 +55,24 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
+    public String getRequestCacheKey() {
+        long filterHashKey = 0L;
+        DistinctRequest query = getParameter();
+        if(null != query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
+            }
+        }
+        for(int i = 0; i < query.getNesting()
+                .size(); i++) {
+            filterHashKey += 31 * query.getNesting()
+                    .get(i)
+                    .hashCode() * (i + 1);
+        }
+        return String.format("%s-%d", query.getTable(), filterHashKey);
+    }
+
+    @Override
     public void validateImpl(DistinctRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
@@ -77,23 +95,6 @@ public class DistinctAction extends Action<DistinctRequest> {
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
-    }
-
-    @Override
-    public String getRequestCacheKey() {
-        long filterHashKey = 0L;
-        DistinctRequest query = getParameter();
-
-        for (Filter filter : com.collections.CollectionUtils.nullSafeList(query.getFilters())) {
-            filterHashKey += 31 * filter.hashCode();
-        }
-        for (int i = 0; i < query.getNesting()
-                .size(); i++) {
-            filterHashKey += 31 * query.getNesting()
-                    .get(i)
-                    .hashCode() * (i + 1);
-        }
-        return String.format("%s-%d", query.getTable(), filterHashKey);
     }
 
     @Override

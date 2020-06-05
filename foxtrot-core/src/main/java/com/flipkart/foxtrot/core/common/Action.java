@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
+import com.flipkart.foxtrot.common.query.CacheKeyVisitor;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.exception.MalformedQueryException;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -52,6 +53,7 @@ public abstract class Action<P extends ActionRequest> {
     private final ObjectMapper objectMapper;
     private P parameter;
     private ElasticsearchConnection connection;
+    private CacheKeyVisitor cacheKeyVisitor;
 
     protected Action(P parameter,
                      AnalyticsLoader analyticsLoader) {
@@ -60,6 +62,7 @@ public abstract class Action<P extends ActionRequest> {
         this.queryStore = analyticsLoader.getQueryStore();
         this.connection = analyticsLoader.getElasticsearchConnection();
         this.objectMapper = analyticsLoader.getObjectMapper();
+        this.cacheKeyVisitor = new CacheKeyVisitor();
     }
 
     public String cacheKey() {
@@ -169,6 +172,10 @@ public abstract class Action<P extends ActionRequest> {
 
     public ObjectMapper getObjectMapper() {
         return objectMapper;
+    }
+
+    public CacheKeyVisitor getCacheKeyVisitor() {
+        return cacheKeyVisitor;
     }
 
     protected Filter getDefaultTimeSpan() {
