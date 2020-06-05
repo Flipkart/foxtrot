@@ -38,6 +38,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,11 +54,8 @@ public class StatsActionTest extends ActionTest {
         List<Document> documents = TestUtils.getStatsDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .prepareRefresh("*")
-                .execute()
-                .actionGet();
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
     }
 
     @Test

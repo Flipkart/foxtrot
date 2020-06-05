@@ -10,7 +10,8 @@ public class FunnelException extends FoxtrotException {
 
     private final String message;
 
-    public FunnelException(String message, Throwable cause) {
+    public FunnelException(String message,
+                           Throwable cause) {
         super(ErrorCode.FUNNEL_EXCEPTION, cause);
         this.message = message;
     }

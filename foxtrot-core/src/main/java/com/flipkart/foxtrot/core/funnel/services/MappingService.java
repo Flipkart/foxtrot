@@ -2,9 +2,12 @@ package com.flipkart.foxtrot.core.funnel.services;
 
 
 import com.collections.CollectionUtils;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
 import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
+import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import java.io.IOException;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -12,6 +15,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.slf4j.Logger;
@@ -21,6 +25,7 @@ import org.slf4j.LoggerFactory;
  Created by mudit.g on Jan, 2019
  ***/
 @Singleton
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class MappingService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MappingService.class);
@@ -53,12 +58,15 @@ public class MappingService {
     private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> getAllMapping(ElasticsearchConnection elasticsearchConnection) {
         GetMappingsRequest request = new GetMappingsRequest().indices(funnelConfiguration.getFunnelIndex())
                 .types(TYPE);
-        GetMappingsResponse getMappingsResponse = elasticsearchConnection.getClient()
-                .admin()
-                .indices()
-                .getMappings(request)
-                .actionGet();
-        return getMappingsResponse.mappings();
+        try {
+
+            GetMappingsResponse getMappingsResponse = elasticsearchConnection.getClient()
+                    .indices()
+                    .getMapping(request, RequestOptions.DEFAULT);
+            return getMappingsResponse.mappings();
+        } catch (IOException e) {
+            throw new FunnelException(ErrorCode.FUNNEL_EXCEPTION, e);
+        }
     }
 
     @SuppressWarnings("unchecked")

@@ -23,20 +23,24 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Query;
+import com.flipkart.foxtrot.common.QueryResponse;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
-import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,11 +55,9 @@ public class MultiQueryActionTest extends ActionTest {
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .prepareRefresh("*")
-                .execute()
-                .actionGet();
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
+        Thread.sleep(2000);
     }
 
     @Test(expected = NullPointerException.class)
@@ -124,7 +126,47 @@ public class MultiQueryActionTest extends ActionTest {
         CountResponse countResponse = (CountResponse) multiQueryResponse.getResponses()
                 .get("2");
 
+        System.out.println(getMapper().writerWithDefaultPrettyPrinter()
+                .writeValueAsString(queryResponse));
         assertEquals(9, countResponse.getCount());
+    }
+
+    @Test
+    public void testMultiQueryCommonFilters() throws FoxtrotException, JsonProcessingException {
+
+        HashMap<String, ActionRequest> requests = Maps.newHashMap();
+        Query query = new Query();
+        query.setTable(TestUtils.TEST_TABLE_NAME);
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.asc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+        requests.put("1", query);
+
+        CountRequest countRequest = new CountRequest();
+        countRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        countRequest.setField("os");
+        countRequest.setDistinct(false);
+        requests.put("2", countRequest);
+
+        MultiQueryRequest multiQueryRequest = new MultiQueryRequest(requests);
+        multiQueryRequest.setFilters(Collections.singletonList(new EqualsFilter("os", "ios")));
+
+        ActionResponse actionResponse = getQueryExecutor().execute(multiQueryRequest);
+        MultiQueryResponse multiQueryResponse = null;
+        if (actionResponse instanceof MultiQueryResponse) {
+            multiQueryResponse = (MultiQueryResponse) actionResponse;
+        }
+        assertNotNull(multiQueryResponse);
+
+        QueryResponse queryResponse = (QueryResponse) multiQueryResponse.getResponses()
+                .get("1");
+        CountResponse countResponse = (CountResponse) multiQueryResponse.getResponses()
+                .get("2");
+
+        assertEquals(2, queryResponse.getDocuments()
+                .size());
+        assertEquals(2, countResponse.getCount());
     }
 
     @Test

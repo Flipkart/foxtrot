@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.common.exception;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
 import lombok.Getter;
 
@@ -34,6 +35,8 @@ public abstract class FoxtrotException extends RuntimeException {
         this.code = code;
     }
 
-    public abstract Map<String, Object> toMap();
+    public Map<String, Object> toMap() {
+        return Maps.newHashMap();
+    }
 
 }

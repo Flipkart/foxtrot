@@ -14,6 +14,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -31,14 +33,11 @@ public class GroupActionEstimationTest extends ActionTest {
         List<Document> documents = TestUtils.getGroupDocumentsForEstimation(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .prepareRefresh("*")
-                .execute()
-                .actionGet();
-        getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
+        getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true, 1397658117000L);
         ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
-                .setMaxCardinality(MAX_CARDINALITY);
+                .setMaxCardinality(15000);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
@@ -57,7 +56,7 @@ public class GroupActionEstimationTest extends ActionTest {
     }
 
 
-    @Ignore
+    /*@Ignore
     @Test(expected = CardinalityOverflowException.class)
     // Block queries on high cardinality fields
     public void testEstimationNoFilterHighCardinality() throws Exception {
@@ -66,7 +65,7 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setNesting(Collections.singletonList("deviceId"));
 
         getQueryExecutor().execute(groupRequest);
-    }
+    }*/
 
     @Test
     // High cardinality field queries are allowed if in a small time span
@@ -111,7 +110,7 @@ public class GroupActionEstimationTest extends ActionTest {
                 .isEmpty());
     }
 
-    @Ignore
+    /*@Ignore
     @Test(expected = CardinalityOverflowException.class)
     public void testEstimationGTFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -122,7 +121,7 @@ public class GroupActionEstimationTest extends ActionTest {
                 .value(10)
                 .build()));
         getQueryExecutor().execute(groupRequest);
-    }
+    }*/
 
     @Test
     // High cardinality field queries with filters including small subset are allowed

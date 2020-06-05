@@ -23,9 +23,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.joda.time.DateTime;
@@ -63,10 +65,6 @@ public class ElasticsearchUtils {
     private ElasticsearchUtils() {
     }
 
-    private static String getIndexPrefix(final String table) {
-        return String.format("%s-%s-%s-", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
-    }
-
     @VisibleForTesting
     public static String getTableNamePrefix() {
         return tableNamePrefix;
@@ -78,6 +76,14 @@ public class ElasticsearchUtils {
         } else {
             tableNamePrefix = "foxtrot";
         }
+    }
+
+    private static String getIndexPrefix(final String table) {
+        return String.format("%s-%s-%s-", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
+    }
+
+    public static String getIndices(final String table) {
+        return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
     public static String[] getIndices(final String table,
@@ -112,25 +118,12 @@ public class ElasticsearchUtils {
         return indices.toArray(new String[0]);
     }
 
-    public static String getIndices(final String table) {
-        return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
-    }
-
-
     public static String getCurrentIndex(final String table,
                                          long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String datePostfix = FORMATTER.print(timestamp);
         return String.format("%s-%s-%s-%s", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX,
                 datePostfix);
-    }
-
-    public static void initializeMappings(Client client) {
-        PutIndexTemplateRequest templateRequest = getClusterTemplateMapping();
-        client.admin()
-                .indices()
-                .putTemplate(templateRequest)
-                .actionGet();
     }
 
     public static PutIndexTemplateRequest getClusterTemplateMapping() {
@@ -271,6 +264,17 @@ public class ElasticsearchUtils {
                 .endObject();
     }
 
+    public static void initializeMappings(RestHighLevelClient client) {
+        PutIndexTemplateRequest templateRequest = getClusterTemplateMapping();
+        try {
+            client.indices()
+                    .putTemplate(templateRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            logger.error("Error occurred: ", e);
+        }
+    }
+
+
     public static String getValidTableName(String table) {
         if (table == null) {
             return null;
@@ -326,11 +330,12 @@ public class ElasticsearchUtils {
     }
 
     public static boolean isTimeFilterPresent(List<Filter> filters) {
-        for (Filter filter : filters) {
+        AtomicBoolean timeFilterPresent = new AtomicBoolean(false);
+        filters.forEach(filter -> {
             if (ElasticsearchUtils.TIME_FIELD.equals(filter.getField())) {
-                return true;
+                timeFilterPresent.set(true);
             }
-        }
-        return false;
+        });
+        return timeFilterPresent.get();
     }
 }

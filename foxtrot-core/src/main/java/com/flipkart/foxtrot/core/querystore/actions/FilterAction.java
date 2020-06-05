@@ -13,27 +13,33 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Query;
+import com.flipkart.foxtrot.common.QueryResponse;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,14 +47,17 @@ import org.slf4j.LoggerFactory;
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 1:00 PM
  */
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
 
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     public FilterAction(Query parameter,
                         AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -71,9 +80,9 @@ public class FilterAction extends Action<Query> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         Query query = getParameter();
-        if (null != query.getFilters()) {
-            for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+        if(null != query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
         filterHashKey += 31 * (query.getSort() != null
@@ -102,6 +111,11 @@ public class FilterAction extends Action<Query> {
             validationErrors.add("limit must be positive integer");
         }
 
+        if (parameter.getLimit() > elasticsearchTuningConfig.getDocumentsLimitAllowed()) {
+            validationErrors.add(String.format("Limit more than %s is not supported",
+                    elasticsearchTuningConfig.getDocumentsLimitAllowed()));
+        }
+
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
@@ -110,39 +124,21 @@ public class FilterAction extends Action<Query> {
 
     @Override
     public ActionResponse execute(Query parameter) {
-        SearchRequestBuilder search = getRequestBuilder(parameter);
-        try {
-            logger.info("Search: {}", search);
-            SearchResponse response = search.execute()
-                    .actionGet(getGetQueryTimeout());
-            return getResponse(response, parameter);
-        } catch (ElasticsearchException e) {
-            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        if (parameter.isScrollRequest()) {
+            return executeScrollRequest(parameter, Collections.emptyList());
         }
+        return executeRequest(parameter);
     }
 
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(Query parameter) {
-        SearchRequestBuilder search;
-        try {
-            search = getConnection().getClient()
-                    .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                    .setSearchType(SearchType.QUERY_THEN_FETCH)
-                    .setFrom(parameter.getFrom())
-                    .addSort(Utils.storedFieldName(parameter.getSort()
-                            .getField()), ResultSort.Order.desc == parameter.getSort()
-                            .getOrder()
-                                          ? SortOrder.DESC
-                                          : SortOrder.ASC)
-                    .setSize(parameter.getLimit());
-        } catch (Exception e) {
-            throw FoxtrotExceptions.queryCreationException(parameter, e);
-        }
-        return search;
+    public SearchRequest getRequestBuilder(Query parameter,
+                                           List<Filter> extraFilters) {
+        SearchRequest searchRequest = getSearchRequest(parameter, extraFilters);
+        //Adding from here since from isn't supported in scroll request
+        searchRequest.source()
+                .from(parameter.getFrom());
+        return searchRequest;
     }
 
     @Override
@@ -154,8 +150,103 @@ public class FilterAction extends Action<Query> {
             ids.add(searchHit.getId());
         }
         if (ids.isEmpty()) {
-            return new QueryResponse(Collections.<Document>emptyList(), 0);
+            return QueryResponse.builder()
+                    .documents(Collections.emptyList())
+                    .totalHits(0)
+                    .build();
         }
-        return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.getTotalHits());
+        return QueryResponse.builder()
+                .documents(getQueryStore().getAll(parameter.getTable(), ids, true))
+                .totalHits(searchHits.getTotalHits())
+                .build();
+    }
+
+
+    private SearchRequest getScrollRequestBuilder(Query parameter,
+                                                  List<Filter> extraFilters) {
+        SearchRequest searchRequest = getSearchRequest(parameter, extraFilters);
+        searchRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
+        return searchRequest;
+    }
+
+    private SearchRequest getSearchRequest(Query parameter,
+                                           List<Filter> extraFilters) {
+        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
+                Utils.indicesOptions())
+                .types(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                .searchType(SearchType.QUERY_THEN_FETCH)
+                .source(new SearchSourceBuilder().timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
+                        .size(parameter.getLimit())
+                        .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
+                        .sort(Utils.storedFieldName(parameter.getSort()
+                                .getField()), ResultSort.Order.desc == parameter.getSort()
+                                .getOrder()
+                                              ? SortOrder.DESC
+                                              : SortOrder.ASC));
+    }
+
+    private ActionResponse executeScrollRequest(Query parameter,
+                                                List<Filter> extraFilters) {
+        List<String> ids = new ArrayList<>();
+        String scrollId;
+        long totalHits = 0;
+        try {
+            if (StringUtils.isNotEmpty(parameter.getScrollId())) {
+                scrollId = parameter.getScrollId();
+                SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollId);
+                scrollRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
+                SearchResponse searchScrollResponse = getConnection().getClient()
+                        .scroll(scrollRequest, RequestOptions.DEFAULT);
+                scrollId = searchScrollResponse.getScrollId();
+                SearchHits hits = searchScrollResponse.getHits();
+                for (SearchHit searchHit : hits) {
+                    ids.add(searchHit.getId());
+                }
+            } else {
+                SearchRequest searchRequest = getScrollRequestBuilder(parameter, extraFilters);
+                SearchResponse searchResponse = getConnection().getClient()
+                        .search(searchRequest, RequestOptions.DEFAULT);
+                SearchHits searchHits = searchResponse.getHits();
+                totalHits = searchHits.getTotalHits();
+                for (SearchHit searchHit : searchHits) {
+                    ids.add(searchHit.getId());
+                }
+                scrollId = searchResponse.getScrollId();
+            }
+            return getResponse(parameter, totalHits, ids, scrollId);
+        } catch (IOException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        }
+    }
+
+    private QueryResponse getResponse(Query parameter,
+                                      long totalHits,
+                                      List<String> ids,
+                                      String scrollId) {
+        if (ids.isEmpty()) {
+            return QueryResponse.builder()
+                    .documents(Collections.emptyList())
+                    .totalHits(0)
+                    .moreDataAvailable(false)
+                    .build();
+        }
+        return QueryResponse.builder()
+                .documents(getQueryStore().getAll(parameter.getTable(), ids, true))
+                .totalHits(totalHits)
+                .scrollId(scrollId)
+                .moreDataAvailable(StringUtils.isNotEmpty(scrollId))
+                .build();
+    }
+
+    private ActionResponse executeRequest(Query parameter) {
+        SearchRequest search = getRequestBuilder(parameter, Collections.emptyList());
+        try {
+            logger.info("Search: {}", search);
+            SearchResponse response = getConnection().getClient()
+                    .search(search);
+            return getResponse(response, parameter);
+        } catch (IOException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        }
     }
 }

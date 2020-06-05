@@ -374,7 +374,7 @@ StatsTrendTile.prototype.downloadWidget = function(object) {
   if(templateFilters.length > 0) {
     filters = filters.concat(templateFilters);
   }
-  
+
   var data = {
     "opcode": "statstrend",
     "table": object.tileContext.table,

@@ -31,6 +31,8 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,11 +47,8 @@ public class HistogramActionTest extends ActionTest {
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .prepareRefresh("*")
-                .execute()
-                .actionGet();
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
     }
 
     @Test
@@ -200,7 +199,6 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397586600000L, 4));
         counts.add(new HistogramResponse.Count(1397932200000L, 1));
         counts.add(new HistogramResponse.Count(1398623400000L, 1));
-        assertTrue(response.getCounts()
-                .equals(counts));
+        assertEquals(response.getCounts(), counts);
     }
 }

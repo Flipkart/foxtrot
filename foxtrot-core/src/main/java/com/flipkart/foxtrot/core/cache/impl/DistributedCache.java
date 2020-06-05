@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.util.Constants;
 import com.hazelcast.core.IMap;
 import java.io.IOException;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class DistributedCache implements Cache {
             final String serializedData = mapper.writeValueAsString(data);
             if (serializedData != null) {
                 // Only cache if size is less that 256 KB
-                if (serializedData.length() <= 256 * 1024) {
+                if (serializedData.length() <= Constants.CACHE_VALUE_SIZE_IN_KB) {
                     distributedMap.put(key, mapper.writeValueAsString(data));
                 } else {
                     String responsePart = serializedData.substring(0, 1024);

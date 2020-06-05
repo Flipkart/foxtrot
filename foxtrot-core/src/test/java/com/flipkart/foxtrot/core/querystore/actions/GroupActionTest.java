@@ -36,6 +36,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -51,18 +53,15 @@ public class GroupActionTest extends ActionTest {
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .prepareRefresh("*")
-                .execute()
-                .actionGet();
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
         getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
         ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
                 .setMaxCardinality(MAX_CARDINALITY);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
-    @Ignore
+    /*@Ignore
     @Test
     public void testGroupActionSingleQueryException() throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
@@ -77,7 +76,7 @@ public class GroupActionTest extends ActionTest {
             ex.printStackTrace();
             assertEquals(ErrorCode.ACTION_EXECUTION_ERROR, ex.getCode());
         }
-    }
+    }*/
 
     @Test
     public void testGroupActionSingleFieldNoFilter() throws FoxtrotException, JsonProcessingException {

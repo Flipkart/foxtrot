@@ -693,7 +693,7 @@ StackedBarTile.prototype.downloadWidget = function (object) {
   if(templateFilters.length > 0) {
     filters = filters.concat(templateFilters);
   }
-  
+
   var data = {
     "opcode": "multi_query"
     , "table": object.tileContext.table
@@ -719,7 +719,7 @@ StackedBarTile.prototype.downloadWidget = function (object) {
     type: 'POST',
     data: JSON.stringify(data),
     dataType: 'text',
-   
+
     contentType: 'application/json',
     context: this,
     success: function(response) {

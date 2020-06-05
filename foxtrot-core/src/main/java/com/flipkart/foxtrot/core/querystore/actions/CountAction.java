@@ -15,20 +15,24 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 /**
  * Created by rishabh.goyal on 02/11/14.
  */
 
 @AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = true)
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class CountAction extends Action<CountRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
@@ -54,6 +58,31 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
+    public String getRequestCacheKey() {
+        long filterHashKey = 0L;
+        CountRequest request = getParameter();
+        if (null != request.getFilters()) {
+            for (Filter filter : request.getFilters()) {
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
+            }
+        }
+
+        filterHashKey += 31 * (request.isDistinct()
+                               ? "TRUE".hashCode()
+                               : "FALSE".hashCode());
+        filterHashKey += 31 * (request.getField() != null
+                               ? request.getField()
+                                       .hashCode()
+                               : "COLUMN".hashCode());
+        return String.format("count-%s-%d", request.getTable(), filterHashKey);
+    }
+
+    @Override
     public void validateImpl(CountRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
@@ -68,71 +97,42 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public String getRequestCacheKey() {
-        preprocess();
-        long filterHashKey = 0L;
-        CountRequest request = getParameter();
-        for (Filter filter : com.collections.CollectionUtils.nullSafeList(request.getFilters())) {
-            filterHashKey += 31 * filter.hashCode();
-        }
-
-        filterHashKey += 31 * (request.isDistinct()
-                               ? "TRUE".hashCode()
-                               : "FALSE".hashCode());
-        filterHashKey += 31 * (request.getField() != null
-                               ? request.getField()
-                                       .hashCode()
-                               : "COLUMN".hashCode());
-        return String.format("count-%s-%d", request.getTable(), filterHashKey);
-    }
-
-    @Override
     public ActionResponse execute(CountRequest parameter) {
-        SearchRequestBuilder query = getRequestBuilder(parameter);
+        SearchRequest request = getRequestBuilder(parameter, Collections.emptyList());
 
         try {
-            SearchResponse response = query.execute()
-                    .actionGet(getGetQueryTimeout());
+            SearchResponse response = getConnection().getClient()
+                    .search(request, RequestOptions.DEFAULT);
             return getResponse(response, parameter);
-        } catch (ElasticsearchException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
     @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
-    }
-
-    @Override
-    public SearchRequestBuilder getRequestBuilder(CountRequest parameter) {
+    public SearchRequest getRequestBuilder(CountRequest parameter,
+                                           List<Filter> extraFilters) {
         if (parameter.isDistinct()) {
-            SearchRequestBuilder query;
             try {
-                query = getConnection().getClient()
-                        .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                        .setIndicesOptions(Utils.indicesOptions())
-                        .setSize(QUERY_SIZE)
-                        .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                        .addAggregation(Utils.buildCardinalityAggregation(parameter.getField(), parameter.accept(
-                                new CountPrecisionThresholdVisitorAdapter(
-                                        elasticsearchTuningConfig.getPrecisionThreshold()))));
-                return query;
+                return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
+                        Utils.indicesOptions())
+                        .source(new SearchSourceBuilder().size(QUERY_SIZE)
+                                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
+                                .aggregation(Utils.buildCardinalityAggregation(parameter.getField(), parameter.accept(
+                                        new CountPrecisionThresholdVisitorAdapter(
+                                                elasticsearchTuningConfig.getPrecisionThreshold())))));
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
         } else {
-            SearchRequestBuilder requestBuilder;
             try {
-                requestBuilder = getConnection().getClient()
-                        .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                        .setIndicesOptions(Utils.indicesOptions())
-                        .setSize(QUERY_SIZE)
-                        .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()));
+                return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
+                        Utils.indicesOptions())
+                        .source(new SearchSourceBuilder().size(QUERY_SIZE)
+                                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters)));
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
-            return requestBuilder;
         }
     }
 

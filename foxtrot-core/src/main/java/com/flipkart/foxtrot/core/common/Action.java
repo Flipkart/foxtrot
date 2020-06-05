@@ -22,6 +22,7 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.exception.MalformedQueryException;
+import com.flipkart.foxtrot.common.query.CacheKeyVisitor;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
@@ -36,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.elasticsearch.action.ActionRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +53,7 @@ public abstract class Action<P extends ActionRequest> {
     private final ObjectMapper objectMapper;
     private P parameter;
     private ElasticsearchConnection connection;
+    private CacheKeyVisitor cacheKeyVisitor;
 
     protected Action(P parameter,
                      AnalyticsLoader analyticsLoader) {
@@ -61,6 +62,7 @@ public abstract class Action<P extends ActionRequest> {
         this.queryStore = analyticsLoader.getQueryStore();
         this.connection = analyticsLoader.getElasticsearchConnection();
         this.objectMapper = analyticsLoader.getObjectMapper();
+        this.cacheKeyVisitor = new CacheKeyVisitor();
     }
 
     public String cacheKey() {
@@ -141,7 +143,8 @@ public abstract class Action<P extends ActionRequest> {
 
     public abstract String getRequestCacheKey();
 
-    public abstract ActionRequestBuilder getRequestBuilder(P parameter);
+    public abstract org.elasticsearch.action.ActionRequest getRequestBuilder(P parameter,
+                                                                             List<Filter> extraFilters);
 
     public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
                                                P parameter);
@@ -169,6 +172,10 @@ public abstract class Action<P extends ActionRequest> {
 
     public ObjectMapper getObjectMapper() {
         return objectMapper;
+    }
+
+    public CacheKeyVisitor getCacheKeyVisitor() {
+        return cacheKeyVisitor;
     }
 
     protected Filter getDefaultTimeSpan() {

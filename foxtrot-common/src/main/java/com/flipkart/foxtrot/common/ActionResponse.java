@@ -23,11 +23,11 @@ import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
-import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -46,9 +46,10 @@ import lombok.Data;
         @JsonSubTypes.Type(value = StatsTrendResponse.class, name = Opcodes.STATS_TREND),
         @JsonSubTypes.Type(value = MultiTimeQueryResponse.class, name = Opcodes.MULTI_TIME_QUERY)})
 @Data
+@NoArgsConstructor
 public abstract class ActionResponse {
 
-    private final String opcode;
+    private String opcode;
 
     private boolean fromCache;
 

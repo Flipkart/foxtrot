@@ -91,7 +91,7 @@ public class TableManagerV2Resource {
     @Path("/{name}")
     @ApiOperation("Update Table")
     public Response update(@PathParam("name") final String name,
-                        @Valid final Table table) {
+                           @Valid final Table table) {
         table.setName(name);
         tableManager.update(table);
         return Response.ok()

@@ -14,7 +14,14 @@ package com.flipkart.foxtrot.core.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.Map;
+import lombok.val;
+import org.elasticsearch.index.query.QueryBuilder;
 
 /***
  Created by nitish.goyal on 26/07/18
@@ -30,5 +37,15 @@ public class ElasticsearchQueryUtils {
                                             Object value) {
         return mapper.convertValue(value, new TypeReference<Map<String, Object>>() {
         });
+    }
+
+    public static QueryBuilder translateFilter(ActionRequest request,
+                                               List<Filter> extraFilters) {
+        val filters = (null == extraFilters || extraFilters.isEmpty())
+                      ? request.getFilters()
+                      : ImmutableList.<Filter>builder().addAll(request.getFilters())
+                              .addAll(extraFilters)
+                              .build();
+        return new ElasticSearchQueryGenerator().genFilter(filters);
     }
 }
