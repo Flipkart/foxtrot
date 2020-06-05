@@ -51,21 +51,21 @@ public class FlattenerTest {
         QueryResponse response = new QueryResponse();
         final String json1 = "{\"name\": \"abc\", \"role\": \"def\"}";
         final String json2 = "{\"name\": \"xyz\", \"role\": \"zab\"}";
-        response.setDocuments(
-                ImmutableList.of(
-                        Document.builder()
-                                .data(objectMapper.readTree(json1))
-                                .build(),
-                        Document.builder()
-                                .data(objectMapper.readTree(json2))
-                                .build()
-                )
-        );
+        response.setDocuments(ImmutableList.of(Document.builder()
+                .data(objectMapper.readTree(json1))
+                .build(), Document.builder()
+                .data(objectMapper.readTree(json2))
+                .build()));
 
         FlatRepresentation flatRepresentation = response.accept(flattener);
-        Assert.assertEquals(2, flatRepresentation.getHeaders().size());
-        Assert.assertEquals(fields.get(0), flatRepresentation.getHeaders().get(0).getName());
-        Assert.assertEquals(fields.get(1), flatRepresentation.getHeaders().get(1).getName());
+        Assert.assertEquals(2, flatRepresentation.getHeaders()
+                .size());
+        Assert.assertEquals(fields.get(0), flatRepresentation.getHeaders()
+                .get(0)
+                .getName());
+        Assert.assertEquals(fields.get(1), flatRepresentation.getHeaders()
+                .get(1)
+                .getName());
 
         Map<String, String> row1 = new TreeMap<>();
         row1.put(fields.get(0), "\"abc\"");
@@ -73,9 +73,14 @@ public class FlattenerTest {
         Map<String, String> row2 = new TreeMap<>();
         row2.put(fields.get(0), "\"xyz\"");
         row2.put(fields.get(1), "\"zab\"");
-        Assert.assertEquals(2, flatRepresentation.getRows().size());
-        Assert.assertEquals(row1.toString(), flatRepresentation.getRows().get(0).toString());
-        Assert.assertEquals(row2.toString(), flatRepresentation.getRows().get(1).toString());
+        Assert.assertEquals(2, flatRepresentation.getRows()
+                .size());
+        Assert.assertEquals(row1.toString(), flatRepresentation.getRows()
+                .get(0)
+                .toString());
+        Assert.assertEquals(row2.toString(), flatRepresentation.getRows()
+                .get(1)
+                .toString());
     }
 
     @Test
@@ -94,9 +99,14 @@ public class FlattenerTest {
         GroupResponse response = new GroupResponse(responseResult);
 
         FlatRepresentation flatRepresentation = response.accept(flattener);
-        Assert.assertEquals(2, flatRepresentation.getHeaders().size());
-        Assert.assertEquals(groupingField, flatRepresentation.getHeaders().get(0).getName());
-        Assert.assertEquals("count", flatRepresentation.getHeaders().get(1).getName());
+        Assert.assertEquals(2, flatRepresentation.getHeaders()
+                .size());
+        Assert.assertEquals(groupingField, flatRepresentation.getHeaders()
+                .get(0)
+                .getName());
+        Assert.assertEquals("count", flatRepresentation.getHeaders()
+                .get(1)
+                .getName());
 
         Map<String, String> type1 = new TreeMap<>();
         type1.put(groupingField, "type1");
@@ -107,10 +117,17 @@ public class FlattenerTest {
         Map<String, String> type3 = new TreeMap<>();
         type3.put(groupingField, "type3");
         type3.put("count", "40");
-        Assert.assertEquals(3, flatRepresentation.getRows().size());
-        Assert.assertEquals(type1.toString(), flatRepresentation.getRows().get(0).toString());
-        Assert.assertEquals(type2.toString(), flatRepresentation.getRows().get(1).toString());
-        Assert.assertEquals(type3.toString(), flatRepresentation.getRows().get(2).toString());
+        Assert.assertEquals(3, flatRepresentation.getRows()
+                .size());
+        Assert.assertEquals(type1.toString(), flatRepresentation.getRows()
+                .get(0)
+                .toString());
+        Assert.assertEquals(type2.toString(), flatRepresentation.getRows()
+                .get(1)
+                .toString());
+        Assert.assertEquals(type3.toString(), flatRepresentation.getRows()
+                .get(2)
+                .toString());
     }
 
     @Test
@@ -118,13 +135,17 @@ public class FlattenerTest {
         HistogramRequest query = new HistogramRequest();
         query.setTable(TABLE_NAME);
         Flattener flattener = new Flattener(objectMapper, query, ImmutableList.of());
-        HistogramResponse response = new HistogramResponse(
-                ImmutableList.of(new Count(1234, 12), new Count(1235, 10)));
+        HistogramResponse response = new HistogramResponse(ImmutableList.of(new Count(1234, 12), new Count(1235, 10)));
 
         FlatRepresentation flatRepresentation = response.accept(flattener);
-        Assert.assertEquals(2, flatRepresentation.getHeaders().size());
-        Assert.assertEquals("timestamp", flatRepresentation.getHeaders().get(0).getName());
-        Assert.assertEquals("count", flatRepresentation.getHeaders().get(1).getName());
+        Assert.assertEquals(2, flatRepresentation.getHeaders()
+                .size());
+        Assert.assertEquals("timestamp", flatRepresentation.getHeaders()
+                .get(0)
+                .getName());
+        Assert.assertEquals("count", flatRepresentation.getHeaders()
+                .get(1)
+                .getName());
 
         Map<String, String> bin1 = new TreeMap<>();
         bin1.put("timestamp", "1234");
@@ -132,9 +153,14 @@ public class FlattenerTest {
         Map<String, String> bin2 = new TreeMap<>();
         bin2.put("timestamp", "1235");
         bin2.put("count", "10");
-        Assert.assertEquals(2, flatRepresentation.getRows().size());
-        Assert.assertEquals(bin1.toString(), flatRepresentation.getRows().get(0).toString());
-        Assert.assertEquals(bin2.toString(), flatRepresentation.getRows().get(1).toString());
+        Assert.assertEquals(2, flatRepresentation.getRows()
+                .size());
+        Assert.assertEquals(bin1.toString(), flatRepresentation.getRows()
+                .get(0)
+                .toString());
+        Assert.assertEquals(bin2.toString(), flatRepresentation.getRows()
+                .get(1)
+                .toString());
     }
 
     @Test
@@ -153,16 +179,26 @@ public class FlattenerTest {
         StatsResponse response = new StatsResponse(statsValue);
 
         FlatRepresentation flatRepresentation = response.accept(flattener);
-        Assert.assertEquals(15, flatRepresentation.getHeaders().size());
-        Assert.assertEquals("stats.count", flatRepresentation.getHeaders().get(7).getName());
-        Assert.assertEquals("percentiles.50.0", flatRepresentation.getHeaders().get(3).getName());
-        Assert.assertEquals("stats.sum_of_squares", flatRepresentation.getHeaders().get(12).getName());
+        Assert.assertEquals(15, flatRepresentation.getHeaders()
+                .size());
+        Assert.assertEquals("stats.count", flatRepresentation.getHeaders()
+                .get(7)
+                .getName());
+        Assert.assertEquals("percentiles.50.0", flatRepresentation.getHeaders()
+                .get(3)
+                .getName());
+        Assert.assertEquals("stats.sum_of_squares", flatRepresentation.getHeaders()
+                .get(12)
+                .getName());
 
         Map<String, String> stat = new TreeMap<>();
         stat.put("percentiles.95", "2");
         stat.put("stats.stat1", "2");
-        Assert.assertEquals(1, flatRepresentation.getRows().size());
-        Assert.assertEquals(stat.toString(), flatRepresentation.getRows().get(0).toString());
+        Assert.assertEquals(1, flatRepresentation.getRows()
+                .size());
+        Assert.assertEquals(stat.toString(), flatRepresentation.getRows()
+                .get(0)
+                .toString());
     }
 
     @Test
@@ -171,17 +207,22 @@ public class FlattenerTest {
         query.setTable(TABLE_NAME);
         Flattener flattener = new Flattener(objectMapper, query, ImmutableList.of());
         Map<String, List<TrendResponse.Count>> trends = new HashMap<>();
-        trends.put("trend1", ImmutableList.of(new TrendResponse.Count(1234, 10),
-                new TrendResponse.Count(1235, 12)));
-        trends.put("trend2", ImmutableList.of(new TrendResponse.Count(1234, 20),
-                new TrendResponse.Count(1235, 22)));
+        trends.put("trend1", ImmutableList.of(new TrendResponse.Count(1234, 10), new TrendResponse.Count(1235, 12)));
+        trends.put("trend2", ImmutableList.of(new TrendResponse.Count(1234, 20), new TrendResponse.Count(1235, 22)));
         TrendResponse response = new TrendResponse(trends);
 
         FlatRepresentation flatRepresentation = response.accept(flattener);
-        Assert.assertEquals(3, flatRepresentation.getHeaders().size());
-        Assert.assertEquals("time", flatRepresentation.getHeaders().get(0).getName());
-        Assert.assertEquals("trend1", flatRepresentation.getHeaders().get(1).getName());
-        Assert.assertEquals("trend2", flatRepresentation.getHeaders().get(2).getName());
+        Assert.assertEquals(3, flatRepresentation.getHeaders()
+                .size());
+        Assert.assertEquals("time", flatRepresentation.getHeaders()
+                .get(0)
+                .getName());
+        Assert.assertEquals("trend1", flatRepresentation.getHeaders()
+                .get(1)
+                .getName());
+        Assert.assertEquals("trend2", flatRepresentation.getHeaders()
+                .get(2)
+                .getName());
 
         Map<String, String> trend1 = new TreeMap<>();
         trend1.put("time", "1234");
@@ -191,9 +232,14 @@ public class FlattenerTest {
         trend2.put("time", "1235");
         trend2.put("trend1", "12");
         trend2.put("trend2", "22");
-        Assert.assertEquals(2, flatRepresentation.getRows().size());
-        Assert.assertEquals(trend1.toString(), flatRepresentation.getRows().get(0).toString());
-        Assert.assertEquals(trend2.toString(), flatRepresentation.getRows().get(1).toString());
+        Assert.assertEquals(2, flatRepresentation.getRows()
+                .size());
+        Assert.assertEquals(trend1.toString(), flatRepresentation.getRows()
+                .get(0)
+                .toString());
+        Assert.assertEquals(trend2.toString(), flatRepresentation.getRows()
+                .get(1)
+                .toString());
     }
 
     @Test
@@ -204,11 +250,19 @@ public class FlattenerTest {
         StatsTrendResponse response = new StatsTrendResponse();
 
         FlatRepresentation flatRepresentation = response.accept(flattener);
-        Assert.assertEquals(16, flatRepresentation.getHeaders().size());
-        Assert.assertEquals("stats.count", flatRepresentation.getHeaders().get(8).getName());
-        Assert.assertEquals("percentiles.50.0", flatRepresentation.getHeaders().get(4).getName());
-        Assert.assertEquals("stats.sum_of_squares", flatRepresentation.getHeaders().get(13).getName());
-        Assert.assertEquals(0, flatRepresentation.getRows().size());
+        Assert.assertEquals(16, flatRepresentation.getHeaders()
+                .size());
+        Assert.assertEquals("stats.count", flatRepresentation.getHeaders()
+                .get(8)
+                .getName());
+        Assert.assertEquals("percentiles.50.0", flatRepresentation.getHeaders()
+                .get(4)
+                .getName());
+        Assert.assertEquals("stats.sum_of_squares", flatRepresentation.getHeaders()
+                .get(13)
+                .getName());
+        Assert.assertEquals(0, flatRepresentation.getRows()
+                .size());
     }
 
     @Test
@@ -219,13 +273,19 @@ public class FlattenerTest {
         CountResponse response = new CountResponse(10);
 
         FlatRepresentation flatRepresentation = response.accept(flattener);
-        Assert.assertEquals(1, flatRepresentation.getHeaders().size());
-        Assert.assertEquals("count", flatRepresentation.getHeaders().get(0).getName());
+        Assert.assertEquals(1, flatRepresentation.getHeaders()
+                .size());
+        Assert.assertEquals("count", flatRepresentation.getHeaders()
+                .get(0)
+                .getName());
 
         Map<String, String> row = new TreeMap<>();
         row.put("count", "10");
-        Assert.assertEquals(1, flatRepresentation.getRows().size());
-        Assert.assertEquals(row.toString(), flatRepresentation.getRows().get(0).toString());
+        Assert.assertEquals(1, flatRepresentation.getRows()
+                .size());
+        Assert.assertEquals(row.toString(), flatRepresentation.getRows()
+                .get(0)
+                .toString());
     }
 
     @Test
@@ -239,16 +299,24 @@ public class FlattenerTest {
         response.setResult(ImmutableList.of(ImmutableList.of("val11"), ImmutableList.of("val12")));
 
         FlatRepresentation flatRepresentation = response.accept(flattener);
-        Assert.assertEquals(1, flatRepresentation.getHeaders().size());
-        Assert.assertEquals("st1", flatRepresentation.getHeaders().get(0).getName());
+        Assert.assertEquals(1, flatRepresentation.getHeaders()
+                .size());
+        Assert.assertEquals("st1", flatRepresentation.getHeaders()
+                .get(0)
+                .getName());
 
         Map<String, String> val1 = new TreeMap<>();
         val1.put("st1", "val11");
         Map<String, String> val2 = new TreeMap<>();
         val2.put("st1", "val12");
-        Assert.assertEquals(2, flatRepresentation.getRows().size());
-        Assert.assertEquals(val1.toString(), flatRepresentation.getRows().get(0).toString());
-        Assert.assertEquals(val2.toString(), flatRepresentation.getRows().get(1).toString());
+        Assert.assertEquals(2, flatRepresentation.getRows()
+                .size());
+        Assert.assertEquals(val1.toString(), flatRepresentation.getRows()
+                .get(0)
+                .toString());
+        Assert.assertEquals(val2.toString(), flatRepresentation.getRows()
+                .get(1)
+                .toString());
     }
 
     @Test(expected = FqlParsingException.class)
