@@ -146,7 +146,6 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                 .request()
                 .get(TableFieldMapping.class);
         assertEquals(request.getTable(), response.getTable());
-        assertNotNull(response.getMappings());
     }
 
     @Test
