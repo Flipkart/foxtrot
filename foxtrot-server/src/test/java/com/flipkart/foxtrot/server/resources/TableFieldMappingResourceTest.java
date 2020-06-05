@@ -148,7 +148,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         assertEquals(request.getTable(), response.getTable());
     }
 
-    @Test
+    /*@Test
     @Ignore
     public void getAllFields() throws Exception {
         doNothing().when(getQueryStore())
@@ -166,6 +166,6 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         Assert.assertFalse(response.isEmpty());
         Assert.assertEquals(1, response.size());
         Assert.assertTrue(response.containsKey(TestUtils.TEST_TABLE_NAME));
-    }
+    }*/
 
 }
