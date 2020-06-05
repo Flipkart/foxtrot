@@ -49,7 +49,7 @@ import org.joda.time.DateTime;
  */
 
 @AnalyticsProvider(opcode = "statstrend", request = StatsTrendRequest.class, response = StatsTrendResponse.class, cacheable = false)
-@SuppressWarnings("deprecation")
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class StatsTrendAction extends Action<StatsTrendRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;

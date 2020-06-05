@@ -63,7 +63,7 @@ import org.joda.time.DateTime;
  * Time: 10:27 PM
  */
 @AnalyticsProvider(opcode = "trend", request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
-@SuppressWarnings("deprecation")
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class TrendAction extends Action<TrendRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;

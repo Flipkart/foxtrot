@@ -41,7 +41,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
  */
 
 @AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = true)
-@SuppressWarnings("deprecation")
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class StatsAction extends Action<StatsRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;

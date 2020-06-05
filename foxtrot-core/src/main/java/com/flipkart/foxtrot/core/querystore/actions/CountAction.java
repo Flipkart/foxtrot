@@ -32,7 +32,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
  */
 
 @AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = true)
-@SuppressWarnings("deprecation")
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class CountAction extends Action<CountRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;

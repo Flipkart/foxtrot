@@ -764,7 +764,7 @@ public class FilterActionTest extends ActionTest {
         compare(documents, actualResponse.getDocuments());
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("squid:CallToDeprecatedMethod")
     @Test
     @SneakyThrows
     public void testMissingIndicesQuery() throws FoxtrotException {
