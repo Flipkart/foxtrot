@@ -1,14 +1,27 @@
 package com.flipkart.foxtrot.core.funnel.resources;
 
 import com.flipkart.foxtrot.core.funnel.model.Funnel;
+import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
+import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
 import com.flipkart.foxtrot.core.funnel.services.FunnelService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import java.util.List;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /***
  Created by nitish.goyal on 25/09/18
@@ -32,7 +45,7 @@ public class FunnelResource {
      *
      * @param funnel {@link Funnel}
      */
-    /*@POST
+    @POST
     @ApiOperation("Create Funnel")
     public Response saveFunnel(Funnel funnel) {
         Funnel savedFunnel = funnelService.save(funnel);
@@ -41,21 +54,22 @@ public class FunnelResource {
                 .build();
     }
 
-    *//**
+    /**
      * Update Funnel, only WAITING_FOR_APPROVAL Funnel can be updated
-     *//*
+     */
     @PUT
     @Path("/{documentId}")
     @ApiOperation("Update Funnel via document id")
-    public Response approveFunnel(@PathParam("documentId") final String documentId, Funnel funnel) {
+    public Response approveFunnel(@PathParam("documentId") final String documentId,
+                                  Funnel funnel) {
         Funnel updatedFunnel = funnelService.update(documentId, funnel);
         return Response.ok(updatedFunnel)
                 .build();
     }
 
-    *//**
+    /**
      * Approve Funnel, move status to APPROVED
-     *//*
+     */
     @PUT
     @Path("/approve/{documentId}")
     @ApiOperation("Approve Funnel via document id")
@@ -66,9 +80,9 @@ public class FunnelResource {
     }
 
 
-    *//**
+    /**
      * Reject Funnel, move status to REJECTED and soft delete
-     *//*
+     */
     @PUT
     @Path("/reject/{documentId}")
     @ApiOperation("Reject Funnel via document id")
@@ -81,8 +95,17 @@ public class FunnelResource {
     @GET
     @Path("/{id}")
     @ApiOperation("Get Funnel via funnel id")
-    public Response getFunnel(@PathParam("id") final String funnelId) {
-        Funnel funnel = funnelService.getFunnel(funnelId);
+    public Response getFunnelByFunnelId(@PathParam("id") final String funnelId) {
+        Funnel funnel = funnelService.getFunnelByFunnelId(funnelId);
+        return Response.ok(funnel)
+                .build();
+    }
+
+    @GET
+    @Path("/document/{documentId}")
+    @ApiOperation("Get Funnel via document id")
+    public Response getFunnelByDocumentId(@PathParam("documentId") final String documentId) {
+        Funnel funnel = funnelService.getFunnelByDocumentId(documentId);
         return Response.ok(funnel)
                 .build();
     }
@@ -120,6 +143,6 @@ public class FunnelResource {
     public Response getDropdownValues() {
         return Response.ok(funnelService.getDropdownValues())
                 .build();
-    }*/
+    }
 
 }
