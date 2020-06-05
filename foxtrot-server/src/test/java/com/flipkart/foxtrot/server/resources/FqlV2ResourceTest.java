@@ -5,16 +5,16 @@ import com.flipkart.foxtrot.common.TableActionRequestVisitor;
 import com.flipkart.foxtrot.common.exception.ErrorCode;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.exception.FqlParsingException;
-import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.core.config.QueryConfig;
-import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.gandalf.access.AccessServiceImpl;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.sql.FqlEngine;
 import com.flipkart.foxtrot.sql.fqlstore.FqlGetRequest;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStore;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Entity;
@@ -27,13 +27,15 @@ import org.junit.Test;
 
 public class FqlV2ResourceTest extends FoxtrotResourceTest {
 
+    public FqlV2ResourceTest() throws IOException {
+    }
+
     @Rule
     public ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(new FqlV2Resource(
                     new FqlEngine(getTableMetadataManager(), getQueryStore(), getQueryExecutorFactory(), getMapper()),
                     new FqlStoreServiceImpl(getElasticsearchConnection(), getMapper()),
-                    new AccessServiceImpl(new FoxtrotServerConfiguration(), new TableActionRequestVisitor()),
-                    new QueryConfig()))
+                    new AccessServiceImpl(false, new TableActionRequestVisitor()), new QueryConfig()))
             .addProvider(new FoxtrotExceptionMapper(getMapper()))
             .setMapper(objectMapper)
             .build();
@@ -48,13 +50,25 @@ public class FqlV2ResourceTest extends FoxtrotResourceTest {
                 .post(stringEntity, FlatRepresentation.class);
 
         Assert.assertNotNull(flatRepresentation);
-        Assert.assertEquals(2, flatRepresentation.getHeaders().size());
-        Assert.assertEquals("name", flatRepresentation.getHeaders().get(0).getName());
-        Assert.assertEquals("ttl", flatRepresentation.getHeaders().get(1).getName());
-        Assert.assertEquals(1, flatRepresentation.getRows().size());
-        Assert.assertEquals("test-table", flatRepresentation.getRows().get(0).get("name"));
-        Assert.assertEquals(7, flatRepresentation.getRows().get(0).get("ttl"));
-        Assert.assertEquals(4, flatRepresentation.getRows().get(0).get("defaultRegions"));
+        Assert.assertEquals(2, flatRepresentation.getHeaders()
+                .size());
+        Assert.assertEquals("name", flatRepresentation.getHeaders()
+                .get(0)
+                .getName());
+        Assert.assertEquals("ttl", flatRepresentation.getHeaders()
+                .get(1)
+                .getName());
+        Assert.assertEquals(1, flatRepresentation.getRows()
+                .size());
+        Assert.assertEquals("test-table", flatRepresentation.getRows()
+                .get(0)
+                .get("name"));
+        Assert.assertEquals(7, flatRepresentation.getRows()
+                .get(0)
+                .get("ttl"));
+        Assert.assertEquals(4, flatRepresentation.getRows()
+                .get(0)
+                .get("defaultRegions"));
     }
 
     @Test
@@ -124,12 +138,11 @@ public class FqlV2ResourceTest extends FoxtrotResourceTest {
         FqlGetRequest fqlGetRequest = new FqlGetRequest();
         fqlGetRequest.setTitle(title);
         Entity<FqlGetRequest> fqlGetRequestEntity = Entity.json(fqlGetRequest);
-        List<FqlStore> result = getMapper().convertValue(
-                resources.client()
-                        .target("/v2/fql/get")
-                        .request()
-                        .post(fqlGetRequestEntity, List.class),
-                new TypeReference<List<FqlStore>>(){});
+        List<FqlStore> result = getMapper().convertValue(resources.client()
+                .target("/v2/fql/get")
+                .request()
+                .post(fqlGetRequestEntity, List.class), new TypeReference<List<FqlStore>>() {
+        });
 
         Assert.assertEquals(1, result.size());
         Assert.assertEquals(title, result.get(0)
