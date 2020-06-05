@@ -40,7 +40,7 @@ public class MappingService {
 
     @Inject
     public MappingService(final ElasticsearchConnection elasticsearchConnection,
-            final FunnelConfiguration funnelConfiguration) {
+                          final FunnelConfiguration funnelConfiguration) {
         this.elasticsearchConnection = elasticsearchConnection;
         this.funnelConfiguration = funnelConfiguration;
     }
@@ -54,8 +54,7 @@ public class MappingService {
                 .sourceAsMap();
     }
 
-    private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> getAllMapping(
-            ElasticsearchConnection elasticsearchConnection) {
+    private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> getAllMapping(ElasticsearchConnection elasticsearchConnection) {
         GetMappingsRequest request = new GetMappingsRequest().indices(funnelConfiguration.getFunnelIndex())
                 .types(TYPE);
         try {
@@ -70,16 +69,18 @@ public class MappingService {
     }
 
     public String getFieldType(String fieldName,
-            String index) {
+                               String index) {
         String defaultFieldType = TEXT;
 
-        MappingAnalysisResult mappingAnalysisResult = analyze(fieldName,index);
+        MappingAnalysisResult mappingAnalysisResult = analyze(fieldName, index);
 
         if (!mappingAnalysisResult.isFieldPresent()) {
             return defaultFieldType;
         }
-        if (mappingAnalysisResult.getIndexMapping().containsKey(INDEX_TYPE)) {
-            return mappingAnalysisResult.getIndexMapping().get(INDEX_TYPE)
+        if (mappingAnalysisResult.getIndexMapping()
+                .containsKey(INDEX_TYPE)) {
+            return mappingAnalysisResult.getIndexMapping()
+                    .get(INDEX_TYPE)
                     .toString();
         } else {
             LOGGER.info("Field does not have type in the mapping: {}", fieldName);
@@ -88,17 +89,19 @@ public class MappingService {
     }
 
     public String getAnalyzedFieldName(String fieldName,
-            String index) {
+                                       String index) {
         String defaultFieldName = "id" + DOT + TEXT;
 
-        MappingAnalysisResult mappingAnalysisResult = analyze(fieldName,index);
+        MappingAnalysisResult mappingAnalysisResult = analyze(fieldName, index);
 
         if (!mappingAnalysisResult.isFieldPresent()) {
             return fieldName + DOT + TEXT;
         }
 
-        if (mappingAnalysisResult.getIndexMapping().containsKey(INDEX_TYPE)) {
-            if (mappingAnalysisResult.getIndexMapping().get(INDEX_TYPE)
+        if (mappingAnalysisResult.getIndexMapping()
+                .containsKey(INDEX_TYPE)) {
+            if (mappingAnalysisResult.getIndexMapping()
+                    .get(INDEX_TYPE)
                     .toString()
                     .equals(KEYWORD)) {
                 return fieldName + DOT + TEXT;
@@ -111,7 +114,8 @@ public class MappingService {
         return defaultFieldName;
     }
 
-    private MappingAnalysisResult analyze(String fieldName, String index){
+    private MappingAnalysisResult analyze(String fieldName,
+                                          String index) {
         String[] fieldArray = fieldName.split("\\.", 5);
         if (fieldArray.length == 0) {
             fieldArray = new String[]{fieldName};
@@ -134,15 +138,16 @@ public class MappingService {
         }
 
         return MappingAnalysisResult.builder()
-                        .fieldPresent(fieldPresent)
-                        .indexMapping(indexMapping)
+                .fieldPresent(fieldPresent)
+                .indexMapping(indexMapping)
                 .build();
     }
 
     @Data
     @Builder
     public static class MappingAnalysisResult {
+
         private boolean fieldPresent;
-        private Map<String,Object> indexMapping;
+        private Map<String, Object> indexMapping;
     }
 }
