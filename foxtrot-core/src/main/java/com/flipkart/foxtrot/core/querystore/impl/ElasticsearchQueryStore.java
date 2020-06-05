@@ -79,7 +79,7 @@ import org.slf4j.LoggerFactory;
 @Data
 @Slf4j
 @Singleton
-@SuppressWarnings("deprecation")
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class ElasticsearchQueryStore implements QueryStore {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
