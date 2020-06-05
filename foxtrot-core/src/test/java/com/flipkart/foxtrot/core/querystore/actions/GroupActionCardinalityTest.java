@@ -50,7 +50,7 @@ public class GroupActionCardinalityTest extends ActionTest {
                 .containsKey("android"));
         Assert.assertTrue(response.getResult()
                 .containsKey("ios"));
-    }
+    }*/
 
     @Test
     public void testEstimationWithMultipleNesting() throws Exception {

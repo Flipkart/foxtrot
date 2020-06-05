@@ -61,7 +61,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                 .build();
     }
 
-    @Test
+    /*@Test
     @Ignore
     public void testGet() throws Exception {
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
@@ -125,7 +125,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         TableFieldMapping mapping = getMapper().readValue(response, TableFieldMapping.class);
         assertEquals(tableFieldMapping.getTable(), mapping.getTable());
         assertEquals(tableFieldMapping.getMappings(), mapping.getMappings());
-    }
+    }*/
 
     @Test
     public void testGetInvalidTable() throws Exception {

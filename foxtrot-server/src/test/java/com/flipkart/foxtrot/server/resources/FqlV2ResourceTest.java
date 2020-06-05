@@ -114,7 +114,7 @@ public class FqlV2ResourceTest extends FoxtrotResourceTest {
         Assert.assertEquals(query, fqlStoreResponse.getQuery());
     }
 
-    @Ignore
+    /*@Ignore
     @Test
     public void testGetSavedFqlStore() throws InterruptedException {
         String title = "title1";
@@ -149,5 +149,5 @@ public class FqlV2ResourceTest extends FoxtrotResourceTest {
                 .getTitle());
         Assert.assertEquals(query, result.get(0)
                 .getQuery());
-    }
+    }*/
 }

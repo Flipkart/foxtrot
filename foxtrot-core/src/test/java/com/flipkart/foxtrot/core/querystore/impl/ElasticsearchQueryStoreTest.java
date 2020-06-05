@@ -624,7 +624,7 @@ public class ElasticsearchQueryStoreTest {
         }
     }
 
-    @Test
+    /*@Test
     @Ignore
     public void testGetFieldMappings() throws FoxtrotException, InterruptedException {
         doReturn(TestUtils.getMappingDocuments(mapper)).when(dataStore)
@@ -660,7 +660,7 @@ public class ElasticsearchQueryStoreTest {
 
         assertEquals(tableFieldMapping.getTable(), responseMapping.getTable());
         assertEquals(tableFieldMapping.getMappings(), responseMapping.getMappings());
-    }
+    }*/
 
     @Test
     public void testGetFieldMappingsNonExistingTable() throws FoxtrotException {
@@ -740,7 +740,7 @@ public class ElasticsearchQueryStoreTest {
 
     }
 
-    @Test
+    /*@Test
     @Ignore
     public void testEstimation() throws Exception {
         doReturn(TestUtils.getFieldCardinalityEstimationDocuments(mapper)).when(dataStore)
@@ -778,7 +778,7 @@ public class ElasticsearchQueryStoreTest {
                 .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null && fieldMetadata.getEstimationData()
                         .getType() == EstimationDataType.CARDINALITY)
                 .count() == numStringFields);
-    }
+    }*/
 
     private Document createLargeDummyDocument() {
         Document document = new Document();

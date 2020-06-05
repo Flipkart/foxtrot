@@ -69,7 +69,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
                 .size() > 0);
     }
 
-    @Ignore
+    /*@Ignore
     @Test
     public void testIndicesStats() throws FoxtrotException {
         List<Document> documents = new ArrayList<Document>();
@@ -102,5 +102,5 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
                 .path("store")
                 .path("sizeInBytes")
                 .asInt());
-    }
+    }*/
 }

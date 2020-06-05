@@ -59,7 +59,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
     }
 
 
-    @Test
+    /*@Test
     @Ignore
     public void testSave() throws Exception {
         doNothing().when(getDataStore())
@@ -82,7 +82,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         reset(tableManager);
         reset(getQueryStore());
         reset(getDataStore());
-    }
+    }*/
 
     @Test
     public void testSaveNullTable() throws Exception {
@@ -136,7 +136,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
     }
 
-    @Test
+    /*@Test
     @Ignore
     public void testGet() throws Exception {
         doNothing().when(getDataStore())
@@ -150,7 +150,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         assertNotNull(response);
         assertEquals(TEST_TABLE_NAME, response.getName());
         assertEquals(7, response.getTtl());
-    }
+    }*/
 
     @Test
     public void testGetMissingTable() throws Exception {

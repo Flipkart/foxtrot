@@ -77,7 +77,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         compare(document, response);
     }
 
-    @Test
+    /*@Test
     @Ignore
     public void testSaveDocumentInternalError() throws Exception {
         String id = UUID.randomUUID()
@@ -92,7 +92,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 .request()
                 .post(documentEntity);
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
-    }
+    }*/
 
     @Test
     public void testSaveDocumentNullId() throws Exception {
@@ -157,7 +157,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         compare(document2, getQueryStore().get(TestUtils.TEST_TABLE_NAME, id2));
     }
 
-    @Test
+    /*@Test
     @Ignore
     public void testSaveDocumentsInternalError() throws Exception {
         List<Document> documents = new ArrayList<Document>();
@@ -180,7 +180,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 .request()
                 .post(listEntity);
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
-    }
+    }*/
 
     @Test
     public void testSaveDocumentsNullDocuments() throws Exception {
@@ -277,7 +277,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         }
     }
 
-    @Test
+    /*@Test
     @Ignore
     public void testGetDocumentInternalError() throws Exception {
         String id = UUID.randomUUID()
@@ -293,7 +293,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
-    }
+    }*/
 
     @Test
     public void testGetDocuments() throws Exception {
@@ -343,7 +343,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         }
     }
 
-    @Test
+    /*@Test
     @Ignore
     public void testGetDocumentsInternalError() throws Exception {
         try {
@@ -359,7 +359,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
-    }
+    }*/
 
     public void compare(Document expected,
                         Document actual) throws Exception {
