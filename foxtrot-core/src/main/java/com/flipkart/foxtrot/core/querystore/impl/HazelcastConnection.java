@@ -40,6 +40,7 @@ import ru.vyarus.dropwizard.guice.module.installer.order.Order;
  */
 @Order(10)
 @Singleton
+@SuppressWarnings("deprecation")
 public class HazelcastConnection implements Managed {
 
     public static final String HEALTHCHECK_MAP = "healthCheck";

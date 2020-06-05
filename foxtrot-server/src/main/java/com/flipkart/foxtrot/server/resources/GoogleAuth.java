@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.server.resources;
 
+import static javax.ws.rs.core.NewCookie.*;
+
 import com.flipkart.foxtrot.server.auth.AuthConfig;
 import com.flipkart.foxtrot.server.auth.authprovider.AuthProvider;
 import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProvider;
@@ -67,7 +69,7 @@ public class GoogleAuth {
         }
         return Response.seeOther(URI.create(redirectionURL))
                 .cookie(new NewCookie("gauth-state", sessionId, GoogleAuthProvider.CALLBACK_PATH, null,
-                        NewCookie.DEFAULT_VERSION, null, NewCookie.DEFAULT_MAX_AGE, null, false, false))
+                        DEFAULT_VERSION, null, DEFAULT_MAX_AGE, null, false, false))
                 .build();
     }
 
@@ -105,7 +107,7 @@ public class GoogleAuth {
         log.debug("Will be redirecting to: {}. Existing: {}", finalRedirect, existingReferrer);
         return Response.seeOther(URI.create(finalRedirect))
                 .cookie(new NewCookie("token", AuthUtils.createJWT(token, authConfig.getJwt()), "/", null,
-                                Cookie.DEFAULT_VERSION, null, NewCookie.DEFAULT_MAX_AGE, null, false, true),
+                                Cookie.DEFAULT_VERSION, null, DEFAULT_MAX_AGE, null, false, true),
                         new NewCookie(cookieState, null, 0, false))
                 .build();
     }

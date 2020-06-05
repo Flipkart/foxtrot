@@ -27,5 +27,5 @@ public abstract class AuthProviderConfig {
         this.enabled = enabled;
     }
 
-    abstract public <T> T accept(AuthConfigVisitor<T> visitor);
+    public abstract <T> T accept(AuthConfigVisitor<T> visitor);
 }
