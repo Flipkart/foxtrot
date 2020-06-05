@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by rishabh.goyal on 17/11/14.
  */
-
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 @AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable = true)
 public class DistinctAction extends Action<DistinctRequest> {
 

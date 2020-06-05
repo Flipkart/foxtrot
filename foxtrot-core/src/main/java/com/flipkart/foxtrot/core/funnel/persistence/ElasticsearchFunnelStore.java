@@ -67,6 +67,7 @@ import org.slf4j.LoggerFactory;
 /***
  Created by nitish.goyal on 25/09/18
  ***/
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class ElasticsearchFunnelStore implements FunnelStore {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchFunnelStore.class);
