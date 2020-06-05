@@ -32,7 +32,7 @@ public class LockedExecutor {
 
     @Inject
     public LockedExecutor(final HazelcastDistributedLockConfig distributedLockConfig,
-                          final HazelcastConnection hazelcastConnection) {
+            final HazelcastConnection hazelcastConnection) {
         this.lockProvider = new HazelcastLockProvider(hazelcastConnection.getHazelcast());
         this.distributedLockConfig = distributedLockConfig;
     }
@@ -41,11 +41,11 @@ public class LockedExecutor {
      * Do work in single lock
      */
     public <T, R> R doItInLock(T dataForProcessing,
-                               Function<T, R> runFuncInsideLock,
-                               Function<T, R> runFuncIfLockNotAcquired,
-                               Function<T, String> uniqueLockIdFunc,
-                               String lockGroupName,
-                               R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
+            Function<T, R> runFuncInsideLock,
+            Function<T, R> runFuncIfLockNotAcquired,
+            Function<T, String> uniqueLockIdFunc,
+            String lockGroupName,
+            R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
         String lockString = uniqueLockIdFunc.apply(dataForProcessing);
 
         Instant lockAtMostUntil = getLockAtMostUntil(lockGroupName);
@@ -64,12 +64,12 @@ public class LockedExecutor {
         } else {
             log.debug("Not executing {}. It's locked.", lockConfig.getName());
             if (runFuncIfLockNotAcquired != null) {
-                log.info("Lock was not taken for work, run default handler: lockId={}, lockGroupName={}", lockString,
-                        lockGroupName);
+                log.info("Lock was not taken for work, run default handler: lockId={}, lockGroupName={}",
+                        lockString, lockGroupName);
                 return runFuncIfLockNotAcquired.apply(dataForProcessing);
             }
-            log.info("Lock was not taken for work, return default data: lockId={}, lockGroupName={}", lockString,
-                    lockGroupName);
+            log.info("Lock was not taken for work, return default data: lockId={}, lockGroupName={}",
+                    lockString, lockGroupName);
             return defaultDataWhenLockNotAcquiredOrNoFailFunction;
         }
     }
@@ -77,8 +77,7 @@ public class LockedExecutor {
     private Instant getLockAtMostUntil(String lockGroupName) {
         DistributedLockGroupConfig lockGroupConfig;
         if (distributedLockConfig == null || distributedLockConfig.getLocksConfig() == null
-                || !distributedLockConfig.getLocksConfig()
-                .containsKey(lockGroupName)) {
+                || !distributedLockConfig.getLocksConfig().containsKey(lockGroupName)) {
             lockGroupConfig = defaultDistributedLockGroupConfig;
         } else {
             lockGroupConfig = distributedLockConfig.getLocksConfig()
@@ -91,55 +90,55 @@ public class LockedExecutor {
 
     // Method for convenience
     public <T, R> R doItInLockV1(T dataForProcessing,
-                                 Function<T, R> runFuncInsideLock,
-                                 Function<T, R> runFuncIfLockNotAcquired,
-                                 String lockString,
-                                 String lockGroupName) {
+            Function<T, R> runFuncInsideLock,
+            Function<T, R> runFuncIfLockNotAcquired,
+            String lockString,
+            String lockGroupName) {
         return doItInLock(dataForProcessing, runFuncInsideLock, runFuncIfLockNotAcquired, t -> lockString,
                 lockGroupName, null);
     }
 
     // Method for convenience
     public <T, R> R doItInLockV2(T dataForProcessing,
-                                 Function<T, R> runFuncInsideLock,
-                                 Function<T, String> uniqueLockIdFunc,
-                                 String lockGroupName,
-                                 R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
+            Function<T, R> runFuncInsideLock,
+            Function<T, String> uniqueLockIdFunc,
+            String lockGroupName,
+            R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
         return doItInLock(dataForProcessing, runFuncInsideLock, null, uniqueLockIdFunc, lockGroupName,
                 defaultDataWhenLockNotAcquiredOrNoFailFunction);
     }
 
     // Method for convenience
     public <T, R> R doItInLockV3(T dataForProcessing,
-                                 Function<T, R> runFuncInsideLock,
-                                 String lockString,
-                                 String lockGroupName,
-                                 R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
+            Function<T, R> runFuncInsideLock,
+            String lockString,
+            String lockGroupName,
+            R defaultDataWhenLockNotAcquiredOrNoFailFunction) {
         return doItInLock(dataForProcessing, runFuncInsideLock, null, t -> lockString, lockGroupName,
                 defaultDataWhenLockNotAcquiredOrNoFailFunction);
     }
 
     // Method for convenience
     public <T, R> R doItInLockV4(T dataForProcessing,
-                                 Function<T, R> runFuncInsideLock,
-                                 Function<T, String> uniqueLockIdFunc,
-                                 String lockGroupName) {
+            Function<T, R> runFuncInsideLock,
+            Function<T, String> uniqueLockIdFunc,
+            String lockGroupName) {
         return doItInLock(dataForProcessing, runFuncInsideLock, null, uniqueLockIdFunc, lockGroupName, null);
     }
 
     // Method for convenience
     public <T, R> R doItInLockV5(T dataForProcessing,
-                                 Function<T, R> runFuncInsideLock,
-                                 String lockString,
-                                 String lockGroupName) {
+            Function<T, R> runFuncInsideLock,
+            String lockString,
+            String lockGroupName) {
         return doItInLock(dataForProcessing, runFuncInsideLock, null, t -> lockString, lockGroupName, null);
     }
 
     // Method for convenience
     public <T, R> R doItInLockV6(T dataForProcessing,
-                                 Function<T, R> runFuncInsideLock,
-                                 Function<T, R> runFuncIfLockNotAcquired,
-                                 String lockString) {
+            Function<T, R> runFuncInsideLock,
+            Function<T, R> runFuncIfLockNotAcquired,
+            String lockString) {
         return doItInLock(dataForProcessing, runFuncInsideLock, runFuncIfLockNotAcquired, t -> lockString, "default",
                 null);
     }

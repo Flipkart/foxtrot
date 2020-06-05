@@ -141,7 +141,6 @@ public class FoxtrotModule extends AbstractModule {
                 .to(FunnelServiceImplV1.class);
         bind(FunnelService.class).to(FunnelServiceImplV1.class);
         bind(FunnelStore.class).to(ElasticsearchFunnelStore.class);
-        bind(DistributedLock.class).to(HazelcastDistributedLock.class);
         bind(new TypeLiteral<List<HealthCheck>>() {
         }).toProvider(HealthcheckListProvider.class);
         bind(AuthStore.class).to(ESAuthStore.class);
