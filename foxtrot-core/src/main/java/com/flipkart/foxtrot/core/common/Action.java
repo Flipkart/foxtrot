@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
-import com.flipkart.foxtrot.common.query.CacheKeyVisitor;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.exception.MalformedQueryException;
 import com.flipkart.foxtrot.common.query.CacheKeyVisitor;
@@ -144,10 +143,10 @@ public abstract class Action<P extends ActionRequest> {
 
     public abstract String getRequestCacheKey();
 
-    public abstract ActionRequest getRequestBuilder(P parameter,
-                                                    List<Filter> extraFilters);
+    public abstract org.elasticsearch.action.ActionRequest getRequestBuilder(P parameter,
+                                                                             List<Filter> extraFilters);
 
-    public abstract ActionResponse getResponse(ActionResponse response,
+    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
                                                P parameter);
 
 

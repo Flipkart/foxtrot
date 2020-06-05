@@ -66,15 +66,19 @@ public class CountAction extends Action<CountRequest> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         CountRequest request = getParameter();
-        if(null != request.getFilters()) {
-            for(Filter filter : request.getFilters()) {
-                filterHashKey += 31 *  (Integer) filter.accept(getCacheKeyVisitor());
+        if (null != request.getFilters()) {
+            for (Filter filter : request.getFilters()) {
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
 
-        filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode());
-        filterHashKey += 31 * (request.getField() != null ? request.getField()
-                .hashCode() : "COLUMN".hashCode());
+        filterHashKey += 31 * (request.isDistinct()
+                               ? "TRUE".hashCode()
+                               : "FALSE".hashCode());
+        filterHashKey += 31 * (request.getField() != null
+                               ? request.getField()
+                                       .hashCode()
+                               : "COLUMN".hashCode());
         return String.format("count-%s-%d", request.getTable(), filterHashKey);
     }
 
