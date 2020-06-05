@@ -340,8 +340,8 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         return boolEventAttributesQueryBuilder;
     }
 
-    private void extractEventAttributes(Funnel funnel, Map<String, List<Object>> eventAttributesMap)
-            throws IllegalAccessException {
+    private void extractEventAttributes(Funnel funnel,
+                                        Map<String, List<Object>> eventAttributesMap) throws IllegalAccessException {
         for (EventAttributes eventAttributes : nullAndEmptySafeValueList(funnel.getEventAttributes())) {
             Field[] eventAttributesFields = EventAttributes.class.getDeclaredFields();
             for (Field eventAttributeField : nullAndEmptySafeValueList(eventAttributesFields)) {
