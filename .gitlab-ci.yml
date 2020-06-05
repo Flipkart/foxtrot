@@ -44,10 +44,8 @@ deploy_snapshot:
   stage: deploy
   <<: *default
   <<: *default_tag
-  only:
-    - web
   script:
-    - mvn deploy -pl !foxtrot-server -Dmaven.install.skip=true
+    - mvn deploy -pl !foxtrot-server -DskipTests
   allow_failure: false
 
 docker_build:
