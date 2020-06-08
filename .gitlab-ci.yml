@@ -57,7 +57,7 @@ release:
     - git pull
     - git checkout phonepe-develop
     - git pull
-    - mvn -U -Pdocker jgitflow:release-start jgitflow:release-finish
+    - mvn -U -Pdocker jgitflow:release-start jgitflow:release-finish -DallowSnapshots=true
     - git push --all
     - git push --tags origin
   when: manual
