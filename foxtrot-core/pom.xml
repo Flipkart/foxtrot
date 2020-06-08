@@ -47,7 +47,7 @@
         <dependency>
             <groupId>com.sematext.hbase.ds</groupId>
             <artifactId>hbase-ds</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>0.0.2</version>
         </dependency>
         <!-- Hazelcast Marathon discovery SPI -->
         <dependency>
