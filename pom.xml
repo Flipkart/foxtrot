@@ -13,7 +13,7 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-82-SNAPSHOT</version>
+    <version>6.3.1-83-SNAPSHOT</version>
 
     <parent>
         <groupId>com.phonepe</groupId>
