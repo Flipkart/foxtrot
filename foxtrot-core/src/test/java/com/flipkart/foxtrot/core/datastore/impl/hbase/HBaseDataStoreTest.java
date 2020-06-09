@@ -28,6 +28,8 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.flipkart.foxtrot.common.Date;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
@@ -35,11 +37,15 @@ import com.flipkart.foxtrot.common.exception.BadRequestException;
 import com.flipkart.foxtrot.common.exception.ErrorCode;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.exception.StoreConnectionException;
+import com.flipkart.foxtrot.common.util.SerDe;
 import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.foxtrot.flipkart.translator.DocumentTranslator;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
+import com.foxtrot.flipkart.translator.config.UnmarshallerConfig;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,10 +58,14 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableList;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 /**
  * Created by rishabh.goyal on 15/04/14.
@@ -527,5 +537,70 @@ public class HBaseDataStoreTest {
                 .close();
         hbaseDataStore.getAll(TEST_APP, ids);
         verify(tableInterface, times(1)).close();
+    }
+
+    @Test
+    public void testSaveDocumentsWithUnmarshallException() throws IOException {
+        SerDe.init(mapper);
+
+        DocumentTranslator documentTranslator = new DocumentTranslator(getTranslatorConfigWithUnmarshallJsonPath());
+        hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
+
+        Table table = Table.builder()
+                .name("consumer_app")
+                .build();
+
+
+        String eventJson1 = "{\"app\":\"consumer_app\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"eventData\":{\"category\":\"Check Balance\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"funnelInfo\":\"[{funnelData={startPercentage=30.0, endPercentage=100.0}, funnelId=1}]\"},"
+                + "\"ingestionTime\":1591707569435}";
+
+        String eventJson2 = "{\"app\":\"consumer_app\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"eventData\":{\"category\":\"Check Balance\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"funnelInfo\":\"[{funnelData={startPercentage=10.0, endPercentage=30.0}, funnelId=2}]\"},"
+                + "\"ingestionTime\":1591707569435}";
+
+        String eventJson3 = "{\"app\":\"consumer_app\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"eventData\":{\"category\":\"Check Balance\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"funnelInfo\":\"[{funnelData={startPercentage=0.0, endPercentage=100.0}, funnelId=3}]\"},"
+                + "\"ingestionTime\":1591707569435}";
+
+        String eventJson4 = "{\"app\":\"consumer_app\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"eventData\":{\"category\":\"Check Balance\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"funnelInfo\":\"[{\\\"funnelData\\\":{\\\"startPercentage\\\":20.0,\\\"endPercentage\\\":40.0},"
+                + "\\\"funnelId\\\":\\\"4\\\"}]\"},\"ingestionTime\":1591707569435}";
+        Document document1 = buildTestDocument(eventJson1);
+        Document document2 = buildTestDocument(eventJson2);
+        Document document3 = buildTestDocument(eventJson3);
+        Document document4 = buildTestDocument(eventJson4);
+
+        List<Document> translatedDocuments = hbaseDataStore
+                .saveAll(table, ImmutableList.of(document1, document2, document3, document4));
+        Assert.assertEquals(1, translatedDocuments.size());
+        Assert.assertEquals(4, translatedDocuments.get(0).getData().at("/eventData/funnelInfo")
+                .get(0).get("funnelId"));
+
+    }
+
+    private Document buildTestDocument(String eventJson) throws IOException {
+        Document document = new Document();
+        document.setDate(new Date());
+        document.setId(UUID.randomUUID()
+                .toString());
+        document.setData(mapper.readTree(eventJson));
+        return document;
+    }
+
+    @NotNull
+    private TranslatorConfig getTranslatorConfigWithUnmarshallJsonPath() {
+        TranslatorConfig translatorConfig = new TranslatorConfig();
+        translatorConfig.setRawKeyVersion("2.0");
+        translatorConfig.setUnmarshallerConfig(UnmarshallerConfig.builder()
+                .unmarshallingEnabled(true)
+                .tableVsUnmarshallJsonPath(ImmutableMap.of("consumer_app", Arrays.asList(
+                        new String[]{"/eventData/funnelInfo"})))
+                .build());
+        return translatorConfig;
     }
 }

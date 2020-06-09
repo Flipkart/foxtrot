@@ -22,6 +22,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.SerDeException;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.foxtrot.flipkart.translator.DocumentTranslator;
 import com.google.common.annotations.VisibleForTesting;
@@ -118,28 +119,36 @@ public class HBaseDataStore implements DataStore {
         List<Put> puts = new ArrayList<>();
         ImmutableList.Builder<Document> translatedDocuments = ImmutableList.builder();
         List<String> errorMessages = new ArrayList<>();
-        try {
-            for (int i = 0; i < documents.size(); i++) {
-                Document document = documents.get(i);
-                if (!isValidDocument(document, errorMessages, i)) {
-                    continue;
-                }
+
+        for (int i = 0; i < documents.size(); i++) {
+            Document document = documents.get(i);
+            if (!isValidDocument(document, errorMessages, i)) {
+                continue;
+            }
+            try {
                 Document translatedDocument = translator.translate(table, document);
                 puts.add(getPutForDocument(translatedDocument));
                 translatedDocuments.add(translatedDocument);
+            } catch (SerDeException serDeException) {
+                logger.error("Error while translating document :{}", document, serDeException);
+                // Ignore this exception which can come from json unmarshalling
+            } catch (JsonProcessingException e) {
+                throw FoxtrotExceptions.createBadRequestException(table, e);
             }
-        } catch (JsonProcessingException e) {
-            throw FoxtrotExceptions.createBadRequestException(table, e);
         }
+
         if (!errorMessages.isEmpty()) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), errorMessages);
         }
 
-        try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
-            hTable.put(puts);
-        } catch (IOException e) {
-            throw FoxtrotExceptions.createConnectionException(table, e);
+        if (!puts.isEmpty()) {
+            try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
+                hTable.put(puts);
+            } catch (IOException e) {
+                throw FoxtrotExceptions.createConnectionException(table, e);
+            }
         }
+
         return translatedDocuments.build();
     }
 

@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.common.exception;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 public class SerDeException extends FoxtrotException {
 
@@ -27,6 +28,9 @@ public class SerDeException extends FoxtrotException {
 
     @Override
     public Map<String, Object> toMap() {
-        return ImmutableMap.of("code", getCode().name(), "message", getMessage());
+        return ImmutableMap.of("code", getCode().name(),
+                "message", this.getCause() != null
+                        ? this.getCause().getMessage()
+                        : this.getMessage());
     }
 }
