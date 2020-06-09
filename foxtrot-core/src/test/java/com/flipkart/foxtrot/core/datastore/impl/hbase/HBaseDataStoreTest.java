@@ -578,8 +578,8 @@ public class HBaseDataStoreTest {
         List<Document> translatedDocuments = hbaseDataStore
                 .saveAll(table, ImmutableList.of(document1, document2, document3, document4));
         Assert.assertEquals(1, translatedDocuments.size());
-        Assert.assertEquals("4", translatedDocuments.get(0).getData().at("/eventData/funnelInfo")
-                .get(0).get("funnelId").asText());
+        Assert.assertEquals(4, translatedDocuments.get(0).getData().at("/eventData/funnelInfo")
+                .get(0).get("funnelId"));
 
     }
 
