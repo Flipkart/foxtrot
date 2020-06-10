@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.elasticsearch.action.search.SearchResponse;
@@ -24,8 +25,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /***
@@ -33,9 +32,9 @@ import ru.vyarus.dropwizard.guice.module.installer.order.Order;
  ***/
 @Singleton
 @Order(45)
+@Slf4j
 public class ConsoleHistoryManager extends BaseJobManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConsoleHistoryManager.class.getSimpleName());
     private static final String TYPE = "console_data";
     private static final String INDEX_V2 = "consoles_v2";
     private static final String INDEX_HISTORY = "consoles_history";
@@ -77,7 +76,7 @@ public class ConsoleHistoryManager extends BaseJobManager {
                     deleteOldData(entry.getKeyAsString());
                 }
             } catch (Exception e) {
-                logger.info("Failed to get aggregations and delete data for index history. {}", e);
+                log.info("Failed to get aggregations and delete data for index history. {}", e);
             }
 
         }, new LockConfiguration(consoleHistoryConfig.getJobName(), lockAtMostUntil));

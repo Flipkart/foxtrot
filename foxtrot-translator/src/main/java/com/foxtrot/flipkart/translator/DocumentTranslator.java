@@ -36,7 +36,7 @@ public class DocumentTranslator {
     private static final String JSON_PATH_SEPARATOR = "/";
     private final AbstractRowKeyDistributor keyDistributor;
     private final String rawKeyVersion;
-    private UnmarshallerConfig unmarshallerConfig;
+    private final UnmarshallerConfig unmarshallerConfig;
 
     @Inject
     public DocumentTranslator(TranslatorConfig translatorConfig) {

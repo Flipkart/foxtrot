@@ -1,13 +1,13 @@
 package com.flipkart.foxtrot.core.funnel.model.visitor;
 
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
+import com.flipkart.foxtrot.common.Query;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryRequest;
-import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;

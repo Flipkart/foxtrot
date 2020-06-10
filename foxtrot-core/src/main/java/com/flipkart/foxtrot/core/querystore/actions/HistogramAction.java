@@ -50,6 +50,7 @@ import org.joda.time.DateTime;
  * Time: 9:22 PM
  */
 @AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class HistogramAction extends Action<HistogramRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
@@ -76,7 +77,7 @@ public class HistogramAction extends Action<HistogramRequest> {
         HistogramRequest query = getParameter();
         if (null != query.getFilters()) {
             for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
 

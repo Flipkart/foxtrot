@@ -1,7 +1,6 @@
 package com.flipkart.foxtrot.server.resources;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Level;
@@ -18,10 +17,8 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
-import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
@@ -40,6 +37,8 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
+import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -51,6 +50,7 @@ import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -84,12 +84,12 @@ public abstract class FoxtrotResourceTest {
     private final CardinalityConfig cardinalityConfig;
     private final List<IndexerEventMutator> mutators;
     private final CacheManager cacheManager;
-    private AnalyticsLoader analyticsLoader;
-    private QueryExecutorFactory queryExecutorFactory;
-    private QueryStore queryStore;
-    private DataStore dataStore;
+    private final AnalyticsLoader analyticsLoader;
+    private final QueryExecutorFactory queryExecutorFactory;
+    private final QueryStore queryStore;
+    private final DataStore dataStore;
 
-    protected FoxtrotResourceTest() {
+    protected FoxtrotResourceTest() throws IOException {
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
         when(environment.jersey()).thenReturn(jerseyEnvironment);
         when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
@@ -152,14 +152,13 @@ public abstract class FoxtrotResourceTest {
         dataStore = TestUtils.getDataStore();
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators,
                 mapper, cardinalityConfig);
-        queryStore = spy(queryStore);
         analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
                 cacheManager, mapper, new ElasticsearchTuningConfig());
         try {
             analyticsLoader.start();
             TestUtils.registerActions(analyticsLoader, mapper);
         } catch (Exception e) {
-            log.error("Error in intialization", e);
+            log.error("Error in initialization", e);
             Assert.fail();
         }
         ExecutorService executorService = Executors.newFixedThreadPool(1);

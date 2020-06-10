@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -30,15 +29,13 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.FieldMetadata;
-import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.common.estimation.EstimationDataType;
 import com.flipkart.foxtrot.common.exception.ErrorCode;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
@@ -59,6 +56,7 @@ import com.google.common.collect.Sets;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import io.dropwizard.jackson.Jackson;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,7 +67,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.val;
 import org.apache.commons.lang.ObjectUtils;
@@ -81,7 +78,6 @@ import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -94,7 +90,7 @@ import org.mockito.Mockito;
  */
 public class ElasticsearchQueryStoreTest {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = Jackson.newObjectMapper();
 
     private static ElasticsearchConnection elasticsearchConnection;
     private static HazelcastInstance hazelcastInstance;
@@ -109,6 +105,7 @@ public class ElasticsearchQueryStoreTest {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @AfterClass
@@ -642,7 +639,7 @@ public class ElasticsearchQueryStoreTest {
         }
     }
 
-    @Test
+    /*@Test
     @Ignore
     public void testGetFieldMappings() throws FoxtrotException, InterruptedException {
         doReturn(TestUtils.getMappingDocuments(mapper)).when(dataStore)
@@ -678,7 +675,7 @@ public class ElasticsearchQueryStoreTest {
 
         assertEquals(tableFieldMapping.getTable(), responseMapping.getTable());
         assertEquals(tableFieldMapping.getMappings(), responseMapping.getMappings());
-    }
+    }*/
 
     @Test
     public void testGetFieldMappingsNonExistingTable() throws FoxtrotException {
@@ -757,7 +754,7 @@ public class ElasticsearchQueryStoreTest {
                 .getSizeInBytes());
     }
 
-    @Test
+    /*@Test
     @Ignore
     public void testEstimation() throws Exception {
         doReturn(TestUtils.getFieldCardinalityEstimationDocuments(mapper)).when(dataStore)
@@ -795,7 +792,7 @@ public class ElasticsearchQueryStoreTest {
                 .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null && fieldMetadata.getEstimationData()
                         .getType() == EstimationDataType.CARDINALITY)
                 .count() == numStringFields);
-    }
+    }*/
 
     private Document createLargeDummyDocument() {
         Document document = new Document();

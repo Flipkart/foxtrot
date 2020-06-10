@@ -195,7 +195,7 @@ CountTile.prototype.downloadWidget = function(object) {
     type: 'POST',
     data: JSON.stringify(data),
     dataType: 'text',
-   
+
     contentType: 'application/json',
     context: this,
     success: function(response) {

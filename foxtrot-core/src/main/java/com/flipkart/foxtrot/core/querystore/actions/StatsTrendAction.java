@@ -46,6 +46,7 @@ import org.joda.time.DateTime;
  */
 
 @AnalyticsProvider(opcode = "statstrend", request = StatsTrendRequest.class, response = StatsTrendResponse.class, cacheable = false)
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class StatsTrendAction extends Action<StatsTrendRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
@@ -70,9 +71,9 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     public String getRequestCacheKey() {
         StatsTrendRequest statsRequest = getParameter();
         long hashKey = 0L;
-        if (statsRequest.getFilters() != null) {
-            for (Filter filter : statsRequest.getFilters()) {
-                hashKey += 31 * filter.hashCode();
+        if(statsRequest.getFilters() != null) {
+            for(Filter filter : statsRequest.getFilters()) {
+                hashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
 

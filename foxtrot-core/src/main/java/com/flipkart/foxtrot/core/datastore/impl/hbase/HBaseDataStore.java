@@ -40,7 +40,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 13/03/14 Time: 7:54 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 13/03/14
+ * Time: 7:54 PM
  */
 @Singleton
 public class HBaseDataStore implements DataStore {
@@ -136,7 +138,6 @@ public class HBaseDataStore implements DataStore {
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             hTable.put(puts);
         } catch (IOException e) {
-            logger.error("Error occurred while ingesting event in HBase : ", e);
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
         return translatedDocuments.build();

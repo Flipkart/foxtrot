@@ -22,7 +22,7 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.annotations.VisibleForTesting;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.ActionRequestBuilder;
 
 /**
  * Created by rishabh.goyal on 02/05/14.
@@ -57,7 +57,7 @@ public class DummyCacheableAction extends Action<DummyCacheableActionRequest> {
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(DummyCacheableActionRequest parameter) throws FoxtrotException {
+    public ActionRequestBuilder getRequestBuilder(DummyCacheableActionRequest parameter) throws FoxtrotException {
         return null;
     }
 

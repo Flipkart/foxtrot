@@ -361,7 +361,7 @@ function LineRatioTile() {
       });
     }
   }
-  
+
 
 //  -------------------- Start added download widget 2--------------------
 
@@ -374,7 +374,7 @@ function LineRatioTile() {
     } else {
       filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
     }
-  
+
     if(object.tileContext.filters) {
       for (var i = 0; i < object.tileContext.filters.length; i++) {
         filters.push(object.tileContext.filters[i]);
@@ -385,7 +385,7 @@ function LineRatioTile() {
     if(templateFilters.length > 0) {
       filters = filters.concat(templateFilters);
     }
-  
+
     var data = {
       "opcode": "trend"
       , "table": object.tileContext.table
@@ -400,7 +400,7 @@ function LineRatioTile() {
       type: 'POST',
       data: JSON.stringify(data),
       dataType: 'text',
-     
+
       contentType: 'application/json',
       context: this,
       success: function(response) {

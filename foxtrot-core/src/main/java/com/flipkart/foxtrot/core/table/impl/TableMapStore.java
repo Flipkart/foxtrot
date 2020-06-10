@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
@@ -39,12 +40,12 @@ import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TableMapStore implements MapStore<String, Table> {
+public class TableMapStore implements MapStore<String, Table>, Serializable {
 
     public static final String TABLE_META_INDEX = "table-meta";
     public static final String TABLE_META_TYPE = "table-meta";
     private static final Logger logger = LoggerFactory.getLogger(TableMapStore.class.getSimpleName());
-    private final ElasticsearchConnection elasticsearchConnection;
+    private static ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper objectMapper;
 
     public TableMapStore(ElasticsearchConnection elasticsearchConnection) {
@@ -157,6 +158,7 @@ public class TableMapStore implements MapStore<String, Table> {
         try {
             return objectMapper.readValue(response.getSourceAsBytes(), Table.class);
         } catch (Exception e) {
+            logger.error("Error", e);
             throw new TableMapStoreException("Error getting data for table: " + key);
         }
     }
@@ -217,12 +219,11 @@ public class TableMapStore implements MapStore<String, Table> {
         return ids;
     }
 
-    public static class Factory implements MapStoreFactory<String, Table> {
 
-        private final ElasticsearchConnection elasticsearchConnection;
+    public static class Factory implements MapStoreFactory<String, Table>, Serializable {
 
         public Factory(ElasticsearchConnection elasticsearchConnection) {
-            this.elasticsearchConnection = elasticsearchConnection;
+            TableMapStore.elasticsearchConnection = elasticsearchConnection;
         }
 
         @Override

@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.exception.MalformedQueryException;
+import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
 import com.flipkart.foxtrot.core.common.Action;
@@ -16,24 +17,25 @@ import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.search.MultiSearchRequestBuilder;
 import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.glassfish.hk2.api.MultiException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /***
  Created by nitish.goyal on 22/08/18
  ***/
 @AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class, cacheable = true)
+@Slf4j
 public class MultiQueryAction extends Action<MultiQueryRequest> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MultiQueryAction.class);
-    private AnalyticsLoader analyticsLoader;
-    private Map<ActionRequest, Action> requestActionMap = Maps.newHashMap();
+    private final AnalyticsLoader analyticsLoader;
+    private final Map<ActionRequest, Action> requestActionMap = Maps.newHashMap();
 
     public MultiQueryAction(MultiQueryRequest parameter,
                             AnalyticsLoader analyticsLoader) {
@@ -58,8 +60,16 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     @Override
     public String getRequestCacheKey() {
-        createActions(getParameter());
-        return processForSubQueries(getParameter(), (action, request) -> action.getRequestCacheKey());
+        final MultiQueryRequest parameter = getParameter();
+        createActions(parameter);
+        long filterHashKey = 0L;
+        if (null != parameter.getFilters()) {
+            for (Filter filter : parameter.getFilters()) {
+                filterHashKey += 31 * filter.hashCode();
+            }
+        }
+        return String.format("multquery-%d-%s", filterHashKey,
+                processForSubQueries(parameter, (action, request) -> action.getRequestCacheKey()));
     }
 
     @Override
@@ -84,7 +94,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     public ActionResponse execute(MultiQueryRequest parameter) {
         MultiSearchRequestBuilder multiSearchRequestBuilder = getRequestBuilder(parameter);
         try {
-            LOGGER.info("Search: {}", multiSearchRequestBuilder);
+            log.info("Search: {}", multiSearchRequestBuilder);
             MultiSearchResponse multiSearchResponse = multiSearchRequestBuilder.execute()
                     .actionGet();
             return getResponse(multiSearchResponse, parameter);
@@ -132,7 +142,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             try {
                 action = analyticsLoader.getAction(request);
             } catch (Exception e) {
-                LOGGER.error("Error occurred while executing multiQuery request : {}", e);
+                log.error("Error occurred while executing multiQuery request : {}", e);
             }
             if (null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
@@ -145,6 +155,20 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     private void createActions(final MultiQueryRequest multiQueryRequest) {
+        if (Utils.hasTemporalFilters(multiQueryRequest.getFilters())) {
+            val offendingRequests = multiQueryRequest.getRequests()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> Utils.hasTemporalFilters(entry.getValue()
+                            .getFilters()))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(offendingRequests)) {
+                throw FoxtrotExceptions.createMalformedQueryException(multiQueryRequest, Collections.singletonList(
+                        "Temporal filters passed in multi query as well as children: " + offendingRequests));
+            }
+        }
+
         for (Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests()
                 .entrySet()) {
             ActionRequest request = entry.getValue();

@@ -12,6 +12,7 @@ import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.DOT;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.TYPE;
 
 import com.collections.CollectionUtils;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
 import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
@@ -59,14 +60,15 @@ import org.slf4j.LoggerFactory;
 /***
  Created by nitish.goyal on 25/09/18
  ***/
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class ElasticsearchFunnelStore implements FunnelStore {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchFunnelStore.class);
 
 
-    protected final ElasticsearchConnection connection;
-    protected final MappingService mappingService;
-    protected final FunnelConfiguration funnelConfiguration;
+    private final ElasticsearchConnection connection;
+    private final MappingService mappingService;
+    private final FunnelConfiguration funnelConfiguration;
 
 
     @Inject
@@ -93,12 +95,12 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                     .get();
         } catch (Exception e) {
             logger.error(String.format("error saving funnel with name : %s", funnel.getName()));
-            throw new FunnelException(EXECUTION_EXCEPTION, "Funnel save failed", e);
+            throw new FunnelException(ErrorCode.EXECUTION_EXCEPTION, "Funnel save failed", e);
         }
     }
 
     @Override
-    public Funnel get(final String documentId) {
+    public Funnel getByDocumentId(final String documentId) {
         try {
             GetResponse response = connection.getClient()
                     .prepareGet()
@@ -111,7 +113,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
             }
             return JsonUtils.fromJson(response.getSourceAsString(), Funnel.class);
         } catch (Exception e) {
-            throw new FunnelException(EXECUTION_EXCEPTION, "Funnel get by document id failed", e);
+            throw new FunnelException(ErrorCode.EXECUTION_EXCEPTION, "Funnel get by document id failed", e);
         }
     }
 
@@ -293,7 +295,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         return funnelConfiguration.getFunnelDropdownConfig();
     }
 
-    private BoolQueryBuilder buildSimilarFunnelSearchQuery(Funnel funnel) throws FoxtrotException {
+    private BoolQueryBuilder buildSimilarFunnelSearchQuery(Funnel funnel) {
         BoolQueryBuilder outerQueryBuilder = QueryBuilders.boolQuery();
 
         //Field VS Value Query
@@ -339,8 +341,8 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         return boolEventAttributesQueryBuilder;
     }
 
-    private void extractEventAttributes(Funnel funnel, Map<String, List<Object>> eventAttributesMap)
-            throws IllegalAccessException {
+    private void extractEventAttributes(Funnel funnel,
+                                        Map<String, List<Object>> eventAttributesMap) throws IllegalAccessException {
         for (EventAttributes eventAttributes : nullAndEmptySafeValueList(funnel.getEventAttributes())) {
             Field[] eventAttributesFields = EventAttributes.class.getDeclaredFields();
             for (Field eventAttributeField : nullAndEmptySafeValueList(eventAttributesFields)) {
@@ -351,8 +353,8 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                 if (eventAttributeField.get(eventAttributes) != null) {
                     String key = EVENT_ATTRIBUTES + DOT + eventAttributeField.getName();
                     if (!eventAttributesMap.containsKey(key)) {
-                        eventAttributesMap.put(key, new ArrayList<>(
-                                Collections.singletonList(eventAttributeField.get(eventAttributes))));
+                        eventAttributesMap.put(key,
+                                new ArrayList<>(Collections.singletonList(eventAttributeField.get(eventAttributes))));
                     } else {
                         eventAttributesMap.get(key)
                                 .add(eventAttributeField.get(eventAttributes));

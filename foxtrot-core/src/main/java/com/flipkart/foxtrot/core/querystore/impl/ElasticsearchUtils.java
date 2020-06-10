@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.client.Client;
@@ -63,10 +64,6 @@ public class ElasticsearchUtils {
     private ElasticsearchUtils() {
     }
 
-    private static String getIndexPrefix(final String table) {
-        return String.format("%s-%s-%s-", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
-    }
-
     @VisibleForTesting
     public static String getTableNamePrefix() {
         return tableNamePrefix;
@@ -78,6 +75,14 @@ public class ElasticsearchUtils {
         } else {
             tableNamePrefix = "foxtrot";
         }
+    }
+
+    private static String getIndexPrefix(final String table) {
+        return String.format("%s-%s-%s-", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
+    }
+
+    public static String getIndices(final String table) {
+        return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
     public static String[] getIndices(final String table,
@@ -111,11 +116,6 @@ public class ElasticsearchUtils {
                 .getSimpleName(), indices);
         return indices.toArray(new String[0]);
     }
-
-    public static String getIndices(final String table) {
-        return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
-    }
-
 
     public static String getCurrentIndex(final String table,
                                          long timestamp) {
@@ -326,11 +326,12 @@ public class ElasticsearchUtils {
     }
 
     public static boolean isTimeFilterPresent(List<Filter> filters) {
-        for (Filter filter : filters) {
+        AtomicBoolean timeFilterPresent = new AtomicBoolean(false);
+        filters.forEach(filter -> {
             if (ElasticsearchUtils.TIME_FIELD.equals(filter.getField())) {
-                return true;
+                timeFilterPresent.set(true);
             }
-        }
-        return false;
+        });
+        return timeFilterPresent.get();
     }
 }

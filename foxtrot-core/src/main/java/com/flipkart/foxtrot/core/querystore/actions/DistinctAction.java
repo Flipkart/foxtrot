@@ -16,22 +16,27 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfi
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Sets;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by rishabh.goyal on 17/11/14.
  */
-
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 @AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable = true)
 public class DistinctAction extends Action<DistinctRequest> {
 
@@ -48,6 +53,24 @@ public class DistinctAction extends Action<DistinctRequest> {
     @Override
     public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+    }
+
+    @Override
+    public String getRequestCacheKey() {
+        long filterHashKey = 0L;
+        DistinctRequest query = getParameter();
+        if(null != query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
+            }
+        }
+        for(int i = 0; i < query.getNesting()
+                .size(); i++) {
+            filterHashKey += 31 * query.getNesting()
+                    .get(i)
+                    .hashCode() * (i + 1);
+        }
+        return String.format("%s-%d", query.getTable(), filterHashKey);
     }
 
     @Override
@@ -73,23 +96,6 @@ public class DistinctAction extends Action<DistinctRequest> {
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
-    }
-
-    @Override
-    public String getRequestCacheKey() {
-        long filterHashKey = 0L;
-        DistinctRequest query = getParameter();
-
-        for (Filter filter : com.collections.CollectionUtils.nullSafeList(query.getFilters())) {
-            filterHashKey += 31 * filter.hashCode();
-        }
-        for (int i = 0; i < query.getNesting()
-                .size(); i++) {
-            filterHashKey += 31 * query.getNesting()
-                    .get(i)
-                    .hashCode() * (i + 1);
-        }
-        return String.format("%s-%d", query.getTable(), filterHashKey);
     }
 
     @Override

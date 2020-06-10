@@ -17,7 +17,7 @@ public class EventPublisherActionExecutionObserver implements ActionExecutionObs
 
     @Override
     public void postExecution(ActionEvaluationResponse response) {
-        if (response == null) {
+        if (null == response) {
             return;
         }
         if (null != response.getException()) {

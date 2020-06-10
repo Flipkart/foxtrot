@@ -5,6 +5,7 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.ExistsFilter;
@@ -19,16 +20,19 @@ import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
+import org.hibernate.validator.internal.xml.binding.ParameterType;
 
 /**
  * Created by rishabh.goyal on 02/11/14.
  */
 
 @AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = true)
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class CountAction extends Action<CountRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
@@ -72,8 +76,10 @@ public class CountAction extends Action<CountRequest> {
         preprocess();
         long filterHashKey = 0L;
         CountRequest request = getParameter();
-        for (Filter filter : com.collections.CollectionUtils.nullSafeList(request.getFilters())) {
-            filterHashKey += 31 * filter.hashCode();
+        if (null != request.getFilters()) {
+            for (Filter filter : request.getFilters()) {
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
+            }
         }
 
         filterHashKey += 31 * (request.isDistinct()

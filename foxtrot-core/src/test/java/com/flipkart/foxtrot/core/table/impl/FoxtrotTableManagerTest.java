@@ -1,7 +1,6 @@
 package com.flipkart.foxtrot.core.table.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyBoolean;
@@ -20,6 +19,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import java.io.IOException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -127,7 +127,7 @@ public class FoxtrotTableManagerTest {
         table.setName("abcd");
         table.setTtl(10);
         tableManager.save(table);
-        assertTrue(true);
+        Assert.assertTrue(true);
     }
 
     @Test
@@ -222,7 +222,7 @@ public class FoxtrotTableManagerTest {
         table.setName("abcd");
         table.setTtl(10);
         tableManager.update(table);
-        assertTrue(true);
+        Assert.assertTrue(true);
     }
 
     @Test

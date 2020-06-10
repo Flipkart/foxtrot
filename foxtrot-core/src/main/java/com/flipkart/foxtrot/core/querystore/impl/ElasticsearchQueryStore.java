@@ -36,6 +36,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -73,6 +74,7 @@ import org.slf4j.LoggerFactory;
 @Data
 @Slf4j
 @Singleton
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class ElasticsearchQueryStore implements QueryStore {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
@@ -80,6 +82,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     private static final String DATA_STORE = "dataStore";
     private static final String QUERY_STORE = "queryStore";
     private static final String UNKNOWN_TABLE_ERROR_MESSAGE = "unknown_table table:%s";
+    private static final String ERROR_SAVING_DOCUMENTS = "Error while saving documents to table";
 
     private final ElasticsearchConnection connection;
     private final DataStore dataStore;
@@ -474,7 +477,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     private List<String> getIndicesToDelete(Set<String> tables,
-                                            Set<String> currentIndices) {
+                                            Collection<String> currentIndices) {
         List<String> indicesToDelete = new ArrayList<>();
         for (String currentIndex : currentIndices) {
             String table = ElasticsearchUtils.getTableNameFromIndex(currentIndex);

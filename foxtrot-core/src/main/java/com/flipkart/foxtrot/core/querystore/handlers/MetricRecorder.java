@@ -12,7 +12,7 @@ public class MetricRecorder implements ActionExecutionObserver {
 
     @Override
     public void postExecution(ActionEvaluationResponse response) {
-        if (response == null || null == response.getExecutedAction()) {
+        if (null == response || null == response.getExecutedAction()) {
             return;
         }
         final ActionRequest request = response.getRequest();

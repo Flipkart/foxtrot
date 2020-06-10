@@ -36,12 +36,13 @@ build_package:
   <<: *default
   <<: *default_tag
   script:
-    - mvn clean package -U
+    - mvn clean package -U -DskipTests
 
 deploy_snapshot:
   #  tags:
   #    - backend
   stage: deploy
+  <<: *default
   <<: *default_tag
   only:
     - web

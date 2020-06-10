@@ -1,30 +1,20 @@
-/**
- * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- */
 package com.flipkart.foxtrot.core.querystore.impl;
 
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchRestConfig.ConnectionType;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-/**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 12:28 AM
- */
+/***
+ User : nitish.goyal
+ Date : 10/06/20
+ Time : 4:45 PM
+ ***/
 @NoArgsConstructor
-public class ElasticsearchConfig {
+public class ElasticsearchRestConfig {
 
     public static final long DEFAULT_TIMEOUT = 10000L;
     @Valid
@@ -39,11 +29,16 @@ public class ElasticsearchConfig {
     private String tableNamePrefix = "foxtrot";
     private long getQueryTimeout;
     private Integer port;
+    @NotNull
     @Builder.Default
-    private ElasticsearchRestConfig.ConnectionType connectionType = ElasticsearchRestConfig.ConnectionType.HTTP;
+    private ConnectionType connectionType = ConnectionType.HTTP;
 
-    public ElasticsearchRestConfig.ConnectionType getConnectionType() {
+    public ConnectionType getConnectionType() {
         return connectionType;
+    }
+
+    public void setConnectionType(ConnectionType connectionType) {
+        this.connectionType = connectionType;
     }
 
     public List<String> getHosts() {

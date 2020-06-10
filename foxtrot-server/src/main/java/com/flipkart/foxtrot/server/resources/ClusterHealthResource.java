@@ -26,6 +26,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -34,6 +35,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /**
  * Created by swapnil on 20/01/16.
@@ -43,6 +45,8 @@ import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/clusterhealth")
 @Singleton
+@PermitAll
+@Order(20)
 public class ClusterHealthResource {
 
     private final QueryStore queryStore;

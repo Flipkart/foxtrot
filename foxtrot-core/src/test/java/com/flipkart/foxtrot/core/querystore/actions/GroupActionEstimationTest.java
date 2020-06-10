@@ -57,7 +57,7 @@ public class GroupActionEstimationTest extends ActionTest {
     }
 
 
-    @Ignore
+    /*@Ignore
     @Test(expected = CardinalityOverflowException.class)
     // Block queries on high cardinality fields
     public void testEstimationNoFilterHighCardinality() throws Exception {
@@ -66,7 +66,7 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setNesting(Collections.singletonList("deviceId"));
 
         getQueryExecutor().execute(groupRequest);
-    }
+    }*/
 
     @Test
     // High cardinality field queries are allowed if in a small time span
@@ -111,7 +111,7 @@ public class GroupActionEstimationTest extends ActionTest {
                 .isEmpty());
     }
 
-    @Ignore
+    /*@Ignore
     @Test(expected = CardinalityOverflowException.class)
     public void testEstimationGTFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -122,7 +122,7 @@ public class GroupActionEstimationTest extends ActionTest {
                 .value(10)
                 .build()));
         getQueryExecutor().execute(groupRequest);
-    }
+    }*/
 
     @Test
     // High cardinality field queries with filters including small subset are allowed

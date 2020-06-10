@@ -55,9 +55,12 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.DateTime;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 30/03/14 Time: 10:27 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 30/03/14
+ * Time: 10:27 PM
  */
 @AnalyticsProvider(opcode = "trend", request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class TrendAction extends Action<TrendRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
@@ -91,7 +94,7 @@ public class TrendAction extends Action<TrendRequest> {
         long filterHashKey = 0L;
         if (query.getFilters() != null) {
             for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
         if (query.getValues() != null) {

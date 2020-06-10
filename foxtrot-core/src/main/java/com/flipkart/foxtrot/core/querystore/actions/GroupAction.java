@@ -78,10 +78,13 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.Interval;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 27/03/14 Time: 7:16 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 27/03/14
+ * Time: 7:16 PM
  */
 @AnalyticsProvider(opcode = "group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
 @Slf4j
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class GroupAction extends Action<GroupRequest> {
 
     private static final long MAX_CARDINALITY = 50000;
@@ -112,7 +115,7 @@ public class GroupAction extends Action<GroupRequest> {
         GroupRequest query = getParameter();
         if (null != query.getFilters()) {
             for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
 

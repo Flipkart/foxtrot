@@ -14,15 +14,16 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Query;
+import com.flipkart.foxtrot.common.QueryResponse;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import java.util.ArrayList;
@@ -41,14 +42,17 @@ import org.slf4j.LoggerFactory;
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 1:00 PM
  */
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
 
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     public FilterAction(Query parameter,
                         AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -73,7 +77,7 @@ public class FilterAction extends Action<Query> {
         Query query = getParameter();
         if (null != query.getFilters()) {
             for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
         filterHashKey += 31 * (query.getSort() != null
@@ -100,6 +104,11 @@ public class FilterAction extends Action<Query> {
 
         if (parameter.getLimit() <= 0) {
             validationErrors.add("limit must be positive integer");
+        }
+
+        if (parameter.getLimit() > elasticsearchTuningConfig.getDocumentsLimitAllowed()) {
+            validationErrors.add(String.format("Limit more than %s is not supported",
+                    elasticsearchTuningConfig.getDocumentsLimitAllowed()));
         }
 
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
@@ -154,8 +163,14 @@ public class FilterAction extends Action<Query> {
             ids.add(searchHit.getId());
         }
         if (ids.isEmpty()) {
-            return new QueryResponse(Collections.<Document>emptyList(), 0);
+            return QueryResponse.builder()
+                    .documents(Collections.<Document>emptyList())
+                    .totalHits(0)
+                    .build();
         }
-        return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.getTotalHits());
+        return QueryResponse.builder()
+                .totalHits(searchHits.totalHits)
+                .documents(getQueryStore().getAll(parameter.getTable(), ids, true))
+                .build();
     }
 }

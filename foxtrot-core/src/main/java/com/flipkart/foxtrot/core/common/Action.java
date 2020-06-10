@@ -20,8 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.exception.MalformedQueryException;
+import com.flipkart.foxtrot.common.query.CacheKeyVisitor;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
@@ -37,11 +39,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.elasticsearch.action.ActionRequestBuilder;
+import org.hibernate.validator.internal.xml.binding.ParameterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 12:23 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 24/03/14
+ * Time: 12:23 AM
  */
 public abstract class Action<P extends ActionRequest> {
 
@@ -51,6 +56,7 @@ public abstract class Action<P extends ActionRequest> {
     private final ObjectMapper objectMapper;
     private P parameter;
     private ElasticsearchConnection connection;
+    private CacheKeyVisitor cacheKeyVisitor;
 
     protected Action(P parameter,
                      AnalyticsLoader analyticsLoader) {
@@ -59,6 +65,7 @@ public abstract class Action<P extends ActionRequest> {
         this.queryStore = analyticsLoader.getQueryStore();
         this.connection = analyticsLoader.getElasticsearchConnection();
         this.objectMapper = analyticsLoader.getObjectMapper();
+        this.cacheKeyVisitor = new CacheKeyVisitor();
     }
 
     public String cacheKey() {
@@ -129,7 +136,9 @@ public abstract class Action<P extends ActionRequest> {
      * Returns a metric key for current action. Ideally this key's cardinality should be less since each new value of
      * this key will create new JMX metric
      * <p>
-     * Sample use cases - Used for reporting per action success/failure metrics cache hit/miss metrics
+     * Sample use cases - Used for reporting per action
+     * success/failure metrics
+     * cache hit/miss metrics
      *
      * @return metric key for current action
      */
@@ -165,6 +174,10 @@ public abstract class Action<P extends ActionRequest> {
 
     public ObjectMapper getObjectMapper() {
         return objectMapper;
+    }
+
+    public CacheKeyVisitor getCacheKeyVisitor() {
+        return cacheKeyVisitor;
     }
 
     protected Filter getDefaultTimeSpan() {

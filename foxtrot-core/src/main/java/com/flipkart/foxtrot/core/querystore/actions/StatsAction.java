@@ -39,6 +39,7 @@ import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
  */
 
 @AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = true)
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class StatsAction extends Action<StatsRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
@@ -82,7 +83,7 @@ public class StatsAction extends Action<StatsRequest> {
         StatsRequest statsRequest = getParameter();
         if (null != statsRequest.getFilters()) {
             for (Filter filter : statsRequest.getFilters()) {
-                statsHashKey += 31 * filter.hashCode();
+                statsHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
 

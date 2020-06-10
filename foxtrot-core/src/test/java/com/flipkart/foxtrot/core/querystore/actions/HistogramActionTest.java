@@ -200,7 +200,6 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397586600000L, 4));
         counts.add(new HistogramResponse.Count(1397932200000L, 1));
         counts.add(new HistogramResponse.Count(1398623400000L, 1));
-        assertTrue(response.getCounts()
-                .equals(counts));
+        assertEquals(response.getCounts(), counts);
     }
 }

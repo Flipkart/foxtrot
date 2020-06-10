@@ -295,7 +295,7 @@ LineTile.prototype.downloadWidget = function (object) {
     , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
   }
   var refObject = this.object;
-  
+
   $.ajax({
     url: apiUrl + "/v1/analytics/download",
     type: 'POST',

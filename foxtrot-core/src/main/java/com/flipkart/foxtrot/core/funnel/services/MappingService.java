@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
  Created by mudit.g on Jan, 2019
  ***/
 @Singleton
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class MappingService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MappingService.class);

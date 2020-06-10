@@ -62,7 +62,7 @@ public class GroupActionTest extends ActionTest {
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
-    @Ignore
+    /*@Ignore
     @Test
     public void testGroupActionSingleQueryException() throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
@@ -77,7 +77,7 @@ public class GroupActionTest extends ActionTest {
             ex.printStackTrace();
             assertEquals(ErrorCode.ACTION_EXECUTION_ERROR, ex.getCode());
         }
-    }
+    }*/
 
     @Test
     public void testGroupActionSingleFieldNoFilter() throws FoxtrotException, JsonProcessingException {

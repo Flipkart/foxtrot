@@ -51,8 +51,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     private static final String TYPE = "console_data";
     private static final int SCROLL_SIZE = 500;
     private static final long SCROLL_TIMEOUT = TimeUnit.MINUTES.toMillis(2);
-    private ElasticsearchConnection connection;
-    private ObjectMapper mapper;
+    private final ElasticsearchConnection connection;
+    private final ObjectMapper mapper;
 
     @Inject
     public ElasticsearchConsolePersistence(ElasticsearchConnection connection,

@@ -20,18 +20,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
+import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.config.QueryConfig;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.server.auth.UserPrincipal;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.responseprocessors.Flattener;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
+import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -44,7 +48,9 @@ import javax.ws.rs.core.StreamingOutput;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 27/03/14 Time: 2:05 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 27/03/14
+ * Time: 2:05 AM
  */
 @Slf4j
 @Path("/v1/analytics")
@@ -52,6 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/analytics")
 @Singleton
+@RolesAllowed(FoxtrotRole.Value.QUERY)
 public class AnalyticsResource {
 
     private final QueryExecutorFactory executorFactory;
@@ -70,7 +77,9 @@ public class AnalyticsResource {
     @POST
     @Timed
     @ApiOperation("runSync")
-    public ActionResponse runSync(@Valid final ActionRequest request) {
+    @RolesAllowed(FoxtrotRole.Value.QUERY)
+    public ActionResponse runSync(@Auth final UserPrincipal userPrincipal,
+                                  @Valid final ActionRequest request) {
         preprocess(request);
         return executorFactory.getExecutor(request)
                 .execute(request);
@@ -80,7 +89,9 @@ public class AnalyticsResource {
     @Path("/async")
     @Timed
     @ApiOperation("runSyncAsync")
-    public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) {
+    @RolesAllowed(FoxtrotRole.Value.QUERY)
+    public AsyncDataToken runSyncAsync(@Auth final UserPrincipal userPrincipal,
+                                       @Valid final ActionRequest request) {
         return executorFactory.getExecutor(request)
                 .executeAsync(request);
     }

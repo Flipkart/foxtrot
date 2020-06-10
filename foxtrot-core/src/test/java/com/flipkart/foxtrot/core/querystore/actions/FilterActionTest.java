@@ -23,10 +23,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Query;
+import com.flipkart.foxtrot.common.QueryResponse;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import lombok.SneakyThrows;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.junit.Before;
@@ -764,8 +765,9 @@ public class FilterActionTest extends ActionTest {
         compare(documents, actualResponse.getDocuments());
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("squid:CallToDeprecatedMethod")
     @Test
+    @SneakyThrows
     public void testMissingIndicesQuery() throws FoxtrotException {
         final ObjectMapper mapper = getMapper();
         List<Document> documents = TestUtils.getQueryDocumentsDifferentDate(mapper,
@@ -807,6 +809,33 @@ public class FilterActionTest extends ActionTest {
                 .size());
     }
 
+    /*@Test
+    public void testScrollResponse() throws FoxtrotException, JsonProcessingException {
+        Query query = new Query();
+        query.setTable(TestUtils.TEST_TABLE_NAME);
+
+        query.setScrollRequest(true);
+        query.setLimit(1);
+
+        List<Document> documents = new ArrayList<>();
+        documents.add(
+                TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"},
+                        getMapper()));
+        QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
+        compare(documents, actualResponse.getDocuments());
+
+        assertNotNull(actualResponse.getScrollId());
+
+        query.setScrollId(actualResponse.getScrollId());
+        actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
+
+        List<Document> secondScrollRequestDocs = new ArrayList<>();
+        secondScrollRequestDocs.add(
+                TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"},
+                        getMapper()));
+        compare(secondScrollRequestDocs, actualResponse.getDocuments());
+
+    }*/
 
     public void compare(List<Document> expectedDocuments,
                         List<Document> actualDocuments) {

@@ -3,7 +3,9 @@ package com.flipkart.foxtrot.sql.responseprocessors.model;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 public class FlatRepresentation {
 
     private String opcode;

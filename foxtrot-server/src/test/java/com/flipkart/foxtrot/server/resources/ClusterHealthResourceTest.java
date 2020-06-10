@@ -20,19 +20,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -79,7 +73,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
                 .size() > 0);
     }
 
-    @Ignore
+    /*@Ignore
     @Test
     public void testIndicesStats() throws FoxtrotException {
         List<Document> documents = new ArrayList<Document>();
@@ -97,8 +91,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
         documents.add(document2);
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
-        JsonNode response = resources.client()
-                .target("/v1/clusterhealth/indicesstats")
+        JsonNode response = resources.target("/v1/clusterhealth/indicesstats")
                 .request()
                 .get(JsonNode.class);
         Assert.assertEquals(2, response.path("primaries")
@@ -113,5 +106,5 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
                 .path("store")
                 .path("sizeInBytes")
                 .asInt());
-    }
+    }*/
 }

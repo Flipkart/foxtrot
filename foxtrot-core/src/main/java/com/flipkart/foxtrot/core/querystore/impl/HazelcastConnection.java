@@ -22,7 +22,7 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.instance.GroupProperty;
+import com.hazelcast.spi.properties.GroupProperty;
 import com.marathon.hazelcast.servicediscovery.MarathonDiscoveryStrategyFactory;
 import io.dropwizard.lifecycle.Managed;
 import java.net.InetAddress;
@@ -40,12 +40,13 @@ import ru.vyarus.dropwizard.guice.module.installer.order.Order;
  */
 @Order(10)
 @Singleton
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class HazelcastConnection implements Managed {
 
     public static final String HEALTHCHECK_MAP = "healthCheck";
     private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
+    private final Config hazelcastConfig;
     private HazelcastInstance hazelcast;
-    private Config hazelcastConfig;
 
     @Inject
     public HazelcastConnection(ClusterConfig clusterConfig) throws UnknownHostException {
@@ -84,11 +85,11 @@ public class HazelcastConnection implements Managed {
                 hzConfig.getGroupConfig()
                         .setName(clusterConfig.getName());
                 hzConfig.getGroupConfig()
-                        .setPassword(clusterConfig.getName());
-                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED, "true");
-                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED, "true");
-                hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "true");
-                hzConfig.setProperty(GroupProperty.SOCKET_BIND_ANY, "true");
+                        .setPassword("foxtrot");
+                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED.getName(), "true");
+                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED.getName(), "true");
+                hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY.getName(), "true");
+                hzConfig.setProperty(GroupProperty.SOCKET_BIND_ANY.getName(), "true");
 
                 NetworkConfig networkConfig = hzConfig.getNetworkConfig();
                 networkConfig.setPublicAddress(System.getenv("HOST") + ":" + System.getenv("PORT_5701"));
@@ -128,6 +129,15 @@ public class HazelcastConnection implements Managed {
                 awsConfig.setTagValue(awsClusterDiscoveryConfig.getTagValue());
                 hazelcastConfigNetworkConfigJoin.setAwsConfig(awsConfig);
                 hazelcastConfigNetworkConfigJoin.getAwsConfig()
+                        .setEnabled(true);
+                break;
+            case FOXTROT_KUBERNETES:
+                logger.info("Using Kubernetes");
+                JoinConfig kbConfig = hzConfig.getNetworkConfig()
+                        .getJoin();
+                kbConfig.getMulticastConfig()
+                        .setEnabled(false);
+                kbConfig.getKubernetesConfig()
                         .setEnabled(true);
                 break;
             default:

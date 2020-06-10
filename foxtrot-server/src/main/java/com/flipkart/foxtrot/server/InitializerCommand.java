@@ -16,12 +16,12 @@
 
 package com.flipkart.foxtrot.server;
 
-import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
+import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import io.dropwizard.cli.ConfiguredCommand;
@@ -70,6 +70,8 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
         createMetaIndex(connection, TableMapStore.TABLE_META_INDEX, numReplicas);
         createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX_HISTORY, numReplicas);
         createMetaIndex(connection, FqlStoreServiceImpl.FQL_STORE_INDEX, numReplicas);
+        createMetaIndex(connection, "user-meta", numReplicas);
+        createMetaIndex(connection, "tokens", numReplicas);
 
         logger.info("Creating mapping");
         PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();

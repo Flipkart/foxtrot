@@ -22,6 +22,7 @@ import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.exception.BadRequestException;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.foxtrot.flipkart.translator.TableTranslator;
 import com.google.common.collect.Lists;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -48,9 +50,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 15/03/14
- * Time: 10:55 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:55 PM
  */
 @Path("/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
@@ -58,7 +58,6 @@ import javax.ws.rs.core.Response;
 @Singleton
 public class DocumentResource {
 
-    private static final String EVENT_TYPE = "eventType";
     private final QueryStore queryStore;
     private final TableTranslator tableTranslator;
 
@@ -72,6 +71,7 @@ public class DocumentResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
+    @RolesAllowed(FoxtrotRole.Value.INGEST)
     @ApiOperation("Save Document")
     public Response saveDocument(@PathParam("table") String table,
                                  @Valid final Document document) {
@@ -90,6 +90,7 @@ public class DocumentResource {
     @Path("/bulk")
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
+    @RolesAllowed(FoxtrotRole.Value.INGEST)
     @ApiOperation("Save list of documents")
     public Response saveDocuments(@PathParam("table") String table,
                                   @Valid final List<Document> documents) {
@@ -128,6 +129,7 @@ public class DocumentResource {
     @GET
     @Path("/{id}")
     @Timed
+    @RolesAllowed(FoxtrotRole.Value.QUERY)
     @ApiOperation("Get Document")
     public Response getDocument(@PathParam("table") final String table,
                                 @PathParam("id") @NotNull final String id) {
@@ -137,6 +139,7 @@ public class DocumentResource {
 
     @GET
     @Timed
+    @RolesAllowed(FoxtrotRole.Value.QUERY)
     @ApiOperation("Get Documents")
     public Response getDocuments(@PathParam("table") final String table,
                                  @QueryParam("id") @NotNull final List<String> ids) {

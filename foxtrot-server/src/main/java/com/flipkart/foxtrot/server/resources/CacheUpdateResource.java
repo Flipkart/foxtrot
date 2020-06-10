@@ -17,6 +17,7 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.concurrent.ExecutorService;
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -34,10 +35,11 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/cache/update")
 @Singleton
+@PermitAll
 public class CacheUpdateResource {
 
-    private ExecutorService executorService;
-    private TableMetadataManager tableMetadataManager;
+    private final ExecutorService executorService;
+    private final TableMetadataManager tableMetadataManager;
 
     @Inject
     public CacheUpdateResource(ExecutorService executorService,
