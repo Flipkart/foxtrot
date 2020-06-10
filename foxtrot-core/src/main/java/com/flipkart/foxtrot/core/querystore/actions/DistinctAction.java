@@ -16,20 +16,15 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfi
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Sets;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,12 +54,12 @@ public class DistinctAction extends Action<DistinctRequest> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         DistinctRequest query = getParameter();
-        if(null != query.getFilters()) {
-            for(Filter filter : query.getFilters()) {
+        if (null != query.getFilters()) {
+            for (Filter filter : query.getFilters()) {
                 filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
-        for(int i = 0; i < query.getNesting()
+        for (int i = 0; i < query.getNesting()
                 .size(); i++) {
             filterHashKey += 31 * query.getNesting()
                     .get(i)

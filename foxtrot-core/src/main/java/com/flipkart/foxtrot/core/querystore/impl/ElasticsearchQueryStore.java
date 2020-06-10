@@ -236,9 +236,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 logger.info("QueryStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
                 if (bulkResponse.hasFailures()) {
-
                     printFailedDocuments(table, documents, bulkResponse);
-
                     MetricUtil.getInstance()
                             .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
                     throw FoxtrotExceptions.createExecutionException(table,
@@ -248,32 +246,31 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             }
         } catch (JsonProcessingException e) {
-            log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents,
-                    e.getMessage());
-            logger.error("Error while saving documents to table: {}", table, e);
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            logAndRegister(table, documents, stopwatch, action, e);
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents,
-                    e.getMessage());
-            logger.error("Error while saving documents to table: {}", table, e);
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            logAndRegister(table, documents, stopwatch, action, e);
             Thread.currentThread()
                     .interrupt();
             throw FoxtrotExceptions.createExecutionException(table, e);
+        } catch (FoxtrotException e) {
+            logAndRegister(table, documents, stopwatch, action, e);
+            throw e;
         } catch (Exception e) {
-            log.debug("Error while saving documents to table: {}, documents :{}, error: {}", table, documents,
-                    e.getMessage());
-            logger.error("Error while saving documents to table: {}", table, e);
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            if (e instanceof FoxtrotException) {
-                throw e;
-            }
+            logAndRegister(table, documents, stopwatch, action, e);
             throw FoxtrotExceptions.createExecutionException(table, e);
         }
+    }
+
+    private void logAndRegister(String table,
+                                List<Document> documents,
+                                Stopwatch stopwatch,
+                                String action,
+                                Exception e) {
+        log.debug("{}: {}, documents :{}, error: {}", ERROR_SAVING_DOCUMENTS, table, documents, e.getMessage());
+        log.error("{}: {}", ERROR_SAVING_DOCUMENTS, table, e);
+        MetricUtil.getInstance()
+                .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     private void printFailedDocuments(String table,

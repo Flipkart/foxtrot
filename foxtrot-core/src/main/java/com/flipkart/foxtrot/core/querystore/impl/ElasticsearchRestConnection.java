@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig.ConnectionType;
 import io.dropwizard.lifecycle.Managed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -38,7 +39,7 @@ public class ElasticsearchRestConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting ElasticSearch Client");
-        final int defaultPort = config.getConnectionType() == ElasticsearchRestConfig.ConnectionType.HTTP
+        final int defaultPort = config.getConnectionType() == ConnectionType.HTTP
                                 ? 80
                                 : 443;
         int port = config.getPort() == null
@@ -47,7 +48,7 @@ public class ElasticsearchRestConnection implements Managed {
         val hosts = config.getHosts()
                 .stream()
                 .map(host -> {
-                    final String scheme = config.getConnectionType() == ElasticsearchRestConfig.ConnectionType.HTTP
+                    final String scheme = config.getConnectionType() == ConnectionType.HTTP
                                           ? "http"
                                           : "https";
                     return new HttpHost(host, port, scheme);

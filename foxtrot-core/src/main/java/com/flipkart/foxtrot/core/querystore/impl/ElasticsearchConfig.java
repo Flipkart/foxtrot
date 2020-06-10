@@ -13,7 +13,6 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchRestConfig.ConnectionType;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -40,9 +39,9 @@ public class ElasticsearchConfig {
     private long getQueryTimeout;
     private Integer port;
     @Builder.Default
-    private ElasticsearchRestConfig.ConnectionType connectionType = ElasticsearchRestConfig.ConnectionType.HTTP;
+    private ConnectionType connectionType = ConnectionType.HTTP;
 
-    public ElasticsearchRestConfig.ConnectionType getConnectionType() {
+    public ConnectionType getConnectionType() {
         return connectionType;
     }
 

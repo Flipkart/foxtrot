@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
-import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.exception.MalformedQueryException;
 import com.flipkart.foxtrot.common.query.CacheKeyVisitor;
@@ -39,7 +38,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.elasticsearch.action.ActionRequestBuilder;
-import org.hibernate.validator.internal.xml.binding.ParameterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

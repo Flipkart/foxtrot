@@ -8,7 +8,7 @@ server:
 
 elasticsearch:
   hosts:
-  - stg-els601.phonepe.nm2
+    - stg-els601.phonepe.nm2
   cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000

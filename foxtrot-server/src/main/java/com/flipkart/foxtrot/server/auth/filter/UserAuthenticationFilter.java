@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.server.auth.filter;
 
 import com.flipkart.foxtrot.server.auth.AuthConfig;
 import com.flipkart.foxtrot.server.auth.UserPrincipal;
-import com.flipkart.foxtrot.server.auth.sessionstore.SessionDataStore;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import io.dropwizard.auth.AuthenticationException;

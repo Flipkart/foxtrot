@@ -50,7 +50,7 @@ deletionconfig:
 
 
 logRotationFileConfig:
-    minIndex: 0
-    maxIndex: 3
-    maxFileSize: 1MB
-    filePattern: /var/log/flipkart/foxtrot-server/server-%i.log.gz
+  minIndex: 0
+  maxIndex: 3
+  maxFileSize: 1MB
+  filePattern: /var/log/flipkart/foxtrot-server/server-%i.log.gz

@@ -72,7 +72,6 @@ import lombok.val;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.get.GetResponse;
@@ -80,7 +79,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -713,7 +711,7 @@ public class ElasticsearchQueryStoreTest {
                 .size() > 0);
     }
 
-    @Test
+    /*@Test
     @Ignore
     public void testEsNodesStats() throws FoxtrotException, ExecutionException, InterruptedException {
         List<Document> documents = Lists.newArrayList();
@@ -729,7 +727,7 @@ public class ElasticsearchQueryStoreTest {
         assertNotNull(clusterHealth);
         assertEquals(1, clusterHealth.getNodesMap()
                 .size());
-    }
+    }*/
 
     @Test
     public void testIndicesStats() throws FoxtrotException, ExecutionException, InterruptedException {
