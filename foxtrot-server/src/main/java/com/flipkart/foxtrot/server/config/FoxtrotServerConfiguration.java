@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.server.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
@@ -65,6 +66,7 @@ public class FoxtrotServerConfiguration extends Configuration {
     private final HbaseConfig hbase;
 
     @Valid
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private final ElasticsearchConfig elasticsearch;
 
     @Valid
@@ -99,6 +101,7 @@ public class FoxtrotServerConfiguration extends Configuration {
     private QueryConfig queryConfig;
 
     @NonNull
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private GandalfClientConfig gandalfConfig = new GandalfClientConfig();
 
     @NonNull
@@ -113,6 +116,7 @@ public class FoxtrotServerConfiguration extends Configuration {
     @NotNull
     private boolean restrictAccess;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private GandalfConfiguration gandalfConfiguration;
 
     private FunnelConfiguration funnelConfiguration;
