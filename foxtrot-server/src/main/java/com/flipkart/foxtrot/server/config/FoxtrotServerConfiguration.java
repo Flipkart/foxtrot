@@ -66,6 +66,7 @@ public class FoxtrotServerConfiguration extends Configuration {
     private final HbaseConfig hbase;
 
     @Valid
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private final ElasticsearchConfig elasticsearch;
 
     @Valid

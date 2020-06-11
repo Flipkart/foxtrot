@@ -16,11 +16,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 12:28 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 14/03/14
+ * Time: 12:28 AM
  */
 @NoArgsConstructor
 public class ElasticsearchConfig {
@@ -38,12 +39,6 @@ public class ElasticsearchConfig {
     private String tableNamePrefix = "foxtrot";
     private long getQueryTimeout;
     private Integer port;
-    @Builder.Default
-    private ConnectionType connectionType = ConnectionType.HTTP;
-
-    public ConnectionType getConnectionType() {
-        return connectionType;
-    }
 
     public List<String> getHosts() {
         return hosts;
@@ -81,11 +76,6 @@ public class ElasticsearchConfig {
         return getQueryTimeout > 0
                ? getQueryTimeout
                : DEFAULT_TIMEOUT;
-    }
-
-    public enum ConnectionType {
-        HTTP,
-        HTTPS
     }
 
 }

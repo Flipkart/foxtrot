@@ -12,7 +12,6 @@ elasticsearch:
   cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
-  connectionType: HTTP
   port: 9200
 
 serviceDiscovery:
