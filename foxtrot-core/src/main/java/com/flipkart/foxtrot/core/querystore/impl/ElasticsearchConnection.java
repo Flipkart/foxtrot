@@ -19,6 +19,7 @@ import io.dropwizard.lifecycle.Managed;
 import java.net.InetAddress;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -35,9 +36,9 @@ import ru.vyarus.dropwizard.guice.module.installer.order.Order;
  */
 @Singleton
 @Order(5)
+@Slf4j
 public class ElasticsearchConnection implements Managed {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConnection.class.getSimpleName());
     private final ElasticsearchConfig config;
     private Client client;
 
@@ -48,7 +49,7 @@ public class ElasticsearchConnection implements Managed {
 
     @Override
     public void start() throws Exception {
-        logger.info("Starting ElasticSearch Client");
+        log.info("Starting ElasticSearch Client");
         Settings settings = Settings.builder()
                 .put("cluster.name", config.getCluster())
                 .put("client.transport.ignore_cluster_name", true)
@@ -63,16 +64,16 @@ public class ElasticsearchConnection implements Managed {
             String[] tokenizedHosts = host.split(",");
             for (String tokenizedHost : tokenizedHosts) {
                 esClient.addTransportAddress(new TransportAddress(InetAddress.getByName(tokenizedHost), port));
-                logger.info("Added ElasticSearch Node : {}", host);
+                log.info("Added ElasticSearch Node : {}", host);
             }
         }
         client = esClient;
-        logger.info("Started ElasticSearch Client");
+        log.info("Started ElasticSearch Client");
     }
 
     @Override
     public void stop() throws Exception {
-        logger.info("Stopping ElasticSearch client");
+        log.info("Stopping ElasticSearch client");
         if (client != null) {
             client.close();
         }
