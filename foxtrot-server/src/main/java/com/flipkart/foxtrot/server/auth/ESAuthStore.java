@@ -19,14 +19,9 @@ import org.elasticsearch.rest.RestStatus;
 @Slf4j
 public class ESAuthStore implements AuthStore {
 
-    private final ElasticsearchConnection connection;
-    private final ObjectMapper mapper;
-
     @Inject
     public ESAuthStore(ElasticsearchConnection connection,
                        ObjectMapper mapper) {
-        this.connection = connection;
-        this.mapper = mapper;
     }
 
     @Override
