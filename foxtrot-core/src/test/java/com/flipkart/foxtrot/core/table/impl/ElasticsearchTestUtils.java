@@ -21,7 +21,6 @@ import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContain
 
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchRestConnection;
 import io.appform.testcontainers.elasticsearch.config.ElasticsearchContainerConfiguration;
 import java.util.Collections;
 import lombok.Getter;
@@ -41,16 +40,6 @@ public class ElasticsearchTestUtils {
         // To make sure we load class which will start the server.
         ElasticsearchContainerHolder.containerLoaded = true;
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(
-                ElasticsearchContainerHolder.getElasticsearchConfig());
-        elasticsearchConnection.start();
-
-        return elasticsearchConnection;
-    }
-
-    public static synchronized ElasticsearchRestConnection getRestConnection() throws Exception {
-        // To make sure we load class which will start the server.
-        ElasticsearchContainerHolder.containerLoaded = true;
-        ElasticsearchRestConnection elasticsearchConnection = new ElasticsearchRestConnection(
                 ElasticsearchContainerHolder.getElasticsearchConfig());
         elasticsearchConnection.start();
 
