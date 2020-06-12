@@ -72,11 +72,17 @@ function setCountChartFormValues(object) {
 CountTile.prototype.getQuery = function(object) {
   this.object = object;
   var filters = [];
-  if(globalFilters) {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-  } else {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-  }
+  // -------------- Starts added today yesterday and daybefore yesterday---------------
+  todayTomorrow(
+    filters,
+    globalFilters,
+    getGlobalFilters,
+    getPeriodSelect,
+    timeValue,
+    object
+  );
+  // -------------- Ends added today yesterday and daybefore yesterday-----------------
+  
 
   if(object.tileContext.filters) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
@@ -155,12 +161,17 @@ CountTile.prototype.render = function (displayValue) {
 CountTile.prototype.downloadWidget = function(object) {
   this.object = object;
   var filters = [];
-  if(globalFilters) {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-  } else {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-  }
-
+  // -------------- Starts added today yesterday and daybefore yesterday---------------
+  todayTomorrow(
+    filters,
+    globalFilters,
+    getGlobalFilters,
+    getPeriodSelect,
+    timeValue,
+    object
+  );
+  // -------------- Ends added today yesterday and daybefore yesterday-----------------
+  
   if(object.tileContext.filters) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
       filters.push(object.tileContext.filters[i]);
