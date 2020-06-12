@@ -715,8 +715,6 @@ else{
 
  }
 
-
-
 //  -------- Starts Added today tomorrow day before yesterday for download and chart rendering -------------
 
 const todayTomorrow =  function(filters_arr, gf_obj,get_gf,get_ps,tv_fn,filter_obj ) {
@@ -780,4 +778,4 @@ else{
 }
 
 }
-//  -------- Ends Added today tomorrow day before yesterday for download and chart rendering -------------
+//  -------- Ends Added today tomorrow day before yesterday for download and chart rendering ----------------
