@@ -730,8 +730,8 @@ const todayTomorrow =  function(filters_arr, gf_obj,get_gf,get_ps,tv_fn,filter_o
   var timezeroYesterday = new Date(filteryear ,filtermonth,  filterdate-1).getTime();
   var timezeroBDYesterday = new Date(filteryear ,filtermonth,  filterdate-2).getTime();
 
-  var timeendYesterday = timezeroYesterday +86300000;         //86300000 is one day timestamp value 
-  var timeendBDYesterday = timezeroBDYesterday +86300000;    
+  var timeendYesterday = timezeroYesterday +86399000;         //86399000 is one day timestamp value 
+  var timeendBDYesterday = timezeroBDYesterday +86399000;    
 
 
   if(gf_obj) {
