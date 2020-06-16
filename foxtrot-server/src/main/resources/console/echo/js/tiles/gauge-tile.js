@@ -71,11 +71,16 @@ function clearGaugeChartForm() {
 GaugeTile.prototype.getQuery = function (object) {
   this.object = object;
   var filters = [];
-  if(globalFilters) {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-  } else {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-  }
+  // -------------- Starts added today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// -------------- Ends added today yesterday and daybefore yesterday-----------------
 
   if(object.tileContext.filters) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
@@ -239,11 +244,16 @@ GaugeTile.prototype.render = function (total, diff, dataLength) {
 GaugeTile.prototype.downloadWidget = function (object) {
   this.object = object;
   var filters = [];
-  if(globalFilters) {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-  } else {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-  }
+// ------- Starts added  download for today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
 
   if(object.tileContext.filters) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {

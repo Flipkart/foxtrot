@@ -665,6 +665,16 @@ function getPeriodText(text) {
   else if (text == "h") {
     return "hours";
   }
+  else if (text == "t") {
+    return "minutes";
+  }
+  else if (text == "y") {
+    return "minutes";
+  }
+  else if (text == "dby") {
+    return "minutes";
+  }
+
   else {
     return "minutes";
   }
