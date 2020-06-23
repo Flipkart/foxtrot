@@ -317,7 +317,11 @@ function prepareListOption(array, appendVersion) {
 }
 
 function appendConsoleList(array) { // console list to dropdown
-  $("#listConsole").append(prepareListOption(array, false).join(''));
+  // $("#listConsole").append(prepareListOption(array, false).join(''));
+  console.log(array);
+  var list = prepareListOption(array, false).join('');
+  $("#listConsole").append(list);
+  $("#listConsoleCopyTab").append(list); // for copy tabs
 }
 
 function appendVersionConsoleList(array) {
@@ -329,7 +333,7 @@ function appendVersionConsoleList(array) {
  * Refresh pages without loading
  * @param {*} selectedConsole
  */
-function loadConsolesWithoutRefreshing(selectedConsole) {
+function loadConsolesWithoutRefreshing(selectedConsole ,data) {
 
   stopRefreshInterval();
   getConsoleById(selectedConsole);
@@ -351,7 +355,14 @@ function loadConsolesWithoutRefreshing(selectedConsole) {
   // Update broweser URL
   var fullUrl = window.location.href;
   var newUrl = fullUrl.substr(0, fullUrl.indexOf('?'));
-  window.history.pushState(null, "Echo", newUrl+"?console="+selectedConsole);
+  // window.history.pushState(null, "Echo", newUrl+"?console="+selectedConsole);
+  if(data.isCopy) {
+    window.history.pushState(null, "Echo", newUrl+"?console="+selectedConsole+"&tab="+data.tabName);
+  } else {
+    window.history.pushState(null, "Echo", newUrl+"?console="+selectedConsole);
+  }
+
+
 
 
   setTimeout(function () { // triiger version console api
@@ -389,7 +400,8 @@ function loadParticularConsole() { // reload page based on selected console
     window.location.href = "/echo/index.htm?console=" + selectedConsole
  } else {
    //window.location.assign("index.htm?console=" + selectedConsole);
-   loadConsolesWithoutRefreshing(selectedConsole)
+  //  loadConsolesWithoutRefreshing(selectedConsole)
+  loadConsolesWithoutRefreshing(selectedConsole, {"isCopy": false, "tabName": ""})  
  }
 }
 
