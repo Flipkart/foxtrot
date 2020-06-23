@@ -206,7 +206,10 @@ public class QueryTranslator extends SqlElementVisitor {
             case STATSTREND:
                 request = createStatsTrendActionRequest();
                 break;
-
+            case SUM:
+            case AVG:
+            case MIN:
+            case MAX:
             case STATS:
                 request = createStatsActionRequest();
                 break;
