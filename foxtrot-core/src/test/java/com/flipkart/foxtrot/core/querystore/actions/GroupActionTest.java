@@ -436,6 +436,44 @@ public class GroupActionTest extends ActionTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    public void testGroupActionCountAggregation(){
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setNesting(Arrays.asList("os", "version"));
+        groupRequest.setAggregationField("battery");
+        groupRequest.setStats(Sets.newHashSet( Stat.COUNT));
+
+        Map<String, Object> response = Maps.newHashMap();
+        response.put("android",new HashMap<String, Object>() {{
+            put("1", ImmutableMap.of("count",2 ));
+            put("2", ImmutableMap.of("count", 3));
+            put("3", ImmutableMap.of("count",2));
+        }});
+        response.put("ios",new HashMap<String, Object>() {{
+            put("1", ImmutableMap.of("count",1));
+            put("2", ImmutableMap.of("count", 3));
+        }});
+
+        GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
+        assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("1")).get("count"),
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
+                        .get("1")).get("count"));
+        assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("2")).get("count"),
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
+                        .get("2")).get("count"));
+        assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("3")).get("count"),
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
+                        .get("3")).get("count"));
+        assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("ios")).get("1")).get("count"),
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("ios"))
+                        .get("1")).get("count"));
+        assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("ios")).get("2")).get("count"),
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("ios"))
+                        .get("2")).get("count"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     public void testGroupActionCountAndSumAggregation() {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
