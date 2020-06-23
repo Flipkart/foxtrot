@@ -108,6 +108,11 @@ public class GroupAction extends Action<GroupRequest> {
             }
         }
 
+        if (null != query.getUniqueCountOn()) {
+            filterHashKey += 31 * query.getUniqueCountOn()
+                    .hashCode();
+        }
+
         if (null != query.getAggregationField()) {
             filterHashKey += 31 * query.getAggregationField()
                     .hashCode();
