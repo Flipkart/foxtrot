@@ -445,13 +445,13 @@ public class GroupActionTest extends ActionTest {
 
         Map<String, Object> response = Maps.newHashMap();
         response.put("android",new HashMap<String, Object>() {{
-            put("1", ImmutableMap.of("count",2 ));
-            put("2", ImmutableMap.of("count", 3));
-            put("3", ImmutableMap.of("count",2));
+            put("1", ImmutableMap.of("count",2L ));
+            put("2", ImmutableMap.of("count", 3L));
+            put("3", ImmutableMap.of("count",2L));
         }});
         response.put("ios",new HashMap<String, Object>() {{
-            put("1", ImmutableMap.of("count",1));
-            put("2", ImmutableMap.of("count", 3));
+            put("1", ImmutableMap.of("count",1L));
+            put("2", ImmutableMap.of("count", 3L));
         }});
 
         GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
