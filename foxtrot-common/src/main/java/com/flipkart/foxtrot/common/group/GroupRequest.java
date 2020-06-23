@@ -15,11 +15,16 @@
  */
 package com.flipkart.foxtrot.common.group;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.enums.CountPrecision;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.stats.Stat;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -27,6 +32,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -41,7 +48,12 @@ public class GroupRequest extends ActionRequest {
     @NotEmpty
     private String table;
 
+    // Kept for backward compatibility
     private String uniqueCountOn;
+
+    private String aggregationField;
+
+    private Set<Stat> stats;
 
     @NotNull
     @NotEmpty
@@ -53,46 +65,29 @@ public class GroupRequest extends ActionRequest {
         super(Opcodes.GROUP);
     }
 
-    public GroupRequest(List<Filter> filters, String table, String uniqueCountOn, List<String> nesting) {
+    public GroupRequest(List<Filter> filters, String table, String uniqueCountOn,
+                        String aggregationField, Set<Stat> stats,
+                        List<String> nesting, CountPrecision precision) {
         super(Opcodes.GROUP, filters);
         this.table = table;
         this.uniqueCountOn = uniqueCountOn;
+        this.aggregationField = aggregationField;
+        this.stats = stats;
         this.nesting = nesting;
+        this.precision = precision;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
         return visitor.visit(this);
     }
 
-    public String getTable() {
-        return table;
-    }
-
-    public void setTable(String table) {
-        this.table = table;
-    }
-
-    public String getUniqueCountOn() {
-        return uniqueCountOn;
-    }
-
-    public void setUniqueCountOn(String uniqueCountOn) {
-        this.uniqueCountOn = uniqueCountOn;
-    }
-
-    public List<String> getNesting() {
-        return nesting;
-    }
-
-    public void setNesting(List<String> nesting) {
-        this.nesting = nesting;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this).appendSuper(super.toString())
                 .append("table", table)
+                .append("stats", stats)
                 .append("uniqueCountOn", uniqueCountOn)
+                .append("aggregationField", aggregationField)
                 .append("nesting", nesting)
                 .toString();
     }

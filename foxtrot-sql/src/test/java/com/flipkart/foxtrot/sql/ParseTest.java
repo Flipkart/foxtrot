@@ -98,4 +98,11 @@ public class ParseTest {
 
         }
     }
+
+    @Test
+    public void testAggregationQueryParse(){
+        QueryTranslator queryTranslator = new QueryTranslator();
+        String sql = "select sum(eventData.amount) from europa where eventType = 'AWESOME_EVENT' group by date.hourOfDay";
+        queryTranslator.translate(sql);
+    }
 }
