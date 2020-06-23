@@ -234,9 +234,11 @@ public class ParseTest {
     }
 
     @Test
-    public void testAggregationQueryParse() {
+    public void testGroupAggregationQueryParsing() {
         QueryTranslator queryTranslator = new QueryTranslator();
         String sql = "select sum(eventData.amount) from europa where eventType = 'AWESOME_EVENT' group by date.hourOfDay";
-        queryTranslator.translate(sql);
+        FqlQuery fqlQuery = queryTranslator.translate(sql);
+        Assert.assertTrue(fqlQuery instanceof FqlActionQuery);
+
     }
 }
