@@ -257,7 +257,7 @@ public class ParseTest {
     }
 
     @Test
-    public void testGroupAggregationCountQueryParsing() {
+    public void testGroupAggregationCountDistinctQueryParsing() {
         QueryTranslator queryTranslator = new QueryTranslator();
         String sql = "select count(distinct eventData.amount) from europa where eventType = 'AWESOME_EVENT' group by date.hourOfDay";
         FqlQuery fqlQuery = queryTranslator.translate(sql);
@@ -273,6 +273,28 @@ public class ParseTest {
         Assert.assertEquals("eventData.amount", groupRequest.getUniqueCountOn());
         Assert.assertNull(groupRequest.getStats());
 
+    }
+
+    @Test
+    public void testGroupAggregationCountQueryParsing() {
+        QueryTranslator queryTranslator = new QueryTranslator();
+        String sql = "select count(eventData.amount) from europa where eventType = 'AWESOME_EVENT' group by date.hourOfDay";
+        FqlQuery fqlQuery = queryTranslator.translate(sql);
+        Assert.assertTrue(fqlQuery instanceof FqlActionQuery);
+        FqlActionQuery actionQuery = (FqlActionQuery) fqlQuery;
+        Assert.assertTrue(actionQuery.getActionRequest() instanceof GroupRequest);
+        GroupRequest groupRequest = (GroupRequest) actionQuery.getActionRequest();
+
+        Assert.assertEquals(1, groupRequest.getNesting()
+                .size());
+        Assert.assertTrue(groupRequest.getNesting()
+                .contains("date.hourOfDay"));
+        Assert.assertEquals("eventData.amount", groupRequest.getAggregationField());
+        Assert.assertEquals(1, groupRequest.getStats()
+                .size());
+        Assert.assertNull(groupRequest.getUniqueCountOn());
+        Assert.assertTrue(groupRequest.getStats()
+                .contains(Stat.COUNT));
     }
 
     @Test
@@ -343,5 +365,4 @@ public class ParseTest {
                 .contains(Stat.MAX));
 
     }
-
 }

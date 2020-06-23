@@ -359,9 +359,11 @@ public class QueryTranslator extends SqlElementVisitor {
     private void setGroupAggregation(GroupRequest group) {
         if (calledAction instanceof CountRequest) {
             CountRequest countRequest = (CountRequest) this.calledAction;
-            boolean distinct = countRequest.isDistinct();
-            if (distinct) {
+            if (countRequest.isDistinct()) {
                 group.setUniqueCountOn(countRequest.getField());
+            } else {
+                group.setAggregationField(countRequest.getField());
+                group.setStats(Sets.newHashSet(Stat.COUNT));
             }
         } else if (calledAction instanceof StatsRequest) {
             StatsRequest statsRequest = (StatsRequest) this.calledAction;
