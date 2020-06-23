@@ -1715,7 +1715,7 @@ div.tab button:first-child {
   position: relative;
   float: right;
   right: 93px;
-  bottom: 270px;
+  bottom: 310px;
   width: 40px;
   height: 37px;
   background-color: #33434b;
@@ -3308,7 +3308,7 @@ div.tab button:first-child {
   width: 372px;
   background-color: #485962;
   margin-left: 95px;
-  height: 270px;
+  height: 310px;
 }
 
 #custom-modal-model-heading {
