@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.sql;
+package com.flipkart.foxtrot.sql.constants;
 
 /**
  * Created by rishabh.goyal on 17/11/14.

@@ -42,6 +42,7 @@ import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
@@ -54,6 +55,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.google.api.client.repackaged.com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
@@ -72,9 +74,11 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
+import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggregationBuilder;
 import org.joda.time.Interval;
 
 /**
@@ -93,10 +97,9 @@ public class GroupAction extends Action<GroupRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public GroupAction(GroupRequest parameter,
-                       AnalyticsLoader analyticsLoader) {
+    public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -118,10 +121,20 @@ public class GroupAction extends Action<GroupRequest> {
                 filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
-
         if (null != query.getUniqueCountOn()) {
             filterHashKey += 31 * query.getUniqueCountOn()
                     .hashCode();
+        }
+
+        if (null != query.getAggregationField()) {
+            filterHashKey += 31 * query.getAggregationField()
+                    .hashCode();
+        }
+
+        if(!CollectionUtils.isNullOrEmpty(query.getStats())){
+            for(Stat stat : query.getStats()){
+                filterHashKey += 31 * stat.hashCode();
+            }
         }
 
         for (int i = 0; i < query.getNesting()
@@ -152,7 +165,12 @@ public class GroupAction extends Action<GroupRequest> {
 
         if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
                 .isEmpty()) {
-            validationErrors.add("unique field cannot be empty (can be null)");
+            validationErrors.add("uniqueCountOn cannot be empty (can be null)");
+        }
+
+        if (parameter.getAggregationField() != null && parameter.getAggregationField()
+                .isEmpty()) {
+            validationErrors.add("aggregation field cannot be empty (can be null)");
         }
 
         validateCardinality(parameter);
@@ -690,15 +708,42 @@ public class GroupAction extends Action<GroupRequest> {
                : count;
     }
 
-    private AbstractAggregationBuilder buildAggregation(GroupRequest parameter) {
+    private AbstractAggregationBuilder buildAggregation(GroupRequest groupRequest) {
         return Utils.buildTermsAggregation(getParameter().getNesting()
-                .stream()
-                .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                .collect(Collectors.toList()), !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())
-                                               ? Sets.newHashSet(
-                Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(), parameter.accept(
-                        new CountPrecisionThresholdVisitorAdapter(elasticsearchTuningConfig.getPrecisionThreshold()))))
-                                               : Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize());
+                                                   .stream()
+                                                   .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                                                   .collect(Collectors.toList()),buildSubAggregation(getParameter()),
+                                           elasticsearchTuningConfig.getAggregationSize());
+
+    }
+
+    private Set<AggregationBuilder> buildSubAggregation(GroupRequest groupRequest) {
+        // Keep this for backward compatibility to support uniqueCountOn attribute coming from old requests
+        if(!Strings.isNullOrEmpty(groupRequest.getUniqueCountOn())){
+            return Sets.newHashSet(buildCardinalityAggregation(groupRequest.getUniqueCountOn(), groupRequest));
+        }
+
+        if(Strings.isNullOrEmpty(groupRequest.getAggregationField())){
+            return Sets.newHashSet();
+        }
+
+        boolean isNumericField = Utils.isNumericField(getTableMetadataManager(), groupRequest.getTable(),
+                                                      groupRequest.getAggregationField());
+        final AbstractAggregationBuilder groupAggStats;
+        if (isNumericField) {
+            groupAggStats = Utils.buildStatsAggregation(groupRequest.getAggregationField(),
+                                                        groupRequest.getStats());
+        } else {
+            groupAggStats = buildCardinalityAggregation(groupRequest.getAggregationField(), groupRequest);
+        }
+        return Sets.newHashSet(groupAggStats);
+    }
+
+    private CardinalityAggregationBuilder buildCardinalityAggregation(String aggregationField,
+                                                                      GroupRequest groupRequest) {
+        return Utils.buildCardinalityAggregation(aggregationField,
+                                                 groupRequest.accept(new CountPrecisionThresholdVisitorAdapter(
+                                                         elasticsearchTuningConfig.getPrecisionThreshold())));
     }
 
     private Map<String, Object> getMap(List<String> fields,
@@ -711,11 +756,15 @@ public class GroupAction extends Action<GroupRequest> {
         Map<String, Object> levelCount = Maps.newHashMap();
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
-                if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+                if (!Strings.isNullOrEmpty(getParameter().getUniqueCountOn())) {
                     String key = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                     Cardinality cardinality = bucket.getAggregations()
                             .get(key);
                     levelCount.put(String.valueOf(bucket.getKey()), cardinality.getValue());
+                } else if (!Strings.isNullOrEmpty(getParameter().getAggregationField())) {
+                    String metricKey = Utils.getExtendedStatsAggregationKey(getParameter().getAggregationField());
+                    levelCount.put(String.valueOf(bucket.getKey()), Utils.toStats(
+                            bucket.getAggregations().getAsMap().get(metricKey)));
                 } else {
                     levelCount.put(String.valueOf(bucket.getKey()), bucket.getDocCount());
                 }
