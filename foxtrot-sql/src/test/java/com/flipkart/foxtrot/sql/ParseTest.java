@@ -156,7 +156,7 @@ public class ParseTest {
                 .size());
         Assert.assertTrue(groupRequest.getNesting()
                 .contains("date.hourOfDay"));
-        Assert.assertEquals("eventData.amount", groupRequest.getUniqueCountOn());
+        Assert.assertEquals("eventData.amount", groupRequest.getAggregationField());
         Assert.assertEquals(1, groupRequest.getStats()
                 .size());
         Assert.assertNull(groupRequest.getUniqueCountOn());
