@@ -33,7 +33,6 @@ import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
-import com.flipkart.foxtrot.common.exception.FqlParsingException;
 import com.flipkart.foxtrot.sql.constants.Constants;
 import com.flipkart.foxtrot.sql.constants.FqlFunctionType;
 import com.flipkart.foxtrot.sql.extendedsql.ExtendedSqlStatement;
@@ -48,6 +47,7 @@ import com.google.common.collect.Sets;
 import io.dropwizard.util.Duration;
 import java.io.StringReader;
 import java.util.List;
+import java.util.Set;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -82,10 +82,6 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.StringReader;
-import java.util.List;
-import java.util.Set;
 
 public class QueryTranslator extends SqlElementVisitor {
 
@@ -159,8 +155,8 @@ public class QueryTranslator extends SqlElementVisitor {
             plainSelect.getWhere()
                     .accept(filterParser);
             filters = (filterParser.filters.isEmpty())
-                      ? null
-                      : filterParser.filters;
+                    ? null
+                    : filterParser.filters;
         }
 
         handleDistinct(plainSelect);
@@ -354,20 +350,20 @@ public class QueryTranslator extends SqlElementVisitor {
         resultSortColumn.setField(sortColumn.getFullyQualifiedName()
                 .replaceAll(REGEX, REPLACEMENT));
         resultSortColumn.setOrder(orderByElement.isAsc()
-                                  ? ResultSort.Order.asc
-                                  : ResultSort.Order.desc);
+                ? ResultSort.Order.asc
+                : ResultSort.Order.desc);
         logger.info("ResultSort: {}", resultSortColumn);
         return resultSortColumn;
     }
 
     private void setGroupAggregation(GroupRequest group) {
-        if(calledAction instanceof CountRequest) {
-            CountRequest countRequest = (CountRequest)this.calledAction;
+        if (calledAction instanceof CountRequest) {
+            CountRequest countRequest = (CountRequest) this.calledAction;
             boolean distinct = countRequest.isDistinct();
-            if(distinct) {
+            if (distinct) {
                 group.setUniqueCountOn(countRequest.getField());
             }
-        } else if (calledAction instanceof StatsRequest){
+        } else if (calledAction instanceof StatsRequest) {
             StatsRequest statsRequest = (StatsRequest) this.calledAction;
             group.setStats(statsRequest.getStats());
             group.setAggregationField(statsRequest.getField());
@@ -385,8 +381,8 @@ public class QueryTranslator extends SqlElementVisitor {
             resultSortColumn.setField(sortColumn.getFullyQualifiedName()
                     .replaceAll(REGEX, REPLACEMENT));
             resultSortColumn.setOrder(orderByElement.isAsc()
-                                      ? ResultSort.Order.asc
-                                      : ResultSort.Order.desc);
+                    ? ResultSort.Order.asc
+                    : ResultSort.Order.desc);
             resultSortList.add(resultSortColumn);
         }
         return resultSortList;
@@ -424,24 +420,24 @@ public class QueryTranslator extends SqlElementVisitor {
                         break;
                     case COUNT:
                         actionRequest = parseCountRequest(function.getParameters(),
-                                                          function.isAllColumns(),
-                                                          function.isDistinct());
+                                function.isAllColumns(),
+                                function.isDistinct());
                         break;
                     case SUM:
                         actionRequest = parseStatsFunction(function.getParameters()
-                                                                   .getExpressions(), Sets.newHashSet(Stat.SUM));
+                                .getExpressions(), Sets.newHashSet(Stat.SUM));
                         break;
                     case MIN:
                         actionRequest = parseStatsFunction(function.getParameters()
-                                                                   .getExpressions(), Sets.newHashSet(Stat.MIN));
+                                .getExpressions(), Sets.newHashSet(Stat.MIN));
                         break;
                     case MAX:
                         actionRequest = parseStatsFunction(function.getParameters()
-                                                                   .getExpressions(), Sets.newHashSet(Stat.MAX));
+                                .getExpressions(), Sets.newHashSet(Stat.MAX));
                         break;
                     case AVG:
                         actionRequest = parseStatsFunction(function.getParameters()
-                                                                   .getExpressions(), Sets.newHashSet(Stat.AVG));
+                                .getExpressions(), Sets.newHashSet(Stat.AVG));
                         break;
                     case DESC:
                     case SELECT:
@@ -463,31 +459,31 @@ public class QueryTranslator extends SqlElementVisitor {
         }
 
         private FqlQueryType getType(String function) {
-            if(function.equalsIgnoreCase(FqlFunctionType.TREND)){
+            if (function.equalsIgnoreCase(FqlFunctionType.TREND)) {
                 return FqlQueryType.TREND;
             }
-            if(function.equalsIgnoreCase(FqlFunctionType.STATSTREND)) {
+            if (function.equalsIgnoreCase(FqlFunctionType.STATSTREND)) {
                 return FqlQueryType.STATSTREND;
             }
-            if(function.equalsIgnoreCase(FqlFunctionType.STATS)) {
+            if (function.equalsIgnoreCase(FqlFunctionType.STATS)) {
                 return FqlQueryType.STATS;
             }
-            if(function.equalsIgnoreCase(FqlFunctionType.HISTOGRAM)) {
+            if (function.equalsIgnoreCase(FqlFunctionType.HISTOGRAM)) {
                 return FqlQueryType.HISTOGRAM;
             }
-            if(function.equalsIgnoreCase(FqlFunctionType.COUNT)) {
+            if (function.equalsIgnoreCase(FqlFunctionType.COUNT)) {
                 return FqlQueryType.COUNT;
             }
-            if(function.equalsIgnoreCase(FqlFunctionType.SUM)) {
+            if (function.equalsIgnoreCase(FqlFunctionType.SUM)) {
                 return FqlQueryType.SUM;
             }
-            if(function.equalsIgnoreCase(FqlFunctionType.AVG)) {
+            if (function.equalsIgnoreCase(FqlFunctionType.AVG)) {
                 return FqlQueryType.AVG;
             }
-            if(function.equalsIgnoreCase(FqlFunctionType.MIN)) {
+            if (function.equalsIgnoreCase(FqlFunctionType.MIN)) {
                 return FqlQueryType.MIN;
             }
-            if(function.equalsIgnoreCase(FqlFunctionType.MAX)) {
+            if (function.equalsIgnoreCase(FqlFunctionType.MAX)) {
                 return FqlQueryType.MAX;
             }
             return FqlQueryType.SELECT;
@@ -563,8 +559,8 @@ public class QueryTranslator extends SqlElementVisitor {
         }
 
         private ActionRequest parseCountRequest(ExpressionList expressionList,
-                                                boolean allColumns,
-                                                boolean isDistinct) {
+                boolean allColumns,
+                boolean isDistinct) {
 
             CountRequest countRequest = new CountRequest();
             if (allColumns) {

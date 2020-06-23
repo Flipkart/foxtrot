@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
@@ -82,9 +79,7 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggr
 import org.joda.time.Interval;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 27/03/14
- * Time: 7:16 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 27/03/14 Time: 7:16 PM
  */
 @AnalyticsProvider(opcode = "group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
 @Slf4j
@@ -131,8 +126,8 @@ public class GroupAction extends Action<GroupRequest> {
                     .hashCode();
         }
 
-        if(!CollectionUtils.isNullOrEmpty(query.getStats())){
-            for(Stat stat : query.getStats()){
+        if (!CollectionUtils.isNullOrEmpty(query.getStats())) {
+            for (Stat stat : query.getStats()) {
                 filterHashKey += 31 * stat.hashCode();
             }
         }
@@ -213,7 +208,7 @@ public class GroupAction extends Action<GroupRequest> {
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
-                                      GroupRequest parameter) {
+            GroupRequest parameter) {
         List<String> fields = parameter.getNesting();
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         // Check if any aggregation is present or not
@@ -224,7 +219,7 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private double estimateProbability(TableFieldMapping tableFieldMapping,
-                                       GroupRequest parameter) {
+            GroupRequest parameter) {
         Set<FieldMetadata> mappings = tableFieldMapping.getMappings();
         Map<String, FieldMetadata> metaMap = mappings.stream()
                 .collect(Collectors.toMap(FieldMetadata::getField, mapping -> mapping));
@@ -329,9 +324,9 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private long estimateDocCountBasedOnTime(long currentDocCount,
-                                             GroupRequest parameter,
-                                             TableMetadataManager tableMetadataManager,
-                                             String table) {
+            GroupRequest parameter,
+            TableMetadataManager tableMetadataManager,
+            String table) {
         Interval queryInterval = new PeriodSelector(parameter.getFilters()).analyze();
         long minutes = queryInterval.toDuration()
                 .getStandardMinutes();
@@ -358,16 +353,16 @@ public class GroupAction extends Action<GroupRequest> {
         return metaMap.values()
                 .stream()
                 .map(x -> x.getEstimationData() == null
-                          ? 0
-                          : x.getEstimationData()
-                                  .getCount())
+                        ? 0
+                        : x.getEstimationData()
+                                .getCount())
                 .max(Comparator.naturalOrder())
                 .orElse((long) 0);
     }
 
     private long estimateDocCountWithFilters(long currentDocCount,
-                                             Map<String, FieldMetadata> metaMap,
-                                             List<Filter> filters) {
+            Map<String, FieldMetadata> metaMap,
+            List<Filter> filters) {
         if (CollectionUtils.isNullOrEmpty(filters)) {
             return currentDocCount;
         }
@@ -395,7 +390,7 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private EstimationDataVisitor<Double> getDocCountWithFilterEstimationDataVisitor(Filter filter,
-                                                                                     String cacheKey) {
+            String cacheKey) {
         return new EstimationDataVisitor<Double>() {
             @Override
             @SneakyThrows
@@ -468,8 +463,8 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private FilterVisitorAdapter<Double> getPercentileFilterVisitorAdapter(double[] percentiles,
-                                                                           String cacheKey,
-                                                                           long numMatches) {
+            String cacheKey,
+            long numMatches) {
         return new FilterVisitorAdapter<Double>(1.0) {
             @Override
             public Double visit(BetweenFilter betweenFilter) {
@@ -595,7 +590,8 @@ public class GroupAction extends Action<GroupRequest> {
         };
     }
 
-    private FilterVisitorAdapter<Double> getCardinalityFilterVisitorAdapter(CardinalityEstimationData cardinalityEstimationData) {
+    private FilterVisitorAdapter<Double> getCardinalityFilterVisitorAdapter(
+            CardinalityEstimationData cardinalityEstimationData) {
         return new FilterVisitorAdapter<Double>(1.0) {
 
             @Override
@@ -636,8 +632,9 @@ public class GroupAction extends Action<GroupRequest> {
         };
     }
 
-    private FilterVisitorAdapter<Double> getTermHistogramFilterVisitorAdapter(TermHistogramEstimationData termEstimationData,
-                                                                              long totalCount) {
+    private FilterVisitorAdapter<Double> getTermHistogramFilterVisitorAdapter(
+            TermHistogramEstimationData termEstimationData,
+            long totalCount) {
         return new FilterVisitorAdapter<Double>(1.0) {
             @Override
             public Double visit(EqualsFilter equalsFilter) {
@@ -704,35 +701,35 @@ public class GroupAction extends Action<GroupRequest> {
 
     private Long getValidCount(Long count) {
         return count == null
-               ? 0
-               : count;
+                ? 0
+                : count;
     }
 
     private AbstractAggregationBuilder buildAggregation(GroupRequest groupRequest) {
         return Utils.buildTermsAggregation(getParameter().getNesting()
-                                                   .stream()
-                                                   .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                                                   .collect(Collectors.toList()),buildSubAggregation(getParameter()),
-                                           elasticsearchTuningConfig.getAggregationSize());
+                        .stream()
+                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                        .collect(Collectors.toList()), buildSubAggregation(getParameter()),
+                elasticsearchTuningConfig.getAggregationSize());
 
     }
 
     private Set<AggregationBuilder> buildSubAggregation(GroupRequest groupRequest) {
         // Keep this for backward compatibility to support uniqueCountOn attribute coming from old requests
-        if(!Strings.isNullOrEmpty(groupRequest.getUniqueCountOn())){
+        if (!Strings.isNullOrEmpty(groupRequest.getUniqueCountOn())) {
             return Sets.newHashSet(buildCardinalityAggregation(groupRequest.getUniqueCountOn(), groupRequest));
         }
 
-        if(Strings.isNullOrEmpty(groupRequest.getAggregationField())){
+        if (Strings.isNullOrEmpty(groupRequest.getAggregationField())) {
             return Sets.newHashSet();
         }
 
         boolean isNumericField = Utils.isNumericField(getTableMetadataManager(), groupRequest.getTable(),
-                                                      groupRequest.getAggregationField());
+                groupRequest.getAggregationField());
         final AbstractAggregationBuilder groupAggStats;
         if (isNumericField) {
             groupAggStats = Utils.buildStatsAggregation(groupRequest.getAggregationField(),
-                                                        groupRequest.getStats());
+                    groupRequest.getStats());
         } else {
             groupAggStats = buildCardinalityAggregation(groupRequest.getAggregationField(), groupRequest);
         }
@@ -740,18 +737,18 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private CardinalityAggregationBuilder buildCardinalityAggregation(String aggregationField,
-                                                                      GroupRequest groupRequest) {
+            GroupRequest groupRequest) {
         return Utils.buildCardinalityAggregation(aggregationField,
-                                                 groupRequest.accept(new CountPrecisionThresholdVisitorAdapter(
-                                                         elasticsearchTuningConfig.getPrecisionThreshold())));
+                groupRequest.accept(new CountPrecisionThresholdVisitorAdapter(
+                        elasticsearchTuningConfig.getPrecisionThreshold())));
     }
 
     private Map<String, Object> getMap(List<String> fields,
-                                       Aggregations aggregations) {
+            Aggregations aggregations) {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1)
-                                             ? fields.subList(1, fields.size())
-                                             : new ArrayList<>();
+                ? fields.subList(1, fields.size())
+                : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         Map<String, Object> levelCount = Maps.newHashMap();
         for (Terms.Bucket bucket : terms.getBuckets()) {
