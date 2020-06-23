@@ -92,7 +92,8 @@ public class GroupAction extends Action<GroupRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader) {
+    public GroupAction(GroupRequest parameter,
+                       AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
@@ -208,7 +209,7 @@ public class GroupAction extends Action<GroupRequest> {
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
-            GroupRequest parameter) {
+                                      GroupRequest parameter) {
         List<String> fields = parameter.getNesting();
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         // Check if any aggregation is present or not
@@ -219,7 +220,7 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private double estimateProbability(TableFieldMapping tableFieldMapping,
-            GroupRequest parameter) {
+                                       GroupRequest parameter) {
         Set<FieldMetadata> mappings = tableFieldMapping.getMappings();
         Map<String, FieldMetadata> metaMap = mappings.stream()
                 .collect(Collectors.toMap(FieldMetadata::getField, mapping -> mapping));
@@ -324,9 +325,9 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private long estimateDocCountBasedOnTime(long currentDocCount,
-            GroupRequest parameter,
-            TableMetadataManager tableMetadataManager,
-            String table) {
+                                             GroupRequest parameter,
+                                             TableMetadataManager tableMetadataManager,
+                                             String table) {
         Interval queryInterval = new PeriodSelector(parameter.getFilters()).analyze();
         long minutes = queryInterval.toDuration()
                 .getStandardMinutes();
@@ -353,16 +354,16 @@ public class GroupAction extends Action<GroupRequest> {
         return metaMap.values()
                 .stream()
                 .map(x -> x.getEstimationData() == null
-                        ? 0
-                        : x.getEstimationData()
-                                .getCount())
+                          ? 0
+                          : x.getEstimationData()
+                                  .getCount())
                 .max(Comparator.naturalOrder())
                 .orElse((long) 0);
     }
 
     private long estimateDocCountWithFilters(long currentDocCount,
-            Map<String, FieldMetadata> metaMap,
-            List<Filter> filters) {
+                                             Map<String, FieldMetadata> metaMap,
+                                             List<Filter> filters) {
         if (CollectionUtils.isNullOrEmpty(filters)) {
             return currentDocCount;
         }
@@ -390,7 +391,7 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private EstimationDataVisitor<Double> getDocCountWithFilterEstimationDataVisitor(Filter filter,
-            String cacheKey) {
+                                                                                     String cacheKey) {
         return new EstimationDataVisitor<Double>() {
             @Override
             @SneakyThrows
@@ -463,8 +464,8 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private FilterVisitorAdapter<Double> getPercentileFilterVisitorAdapter(double[] percentiles,
-            String cacheKey,
-            long numMatches) {
+                                                                           String cacheKey,
+                                                                           long numMatches) {
         return new FilterVisitorAdapter<Double>(1.0) {
             @Override
             public Double visit(BetweenFilter betweenFilter) {
@@ -590,8 +591,7 @@ public class GroupAction extends Action<GroupRequest> {
         };
     }
 
-    private FilterVisitorAdapter<Double> getCardinalityFilterVisitorAdapter(
-            CardinalityEstimationData cardinalityEstimationData) {
+    private FilterVisitorAdapter<Double> getCardinalityFilterVisitorAdapter(CardinalityEstimationData cardinalityEstimationData) {
         return new FilterVisitorAdapter<Double>(1.0) {
 
             @Override
@@ -632,9 +632,8 @@ public class GroupAction extends Action<GroupRequest> {
         };
     }
 
-    private FilterVisitorAdapter<Double> getTermHistogramFilterVisitorAdapter(
-            TermHistogramEstimationData termEstimationData,
-            long totalCount) {
+    private FilterVisitorAdapter<Double> getTermHistogramFilterVisitorAdapter(TermHistogramEstimationData termEstimationData,
+                                                                              long totalCount) {
         return new FilterVisitorAdapter<Double>(1.0) {
             @Override
             public Double visit(EqualsFilter equalsFilter) {
@@ -701,8 +700,8 @@ public class GroupAction extends Action<GroupRequest> {
 
     private Long getValidCount(Long count) {
         return count == null
-                ? 0
-                : count;
+               ? 0
+               : count;
     }
 
     private AbstractAggregationBuilder buildAggregation(GroupRequest groupRequest) {
@@ -728,8 +727,7 @@ public class GroupAction extends Action<GroupRequest> {
                 groupRequest.getAggregationField());
         final AbstractAggregationBuilder groupAggStats;
         if (isNumericField) {
-            groupAggStats = Utils.buildStatsAggregation(groupRequest.getAggregationField(),
-                    groupRequest.getStats());
+            groupAggStats = Utils.buildStatsAggregation(groupRequest.getAggregationField(), groupRequest.getStats());
         } else {
             groupAggStats = buildCardinalityAggregation(groupRequest.getAggregationField(), groupRequest);
         }
@@ -737,18 +735,17 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private CardinalityAggregationBuilder buildCardinalityAggregation(String aggregationField,
-            GroupRequest groupRequest) {
-        return Utils.buildCardinalityAggregation(aggregationField,
-                groupRequest.accept(new CountPrecisionThresholdVisitorAdapter(
-                        elasticsearchTuningConfig.getPrecisionThreshold())));
+                                                                      GroupRequest groupRequest) {
+        return Utils.buildCardinalityAggregation(aggregationField, groupRequest.accept(
+                new CountPrecisionThresholdVisitorAdapter(elasticsearchTuningConfig.getPrecisionThreshold())));
     }
 
     private Map<String, Object> getMap(List<String> fields,
-            Aggregations aggregations) {
+                                       Aggregations aggregations) {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1)
-                ? fields.subList(1, fields.size())
-                : new ArrayList<>();
+                                             ? fields.subList(1, fields.size())
+                                             : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         Map<String, Object> levelCount = Maps.newHashMap();
         for (Terms.Bucket bucket : terms.getBuckets()) {
@@ -760,8 +757,9 @@ public class GroupAction extends Action<GroupRequest> {
                     levelCount.put(String.valueOf(bucket.getKey()), cardinality.getValue());
                 } else if (!Strings.isNullOrEmpty(getParameter().getAggregationField())) {
                     String metricKey = Utils.getExtendedStatsAggregationKey(getParameter().getAggregationField());
-                    levelCount.put(String.valueOf(bucket.getKey()), Utils.toStats(
-                            bucket.getAggregations().getAsMap().get(metricKey)));
+                    levelCount.put(String.valueOf(bucket.getKey()), Utils.toStats(bucket.getAggregations()
+                            .getAsMap()
+                            .get(metricKey)));
                 } else {
                     levelCount.put(String.valueOf(bucket.getKey()), bucket.getDocCount());
                 }

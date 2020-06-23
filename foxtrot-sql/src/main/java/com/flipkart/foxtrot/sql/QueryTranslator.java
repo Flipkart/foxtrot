@@ -155,8 +155,8 @@ public class QueryTranslator extends SqlElementVisitor {
             plainSelect.getWhere()
                     .accept(filterParser);
             filters = (filterParser.filters.isEmpty())
-                    ? null
-                    : filterParser.filters;
+                      ? null
+                      : filterParser.filters;
         }
 
         handleDistinct(plainSelect);
@@ -350,8 +350,8 @@ public class QueryTranslator extends SqlElementVisitor {
         resultSortColumn.setField(sortColumn.getFullyQualifiedName()
                 .replaceAll(REGEX, REPLACEMENT));
         resultSortColumn.setOrder(orderByElement.isAsc()
-                ? ResultSort.Order.asc
-                : ResultSort.Order.desc);
+                                  ? ResultSort.Order.asc
+                                  : ResultSort.Order.desc);
         logger.info("ResultSort: {}", resultSortColumn);
         return resultSortColumn;
     }
@@ -381,8 +381,8 @@ public class QueryTranslator extends SqlElementVisitor {
             resultSortColumn.setField(sortColumn.getFullyQualifiedName()
                     .replaceAll(REGEX, REPLACEMENT));
             resultSortColumn.setOrder(orderByElement.isAsc()
-                    ? ResultSort.Order.asc
-                    : ResultSort.Order.desc);
+                                      ? ResultSort.Order.asc
+                                      : ResultSort.Order.desc);
             resultSortList.add(resultSortColumn);
         }
         return resultSortList;
@@ -419,8 +419,7 @@ public class QueryTranslator extends SqlElementVisitor {
                         actionRequest = parseHistogramRequest(function.getParameters());
                         break;
                     case COUNT:
-                        actionRequest = parseCountRequest(function.getParameters(),
-                                function.isAllColumns(),
+                        actionRequest = parseCountRequest(function.getParameters(), function.isAllColumns(),
                                 function.isDistinct());
                         break;
                     case SUM:
@@ -524,7 +523,8 @@ public class QueryTranslator extends SqlElementVisitor {
         /*
             When asked for specific stats then add those stats and skip percentiles to save on execution time
          */
-        private StatsRequest parseStatsFunction(List expressions, Set<Stat> stats) {
+        private StatsRequest parseStatsFunction(List expressions,
+                                                Set<Stat> stats) {
             StatsRequest statsRequest = parseStatsFunction(expressions);
             statsRequest.setStats(stats);
             statsRequest.setFlags(Sets.newHashSet(AnalyticsRequestFlags.STATS_SKIP_PERCENTILES));
@@ -559,8 +559,8 @@ public class QueryTranslator extends SqlElementVisitor {
         }
 
         private ActionRequest parseCountRequest(ExpressionList expressionList,
-                boolean allColumns,
-                boolean isDistinct) {
+                                                boolean allColumns,
+                                                boolean isDistinct) {
 
             CountRequest countRequest = new CountRequest();
             if (allColumns) {

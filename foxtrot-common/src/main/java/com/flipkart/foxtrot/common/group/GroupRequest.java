@@ -57,9 +57,14 @@ public class GroupRequest extends ActionRequest {
         super(Opcodes.GROUP);
     }
 
-    public GroupRequest(List<Filter> filters, String table, String uniqueCountOn,
-            String aggregationField, Set<Stat> stats,
-            List<String> nesting, String consoleId, CountPrecision precision) {
+    public GroupRequest(List<Filter> filters,
+                        String table,
+                        String uniqueCountOn,
+                        String aggregationField,
+                        Set<Stat> stats,
+                        List<String> nesting,
+                        String consoleId,
+                        CountPrecision precision) {
         super(Opcodes.GROUP, filters);
         this.table = table;
         this.uniqueCountOn = uniqueCountOn;

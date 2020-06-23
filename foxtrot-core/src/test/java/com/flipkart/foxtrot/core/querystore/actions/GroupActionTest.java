@@ -33,8 +33,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -245,7 +243,6 @@ public class GroupActionTest extends ActionTest {
             put("iphone", iPhoneResponse);
         }});
 
-
         GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
         assertEquals(response, actualResult.getResult());
     }
@@ -289,38 +286,43 @@ public class GroupActionTest extends ActionTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testGroupActionDistinctCountAggregation(){
+    public void testGroupActionDistinctCountAggregation() {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "version"));
         groupRequest.setUniqueCountOn("device");
 
         Map<String, Object> response = Maps.newHashMap();
-        response.put("android",new HashMap<String, Object>() {{
+        response.put("android", new HashMap<String, Object>() {{
             put("1", 1L);
             put("2", 2L);
             put("3", 2L);
         }});
-        response.put("ios",new HashMap<String, Object>() {{
+        response.put("ios", new HashMap<String, Object>() {{
             put("1", 1L);
             put("2", 2L);
         }});
         GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
         assertEquals(((Map<String, Object>) response.get("android")).get("1"),
-                     ((Map<String, Object>) actualResult.getResult().get("android")).get("1"));
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("1"));
         assertEquals(((Map<String, Object>) response.get("android")).get("2"),
-                     ((Map<String, Object>) actualResult.getResult().get("android")).get("2"));
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("2"));
         assertEquals(((Map<String, Object>) response.get("android")).get("3"),
-                     ((Map<String, Object>) actualResult.getResult().get("android")).get("3"));
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("3"));
         assertEquals(((Map<String, Object>) response.get("ios")).get("1"),
-                     ((Map<String, Object>) actualResult.getResult().get("ios")).get("1"));
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("1"));
         assertEquals(((Map<String, Object>) response.get("ios")).get("2"),
-                     ((Map<String, Object>) actualResult.getResult().get("ios")).get("2"));
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("2"));
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testGroupActionMaxAggregation(){
+    public void testGroupActionMaxAggregation() {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "version"));
@@ -328,37 +330,37 @@ public class GroupActionTest extends ActionTest {
         groupRequest.setStats(Sets.newHashSet(Stat.MAX));
 
         Map<String, Object> response = Maps.newHashMap();
-        response.put("android",new HashMap<String, Object>() {{
-            put("1", ImmutableMap.of("max",48.0));
-            put("2", ImmutableMap.of("max",99.0));
-            put("3", ImmutableMap.of("max",87.0));
+        response.put("android", new HashMap<String, Object>() {{
+            put("1", ImmutableMap.of("max", 48.0));
+            put("2", ImmutableMap.of("max", 99.0));
+            put("3", ImmutableMap.of("max", 87.0));
         }});
-        response.put("ios",new HashMap<String, Object>() {{
-            put("1", ImmutableMap.of("max",24.0));
-            put("2", ImmutableMap.of("max",56.0));
+        response.put("ios", new HashMap<String, Object>() {{
+            put("1", ImmutableMap.of("max", 24.0));
+            put("2", ImmutableMap.of("max", 56.0));
         }});
 
         GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("1")).get("max"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("1")).get("max"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("1")).get("max"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("2")).get("max"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("2")).get("max"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("2")).get("max"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("3")).get("max"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("3")).get("max"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("3")).get("max"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("ios")).get("1")).get("max"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("ios"))
-                             .get("1")).get("max"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("1")).get("max"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("ios")).get("2")).get("max"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("ios"))
-                             .get("2")).get("max"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("2")).get("max"));
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testGroupActionAvgAggregation(){
+    public void testGroupActionAvgAggregation() {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "version"));
@@ -366,37 +368,37 @@ public class GroupActionTest extends ActionTest {
         groupRequest.setStats(Sets.newHashSet(Stat.AVG));
 
         Map<String, Object> response = Maps.newHashMap();
-        response.put("android",new HashMap<String, Object>() {{
-            put("1", ImmutableMap.of("avg",36.0));
-            put("2", ImmutableMap.of("avg",84.33333333333333));
-            put("3", ImmutableMap.of("avg",80.5));
+        response.put("android", new HashMap<String, Object>() {{
+            put("1", ImmutableMap.of("avg", 36.0));
+            put("2", ImmutableMap.of("avg", 84.33333333333333));
+            put("3", ImmutableMap.of("avg", 80.5));
         }});
-        response.put("ios",new HashMap<String, Object>() {{
-            put("1", ImmutableMap.of("avg",24.0));
-            put("2", ImmutableMap.of("avg",45.0));
+        response.put("ios", new HashMap<String, Object>() {{
+            put("1", ImmutableMap.of("avg", 24.0));
+            put("2", ImmutableMap.of("avg", 45.0));
         }});
 
         GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("1")).get("avg"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("1")).get("avg"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("1")).get("avg"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("2")).get("avg"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("2")).get("avg"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("2")).get("avg"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("3")).get("avg"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("3")).get("avg"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("3")).get("avg"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("ios")).get("1")).get("avg"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("ios"))
-                             .get("1")).get("avg"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("1")).get("avg"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("ios")).get("2")).get("avg"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("ios"))
-                             .get("2")).get("avg"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("2")).get("avg"));
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testGroupActionSumAggregation(){
+    public void testGroupActionSumAggregation() {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "version"));
@@ -404,37 +406,37 @@ public class GroupActionTest extends ActionTest {
         groupRequest.setStats(Sets.newHashSet(Stat.SUM));
 
         Map<String, Object> response = Maps.newHashMap();
-        response.put("android",new HashMap<String, Object>() {{
-            put("1", ImmutableMap.of("sum",72.0));
-            put("2", ImmutableMap.of("sum",253.0));
-            put("3", ImmutableMap.of("sum",161.0));
+        response.put("android", new HashMap<String, Object>() {{
+            put("1", ImmutableMap.of("sum", 72.0));
+            put("2", ImmutableMap.of("sum", 253.0));
+            put("3", ImmutableMap.of("sum", 161.0));
         }});
-        response.put("ios",new HashMap<String, Object>() {{
-            put("1", ImmutableMap.of("sum",24.0));
-            put("2", ImmutableMap.of("sum",135.0));
+        response.put("ios", new HashMap<String, Object>() {{
+            put("1", ImmutableMap.of("sum", 24.0));
+            put("2", ImmutableMap.of("sum", 135.0));
         }});
 
         GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("1")).get("sum"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("1")).get("sum"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("1")).get("sum"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("2")).get("sum"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("2")).get("sum"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("2")).get("sum"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("3")).get("sum"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("3")).get("sum"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("3")).get("sum"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("ios")).get("1")).get("sum"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("ios"))
-                             .get("1")).get("sum"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("1")).get("sum"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("ios")).get("2")).get("sum"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("ios"))
-                             .get("2")).get("sum"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("2")).get("sum"));
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testGroupActionCountAndSumAggregation(){
+    public void testGroupActionCountAndSumAggregation() {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "version"));
@@ -442,39 +444,34 @@ public class GroupActionTest extends ActionTest {
         groupRequest.setStats(Sets.newHashSet(Stat.SUM, Stat.COUNT));
 
         Map<String, Object> response = Maps.newHashMap();
-        response.put("android",new HashMap<String, Object>() {{
-            put("1", ImmutableMap.of("avg",36.0, "min",24.0,
-                                     "max",48.0, "count",2, "sum",72.0));
-            put("2", ImmutableMap.of("avg",84.33333333333333, "min",76.0,
-                                     "max",99.0, "count", 3, "sum",253.0));
-            put("3", ImmutableMap.of("avg",80.5, "min",74.0,
-                                     "max",87.0, "count",2, "sum",161.0));
+        response.put("android", new HashMap<String, Object>() {{
+            put("1", ImmutableMap.of("avg", 36.0, "min", 24.0, "max", 48.0, "count", 2, "sum", 72.0));
+            put("2", ImmutableMap.of("avg", 84.33333333333333, "min", 76.0, "max", 99.0, "count", 3, "sum", 253.0));
+            put("3", ImmutableMap.of("avg", 80.5, "min", 74.0, "max", 87.0, "count", 2, "sum", 161.0));
         }});
-        response.put("ios",new HashMap<String, Object>() {{
-            put("1", ImmutableMap.of("avg",24.0, "min",24.0,
-                                     "max",24.0, "count",1, "sum",24.0));
-            put("2", ImmutableMap.of("avg",45.0, "min", 35.0,
-                                     "max",56.0, "count", 3, "sum",135.0));
+        response.put("ios", new HashMap<String, Object>() {{
+            put("1", ImmutableMap.of("avg", 24.0, "min", 24.0, "max", 24.0, "count", 1, "sum", 24.0));
+            put("2", ImmutableMap.of("avg", 45.0, "min", 35.0, "max", 56.0, "count", 3, "sum", 135.0));
         }});
 
         GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("1")).get("avg"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("1")).get("avg"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("1")).get("avg"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("1")).get("sum"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("1")).get("sum"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("1")).get("sum"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("2")).get("min"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("2")).get("min"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("2")).get("min"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("android")).get("3")).get("max"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("android"))
-                             .get("3")).get("max"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("3")).get("max"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("ios")).get("1")).get("max"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("ios"))
-                             .get("1")).get("max"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("1")).get("max"));
         assertEquals(((Map<String, Object>) ((Map<String, Object>) response.get("ios")).get("2")).get("avg"),
-                     ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult().get("ios"))
-                             .get("2")).get("avg"));
+                ((Map<String, Object>) ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("2")).get("avg"));
     }
 }
