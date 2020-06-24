@@ -1,29 +1,33 @@
 package com.flipkart.foxtrot.core.table.impl;
 
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Created by rishabh.goyal on 05/12/15.
  */
-
+@Singleton
 public class FoxtrotTableManager implements TableManager {
 
     private final TableMetadataManager metadataManager;
     private final QueryStore queryStore;
     private final DataStore dataStore;
 
-    public FoxtrotTableManager(TableMetadataManager metadataManager, QueryStore queryStore, DataStore dataStore) {
+    @Inject
+    public FoxtrotTableManager(TableMetadataManager metadataManager,
+                               QueryStore queryStore,
+                               DataStore dataStore) {
         this.metadataManager = metadataManager;
         this.queryStore = queryStore;
         this.dataStore = dataStore;
     }
-
 
     @Override
     public void save(Table table) {
@@ -37,7 +41,8 @@ public class FoxtrotTableManager implements TableManager {
     }
 
     @Override
-    public void save(Table table, boolean forceCreateTable) {
+    public void save(Table table,
+                     boolean forceCreateTable) {
         validateTableParams(table);
         if (metadataManager.exists(table.getName())) {
             throw FoxtrotExceptions.createTableExistsException(table.getName());
@@ -69,6 +74,7 @@ public class FoxtrotTableManager implements TableManager {
             throw FoxtrotExceptions.createTableMissingException(table.getName());
         }
         metadataManager.save(table);
+        dataStore.updateTable(table);
     }
 
     @Override
@@ -80,8 +86,9 @@ public class FoxtrotTableManager implements TableManager {
         if (table == null || table.getName() == null || table.getName()
                 .trim()
                 .isEmpty() || table.getTtl() <= 0) {
-            throw FoxtrotExceptions.createBadRequestException(table != null ? table.getName() : null,
-                    "Invalid Table Params");
+            throw FoxtrotExceptions.createBadRequestException(table != null
+                                                              ? table.getName()
+                                                              : null, "Invalid Table Params");
         }
     }
 }

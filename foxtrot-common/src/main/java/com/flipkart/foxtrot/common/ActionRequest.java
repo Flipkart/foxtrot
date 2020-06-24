@@ -15,12 +15,11 @@ package com.flipkart.foxtrot.common;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.google.common.collect.Lists;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 26/03/14 Time: 7:49 PM
@@ -33,11 +32,14 @@ public abstract class ActionRequest implements Serializable, Cloneable {
 
     private List<Filter> filters;
 
+    private boolean bypassCache;
+
     protected ActionRequest(String opcode) {
         this.opcode = opcode;
     }
 
-    protected ActionRequest(String opcode, List<Filter> filters) {
+    protected ActionRequest(String opcode,
+                            List<Filter> filters) {
         this.opcode = opcode;
         this.filters = filters;
     }
@@ -55,6 +57,14 @@ public abstract class ActionRequest implements Serializable, Cloneable {
 
     public void setFilters(List<Filter> filters) {
         this.filters = filters;
+    }
+
+    public boolean isBypassCache() {
+        return bypassCache;
+    }
+
+    public void setBypassCache(boolean bypassCache) {
+        this.bypassCache = bypassCache;
     }
 
     public abstract <T> T accept(ActionRequestVisitor<T> var1);

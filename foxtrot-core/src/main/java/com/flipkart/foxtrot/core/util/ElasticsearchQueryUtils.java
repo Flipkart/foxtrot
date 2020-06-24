@@ -14,13 +14,14 @@ package com.flipkart.foxtrot.core.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.type.MapType;
-import com.flipkart.foxtrot.core.exception.SourceMapConversionException;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
+import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.Map;
+import lombok.val;
+import org.elasticsearch.index.query.QueryBuilder;
 
 /***
  Created by nitish.goyal on 26/07/18
@@ -32,32 +33,19 @@ public class ElasticsearchQueryUtils {
     private ElasticsearchQueryUtils() {
     }
 
-    public static Map<String, Object> getSourceMap(Object value, Class kClass) {
-        try {
-            Field[] fields = kClass.getDeclaredFields();
-            Map<String, Object> sourceMap = new HashMap<>();
-            for (Field f : fields) {
-                f.setAccessible(true);
-                sourceMap.put(f.getName(), f.get(value));
-            }
-            return sourceMap;
-        } catch (Exception e) {
-            throw new SourceMapConversionException("Exception occurred while coverting to map", e);
-        }
-    }
-
-    public static Map<String, Object> getSourceMap(ObjectNode node, ObjectMapper mapper) {
-        try {
-            final MapType type = mapper.getTypeFactory()
-                    .constructMapType(Map.class, String.class, Object.class);
-            return mapper.readValue(node.toString(), type);
-        } catch (Exception e) {
-            throw new SourceMapConversionException("Exception occurred while converting to map", e);
-        }
-    }
-
-    public static Map<String, Object> toMap(ObjectMapper mapper, Object value) {
+    public static Map<String, Object> toMap(ObjectMapper mapper,
+                                            Object value) {
         return mapper.convertValue(value, new TypeReference<Map<String, Object>>() {
         });
+    }
+
+    public static QueryBuilder translateFilter(ActionRequest request,
+                                               List<Filter> extraFilters) {
+        val filters = (null == extraFilters || extraFilters.isEmpty())
+                      ? request.getFilters()
+                      : ImmutableList.<Filter>builder().addAll(request.getFilters())
+                              .addAll(extraFilters)
+                              .build();
+        return new ElasticSearchQueryGenerator().genFilter(filters);
     }
 }

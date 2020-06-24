@@ -66,11 +66,16 @@ function clearBarChartForm() {
 BarTile.prototype.getQuery = function (object) {
   this.object = object;
   var filters = [];
-  if(globalFilters) {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-  } else {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-  }
+ // -------------- Starts added today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// -------------- Ends added today yesterday and daybefore yesterday-----------------
 
   if(object.tileContext.filters) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
@@ -293,3 +298,71 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
     plot.draw();
   });
 }
+
+
+//  -------------------- Starts Added download widget 2 --------------------
+
+
+BarTile.prototype.downloadWidget = function (object) {
+  this.object = object;
+  var filters = [];
+  // -------------- Starts added today yesterday and daybefore yesterday---------------
+  todayTomorrow(
+    filters,
+    globalFilters,
+    getGlobalFilters,
+    getPeriodSelect,
+    timeValue,
+    object
+  );
+  // -------------- Ends added today yesterday and daybefore yesterday-----------------
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
+  }
+
+  if (object.tileContext.selectedValue) {
+    filters.push({
+      field: object.tileContext.nesting.toString(),
+      operator: "in",
+      values: object.tileContext.selectedValue.split(',')
+    });
+  }
+
+  var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+  if(templateFilters.length > 0) {
+    filters = filters.concat(templateFilters);
+  }
+
+  var data = {
+    "opcode": "group"
+    ,"consoleId": getCurrentConsoleId()
+    , "table": object.tileContext.table
+    , "filters": filters
+    , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
+    , "nesting": object.tileContext.nesting
+  }
+  var refObject = this.object;
+  console.log(data, 'data.')
+  $.ajax({
+    url: apiUrl + "/v1/analytics/download",
+    type: 'POST',
+    data: JSON.stringify(data),
+    dataType: 'text',
+
+    contentType: 'application/json',
+    context: this,
+    success: function(response) {
+      downloadTextAsCSV(response, 'BarChart.csv')
+    },
+    error: function(xhr, textStatus, error ) {
+      console.log("error.........",error,textStatus,xhr)
+    }
+});
+}
+
+//  -------------------- Ends added download widget 2--------------------
+
+

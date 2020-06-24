@@ -5,13 +5,14 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Sets;
@@ -30,14 +31,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by rishabh.goyal on 17/11/14.
  */
-
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 @AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable = true)
 public class DistinctAction extends Action<DistinctRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(DistinctAction.class);
 
-    public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader) {
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    public DistinctAction(DistinctRequest parameter,
+                          AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -46,7 +51,25 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public void validateImpl(DistinctRequest parameter, String email) {
+    public String getRequestCacheKey() {
+        long filterHashKey = 0L;
+        DistinctRequest query = getParameter();
+        if (null != query.getFilters()) {
+            for (Filter filter : query.getFilters()) {
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
+            }
+        }
+        for (int i = 0; i < query.getNesting()
+                .size(); i++) {
+            filterHashKey += 31 * query.getNesting()
+                    .get(i)
+                    .hashCode() * (i + 1);
+        }
+        return String.format("%s-%d", query.getTable(), filterHashKey);
+    }
+
+    @Override
+    public void validateImpl(DistinctRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
@@ -71,23 +94,6 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public String getRequestCacheKey() {
-        long filterHashKey = 0L;
-        DistinctRequest query = getParameter();
-
-        for (Filter filter : com.collections.CollectionUtils.nullSafeList(query.getFilters())) {
-            filterHashKey += 31 * filter.hashCode();
-        }
-        for (int i = 0; i < query.getNesting()
-                .size(); i++) {
-            filterHashKey += 31 * query.getNesting()
-                    .get(i)
-                    .hashCode() * (i + 1);
-        }
-        return String.format("%s-%d", query.getTable(), filterHashKey);
-    }
-
-    @Override
     public ActionResponse execute(DistinctRequest request) {
         SearchRequestBuilder query;
         try {
@@ -96,7 +102,8 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .setIndicesOptions(Utils.indicesOptions());
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
-                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
+                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet(),
+                            elasticsearchTuningConfig.getAggregationSize()));
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
@@ -124,7 +131,8 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .setIndicesOptions(Utils.indicesOptions());
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
-                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
+                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet(),
+                            elasticsearchTuningConfig.getAggregationSize()));
 
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
@@ -133,7 +141,8 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DistinctRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      DistinctRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         // Check if any aggregation is present or not
         if (aggregations == null) {
@@ -143,7 +152,8 @@ public class DistinctAction extends Action<DistinctRequest> {
         return getDistinctResponse(parameter, aggregations);
     }
 
-    private DistinctResponse getDistinctResponse(DistinctRequest request, Aggregations aggregations) {
+    private DistinctResponse getDistinctResponse(DistinctRequest request,
+                                                 Aggregations aggregations) {
         DistinctResponse response = new DistinctResponse();
         List<String> headerList = request.getNesting()
                 .stream()
@@ -157,10 +167,14 @@ public class DistinctAction extends Action<DistinctRequest> {
         return response;
     }
 
-    private void flatten(String parentKey, List<String> fields, List<List<String>> responseList,
-            Aggregations aggregations) {
+    private void flatten(String parentKey,
+                         List<String> fields,
+                         List<List<String>> responseList,
+                         Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
+        final List<String> remainingFields = (fields.size() > 1)
+                                             ? fields.subList(1, fields.size())
+                                             : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
@@ -172,11 +186,15 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
     }
 
-    private String getProperKey(String parentKey, String currentKey) {
-        return parentKey == null ? currentKey : parentKey + Constants.SEPARATOR + currentKey;
+    private String getProperKey(String parentKey,
+                                String currentKey) {
+        return parentKey == null
+               ? currentKey
+               : parentKey + Constants.SEPARATOR + currentKey;
     }
 
-    private List<String> getValueList(String parentKey, String currentKey) {
+    private List<String> getValueList(String parentKey,
+                                      String currentKey) {
         String finalValue = getProperKey(parentKey, currentKey);
         String[] valuesList = finalValue.split(Constants.SEPARATOR);
         return Arrays.asList(valuesList);

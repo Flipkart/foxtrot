@@ -1,23 +1,28 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.util.TableUtil;
 import io.dropwizard.lifecycle.Managed;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -26,13 +31,19 @@ import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.io.compress.Compression;
+import org.apache.hadoop.hbase.util.RegionSplitter;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 13/03/14 Time: 7:35 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 13/03/14
+ * Time: 7:35 PM
  */
+@Singleton
+@Order(0)
 public class HbaseTableConnection implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(HbaseTableConnection.class.getSimpleName());
@@ -42,6 +53,7 @@ public class HbaseTableConnection implements Managed {
     private Connection connection;
     private Admin hBaseAdmin;
 
+    @Inject
     public HbaseTableConnection(HbaseConfig hbaseConfig) {
         this.hbaseConfig = hbaseConfig;
     }
@@ -64,14 +76,16 @@ public class HbaseTableConnection implements Managed {
     }
 
     public synchronized void createTable(final Table table) throws IOException {
+        HTableDescriptor hTableDescriptor = constructHTableDescriptor(table);
+        byte[][] splits = new RegionSplitter.HexStringSplit().split(table.getDefaultRegions());
+        hBaseAdmin.createTable(hTableDescriptor, splits);
+    }
+
+    public synchronized void updateTable(final Table table) throws IOException {
         String tableName = TableUtil.getTableName(hbaseConfig, table);
 
-        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
-        HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(DEFAULT_FAMILY_NAME);
-        hColumnDescriptor.setCompressionType(Compression.Algorithm.GZ);
-        hColumnDescriptor.setTimeToLive(Math.toIntExact(TimeUnit.DAYS.toSeconds(table.getTtl())));
-        hTableDescriptor.addFamily(hColumnDescriptor);
-        hBaseAdmin.createTable(hTableDescriptor);
+        HTableDescriptor hTableDescriptor = constructHTableDescriptor(table);
+        hBaseAdmin.modifyTable(TableName.valueOf(tableName), hTableDescriptor);
     }
 
     public String getHBaseTableName(final Table table) {
@@ -95,5 +109,16 @@ public class HbaseTableConnection implements Managed {
 
     public HbaseConfig getHbaseConfig() {
         return hbaseConfig;
+    }
+
+    private HTableDescriptor constructHTableDescriptor(final Table table) {
+        String tableName = TableUtil.getTableName(hbaseConfig, table);
+
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
+        HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(DEFAULT_FAMILY_NAME);
+        hColumnDescriptor.setCompressionType(Compression.Algorithm.GZ);
+        hColumnDescriptor.setTimeToLive(Math.toIntExact(TimeUnit.DAYS.toSeconds(table.getTtl())));
+        hTableDescriptor.addFamily(hColumnDescriptor);
+        return hTableDescriptor;
     }
 }

@@ -18,8 +18,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.joda.time.DateTime;
 
-import java.io.Serializable;
-
 /***
  Created by nitish.goyal on 29/11/18
  ***/

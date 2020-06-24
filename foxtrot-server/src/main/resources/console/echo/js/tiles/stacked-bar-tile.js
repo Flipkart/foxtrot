@@ -70,11 +70,16 @@ function clearStackedBarChartForm() {
 StackedBarTile.prototype.getQuery = function (object) {
   this.object = object;
   var filters = [];
-  if(globalFilters) {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-  } else {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-  }
+// ------- Starts added  download for today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
 
   if(object.tileContext.filters) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
@@ -670,3 +675,71 @@ StackedBarTile.prototype.render = function (d, isMultiSeries, originalData) {
     });
   }
 }
+
+
+//  -------------------- Starts Added download widget 2 --------------------
+
+
+StackedBarTile.prototype.downloadWidget = function (object) {
+  this.object = object;
+  var filters = [];
+// ------- Starts added  download for today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
+  }
+
+  var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+  if(templateFilters.length > 0) {
+    filters = filters.concat(templateFilters);
+  }
+
+  var data = {
+    "opcode": "multi_query"
+    , "table": object.tileContext.table
+    , "filters": filters
+    , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
+    , "field": object.tileContext.stackedBarField
+    , period: periodFromWindow(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
+  }
+
+  var multiQueryData = {};
+  var multiSeiresValue = object.tileContext.multiSeries;
+  if((multiSeiresValue != undefined) && (multiSeiresValue != "") && (multiSeiresValue > 1)) {
+    multiQueryData["requests"] = prepareMultiSeriesQueryObject(data, object, filters);
+    multiQueryData["opcode"] = "multi_query";
+  } else {
+    data["opcode"] = "trend";
+    multiQueryData = data;
+  }
+
+  var refObject = this.object;
+  $.ajax({
+    url: apiUrl + "/v1/analytics/download",
+    type: 'POST',
+    data: JSON.stringify(data),
+    dataType: 'text',
+
+    contentType: 'application/json',
+    context: this,
+    success: function(response) {
+      downloadTextAsCSV(response, 'StackedChart.csv')
+    },
+    error: function(xhr, textStatus, error ) {
+      console.log("error.........",error,textStatus,xhr)
+    }
+});
+}
+
+//  -------------------- Ends Added download widget 2 --------------------

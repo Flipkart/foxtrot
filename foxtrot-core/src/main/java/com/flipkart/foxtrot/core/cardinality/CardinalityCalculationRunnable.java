@@ -16,17 +16,15 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.SchedulerLock;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /***
  Created by nitish.goyal on 13/08/18
  ***/
-
+@Slf4j
 public class CardinalityCalculationRunnable implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CardinalityCalculationRunnable.class.getSimpleName());
     private final TableMetadataManager tableMetadataManager;
 
     public CardinalityCalculationRunnable(TableMetadataManager tableMetadataManager) {
@@ -44,11 +42,11 @@ public class CardinalityCalculationRunnable implements Runnable {
             for (String table : tables) {
                 if (!tableMetadataManager.cardinalityCacheContains(table)) {
                     tableMetadataManager.getFieldMappings(table, true, true);
-                    LOGGER.info("Cardinality calculated for table: {}", table);
+                    log.info("Cardinality calculated for table: {}", table);
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("Error occurred while calculating cardinality {}", e);
+            log.error("Error occurred while calculating cardinality", e);
         }
     }
 }

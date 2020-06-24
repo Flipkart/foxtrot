@@ -3,27 +3,34 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.query.*;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.MultiQueryRequest;
+import com.flipkart.foxtrot.common.query.MultiQueryResponse;
+import com.flipkart.foxtrot.common.query.MultiTimeQueryRequest;
+import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import org.elasticsearch.action.ActionRequestBuilder;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-@AnalyticsProvider(opcode = "multi_time_query", request = MultiTimeQueryRequest.class, response =
-        MultiTimeQueryResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = "multi_time_query", request = MultiTimeQueryRequest.class, response = MultiTimeQueryResponse.class, cacheable = false)
 public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
 
     private AnalyticsLoader analyticsLoader;
     private Action action;
     private MultiQueryRequest multiQueryRequest;
 
-    public MultiTimeQueryAction(MultiTimeQueryRequest parameter, AnalyticsLoader analyticsLoader) {
+    public MultiTimeQueryAction(MultiTimeQueryRequest parameter,
+                                AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.analyticsLoader = analyticsLoader;
     }
@@ -36,8 +43,8 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
         if (multiTimeQueryRequest.getActionRequest() == null && CollectionUtils.isEmpty(
                 multiTimeQueryRequest.getFilters())) {
             throw FoxtrotExceptions.createBadRequestException("multi_time_query",
-                    "No Between Filter found in actionRequest " +
-                            "multiQueryRequest : " + multiQueryRequest.toString());
+                    "No Between Filter found in actionRequest " + "multiQueryRequest : "
+                            + multiQueryRequest.toString());
         }
 
         if (CollectionUtils.isEmpty(multiTimeQueryRequest.getActionRequest()
@@ -56,8 +63,8 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
                 .findFirst();
         if (!optionalBetweenFilter.isPresent()) {
             throw FoxtrotExceptions.createBadRequestException("multi_time_query",
-                    "No Between Filter found in actionRequest " +
-                            "multiQueryRequest : " + multiQueryRequest.toString());
+                    "No Between Filter found in actionRequest " + "multiQueryRequest : "
+                            + multiQueryRequest.toString());
         }
         BetweenFilter betweenFilter = (BetweenFilter) optionalBetweenFilter.get();
 
@@ -80,7 +87,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     }
 
     @Override
-    public void validateImpl(MultiTimeQueryRequest parameter, String email) {
+    public void validateImpl(MultiTimeQueryRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if (parameter.getActionRequest() == null) {
             validationErrors.add("action request cannot be null or empty");
@@ -91,7 +98,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
         if (com.collections.CollectionUtils.isNotEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
-        action.validateImpl(multiQueryRequest, email);
+        action.validateImpl(multiQueryRequest);
     }
 
     @Override
@@ -124,7 +131,8 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
         return new MultiTimeQueryResponse(multiQueryResponse.getResponses());
     }
 
-    private MultiQueryRequest createMultiQueryRequests(int sampleSize, BetweenFilter betweenFilter) {
+    private MultiQueryRequest createMultiQueryRequests(int sampleSize,
+                                                       BetweenFilter betweenFilter) {
         MultiTimeQueryRequest multiTimeQueryRequest = getParameter();
         Map<String, ActionRequest> requests = new HashMap<>();
         long from = betweenFilter.getFrom()

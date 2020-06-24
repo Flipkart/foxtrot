@@ -16,18 +16,28 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.query.general.*;
-import com.flipkart.foxtrot.common.query.numeric.*;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.general.ExistsFilter;
+import com.flipkart.foxtrot.common.query.general.InFilter;
+import com.flipkart.foxtrot.common.query.general.MissingFilter;
+import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
+import com.flipkart.foxtrot.common.query.general.NotInFilter;
+import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.query.string.WildCardFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import javax.validation.constraints.NotNull;
+import lombok.Data;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -44,18 +54,20 @@ import java.util.Set;
         @JsonSubTypes.Type(value = BetweenFilter.class, name = FilterOperator.between),
 
         //General
-        @JsonSubTypes.Type(value = EqualsFilter.class, name = FilterOperator.equals), @JsonSubTypes
-        .Type(value = InFilter.class, name = FilterOperator.in), @JsonSubTypes.Type(value = NotInFilter.class, name =
-        FilterOperator.not_in), @JsonSubTypes.Type(value = NotEqualsFilter.class, name = FilterOperator.not_equals),
-        @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any), @JsonSubTypes.Type
-        (value = ExistsFilter.class, name = FilterOperator.exists),
+        @JsonSubTypes.Type(value = EqualsFilter.class, name = FilterOperator.equals),
+        @JsonSubTypes.Type(value = InFilter.class, name = FilterOperator.in),
+        @JsonSubTypes.Type(value = NotInFilter.class, name = FilterOperator.not_in),
+        @JsonSubTypes.Type(value = NotEqualsFilter.class, name = FilterOperator.not_equals),
+        @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any),
+        @JsonSubTypes.Type(value = ExistsFilter.class, name = FilterOperator.exists),
         @JsonSubTypes.Type(value = MissingFilter.class, name = FilterOperator.missing),
         //String
-        @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains), @JsonSubTypes
-        .Type(value = WildCardFilter.class, name = FilterOperator.wildcard),
+        @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains),
+        @JsonSubTypes.Type(value = WildCardFilter.class, name = FilterOperator.wildcard),
 
         //String
         @JsonSubTypes.Type(value = LastFilter.class, name = FilterOperator.last)})
+@Data
 public abstract class Filter implements Serializable {
 
     @NotNull
@@ -64,11 +76,14 @@ public abstract class Filter implements Serializable {
 
     private String field;
 
+    private boolean cachedResultsAccepted;
+
     protected Filter(String operator) {
         this.operator = operator;
     }
 
-    protected Filter(String operator, String field) {
+    protected Filter(String operator,
+                     String field) {
         this.operator = operator;
         this.field = field;
     }
@@ -88,27 +103,33 @@ public abstract class Filter implements Serializable {
     public abstract <T> T accept(FilterVisitor<T> visitor);
 
     @Override
-    public int hashCode() {
-        int result = operator.hashCode();
-        result = 31 * result + field.hashCode();
-        return result;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof Filter)) {
             return false;
         }
 
         Filter filter = (Filter) o;
 
-        if (!field.equals(filter.field)) {
+        if (cachedResultsAccepted != filter.cachedResultsAccepted) {
             return false;
         }
-        return operator.equals(filter.operator);
+        if (!operator.equals(filter.operator)) {
+            return false;
+        }
+        return field.equals(filter.field);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = operator.hashCode();
+        result = 31 * result + field.hashCode();
+        result = 31 * result + (cachedResultsAccepted
+                                ? 1
+                                : 0);
+        return result;
     }
 
     @Override

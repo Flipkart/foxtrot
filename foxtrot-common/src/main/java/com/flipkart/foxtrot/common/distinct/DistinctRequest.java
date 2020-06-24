@@ -39,7 +39,9 @@ public class DistinctRequest extends ActionRequest {
         super(Opcodes.DISTINCT);
     }
 
-    public DistinctRequest(List<Filter> filters, String table, List<ResultSort> nesting) {
+    public DistinctRequest(List<Filter> filters,
+                           String table,
+                           List<ResultSort> nesting) {
         super(Opcodes.DISTINCT, filters);
         this.table = table;
         this.nesting = nesting;
@@ -47,14 +49,6 @@ public class DistinctRequest extends ActionRequest {
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
         return visitor.visit(this);
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).append("table", table)
-                .append("filters", getFilters())
-                .append("nesting", nesting)
-                .toString();
     }
 
     public String getTable() {
@@ -73,4 +67,11 @@ public class DistinctRequest extends ActionRequest {
         this.nesting = nesting;
     }
 
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("table", table)
+                .append("filters", getFilters())
+                .append("nesting", nesting)
+                .toString();
+    }
 }

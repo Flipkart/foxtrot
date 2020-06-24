@@ -17,11 +17,13 @@ package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.client.Client;
@@ -29,6 +31,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -55,13 +58,10 @@ public class ElasticsearchUtils {
     private static final String STORE = "store";
     private static final String INDEX = "index";
     private static final String MATCH_MAPPING_TYPE = "match_mapping_type";
+    private static final String PROPERTIES = "properties";
     private static String tableNamePrefix = "foxtrot";
 
     private ElasticsearchUtils() {
-    }
-
-    private static String getIndexPrefix(final String table) {
-        return String.format("%s-%s-%s-", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
     @VisibleForTesting
@@ -70,19 +70,30 @@ public class ElasticsearchUtils {
     }
 
     public static void setTableNamePrefix(ElasticsearchConfig config) {
-        if(StringUtils.isNotEmpty(config.getTableNamePrefix())) {
+        if (StringUtils.isNotEmpty(config.getTableNamePrefix())) {
             tableNamePrefix = config.getTableNamePrefix();
         } else {
             tableNamePrefix = "foxtrot";
         }
     }
 
-    public static String[] getIndices(final String table, final ActionRequest request) {
+    private static String getIndexPrefix(final String table) {
+        return String.format("%s-%s-%s-", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
+    }
+
+    public static String getIndices(final String table) {
+        return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
+    }
+
+    public static String[] getIndices(final String table,
+                                      final ActionRequest request) {
         return getIndices(table, request, new PeriodSelector(request.getFilters()).analyze());
     }
 
     @VisibleForTesting
-    public static String[] getIndices(final String table, final ActionRequest request, final Interval interval) {
+    public static String[] getIndices(final String table,
+                                      final ActionRequest request,
+                                      final Interval interval) {
         DateTime start = interval.getStart()
                 .toLocalDate()
                 .toDateTimeAtStartOfDay();
@@ -106,11 +117,8 @@ public class ElasticsearchUtils {
         return indices.toArray(new String[0]);
     }
 
-    public static String getIndices(final String table) {
-        return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
-    }
-
-    public static String getCurrentIndex(final String table, long timestamp) {
+    public static String getCurrentIndex(final String table,
+                                         long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String datePostfix = FORMATTER.print(timestamp);
         return String.format("%s-%s-%s-%s", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX,
@@ -142,10 +150,6 @@ public class ElasticsearchUtils {
                 .field(DOCUMENT_TYPE_NAME)
                 .startObject()
                 .field("_source")
-                .startObject()
-                .field("enabled", false)
-                .endObject()
-                .field("_all")
                 .startObject()
                 .field("enabled", false)
                 .endObject()
@@ -229,8 +233,25 @@ public class ElasticsearchUtils {
                 .endObject()
 
                 .endArray()
-                .field("properties")
+                .field(PROPERTIES)
                 .startObject()
+                .field("eventData")
+                .startObject()
+                .field(PROPERTIES)
+                .startObject()
+                .field("funnelInfo")
+                .startObject()
+                .field(PROPERTIES)
+                .startObject()
+                .field("funnelId")
+                .startObject()
+                .field("type", "long")
+                .endObject()
+                .endObject()
+                .endObject()
+                .endObject()
+                .endObject()
+
                 .field("time")
                 .startObject()
                 .field("type", "long")
@@ -258,12 +279,14 @@ public class ElasticsearchUtils {
                 .toLowerCase();
     }
 
-    private static boolean isIndexValidForTable(String index, String table) {
+    private static boolean isIndexValidForTable(String index,
+                                                String table) {
         String indexPrefix = getIndexPrefix(table);
         return index.startsWith(indexPrefix);
     }
 
-    static boolean isIndexEligibleForDeletion(String index, Table table) {
+    static boolean isIndexEligibleForDeletion(String index,
+                                              Table table) {
         if (index == null || table == null || !isIndexValidForTable(index, table.getName())) {
             return false;
         }
@@ -271,12 +294,12 @@ public class ElasticsearchUtils {
         DateTime creationDate = parseIndexDate(index, table.getName());
         DateTime startTime = new DateTime(0L);
         DateTime endTime = new DateTime().minusDays(table.getTtl())
-                .toDateMidnight()
                 .toDateTime();
         return creationDate.isAfter(startTime) && creationDate.isBefore(endTime);
     }
 
-    public static DateTime parseIndexDate(String index, String table) {
+    public static DateTime parseIndexDate(String index,
+                                          String table) {
         String indexPrefix = getIndexPrefix(table);
         String creationDateString = index.substring(index.indexOf(indexPrefix) + indexPrefix.length());
         return DATE_TIME_FORMATTER.parseDateTime(creationDateString);
@@ -295,5 +318,20 @@ public class ElasticsearchUtils {
 
     static String getAllIndicesPattern() {
         return String.format("%s-*-%s-*", getTableNamePrefix(), ElasticsearchUtils.TABLENAME_POSTFIX);
+    }
+
+    public static String getTodayIndicesPattern() {
+        String datePostfix = FORMATTER.print(LocalDate.now());
+        return String.format("%s-.*-%s-%s", getTableNamePrefix(), ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
+    }
+
+    public static boolean isTimeFilterPresent(List<Filter> filters) {
+        AtomicBoolean timeFilterPresent = new AtomicBoolean(false);
+        filters.forEach(filter -> {
+            if (ElasticsearchUtils.TIME_FIELD.equals(filter.getField())) {
+                timeFilterPresent.set(true);
+            }
+        });
+        return timeFilterPresent.get();
     }
 }

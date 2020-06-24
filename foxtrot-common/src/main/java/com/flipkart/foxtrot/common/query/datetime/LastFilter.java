@@ -13,8 +13,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class LastFilter extends Filter {
 
     private long currentTime;
@@ -31,17 +31,28 @@ public class LastFilter extends Filter {
     }
 
     @Builder
-    public LastFilter(String field, long currentTime, Duration duration, RoundingMode roundingMode) {
+    public LastFilter(String field,
+                      long currentTime,
+                      Duration duration,
+                      RoundingMode roundingMode) {
         super(FilterOperator.last);
-        super.setField(Strings.isNullOrEmpty(field) ? "_timestamp" : field);
-        this.currentTime = currentTime == 0 ? System.currentTimeMillis() : currentTime;
+        super.setField(Strings.isNullOrEmpty(field)
+                       ? "_timestamp"
+                       : field);
+        this.currentTime = currentTime == 0
+                           ? System.currentTimeMillis()
+                           : currentTime;
         this.duration = duration;
-        this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
+        this.roundingMode = roundingMode == null
+                            ? RoundingMode.NONE
+                            : roundingMode;
     }
 
     public void setDuration(Duration duration) {
         this.duration = duration;
-        this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
+        this.roundingMode = roundingMode == null
+                            ? RoundingMode.NONE
+                            : roundingMode;
     }
 
     @Override

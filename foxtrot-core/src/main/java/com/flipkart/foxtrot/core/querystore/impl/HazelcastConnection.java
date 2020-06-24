@@ -16,29 +16,39 @@ import com.hazelcast.config.AwsConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.DiscoveryConfig;
 import com.hazelcast.config.DiscoveryStrategyConfig;
+import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.instance.GroupProperty;
+import com.hazelcast.spi.properties.GroupProperty;
 import com.marathon.hazelcast.servicediscovery.MarathonDiscoveryStrategyFactory;
 import io.dropwizard.lifecycle.Managed;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
+
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 15/03/14
  * Time: 10:01 PM
  */
+@Order(10)
+@Singleton
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class HazelcastConnection implements Managed {
 
+    public static final String HEALTHCHECK_MAP = "healthCheck";
     private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
-
+    private final Config hazelcastConfig;
     private HazelcastInstance hazelcast;
-    private Config hazelcastConfig;
 
+    @Inject
     public HazelcastConnection(ClusterConfig clusterConfig) throws UnknownHostException {
         Config hzConfig = new Config();
         hzConfig.getGroupConfig()
@@ -49,8 +59,7 @@ public class HazelcastConnection implements Managed {
                 final String hostName = InetAddress.getLocalHost()
                         .getCanonicalHostName();
                 hzConfig.setInstanceName(String.format("foxtrot-%s-%d", hostName, System.currentTimeMillis()));
-                SimpleClusterDiscoveryConfig simpleClusterDiscoveryConfig =
-                        (SimpleClusterDiscoveryConfig) clusterConfig.getDiscovery();
+                SimpleClusterDiscoveryConfig simpleClusterDiscoveryConfig = (SimpleClusterDiscoveryConfig) clusterConfig.getDiscovery();
                 if (simpleClusterDiscoveryConfig.isDisableMulticast()) {
                     hzConfig.getNetworkConfig()
                             .getJoin()
@@ -69,19 +78,18 @@ public class HazelcastConnection implements Managed {
                 }
                 break;
             case FOXTROT_MARATHON:
-                MarathonClusterDiscoveryConfig marathonClusterDiscoveryConfig =
-                        (MarathonClusterDiscoveryConfig) clusterConfig.getDiscovery();
+                MarathonClusterDiscoveryConfig marathonClusterDiscoveryConfig = (MarathonClusterDiscoveryConfig) clusterConfig.getDiscovery();
                 String appId = marathonClusterDiscoveryConfig.getApp()
                         .replace("/", "")
                         .trim();
                 hzConfig.getGroupConfig()
-                        .setName("foxtrot");
+                        .setName(clusterConfig.getName());
                 hzConfig.getGroupConfig()
                         .setPassword("foxtrot");
-                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED, "true");
-                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED, "true");
-                hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "true");
-                hzConfig.setProperty(GroupProperty.SOCKET_BIND_ANY, "true");
+                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED.getName(), "true");
+                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED.getName(), "true");
+                hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY.getName(), "true");
+                hzConfig.setProperty(GroupProperty.SOCKET_BIND_ANY.getName(), "true");
 
                 NetworkConfig networkConfig = hzConfig.getNetworkConfig();
                 networkConfig.setPublicAddress(System.getenv("HOST") + ":" + System.getenv("PORT_5701"));
@@ -94,15 +102,15 @@ public class HazelcastConnection implements Managed {
                         .setEnabled(false);
 
                 DiscoveryConfig discoveryConfig = joinConfig.getDiscoveryConfig();
-                DiscoveryStrategyConfig discoveryStrategyConfig = new DiscoveryStrategyConfig(new MarathonDiscoveryStrategyFactory());
+                DiscoveryStrategyConfig discoveryStrategyConfig = new DiscoveryStrategyConfig(
+                        new MarathonDiscoveryStrategyFactory());
                 discoveryStrategyConfig.addProperty("marathon-endpoint", marathonClusterDiscoveryConfig.getEndpoint());
                 discoveryStrategyConfig.addProperty("app-id", appId);
                 discoveryStrategyConfig.addProperty("port-index", marathonClusterDiscoveryConfig.getPortIndex());
                 discoveryConfig.addDiscoveryStrategyConfig(discoveryStrategyConfig);
                 break;
             case FOXTROT_AWS:
-                AwsClusterDiscoveryConfig awsClusterDiscoveryConfig =
-                        (AwsClusterDiscoveryConfig) clusterConfig.getDiscovery();
+                AwsClusterDiscoveryConfig awsClusterDiscoveryConfig = (AwsClusterDiscoveryConfig) clusterConfig.getDiscovery();
                 NetworkConfig hazelcastConfigNetworkConfig = hzConfig.getNetworkConfig();
                 JoinConfig hazelcastConfigNetworkConfigJoin = hazelcastConfigNetworkConfig.getJoin();
                 hazelcastConfigNetworkConfigJoin.getTcpIpConfig()
@@ -123,6 +131,15 @@ public class HazelcastConnection implements Managed {
                 hazelcastConfigNetworkConfigJoin.getAwsConfig()
                         .setEnabled(true);
                 break;
+            case FOXTROT_KUBERNETES:
+                logger.info("Using Kubernetes");
+                JoinConfig kbConfig = hzConfig.getNetworkConfig()
+                        .getJoin();
+                kbConfig.getMulticastConfig()
+                        .setEnabled(false);
+                kbConfig.getKubernetesConfig()
+                        .setEnabled(true);
+                break;
             default:
                 logger.warn("Invalid discovery config");
         }
@@ -132,8 +149,15 @@ public class HazelcastConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting Hazelcast Instance");
+        configureHealthcheck();
         hazelcast = Hazelcast.newHazelcastInstance(hazelcastConfig);
         logger.info("Started Hazelcast Instance");
+    }
+
+    private void configureHealthcheck() {
+        MapConfig mapConfig = new MapConfig(HEALTHCHECK_MAP);
+        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        hazelcastConfig.addMapConfig(mapConfig);
     }
 
     @Override

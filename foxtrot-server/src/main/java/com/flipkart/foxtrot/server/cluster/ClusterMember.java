@@ -10,7 +10,8 @@ public class ClusterMember implements Serializable {
     public ClusterMember() {
     }
 
-    public ClusterMember(String host, int port) {
+    public ClusterMember(String host,
+                         int port) {
         this.host = host;
         this.port = port;
     }

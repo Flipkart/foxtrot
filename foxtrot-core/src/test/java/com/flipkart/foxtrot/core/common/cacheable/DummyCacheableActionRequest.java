@@ -25,6 +25,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 @VisibleForTesting
 public class DummyCacheableActionRequest extends ActionRequest {
+
     public DummyCacheableActionRequest() {
         super("cache-hit-test");
     }

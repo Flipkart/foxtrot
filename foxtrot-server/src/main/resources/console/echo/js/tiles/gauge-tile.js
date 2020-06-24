@@ -71,11 +71,16 @@ function clearGaugeChartForm() {
 GaugeTile.prototype.getQuery = function (object) {
   this.object = object;
   var filters = [];
-  if(globalFilters) {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-  } else {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-  }
+  // -------------- Starts added today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// -------------- Ends added today yesterday and daybefore yesterday-----------------
 
   if(object.tileContext.filters) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
@@ -234,3 +239,56 @@ GaugeTile.prototype.render = function (total, diff, dataLength) {
   }
 
 }
+//  -------------------- Starts Added download widget 2 --------------------
+
+GaugeTile.prototype.downloadWidget = function (object) {
+  this.object = object;
+  var filters = [];
+// ------- Starts added  download for today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
+  }
+
+  var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+  if(templateFilters.length > 0) {
+    filters = filters.concat(templateFilters);
+  }
+
+  var data = {
+    "opcode": "group"
+    ,"consoleId": getCurrentConsoleId()
+    , "table": object.tileContext.table
+    , "filters": filters
+    , "nesting": object.tileContext.nesting
+  }
+  var refObject = this.object;
+  $.ajax({
+    url: apiUrl + "/v1/analytics/download",
+    type: 'POST',
+    data: JSON.stringify(data),
+    dataType: 'text',
+
+    contentType: 'application/json',
+    context: this,
+    success: function(response) {
+      downloadTextAsCSV(response, 'GaugeChart.csv')
+    },
+    error: function(xhr, textStatus, error ) {
+      console.log("error.........",error,textStatus,xhr)
+    }
+});
+}
+
+//  -------------------- Starts Added download widget 2 --------------------

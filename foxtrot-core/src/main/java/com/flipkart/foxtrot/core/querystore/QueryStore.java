@@ -14,13 +14,12 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
-
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
+import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -31,15 +30,21 @@ public interface QueryStore {
 
     void initializeTable(final String table);
 
-    void save(final String table, final Document document);
+    void save(final String table,
+              final Document document);
 
-    void save(final String table, final List<Document> documents);
+    void save(final String table,
+              final List<Document> documents);
 
-    Document get(final String table, final String id);
+    Document get(final String table,
+                 final String id);
 
-    List<Document> getAll(final String table, final List<String> ids);
+    List<Document> getAll(final String table,
+                          final List<String> ids);
 
-    List<Document> getAll(final String table, final List<String> ids, boolean bypassMetaLookup);
+    List<Document> getAll(final String table,
+                          final List<String> ids,
+                          boolean bypassMetaLookup);
 
     void cleanupAll();
 

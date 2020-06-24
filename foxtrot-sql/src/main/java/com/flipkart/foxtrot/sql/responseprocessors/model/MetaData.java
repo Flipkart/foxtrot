@@ -5,7 +5,8 @@ public class MetaData {
     private Object data;
     private int length;
 
-    public MetaData(Object data, int length) {
+    public MetaData(Object data,
+                    int length) {
         this.data = data;
         this.length = length;
     }

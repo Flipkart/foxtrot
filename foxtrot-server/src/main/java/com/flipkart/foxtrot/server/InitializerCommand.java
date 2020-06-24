@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p/>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p/>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.flipkart.foxtrot.server;
@@ -17,7 +20,10 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -40,8 +46,9 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
     }
 
     @Override
-    protected void run(Bootstrap<FoxtrotServerConfiguration> bootstrap, Namespace namespace,
-            FoxtrotServerConfiguration configuration) throws Exception {
+    protected void run(Bootstrap<FoxtrotServerConfiguration> bootstrap,
+                       Namespace namespace,
+                       FoxtrotServerConfiguration configuration) throws Exception {
         ElasticsearchConfig esConfig = configuration.getElasticsearch();
         ElasticsearchConnection connection = new ElasticsearchConnection(esConfig);
         connection.start();
@@ -52,13 +59,19 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 .health(new ClusterHealthRequest())
                 .actionGet();
         int numDataNodes = clusterHealth.getNumberOfDataNodes();
-        int numReplicas = (numDataNodes < 2) ? 0 : 1;
+        int numReplicas = (numDataNodes < 2)
+                          ? 0
+                          : 1;
 
         logger.info("# data nodes: {}, Setting replica count to: {}", numDataNodes, numReplicas);
 
-        createMetaIndex(connection, "consoles", numReplicas);
-        createMetaIndex(connection, "consoles_v2", numReplicas);
-        createMetaIndex(connection, "table-meta", numReplicas);
+        createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX, numReplicas);
+        createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX_V2, numReplicas);
+        createMetaIndex(connection, TableMapStore.TABLE_META_INDEX, numReplicas);
+        createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX_HISTORY, numReplicas);
+        createMetaIndex(connection, FqlStoreServiceImpl.FQL_STORE_INDEX, numReplicas);
+        createMetaIndex(connection, "user-meta", numReplicas);
+        createMetaIndex(connection, "tokens", numReplicas);
 
         logger.info("Creating mapping");
         PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
@@ -74,7 +87,9 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 .getTableName());
     }
 
-    private void createMetaIndex(final ElasticsearchConnection connection, final String indexName, int replicaCount) {
+    private void createMetaIndex(final ElasticsearchConnection connection,
+                                 final String indexName,
+                                 int replicaCount) {
         try {
             logger.info("'{}' creation started", indexName);
             Settings settings = Settings.builder()

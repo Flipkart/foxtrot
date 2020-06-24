@@ -649,6 +649,7 @@ function renderTemplateFilters() {
   $.each(tableNameList, function(index, val) {
     option+= "<option value="+val+">"+val+"</option>"
   });
+
   $(".template-filter").append("<option value='none'>Select</option>");
   $(".template-filter").append(option);
   $(".template-filter").selectpicker('refresh');
@@ -660,10 +661,12 @@ function getTables() { // get table list
     contentType: "application/json",
     context: this,
     success: function(tables) {
-      for (var i = tables.length - 1; i >= 0; i--) {
-        tableNameList.push(tables[i].name)
+      if(tableNameList.length == 0) {
+        for (var i = tables.length - 1; i >= 0; i--) {
+          tableNameList.push(tables[i].name)
+        }
+        renderTemplateFilters();
       }
-      renderTemplateFilters();
     }});
 }
 
@@ -890,9 +893,7 @@ $(document).ready(function () {
               deleteConsole();
           }
       });
-      $("#listConsole").change(function () {
-          loadParticularConsoleList();
-      });
+
       $("#addDashboardConfirm").click(function () {
           createDashboard();
       });
@@ -919,13 +920,10 @@ $(document).ready(function () {
       $(".filter-switch").change(function () {
           if (this.checked) {
               globalFilters = true;
+              refereshTiles();
               showFilters();
           } else {
-              globalFilters = false;
-              hideFilters();
-              resetPeriodDropdown();
-              resetGloblaDateFilter();
-              refereshTiles();
+              globalFilterResetDetails();
           }
       });
 
@@ -939,7 +937,7 @@ $(document).ready(function () {
         }
     });
 
-      
+
 
       var consoleId = getParameterByName("console").replace('/', '');
       if (consoleId) {
@@ -1133,13 +1131,6 @@ $(document).ready(function () {
           sideBySide: true,
           format: 'DD/MM/YYYY, hh:mm:ss a'
       });
-
-      function resetGloblaDateFilter() {
-          isGlobalDateFilter = false;
-          globalDateFilterValue = "";
-          $("#selected-global-date span").text('');
-          $("#selected-global-date").hide();
-      }
 
       $(".close-global-date-filter").click(function () {
           $("#myModal").modal("hide");

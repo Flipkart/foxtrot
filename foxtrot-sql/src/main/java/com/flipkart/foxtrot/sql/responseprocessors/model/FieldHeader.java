@@ -8,7 +8,8 @@ public class FieldHeader {
     public FieldHeader() {
     }
 
-    public FieldHeader(String name, int maxLength) {
+    public FieldHeader(String name,
+                       int maxLength) {
         this.name = name;
         this.maxLength = maxLength;
     }

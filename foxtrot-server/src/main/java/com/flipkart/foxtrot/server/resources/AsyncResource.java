@@ -14,10 +14,14 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -35,10 +39,13 @@ import javax.ws.rs.core.Response;
 @Path("/v1/async")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/async")
+@Singleton
+@RolesAllowed(FoxtrotRole.Value.QUERY)
 public class AsyncResource {
 
     private CacheManager cacheManager;
 
+    @Inject
     public AsyncResource(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
@@ -47,7 +54,8 @@ public class AsyncResource {
     @Path("/{action}/{id}")
     @Timed
     @ApiOperation("getResponse")
-    public Response getResponse(@PathParam("action") final String action, @NotNull @PathParam("id") final String id) {
+    public Response getResponse(@PathParam("action") final String action,
+                                @NotNull @PathParam("id") final String id) {
         return Response.ok(getData(new AsyncDataToken(action, id)))
                 .build();
     }

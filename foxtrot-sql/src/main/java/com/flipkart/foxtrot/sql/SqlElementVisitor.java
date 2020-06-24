@@ -1,6 +1,6 @@
 package com.flipkart.foxtrot.sql;
 
-import com.flipkart.foxtrot.core.exception.FqlParsingException;
+import com.flipkart.foxtrot.common.exception.FqlParsingException;
 import com.flipkart.foxtrot.sql.extendedsql.ExtendedSqlStatementVisitor;
 import com.flipkart.foxtrot.sql.extendedsql.desc.Describe;
 import com.flipkart.foxtrot.sql.extendedsql.showtables.ShowTables;
@@ -82,9 +82,8 @@ import net.sf.jsqlparser.statement.select.WithItem;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
 
-public class SqlElementVisitor
-        implements StatementVisitor, SelectVisitor, FromItemVisitor, ItemsListVisitor, ExpressionVisitor,
-        SelectItemVisitor, ExtendedSqlStatementVisitor {
+public class SqlElementVisitor implements StatementVisitor, SelectVisitor, FromItemVisitor, ItemsListVisitor,
+        ExpressionVisitor, SelectItemVisitor, ExtendedSqlStatementVisitor {
 
     @Override
     public void visit(NullValue nullValue) {

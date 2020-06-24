@@ -34,7 +34,9 @@ public class LessThanFilter extends NumericBinaryFilter {
     }
 
     @Builder
-    public LessThanFilter(String field, Number value, boolean temporal) {
+    public LessThanFilter(String field,
+                          Number value,
+                          boolean temporal) {
         super(FilterOperator.less_than, field, value, temporal);
     }
 
@@ -42,4 +44,5 @@ public class LessThanFilter extends NumericBinaryFilter {
     public <T> T accept(FilterVisitor<T> visitor) {
         return visitor.visit(this);
     }
+
 }

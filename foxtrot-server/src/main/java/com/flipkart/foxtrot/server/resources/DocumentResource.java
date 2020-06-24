@@ -15,22 +15,28 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import static com.flipkart.foxtrot.common.exception.FoxtrotExceptions.ERROR_DELIMITER;
+
 import com.codahale.metrics.annotation.Timed;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.exception.BadRequestException;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.server.config.SegregationConfiguration;
+import com.foxtrot.flipkart.translator.TableTranslator;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.util.Objects;
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -49,99 +55,106 @@ import javax.ws.rs.core.Response;
 @Path("/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/document/{table}")
+@Singleton
 public class DocumentResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
-    private static final String EVENT_TYPE = "eventType";
     private final QueryStore queryStore;
-    private final Map<String, Map<String, List<String>>> tableEventConfigs;
-    private final List<String> tablesToBeDuplicated;
+    private final TableTranslator tableTranslator;
 
-    public DocumentResource(QueryStore queryStore, SegregationConfiguration segregationConfiguration) {
+    @Inject
+    public DocumentResource(QueryStore queryStore,
+                            TableTranslator tableTranslator) {
         this.queryStore = queryStore;
-        this.tableEventConfigs = segregationConfiguration.getTableEventConfigs();
-        this.tablesToBeDuplicated = segregationConfiguration.getTablesToBeDuplicated();
+        this.tableTranslator = tableTranslator;
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
+    @RolesAllowed(FoxtrotRole.Value.INGEST)
     @ApiOperation("Save Document")
-    public Response saveDocument(@PathParam("table") String table, @Valid final Document document) {
-        String tableName = preProcess(table, document);
+    public Response saveDocument(@PathParam("table") String table,
+                                 @Valid final Document document) {
+        String tableName = tableTranslator.getTable(table, document);
         if (tableName != null) {
             queryStore.save(tableName, document);
         }
-        if (tableName != null && !table.equals(tableName) && tablesToBeDuplicated != null &&
-                tablesToBeDuplicated.contains(tableName)) {
+        if (tableName != null && !table.equals(tableName)) {
             queryStore.save(table, document);
         }
         return Response.created(URI.create("/" + document.getId()))
                 .build();
     }
 
-    private String preProcess(String table, Document document) {
-        if (document.getData()
-                .has(EVENT_TYPE)) {
-            String eventType = document.getData()
-                    .get(EVENT_TYPE)
-                    .asText();
-            return getSegregatedTableName(table, eventType);
-        }
-        return table;
-    }
-
-    private String getSegregatedTableName(String table, String eventType) {
-        if (tableEventConfigs != null && tableEventConfigs.containsKey(table)) {
-            String tableName = getTableForEventType(tableEventConfigs.get(table), eventType);
-            if (tableName != null) {
-                return tableName;
-            }
-        }
-        return table;
-    }
-
-    private String getTableForEventType(Map<String, List<String>> tableNameVsEventTypes, String eventType) {
-        for (Map.Entry<String, List<String>> entry : CollectionUtils.nullSafeSet(tableNameVsEventTypes.entrySet())) {
-            for (String tempEventType : CollectionUtils.nullSafeList(entry.getValue())) {
-                if (tempEventType.equals(eventType)) {
-                    return entry.getKey();
-                }
-            }
-        }
-        return null;
-    }
-
     @POST
     @Path("/bulk")
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
+    @RolesAllowed(FoxtrotRole.Value.INGEST)
     @ApiOperation("Save list of documents")
-    public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents) {
-        Map<String, List<Document>> tableVsDocuments = preProcessSaveDocuments(table, documents);
+    public Response saveDocuments(@PathParam("table") String table,
+                                  @Valid final List<Document> documents) {
+        Map<String, List<Document>> tableVsDocuments = getTableVsDocuments(table, documents);
+
+        // Catch all StoreExecutionException and append error messages to a list
+        // keep track of any BadRequestException,
+        // throw it if it's thrown for any batch and if no StoreExecutionException was thrown
+        List<String> exceptionMessages = new ArrayList<>();
+        BadRequestException badRequestException = null;
+
         for (Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
-            queryStore.save(entry.getKey(), entry.getValue());
-            if (!entry.getKey()
-                    .equals(table) && tablesToBeDuplicated != null && tablesToBeDuplicated.contains(entry.getKey())) {
-                queryStore.save(table, entry.getValue());
+            try {
+                queryStore.save(entry.getKey(), entry.getValue());
+            } catch (BadRequestException e) {
+                badRequestException = e;
+            } catch (Exception e) {
+                exceptionMessages.add(Objects.nonNull(e.getCause())
+                                      ? e.getCause()
+                                              .getMessage()
+                                      : e.getMessage());
             }
         }
+
+        if (!exceptionMessages.isEmpty()) {
+            String exceptionMessage = String.join(ERROR_DELIMITER, exceptionMessages);
+            throw FoxtrotExceptions.createExecutionException(table, new RuntimeException(exceptionMessage));
+        } else if (Objects.nonNull(badRequestException)) {
+            throw badRequestException;
+        }
+
         return Response.created(URI.create("/" + table))
                 .build();
     }
 
-    private Map<String, List<Document>> preProcessSaveDocuments(String table, List<Document> documents) {
+    @GET
+    @Path("/{id}")
+    @Timed
+    @RolesAllowed(FoxtrotRole.Value.QUERY)
+    @ApiOperation("Get Document")
+    public Response getDocument(@PathParam("table") final String table,
+                                @PathParam("id") @NotNull final String id) {
+        return Response.ok(queryStore.get(table, id))
+                .build();
+    }
+
+    @GET
+    @Timed
+    @RolesAllowed(FoxtrotRole.Value.QUERY)
+    @ApiOperation("Get Documents")
+    public Response getDocuments(@PathParam("table") final String table,
+                                 @QueryParam("id") @NotNull final List<String> ids) {
+        return Response.ok(queryStore.getAll(table, ids))
+                .build();
+    }
+
+
+    private Map<String, List<Document>> getTableVsDocuments(String table,
+                                                            List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = new HashMap<>();
-        if (tableEventConfigs != null && tableEventConfigs.containsKey(table)) {
+        if (tableTranslator.isTransformableTable(table)) {
             for (Document document : CollectionUtils.nullSafeList(documents)) {
-                String tableName = table;
-                if (document.getData()
-                        .has(EVENT_TYPE)) {
-                    String eventType = document.getData()
-                            .get(EVENT_TYPE)
-                            .asText();
-                    tableName = getSegregatedTableName(table, eventType);
-                }
+                String tableName = tableTranslator.getTable(table, document);
+
                 if (tableVsDocuments.containsKey(tableName)) {
                     tableVsDocuments.get(tableName)
                             .add(document);
@@ -154,24 +167,6 @@ public class DocumentResource {
             tableVsDocuments.put(table, documents);
         }
         return tableVsDocuments;
-    }
-
-    @GET
-    @Path("/{id}")
-    @Timed
-    @ApiOperation("Get Document")
-    public Response getDocument(@PathParam("table") final String table, @PathParam("id") @NotNull final String id) {
-        return Response.ok(queryStore.get(table, id))
-                .build();
-    }
-
-    @GET
-    @Timed
-    @ApiOperation("Get Documents")
-    public Response getDocuments(@PathParam("table") final String table,
-            @QueryParam("id") @NotNull final List<String> ids) {
-        return Response.ok(queryStore.getAll(table, ids))
-                .build();
     }
 
 }

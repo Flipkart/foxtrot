@@ -16,9 +16,9 @@
 package com.flipkart.foxtrot.core.common.noncacheable;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.annotations.VisibleForTesting;
@@ -28,11 +28,11 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
  * Created by rishabh.goyal on 02/05/14.
  */
 @VisibleForTesting
-@AnalyticsProvider(opcode = "no-cache-test", request = NonCacheableActionRequest.class, response = NonCacheableActionResponse.class,
-                   cacheable = false)
+@AnalyticsProvider(opcode = "no-cache-test", request = NonCacheableActionRequest.class, response = NonCacheableActionResponse.class, cacheable = false)
 public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
-    public NonCacheableAction(NonCacheableActionRequest parameter, AnalyticsLoader analyticsLoader) {
+    public NonCacheableAction(NonCacheableActionRequest parameter,
+                              AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
     }
 
@@ -52,7 +52,7 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    public void validateImpl(NonCacheableActionRequest parameter, String email) throws MalformedQueryException {
+    public void validateImpl(NonCacheableActionRequest parameter) throws MalformedQueryException {
 
     }
 
@@ -62,8 +62,8 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, NonCacheableActionRequest parameter)
-            throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      NonCacheableActionRequest parameter) throws FoxtrotException {
         return null;
     }
 

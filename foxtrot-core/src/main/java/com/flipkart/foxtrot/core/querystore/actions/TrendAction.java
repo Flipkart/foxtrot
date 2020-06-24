@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
@@ -16,6 +19,7 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
@@ -23,10 +27,11 @@ import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
@@ -50,13 +55,20 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.DateTime;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 30/03/14 Time: 10:27 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 30/03/14
+ * Time: 10:27 PM
  */
 @AnalyticsProvider(opcode = "trend", request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class TrendAction extends Action<TrendRequest> {
 
-    public TrendAction(TrendRequest parameter, AnalyticsLoader analyticsLoader) {
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    public TrendAction(TrendRequest parameter,
+                       AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -72,7 +84,45 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    public void validateImpl(TrendRequest parameter, String email) {
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
+    public String getRequestCacheKey() {
+        TrendRequest query = getParameter();
+        long filterHashKey = 0L;
+        if (query.getFilters() != null) {
+            for (Filter filter : query.getFilters()) {
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
+            }
+        }
+        if (query.getValues() != null) {
+            for (String value : query.getValues()) {
+                filterHashKey += 31 * value.hashCode();
+            }
+        }
+
+        if (null != query.getUniqueCountOn()) {
+            filterHashKey += 31 * query.getUniqueCountOn()
+                    .hashCode();
+        }
+
+        filterHashKey += 31 * query.getPeriod()
+                .name()
+                .hashCode();
+        filterHashKey += 31 * query.getTimestamp()
+                .hashCode();
+        filterHashKey += 31 * (query.getField() != null
+                               ? query.getField()
+                                       .hashCode()
+                               : "FIELD".hashCode());
+
+        return String.format("%s-%s-%s-%d", query.getTable(), query.getField(), query.getPeriod(), filterHashKey);
+    }
+
+    @Override
+    public void validateImpl(TrendRequest parameter) {
         List<String> validationErrors = Lists.newArrayList();
         if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
@@ -98,45 +148,6 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    public String getRequestCacheKey() {
-        TrendRequest query = getParameter();
-        long filterHashKey = 0L;
-        if (query.getFilters() != null) {
-            for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
-            }
-        }
-        if (query.getValues() != null) {
-            for (String value : query.getValues()) {
-                filterHashKey += 31 * value.hashCode();
-            }
-        }
-
-        if (null != query.getUniqueCountOn()) {
-            filterHashKey += 31 * query.getUniqueCountOn()
-                    .hashCode();
-        }
-
-        filterHashKey += 31 * query.getPeriod()
-                .name()
-                .hashCode();
-        filterHashKey += 31 * query.getTimestamp()
-                .hashCode();
-        filterHashKey += 31 * (query.getField() != null ? query.getField()
-                .hashCode() : "FIELD".hashCode());
-
-        return String.format("%s-%s-%s-%d", query.getTable(), query.getField(), query.getPeriod(), filterHashKey);
-    }
-
-    @Override
-    protected Filter getDefaultTimeSpan() {
-        LastFilter lastFilter = new LastFilter();
-        lastFilter.setField("_timestamp");
-        lastFilter.setDuration(Duration.days(1));
-        return lastFilter;
-    }
-
-    @Override
     public ActionResponse execute(TrendRequest parameter) {
         SearchRequestBuilder searchRequestBuilder = getRequestBuilder(parameter);
         try {
@@ -146,11 +157,6 @@ public class TrendAction extends Action<TrendRequest> {
         } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
-    }
-
-    @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
     }
 
     @Override
@@ -171,13 +177,23 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, TrendRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      TrendRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         if (aggregations != null) {
             return buildResponse(parameter, aggregations);
         } else {
             return new TrendResponse(Collections.<String, List<TrendResponse.Count>>emptyMap());
         }
+    }
+
+
+    @Override
+    protected Filter getDefaultTimeSpan() {
+        LastFilter lastFilter = new LastFilter();
+        lastFilter.setField("_timestamp");
+        lastFilter.setDuration(Duration.days(1));
+        return lastFilter;
     }
 
     private AbstractAggregationBuilder buildAggregation(TrendRequest request) {
@@ -187,13 +203,16 @@ public class TrendAction extends Action<TrendRequest> {
         DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(),
                 interval);
         if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
-            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
+            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(),
+                    request.accept(new CountPrecisionThresholdVisitorAdapter(
+                            elasticsearchTuningConfig.getPrecisionThreshold()))));
         }
         return Utils.buildTermsAggregation(Lists.newArrayList(new ResultSort(field, ResultSort.Order.asc)),
-                Sets.newHashSet(histogramBuilder));
+                Sets.newHashSet(histogramBuilder), elasticsearchTuningConfig.getAggregationSize());
     }
 
-    private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations) {
+    private TrendResponse buildResponse(TrendRequest request,
+                                        Aggregations aggregations) {
         String field = request.getField();
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
@@ -211,8 +230,7 @@ public class TrendAction extends Action<TrendRequest> {
                             cardinality.getValue()));
                 } else {
                     counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
-                            histogramBucket.getDocCount()
-                    ));
+                            histogramBucket.getDocCount()));
                 }
             }
             trendCounts.put(key, counts);

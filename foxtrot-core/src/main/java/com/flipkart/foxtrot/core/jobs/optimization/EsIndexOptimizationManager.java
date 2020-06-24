@@ -5,8 +5,6 @@ import com.flipkart.foxtrot.core.jobs.BaseJobManager;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.flipkart.foxtrot.core.util.MetricUtil;
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
 import java.time.Instant;
 import java.util.List;
@@ -14,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.apache.commons.lang3.StringUtils;
@@ -24,10 +24,13 @@ import org.elasticsearch.action.admin.indices.segments.IndicesSegmentsRequest;
 import org.elasticsearch.index.engine.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /***
  Created by nitish.goyal on 11/09/18
  ***/
+@Singleton
+@Order(40)
 public class EsIndexOptimizationManager extends BaseJobManager {
 
     private static final int BATCH_SIZE = 5;
@@ -37,16 +40,19 @@ public class EsIndexOptimizationManager extends BaseJobManager {
     private final ElasticsearchConnection elasticsearchConnection;
     private final EsIndexOptimizationConfig esIndexOptimizationConfig;
 
+    @Inject
     public EsIndexOptimizationManager(ScheduledExecutorService scheduledExecutorService,
-            EsIndexOptimizationConfig esIndexOptimizationConfig, ElasticsearchConnection elasticsearchConnection,
-            HazelcastConnection hazelcastConnection) {
+                                      EsIndexOptimizationConfig esIndexOptimizationConfig,
+                                      ElasticsearchConnection elasticsearchConnection,
+                                      HazelcastConnection hazelcastConnection) {
         super(esIndexOptimizationConfig, scheduledExecutorService, hazelcastConnection);
         this.esIndexOptimizationConfig = esIndexOptimizationConfig;
         this.elasticsearchConnection = elasticsearchConnection;
     }
 
-
-    protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
+    @Override
+    protected void runImpl(LockingTaskExecutor executor,
+                           Instant lockAtMostUntil) {
         executor.executeWithLock(() -> {
             try {
                 IndicesSegmentsRequest indicesSegmentsRequest = new IndicesSegmentsRequest();
@@ -70,16 +76,17 @@ public class EsIndexOptimizationManager extends BaseJobManager {
         }, new LockConfiguration(esIndexOptimizationConfig.getJobName(), lockAtMostUntil));
     }
 
-    private void extractIndicesToOptimizeForIndex(String index, IndexSegments indexShardSegments,
-            Set<String> indicesToOptimize) {
+    private void extractIndicesToOptimizeForIndex(String index,
+                                                  IndexSegments indexShardSegments,
+                                                  Set<String> indicesToOptimize) {
 
         String table = ElasticsearchUtils.getTableNameFromIndex(index);
         if (StringUtils.isEmpty(table)) {
             return;
         }
         String currentIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis());
-        String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() +
-                TimeUnit.DAYS.toMillis(1));
+        String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table,
+                System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
         if (index.equals(currentIndex) || index.equals(nextDayIndex)) {
             return;
         }
@@ -99,7 +106,6 @@ public class EsIndexOptimizationManager extends BaseJobManager {
     private void optimizeIndices(Set<String> indicesToOptimize) {
         List<List<String>> batchOfIndicesToOptimize = CollectionUtils.partition(indicesToOptimize, BATCH_SIZE);
         for (List<String> indices : batchOfIndicesToOptimize) {
-            Stopwatch stopwatch = Stopwatch.createStarted();
             elasticsearchConnection.getClient()
                     .admin()
                     .indices()
@@ -110,9 +116,6 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                     .execute()
                     .actionGet();
             LOGGER.info("No of indexes optimized : {}", indices.size());
-            MetricUtil.getInstance()
-                    .registerActionSuccess("indexesOptimized", CollectionUtils.mkString(indices, ","),
-                            stopwatch.elapsed(TimeUnit.MILLISECONDS));
         }
     }
 

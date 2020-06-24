@@ -11,6 +11,10 @@ public class CountResponse extends ActionResponse {
 
     private long count;
 
+    public CountResponse() {
+        super(Opcodes.COUNT);
+    }
+
     public CountResponse(long count) {
         super(Opcodes.COUNT);
         this.count = count;
@@ -25,7 +29,8 @@ public class CountResponse extends ActionResponse {
     }
 
     @Override
-    public void accept(ResponseVisitor visitor) {
-        visitor.visit(this);
+    public <T> T accept(ResponseVisitor<T> visitor) {
+        return visitor.visit(this);
     }
+
 }

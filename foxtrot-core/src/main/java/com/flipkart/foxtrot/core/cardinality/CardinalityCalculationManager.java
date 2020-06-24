@@ -1,5 +1,5 @@
 package com.flipkart.foxtrot.core.cardinality;
-/*
+/**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,21 +19,24 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.jobs.BaseJobManager;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import net.javacrumbs.shedlock.core.LockConfiguration;
-import net.javacrumbs.shedlock.core.LockingTaskExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
-
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import net.javacrumbs.shedlock.core.LockConfiguration;
+import net.javacrumbs.shedlock.core.LockingTaskExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /***
  Created by nitish.goyal on 13/08/18
  ***/
+@Singleton
+@Order(35)
 public class CardinalityCalculationManager extends BaseJobManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CardinalityCalculationManager.class.getSimpleName());
@@ -42,15 +45,19 @@ public class CardinalityCalculationManager extends BaseJobManager {
     private final TableMetadataManager tableMetadataManager;
     private final CardinalityConfig cardinalityConfig;
 
-    public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
-                                         HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
+    @Inject
+    public CardinalityCalculationManager(TableMetadataManager tableMetadataManager,
+                                         CardinalityConfig cardinalityConfig,
+                                         HazelcastConnection hazelcastConnection,
+                                         ScheduledExecutorService scheduledExecutorService) {
         super(cardinalityConfig, scheduledExecutorService, hazelcastConnection);
         this.tableMetadataManager = tableMetadataManager;
         this.cardinalityConfig = cardinalityConfig;
     }
 
     @Override
-    protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
+    protected void runImpl(LockingTaskExecutor executor,
+                           Instant lockAtMostUntil) {
         executor.executeWithLock(() -> {
             try {
                 int maxTimeToRunJob = MAX_TIME_TO_RUN_JOB;

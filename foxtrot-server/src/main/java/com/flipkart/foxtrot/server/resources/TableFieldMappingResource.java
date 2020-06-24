@@ -14,11 +14,16 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.stream.Collectors;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -35,12 +40,16 @@ import javax.ws.rs.core.Response;
 @Path("/v1/tables")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/tables")
+@Singleton
+@PermitAll
 public class TableFieldMappingResource {
 
     private final TableManager tableManager;
     private final TableMetadataManager tableMetadataManager;
 
-    public TableFieldMappingResource(TableManager tableManager, TableMetadataManager tableMetadataManager) {
+    @Inject
+    public TableFieldMappingResource(TableManager tableManager,
+                                     TableMetadataManager tableMetadataManager) {
         this.tableManager = tableManager;
         this.tableMetadataManager = tableMetadataManager;
     }
@@ -50,8 +59,8 @@ public class TableFieldMappingResource {
     @Path("/{name}/fields")
     @ApiOperation("Get fields")
     public Response get(@PathParam("name") final String table,
-            @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
-            @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) {
+                        @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
+                        @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) {
         return Response.ok(tableMetadataManager.getFieldMappings(table, withCardinality, calculateCardinality))
                 .build();
     }
@@ -62,13 +71,12 @@ public class TableFieldMappingResource {
     @Path("/fields")
     @ApiOperation("Get all Fields")
     public Response getAllFields(@QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
-            @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) {
+                                 @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) {
         return Response.ok()
                 .entity(tableManager.getAll()
                         .stream()
                         .collect(Collectors.toMap(Table::getName,
-                                table -> tableMetadataManager.getFieldMappings(
-                                        table.getName(), withCardinality,
+                                table -> tableMetadataManager.getFieldMappings(table.getName(), withCardinality,
                                         calculateCardinality))))
                 .build();
     }
@@ -77,9 +85,12 @@ public class TableFieldMappingResource {
     @Timed
     @Path("/{name}/fields/update")
     @ApiOperation("Update Fields")
+    @RolesAllowed(FoxtrotRole.Value.SYSADMIN)
     public Response updateEstimation(@PathParam("name") final String table,
-            @QueryParam("time") @DefaultValue("0") long epoch) {
-        tableMetadataManager.updateEstimationData(table, 0 == epoch ? System.currentTimeMillis() : epoch);
+                                     @QueryParam("time") @DefaultValue("0") long epoch) {
+        tableMetadataManager.updateEstimationData(table, 0 == epoch
+                                                         ? System.currentTimeMillis()
+                                                         : epoch);
         return Response.ok()
                 .build();
     }

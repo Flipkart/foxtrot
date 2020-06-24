@@ -6,11 +6,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-
 import java.util.List;
 import java.util.Random;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 @Slf4j
 public class LargeTextNodeRemover implements IndexerEventMutator {
@@ -28,7 +27,9 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
 
 
     @Override
-    public void mutate(final String table, final String documentId, JsonNode data) {
+    public void mutate(final String table,
+                       final String documentId,
+                       JsonNode data) {
         walkTree(table, documentId, data);
     }
 
@@ -42,7 +43,7 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         if (node.isObject()) {
             handleObjectNode(table, documentId, (ObjectNode) node);
         } else if (node.isArray()) {
-            handleArrayNode(table, documentId,null, (ArrayNode) node);
+            handleArrayNode(table, documentId, null, (ArrayNode) node);
         }
     }
 
@@ -53,20 +54,21 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
             return;
         }
         List<String> toBeRemoved = Lists.newArrayList();
-        objectNode.fields().forEachRemaining(entry -> {
-            val key = entry.getKey();
-            val value = entry.getValue();
-            if (value.isTextual()) {
-                boolean removeEntry = evaluateForRemoval(table, documentId, key, value);
-                if (removeEntry) {
-                    toBeRemoved.add(entry.getKey());
-                }
-            } else if (value.isArray()) {
-                handleArrayNode(table, documentId, key, (ArrayNode) value);
-            } else if (value.isObject()) {
-                handleObjectNode(table, documentId, (ObjectNode) value);
-            }
-        });
+        objectNode.fields()
+                .forEachRemaining(entry -> {
+                    val key = entry.getKey();
+                    val value = entry.getValue();
+                    if (value.isTextual()) {
+                        boolean removeEntry = evaluateForRemoval(table, documentId, key, value);
+                        if (removeEntry) {
+                            toBeRemoved.add(entry.getKey());
+                        }
+                    } else if (value.isArray()) {
+                        handleArrayNode(table, documentId, key, (ArrayNode) value);
+                    } else if (value.isObject()) {
+                        handleObjectNode(table, documentId, (ObjectNode) value);
+                    }
+                });
         objectNode.remove(toBeRemoved);
     }
 
@@ -108,13 +110,15 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
             return false;
         }
 
-        if (node.textValue().length() < configuration.getMaxAllowedSize()) {
+        if (node.textValue()
+                .length() < configuration.getMaxAllowedSize()) {
             return false;
         }
 
         if (random.nextInt(100) < configuration.getLogSamplingPercentage()) {
-            log.warn("LargeTextNodeDetected table: {} documentId: {} key: {} size: {}",
-                    table, documentId, key, node.textValue().length());
+            log.warn("LargeTextNodeDetected table: {} documentId: {} key: {} size: {}", table, documentId, key,
+                    node.textValue()
+                            .length());
         }
 
         return random.nextInt(100) < configuration.getBlockPercentage();

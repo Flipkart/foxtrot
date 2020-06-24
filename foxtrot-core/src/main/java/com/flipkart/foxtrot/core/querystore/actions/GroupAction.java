@@ -1,20 +1,22 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.Table;
@@ -24,6 +26,7 @@ import com.flipkart.foxtrot.common.estimation.EstimationDataVisitor;
 import com.flipkart.foxtrot.common.estimation.FixedEstimationData;
 import com.flipkart.foxtrot.common.estimation.PercentileEstimationData;
 import com.flipkart.foxtrot.common.estimation.TermHistogramEstimationData;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -40,14 +43,13 @@ import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.alerts.EmailClient;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
@@ -66,7 +68,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -77,28 +78,25 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.Interval;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 27/03/14 Time: 7:16 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 27/03/14
+ * Time: 7:16 PM
  */
 @AnalyticsProvider(opcode = "group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
 @Slf4j
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class GroupAction extends Action<GroupRequest> {
 
     private static final long MAX_CARDINALITY = 50000;
     private static final long MIN_ESTIMATION_THRESHOLD = 1000;
     private static final double PROBABILITY_CUT_OFF = 0.5;
-    private EmailClient emailClient;
 
-    public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader) {
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    public GroupAction(GroupRequest parameter,
+                       AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        if (analyticsLoader.getEmailClient() != null) {
-            emailClient = analyticsLoader.getEmailClient();
-        } else {
-            emailClient = getEmailClient(analyticsLoader.getEmailConfig());
-        }
-    }
-
-    private EmailClient getEmailClient(EmailConfig emailConfig) {
-        return new EmailClient(emailConfig);
+        elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -107,7 +105,36 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
-    public void validateImpl(GroupRequest parameter, String email) {
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
+    public String getRequestCacheKey() {
+        long filterHashKey = 0L;
+        GroupRequest query = getParameter();
+        if (null != query.getFilters()) {
+            for (Filter filter : query.getFilters()) {
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
+            }
+        }
+
+        if (null != query.getUniqueCountOn()) {
+            filterHashKey += 31 * query.getUniqueCountOn()
+                    .hashCode();
+        }
+
+        for (int i = 0; i < query.getNesting()
+                .size(); i++) {
+            filterHashKey += 31 * query.getNesting()
+                    .get(i)
+                    .hashCode() * (i + 1);
+        }
+        return String.format("%s-%d", query.getTable(), filterHashKey);
+    }
+
+    @Override
+    public void validateImpl(GroupRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
@@ -128,42 +155,13 @@ public class GroupAction extends Action<GroupRequest> {
             validationErrors.add("unique field cannot be empty (can be null)");
         }
 
-        validateCardinality(parameter, email);
+        validateCardinality(parameter);
 
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
 
 
-    }
-
-    @Override
-    public String getRequestCacheKey() {
-        long filterHashKey = 0L;
-        GroupRequest query = getParameter();
-        if(null != query.getFilters()) {
-            for(Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
-            }
-        }
-
-        if (null != query.getUniqueCountOn()) {
-            filterHashKey += 31 * query.getUniqueCountOn()
-                    .hashCode();
-        }
-
-        for (int i = 0; i < query.getNesting()
-                .size(); i++) {
-            filterHashKey += 31 * query.getNesting()
-                    .get(i)
-                    .hashCode() * (i + 1);
-        }
-        return String.format("%s-%d", query.getTable(), filterHashKey);
-    }
-
-    @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
     }
 
     @Override
@@ -185,7 +183,7 @@ public class GroupAction extends Action<GroupRequest> {
             query = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setIndicesOptions(Utils.indicesOptions());
-            AbstractAggregationBuilder aggregation = buildAggregation();
+            AbstractAggregationBuilder aggregation = buildAggregation(parameter);
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(aggregation);
@@ -196,7 +194,8 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, GroupRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      GroupRequest parameter) {
         List<String> fields = parameter.getNesting();
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         // Check if any aggregation is present or not
@@ -206,37 +205,8 @@ public class GroupAction extends Action<GroupRequest> {
         return new GroupResponse(getMap(fields, aggregations));
     }
 
-    private void validateCardinality(GroupRequest parameter, String email) {
-        // Perform cardinality analysis and see how much this fucks up the cluster
-        QueryStore queryStore = getQueryStore();
-        if (queryStore instanceof ElasticsearchQueryStore && ((ElasticsearchQueryStore) queryStore)
-                .getCardinalityConfig()
-                .isEnabled()) {
-            double probability = 0;
-            try {
-                TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true,
-                        false);
-                if (null == fieldMappings) {
-                    fieldMappings = TableFieldMapping.builder()
-                            .mappings(Collections.emptySet())
-                            .table(parameter.getTable())
-                            .build();
-                }
-
-                probability = estimateProbability(fieldMappings, parameter);
-            } catch (Exception e) {
-                log.error("Error running estimation", e);
-            }
-
-            if (probability > PROBABILITY_CUT_OFF) {
-                sendEmail(parameter, email, probability);
-            } else {
-                log.info("Allowing group by with probability {} for query: {}", probability, parameter);
-            }
-        }
-    }
-
-    private double estimateProbability(TableFieldMapping tableFieldMapping, GroupRequest parameter) {
+    private double estimateProbability(TableFieldMapping tableFieldMapping,
+                                       GroupRequest parameter) {
         Set<FieldMetadata> mappings = tableFieldMapping.getMappings();
         Map<String, FieldMetadata> metaMap = mappings.stream()
                 .collect(Collectors.toMap(FieldMetadata::getField, mapping -> mapping));
@@ -244,17 +214,16 @@ public class GroupAction extends Action<GroupRequest> {
         String cacheKey = getRequestCacheKey();
         long estimatedMaxDocCount = extractMaxDocCount(metaMap);
         log.debug("cacheKey:{} msg:DOC_COUNT_ESTIMATION_COMPLETED maxDocCount:{}", cacheKey, estimatedMaxDocCount);
-        long estimatedDocCountBasedOnTime = estimateDocCountBasedOnTime(estimatedMaxDocCount, parameter, getTableMetadataManager(),
-                                                                        tableFieldMapping.getTable()
-                                                                       );
-        log.debug("cacheKey:{} msg:TIME_BASED_DOC_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{}", cacheKey,
-                  estimatedMaxDocCount, estimatedDocCountBasedOnTime
-                 );
-        long estimatedDocCountAfterFilters = estimateDocCountWithFilters(estimatedDocCountBasedOnTime, metaMap, parameter.getFilters());
-        log.debug("cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " + "docCountAfterFilters:{}",
-                  cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters
-                 );
-        if(estimatedDocCountAfterFilters < MIN_ESTIMATION_THRESHOLD) {
+        long estimatedDocCountBasedOnTime = estimateDocCountBasedOnTime(estimatedMaxDocCount, parameter,
+                getTableMetadataManager(), tableFieldMapping.getTable());
+        log.debug("cacheKey:{} msg:TIME_BASED_DOC_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{}",
+                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime);
+        long estimatedDocCountAfterFilters = estimateDocCountWithFilters(estimatedDocCountBasedOnTime, metaMap,
+                parameter.getFilters());
+        log.debug("cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} "
+                        + "docCountAfterFilters:{}", cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime,
+                estimatedDocCountAfterFilters);
+        if (estimatedDocCountAfterFilters < MIN_ESTIMATION_THRESHOLD) {
             log.debug("cacheKey:{} msg:NESTING_ESTIMATION_SKIPPED estimatedDocCount:{} threshold:{}", cacheKey,
                     estimatedDocCountAfterFilters, MIN_ESTIMATION_THRESHOLD);
             return 0.0;
@@ -287,8 +256,8 @@ public class GroupAction extends Action<GroupRequest> {
 
                         @Override
                         public Long visit(CardinalityEstimationData cardinalityEstimationData) {
-                            return (cardinalityEstimationData.getCardinality() * estimatedDocCountAfterFilters) /
-                                    cardinalityEstimationData.getCount();
+                            return (long) (((double) (cardinalityEstimationData.getCardinality()
+                                    * estimatedDocCountAfterFilters)) / cardinalityEstimationData.getCount());
                         }
 
                         @Override
@@ -298,12 +267,12 @@ public class GroupAction extends Action<GroupRequest> {
                                     .size();
                         }
                     });
-            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATED field:{} overallCardinality:{} fieldCardinality:{} " +
-                            "newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
+            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATED field:{} overallCardinality:{} fieldCardinality:{} "
+                            + "newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
                     outputCardinality * fieldCardinality);
             fieldCardinality = (long) Utils.ensureOne(fieldCardinality);
-            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} " +
-                            "fieldCardinality:{} newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
+            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} "
+                            + "fieldCardinality:{} newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
                     outputCardinality * fieldCardinality);
             outputCardinality *= fieldCardinality;
         }
@@ -313,26 +282,26 @@ public class GroupAction extends Action<GroupRequest> {
         // cardinality, reducing cardinality for that query
         //Only reducing cardinality if the doc count is actually less than docCount for a day. Assuming cardinality
         // will remain same if query for more than 1 day
-        if (estimatedMaxDocCount != 0 && ((double) estimatedDocCountAfterFilters / estimatedMaxDocCount) < 1.0 &&
-                reduceCardinality.get()) {
-            outputCardinality =
-                    (long) (outputCardinality * ((double) estimatedDocCountAfterFilters / estimatedMaxDocCount));
+        if (estimatedMaxDocCount != 0 && ((double) estimatedDocCountAfterFilters / estimatedMaxDocCount) < 1.0
+                && reduceCardinality.get()) {
+            outputCardinality = (long) (outputCardinality * ((double) estimatedDocCountAfterFilters
+                    / estimatedMaxDocCount));
         }
 
-        log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
-                        "docCountAfterFilters:{} outputCardinality:{}", cacheKey, estimatedMaxDocCount,
+        log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} "
+                        + "docCountAfterFilters:{} outputCardinality:{}", cacheKey, estimatedMaxDocCount,
                 estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
         long maxCardinality = MAX_CARDINALITY;
-        if (getQueryStore() instanceof ElasticsearchQueryStore &&
-                ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig() != null &&
+        if (getQueryStore() instanceof ElasticsearchQueryStore
+                && ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig() != null &&
                 ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
                         .getMaxCardinality() != 0) {
             maxCardinality = ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
                     .getMaxCardinality();
         }
         if (outputCardinality > maxCardinality) {
-            log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, " +
-                            "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  Query: {}", outputCardinality,
+            log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, "
+                            + "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  Query: {}", outputCardinality,
                     estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters,
                     tableFieldMapping, parameter.toString());
             return 1.0;
@@ -341,36 +310,10 @@ public class GroupAction extends Action<GroupRequest> {
         }
     }
 
-    private void sendEmail(GroupRequest parameter, String email, double probability) {
-        try {
-            String subject = "Blocked query as it might have screwed up the cluster";
-            String content = getObjectMapper().writeValueAsString(parameter);
-            String recipients = "payments-dev@phonepe.com";
-            if (!StringUtils.isEmpty(email)) {
-                recipients = recipients + ", " + email;
-            }
-            emailClient.sendEmail(subject, content, recipients);
-            log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}", probability,
-                    getObjectMapper().writeValueAsString(parameter));
-        } catch (JsonProcessingException e) {
-            log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}", probability,
-                    parameter);
-        }
-        throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting()
-                .get(0), probability);
-    }
-
-    private long extractMaxDocCount(Map<String, FieldMetadata> metaMap) {
-        return metaMap.values()
-                .stream()
-                .map(x -> x.getEstimationData() == null ? 0 : x.getEstimationData()
-                        .getCount())
-                .max(Comparator.naturalOrder())
-                .orElse((long) 0);
-    }
-
-    private long estimateDocCountBasedOnTime(long currentDocCount, GroupRequest parameter,
-            TableMetadataManager tableMetadataManager, String table) {
+    private long estimateDocCountBasedOnTime(long currentDocCount,
+                                             GroupRequest parameter,
+                                             TableMetadataManager tableMetadataManager,
+                                             String table) {
         Interval queryInterval = new PeriodSelector(parameter.getFilters()).analyze();
         long minutes = queryInterval.toDuration()
                 .getStandardMinutes();
@@ -392,8 +335,21 @@ public class GroupAction extends Action<GroupRequest> {
         }
     }
 
-    private long estimateDocCountWithFilters(long currentDocCount, Map<String, FieldMetadata> metaMap,
-            List<Filter> filters) {
+
+    private long extractMaxDocCount(Map<String, FieldMetadata> metaMap) {
+        return metaMap.values()
+                .stream()
+                .map(x -> x.getEstimationData() == null
+                          ? 0
+                          : x.getEstimationData()
+                                  .getCount())
+                .max(Comparator.naturalOrder())
+                .orElse((long) 0);
+    }
+
+    private long estimateDocCountWithFilters(long currentDocCount,
+                                             Map<String, FieldMetadata> metaMap,
+                                             List<Filter> filters) {
         if (CollectionUtils.isNullOrEmpty(filters)) {
             return currentDocCount;
         }
@@ -412,17 +368,16 @@ public class GroupAction extends Action<GroupRequest> {
                     fieldMetadata);
             double currentFilterMultiplier = fieldMetadata.getEstimationData()
                     .accept(getDocCountWithFilterEstimationDataVisitor(filter, cacheKey));
-            log.debug(
-                    "cacheKey:{} msg:FILTER_ESTIMATION_COMPLETED field:{} fieldMultiplier:{} overallOldMultiplier:{} " +
-                            "overallNewMultiplier:{}", cacheKey, filterField, currentFilterMultiplier,
-                    overallFilterMultiplier,
-                    overallFilterMultiplier * currentFilterMultiplier);
+            log.debug("cacheKey:{} msg:FILTER_ESTIMATION_COMPLETED field:{} fieldMultiplier:{} overallOldMultiplier:{} "
+                            + "overallNewMultiplier:{}", cacheKey, filterField, currentFilterMultiplier,
+                    overallFilterMultiplier, overallFilterMultiplier * currentFilterMultiplier);
             overallFilterMultiplier *= currentFilterMultiplier;
         }
         return (long) (currentDocCount * overallFilterMultiplier);
     }
 
-    private EstimationDataVisitor<Double> getDocCountWithFilterEstimationDataVisitor(Filter filter, String cacheKey) {
+    private EstimationDataVisitor<Double> getDocCountWithFilterEstimationDataVisitor(Filter filter,
+                                                                                     String cacheKey) {
         return new EstimationDataVisitor<Double>() {
             @Override
             @SneakyThrows
@@ -494,8 +449,9 @@ public class GroupAction extends Action<GroupRequest> {
         };
     }
 
-    private FilterVisitorAdapter<Double> getPercentileFilterVisitorAdapter(double[] percentiles, String cacheKey,
-            long numMatches) {
+    private FilterVisitorAdapter<Double> getPercentileFilterVisitorAdapter(double[] percentiles,
+                                                                           String cacheKey,
+                                                                           long numMatches) {
         return new FilterVisitorAdapter<Double>(1.0) {
             @Override
             public Double visit(BetweenFilter betweenFilter) {
@@ -515,8 +471,8 @@ public class GroupAction extends Action<GroupRequest> {
 
                 int numBuckets = maxBound - minBound + 1;
                 final double result = (double) numBuckets / 10.0;
-                log.debug("cacheKey:{} Between filter: {} " + "percentiles[{}] = {} to percentiles[{}] = {} " +
-                                "buckets {} multiplier {}", cacheKey, betweenFilter, minBound, percentiles[minBound],
+                log.debug("cacheKey:{} Between filter: {} " + "percentiles[{}] = {} to percentiles[{}] = {} "
+                                + "buckets {} multiplier {}", cacheKey, betweenFilter, minBound, percentiles[minBound],
                         maxBound, percentiles[maxBound], numBuckets, result);
                 return result;
             }
@@ -621,8 +577,7 @@ public class GroupAction extends Action<GroupRequest> {
         };
     }
 
-    private FilterVisitorAdapter<Double> getCardinalityFilterVisitorAdapter(
-            CardinalityEstimationData cardinalityEstimationData) {
+    private FilterVisitorAdapter<Double> getCardinalityFilterVisitorAdapter(CardinalityEstimationData cardinalityEstimationData) {
         return new FilterVisitorAdapter<Double>(1.0) {
 
             @Override
@@ -651,8 +606,7 @@ public class GroupAction extends Action<GroupRequest> {
             public Double visit(InFilter inFilter) {
                 // Assuming there are M matches, the probability is M/N
                 return Utils.ensurePositive(inFilter.getValues()
-                        .size()) / Utils.ensureOne(
-                        cardinalityEstimationData.getCardinality());
+                        .size()) / Utils.ensureOne(cardinalityEstimationData.getCardinality());
             }
 
             @Override
@@ -664,8 +618,8 @@ public class GroupAction extends Action<GroupRequest> {
         };
     }
 
-    private FilterVisitorAdapter<Double> getTermHistogramFilterVisitorAdapter(
-            TermHistogramEstimationData termEstimationData, long totalCount) {
+    private FilterVisitorAdapter<Double> getTermHistogramFilterVisitorAdapter(TermHistogramEstimationData termEstimationData,
+                                                                              long totalCount) {
         return new FilterVisitorAdapter<Double>(1.0) {
             @Override
             public Double visit(EqualsFilter equalsFilter) {
@@ -731,22 +685,28 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private Long getValidCount(Long count) {
-        return count == null ? 0 : count;
+        return count == null
+               ? 0
+               : count;
     }
 
-    private AbstractAggregationBuilder buildAggregation() {
+    private AbstractAggregationBuilder buildAggregation(GroupRequest parameter) {
         return Utils.buildTermsAggregation(getParameter().getNesting()
-                        .stream()
-                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                        .collect(Collectors.toList()),
-                !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn()) ?
-                        Sets.newHashSet(Utils.buildCardinalityAggregation(
-                                getParameter().getUniqueCountOn())) : Sets.newHashSet());
+                .stream()
+                .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                .collect(Collectors.toList()), !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())
+                                               ? Sets.newHashSet(
+                Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(), parameter.accept(
+                        new CountPrecisionThresholdVisitorAdapter(elasticsearchTuningConfig.getPrecisionThreshold()))))
+                                               : Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize());
     }
 
-    private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
+    private Map<String, Object> getMap(List<String> fields,
+                                       Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
+        final List<String> remainingFields = (fields.size() > 1)
+                                             ? fields.subList(1, fields.size())
+                                             : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         Map<String, Object> levelCount = Maps.newHashMap();
         for (Terms.Bucket bucket : terms.getBuckets()) {
@@ -765,5 +725,39 @@ public class GroupAction extends Action<GroupRequest> {
         }
         return levelCount;
 
+    }
+
+    private void validateCardinality(GroupRequest parameter) {
+        // Perform cardinality analysis and see how much this fucks up the cluster
+        QueryStore queryStore = getQueryStore();
+        if (queryStore instanceof ElasticsearchQueryStore
+                && ((ElasticsearchQueryStore) queryStore).getCardinalityConfig()
+                .isEnabled()) {
+            double probability = 0;
+            try {
+                TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true,
+                        false);
+                if (null == fieldMappings) {
+                    fieldMappings = TableFieldMapping.builder()
+                            .mappings(Collections.emptySet())
+                            .table(parameter.getTable())
+                            .build();
+                }
+
+                probability = estimateProbability(fieldMappings, parameter);
+            } catch (Exception e) {
+                log.error("Error running estimation", e);
+            }
+
+            if (probability > PROBABILITY_CUT_OFF) {
+                final String content = requestString();
+                log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                        probability, content);
+                throw FoxtrotExceptions.createCardinalityOverflow(parameter, content, parameter.getNesting()
+                        .get(0), probability);
+            } else {
+                log.info("Allowing group by with probability {} for query: {}", probability, parameter);
+            }
+        }
     }
 }

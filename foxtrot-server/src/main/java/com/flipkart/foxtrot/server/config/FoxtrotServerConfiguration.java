@@ -1,40 +1,56 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.server.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
+import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
+import com.flipkart.foxtrot.core.config.GandalfConfiguration;
+import com.flipkart.foxtrot.core.config.QueryConfig;
+import com.flipkart.foxtrot.core.config.RangerConfiguration;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
+import com.flipkart.foxtrot.core.email.EmailConfig;
+import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
+import com.flipkart.foxtrot.core.lock.HazelcastDistributedLockConfig;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
-import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
+import com.flipkart.foxtrot.server.auth.AuthConfig;
+import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
+import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
+import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.Configuration;
-import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.primer.model.PrimerBundleConfiguration;
 import io.dropwizard.riemann.RiemannConfig;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.ToString;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -42,12 +58,15 @@ import javax.validation.constraints.NotNull;
  * Time: 9:26 PM
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class FoxtrotServerConfiguration extends Configuration {
 
     @Valid
     private final HbaseConfig hbase;
 
     @Valid
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private final ElasticsearchConfig elasticsearch;
 
     @Valid
@@ -68,29 +87,62 @@ public class FoxtrotServerConfiguration extends Configuration {
     private CardinalityConfig cardinality;
     @Valid
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
+
+    @Valid
+    private SessionCleanupConfig sessionCleanupConfig;
+
     @Valid
     private ConsoleHistoryConfig consoleHistoryConfig;
+    @Valid
     private EmailConfig emailConfig;
+    @Valid
     private CacheConfig cacheConfig;
 
+    private QueryConfig queryConfig;
+
     @NonNull
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private GandalfClientConfig gandalfConfig = new GandalfClientConfig();
 
     @NonNull
     private PrimerBundleConfiguration primerBundleConfiguration;
 
+    @Valid
     private RangerConfiguration rangerConfiguration;
 
+    @Valid
     private SegregationConfiguration segregationConfiguration;
 
     @NotNull
     private boolean restrictAccess;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private GandalfConfiguration gandalfConfiguration;
+
+    private FunnelConfiguration funnelConfiguration;
+
+    private HazelcastDistributedLockConfig distributedLockConfig;
+
+    @Valid
+    private ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    @Valid
+    private String swaggerHost;
+
+    private String swaggerScheme;
+
+    @Builder.Default
+    private TranslatorConfig translatorConfig = new TranslatorConfig();
 
     @Valid
     @Builder.Default
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
+
+    private ClusterRerouteConfig clusterRerouteConfig;
+
+    @Valid
+    @NotNull
+    private AuthConfig auth;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
@@ -102,6 +154,10 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.serviceDiscovery = new ServiceDiscoveryConfiguration();
         this.riemann = new RiemannConfig();
         this.restrictAccess = true;
+        this.queryConfig = new QueryConfig();
+        this.primerBundleConfiguration = new PrimerBundleConfiguration();
+        this.clusterRerouteConfig = new ClusterRerouteConfig();
+        this.elasticsearchTuningConfig = new ElasticsearchTuningConfig();
+        this.clusterRerouteConfig = new ClusterRerouteConfig();
     }
-
 }

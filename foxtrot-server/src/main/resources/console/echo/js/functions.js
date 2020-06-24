@@ -206,21 +206,22 @@ function clearModal() {
 }
 
 function hideFilters() {
-  $(".global-filters").removeClass('col-sm-3');
+  // $(".global-filters").removeClass('col-sm-3');
   $(".global-filters").addClass('col-sm-2');
-  $(".global-filters").css({'width': "138px"});
+  $(".global-filters").css({'width': "auto"});
   $(".global-filter-switch-div").css({'border': "none"})
   $(".widget-btns").css({'left': "172px"});
-  $(".hide-filters").css({"display": "none"});
+  $(".hide-filters").css({"display": "block"});
 }
 
 function showFilters() {
-  $(".global-filters").removeClass('col-sm-2');
+  globalFilters = true;
+  // $(".global-filters").removeClass('col-sm-2');
   $(".global-filters").addClass('col-sm-3');
   $(".global-filter-switch-div").css({'border': "none"})
   $(".widget-btns").css({'left': "0px"});
   $(".hide-filters").css({"display": "block"});
-  $(".global-filter-switch-div").css({'border-right': "1px solid #aeb8bd"});
+  // $(".global-filter-switch-div").css({'border-right': "1px solid #aeb8bd"});
   $(".global-filters").css({'width': "auto"});
 }
 
@@ -324,12 +325,71 @@ function appendVersionConsoleList(array) {
   $("#version-list").append(prepareListOption(array, true).join(''));
 }
 
+/**
+ * Refresh pages without loading
+ * @param {*} selectedConsole
+ */
+function loadConsolesWithoutRefreshing(selectedConsole) {
+
+  stopRefreshInterval();
+  getConsoleById(selectedConsole);
+  //refereshTiles();
+  isNewConsole = false;
+  isEdit = false;
+  isTemplateFilter = false;
+  isViewingVersionConsole = false;
+  hideTemplateFilters();
+  clearTemplateFilter();
+
+  $('.template-filter-switch').attr('checked', false).triggerHandler('click');
+  $('.filter-switch').attr('checked', false).triggerHandler('click');
+  globalFilterResetFromConsoleLoad();
+
+  clearForms();
+
+  // fetch selected console id
+  // Update broweser URL
+  var fullUrl = window.location.href;
+  var newUrl = fullUrl.substr(0, fullUrl.indexOf('?'));
+  window.history.pushState(null, "Echo", newUrl+"?console="+selectedConsole);
+
+
+  setTimeout(function () { // triiger version console api
+    loadVersionConsoleByName(currentConsoleName);
+  }, 5000);
+
+}
+
+// same as globalFilterResetDetails excluding refresh tiles
+function globalFilterResetFromConsoleLoad() {
+  globalFilters = false;
+  hideFilters();
+  resetPeriodDropdown();
+  resetGloblaDateFilter();
+}
+
+function globalFilterResetDetails() {
+  globalFilters = false;
+  hideFilters();
+  resetPeriodDropdown();
+  resetGloblaDateFilter();
+  refereshTiles();
+}
+
+function resetGloblaDateFilter() {
+  isGlobalDateFilter = false;
+  globalDateFilterValue = "";
+  $("#selected-global-date span").text('');
+  $("#selected-global-date").hide();
+}
+
 function loadParticularConsole() { // reload page based on selected console
   var selectedConsole = $("#listConsole").val();
-  if(window.location.href.indexOf("fql") > -1) {
-    window.location.href = "/echo/index.htm?console=" + selectedConsole    
+  if(window.location.href.indexOf("fql") > -1 || window.location.href.indexOf("browse") > -1) {
+    window.location.href = "/echo/index.htm?console=" + selectedConsole
  } else {
-    window.location.assign("index.htm?console=" + selectedConsole);
+   //window.location.assign("index.htm?console=" + selectedConsole);
+   loadConsolesWithoutRefreshing(selectedConsole)
  }
 }
 
@@ -605,6 +665,16 @@ function getPeriodText(text) {
   else if (text == "h") {
     return "hours";
   }
+  else if (text == "t") {
+    return "minutes";
+  }
+  else if (text == "y") {
+    return "minutes";
+  }
+  else if (text == "dby") {
+    return "minutes";
+  }
+
   else {
     return "minutes";
   }
@@ -685,7 +755,7 @@ function deletTemplateFilterQueryRow(el) {
 
 function getTemplateFilters() {
   templateFilterDetails = [];
-  var fieldList = tableFiledsArray[getTemplateFilterTable()].mappings;  
+  var fieldList = tableFiledsArray[getTemplateFilterTable()].mappings;
   for (var filter = 0; filter < templateFilterArray.length; filter++) {
     var filterId = templateFilterArray[filter];
     var el = $(".template-filter-rows").find(".template-row-" + filterId);
@@ -693,7 +763,7 @@ function getTemplateFilters() {
     var filterType = $(el).find("select.filter-type").val();
     var filterValue = $(el).find(".template-filter-value").val();
     var filterObject;
-    
+
     var fieldName;
 
     if(fieldList[parseInt(filterColumn)]) {
@@ -703,7 +773,7 @@ function getTemplateFilters() {
     if(fieldName && filterValue) {
       if(filterType == "in" || filterType == "not_in") {
         filterValue = filterValue.split(',');
-        
+
         var arrayValue = [];
         for(var i = 0; i < filterValue.length; i++) {
           arrayValue.push(filterValue[i].trim());
@@ -733,7 +803,7 @@ function getTemplateFilters() {
           "field": fieldList[parseInt(filterColumn)].field
         }
       }
-      templateFilterDetails.push(filterObject);      
+      templateFilterDetails.push(filterObject);
     }
 
     if(fieldName) {
@@ -753,14 +823,14 @@ function renderTemplateFilter(tableName) {
   if(tableName != "none") {
     var fieldList = tableFiledsArray[tableName].mappings;
     var filterCount = templateFilterArray.length;
-  
+
     if (templateFilterArray.length == 0) {
       templateFilterArray.push(filterCount);
     } else {
       filterCount = templateFilterArray[templateFilterArray.length - 1] + 1;
       templateFilterArray.push(filterCount);
     }
-  
+
     var filterRow = '<div class="row clearfix template-row-'+filterCount+'" id="template-filter-row-' + filterCount + '"><img src="img/remove.png" class="template-filter-remove-img template-filters-delete" id="' + filterCount + '" /><div class="col-sm-3"><select class="selectpicker form-control filter-column filter-background" id="template-filter-row-' + filterCount + '" data-live-search="true" name="filter-column-' + filterCount + '" required></select></div><div class="col-sm-3"><select required class="filter-type filter-type-option-' + filterCount + ' filter-background form-control" id="filter-type-option-' + filterCount + '"></select></div><div class="col-sm-3 between-element"><input id="filter-between-input-' + filterCount + '" type="number" class="form-control template-filter-between-value  form-control" id="between-value-' + filterCount + '" disabled></div><div class="col-sm-6 template-filter-value-box filter-value-div"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control template-filter-value form-control" name="template-filter-value-' + filterCount + '" required></div></span></div></div>';
     $(".template-filter-rows").append(filterRow);
     var filterValueEl = $("#template-filter-row-" + filterCount).find('.template-filters-delete');
@@ -770,7 +840,7 @@ function renderTemplateFilter(tableName) {
     setTimeout(function () {
       generateDropDown(fieldList, filterColumn);
     }, 0);
-  
+
     $(filterValueEl).click(function () {
       deletTemplateFilterQueryRow(this);
     });

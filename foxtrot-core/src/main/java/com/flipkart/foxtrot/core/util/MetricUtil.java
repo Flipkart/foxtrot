@@ -1,7 +1,7 @@
 package com.flipkart.foxtrot.core.util;
 
-import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.jmx.JmxReporter;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -34,11 +34,14 @@ public class MetricUtil {
         return metricsHelper;
     }
 
-    public void registerActionCacheHit(String opcode, String metricKey) {
+    public void registerActionCacheHit(String opcode,
+                                       String metricKey) {
         registerActionCacheOperation(opcode, metricKey, "success");
     }
 
-    private void registerActionCacheOperation(String opcode, String metricKey, String status) {
+    private void registerActionCacheOperation(String opcode,
+                                              String metricKey,
+                                              String status) {
         metrics.meter(String.format("%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, status))
                 .mark();
         metrics.meter(String.format("%s.%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, status))
@@ -48,15 +51,21 @@ public class MetricUtil {
                 .mark();
     }
 
-    public void registerActionCacheMiss(String opcode, String metricKey) {
+    public void registerActionCacheMiss(String opcode,
+                                        String metricKey) {
         registerActionCacheOperation(opcode, metricKey, "failure");
     }
 
-    public void registerActionSuccess(String opcode, String metricKey, long duration) {
+    public void registerActionSuccess(String opcode,
+                                      String metricKey,
+                                      long duration) {
         registerActionOperation(opcode, metricKey, "success", duration);
     }
 
-    private void registerActionOperation(String opcode, String metricKey, String status, long duration) {
+    private void registerActionOperation(String opcode,
+                                         String metricKey,
+                                         String status,
+                                         long duration) {
         metrics.timer(String.format("%s.%s.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode))
                 .update(duration, TimeUnit.MILLISECONDS);
         metrics.timer(String.format("%s.%s.%s.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, metricKey))
@@ -65,7 +74,9 @@ public class MetricUtil {
                 .update(duration, TimeUnit.MILLISECONDS);
     }
 
-    public void registerActionFailure(String opcode, String metricKey, long duration) {
+    public void registerActionFailure(String opcode,
+                                      String metricKey,
+                                      long duration) {
         registerActionOperation(opcode, metricKey, "failure", duration);
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////

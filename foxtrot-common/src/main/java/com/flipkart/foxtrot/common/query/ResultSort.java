@@ -12,10 +12,9 @@
  */
 package com.flipkart.foxtrot.common.query;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 9:00 PM
@@ -30,7 +29,8 @@ public class ResultSort implements Serializable {
     public ResultSort() {
     }
 
-    public ResultSort(String field, Order order) {
+    public ResultSort(String field,
+                      Order order) {
         this.field = field;
         this.order = order;
     }
@@ -54,7 +54,8 @@ public class ResultSort implements Serializable {
     @Override
     public int hashCode() {
         int result = field.hashCode();
-        result = 31 * result + order.hashCode();
+        result = 31 * result + order.name()
+                .hashCode();
         return result;
     }
 

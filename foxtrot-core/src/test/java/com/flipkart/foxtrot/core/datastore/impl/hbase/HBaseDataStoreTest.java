@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
@@ -25,18 +28,24 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.flipkart.foxtrot.common.Date;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.exception.BadRequestException;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.StoreConnectionException;
+import com.flipkart.foxtrot.common.util.SerDe;
 import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.BadRequestException;
-import com.flipkart.foxtrot.core.exception.ErrorCode;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.exception.StoreConnectionException;
-import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
+import com.foxtrot.flipkart.translator.DocumentTranslator;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
+import com.foxtrot.flipkart.translator.config.UnmarshallerConfig;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,15 +58,18 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableList;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 /**
  * Created by rishabh.goyal on 15/04/14.
  */
-
 public class HBaseDataStoreTest {
 
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
@@ -79,14 +91,13 @@ public class HBaseDataStoreTest {
         when(hbaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(tableInterface);
         when(hbaseTableConnection.getHbaseConfig()).thenReturn(new HbaseConfig());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1())
-        );
+                new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1()));
     }
 
     @Test
     public void testSaveSingle() throws Exception {
         // rawKeyVersion 1.0
-        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1());
+        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
         Document expectedDocument = new Document();
         expectedDocument.setId(UUID.randomUUID()
@@ -98,7 +109,7 @@ public class HBaseDataStoreTest {
         validateSave(v1FormatKey(expectedDocument.getId()), expectedDocument);
 
         // rawKeyVersion 2.0
-        documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2());
+        documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
         expectedDocument = new Document();
         expectedDocument.setId(UUID.randomUUID()
@@ -112,7 +123,8 @@ public class HBaseDataStoreTest {
                 .getRawStorageId(), expectedDocument);
     }
 
-    public void validateSave(String id, Document expectedDocument) throws Exception {
+    public void validateSave(String id,
+                             Document expectedDocument) throws Exception {
         Get get = new Get(Bytes.toBytes(id));
         Result result = tableInterface.get(get);
         assertNotNull("Get for Id should not be null", result);
@@ -125,7 +137,8 @@ public class HBaseDataStoreTest {
         return String.format("%s:%s", id, TestUtils.TEST_TABLE_NAME);
     }
 
-    public void compare(Document expected, Document actual) throws Exception {
+    public void compare(Document expected,
+                        Document actual) throws Exception {
         assertNotNull(expected);
         assertNotNull(actual);
         assertNotNull("Actual document Id should not be null", actual.getId());
@@ -210,7 +223,7 @@ public class HBaseDataStoreTest {
 
     @Test
     public void testSaveBulk() throws Exception {
-        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1());
+        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
 
         List<Document> documents = Lists.newArrayList();
@@ -282,8 +295,7 @@ public class HBaseDataStoreTest {
     public void testSaveBulkHBaseWriteException() throws Exception {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(UUID.randomUUID()
-                .toString(), System.currentTimeMillis(),
-                mapper.valueToTree(Collections.singletonMap("TEST", "TEST"))));
+                .toString(), System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST", "TEST"))));
         doThrow(new IOException()).when(tableInterface)
                 .put(Matchers.anyListOf(Put.class));
         try {
@@ -310,7 +322,8 @@ public class HBaseDataStoreTest {
         // rawKeyVersion 1.0 with no metadata stored in the system (This will happen for documents which were indexed
         // before rawKey versioning came into place)
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1()));
+                new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1()));
+
         String id = UUID.randomUUID()
                 .toString();
         long timestamp = System.currentTimeMillis();
@@ -324,7 +337,8 @@ public class HBaseDataStoreTest {
 
         // rawKeyVersion 1.0
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1()));
+                new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1()));
+
         id = UUID.randomUUID()
                 .toString();
         data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
@@ -336,7 +350,7 @@ public class HBaseDataStoreTest {
         compare(expectedDocument, actualDocument);
 
         // rawKeyVersion 2.0
-        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2());
+        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
 
         id = UUID.randomUUID()
@@ -371,8 +385,7 @@ public class HBaseDataStoreTest {
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
 
         Document expectedDocument = new Document(id, System.currentTimeMillis(),
-                new DocumentMetadata(id, v1FormatKey(id), System.currentTimeMillis()),
-                data);
+                new DocumentMetadata(id, v1FormatKey(id), System.currentTimeMillis()), data);
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         doThrow(new IOException()).when(tableInterface)
                 .get(Matchers.<Get>any());
@@ -429,7 +442,7 @@ public class HBaseDataStoreTest {
 
     @Test
     public void testV2GetBulk() throws Exception {
-        DocumentTranslator translator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2());
+        DocumentTranslator translator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2());
 
         Map<String, Document> idValues = Maps.newHashMap();
         List<String> ids = Lists.newArrayList();
@@ -492,9 +505,8 @@ public class HBaseDataStoreTest {
             String id = UUID.randomUUID()
                     .toString();
             Document document = new Document(id, System.currentTimeMillis(),
-                    new DocumentMetadata(id, String.format("row:%d", i),
-                            System.currentTimeMillis()), mapper.valueToTree(
-                    Collections.singletonMap("TEST_NAME", "BULK_GET_TEST")));
+                    new DocumentMetadata(id, String.format("row:%d", i), System.currentTimeMillis()),
+                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_GET_TEST")));
             putList.add(hbaseDataStore.getPutForDocument(document));
         }
         tableInterface.put(putList);
@@ -516,9 +528,8 @@ public class HBaseDataStoreTest {
             String id = UUID.randomUUID()
                     .toString();
             Document document = new Document(id, System.currentTimeMillis(),
-                    new DocumentMetadata(id, String.format("row:%d", i),
-                            System.currentTimeMillis()), mapper.valueToTree(
-                    Collections.singletonMap("TEST_NAME", "BULK_GET_TEST")));
+                    new DocumentMetadata(id, String.format("row:%d", i), System.currentTimeMillis()),
+                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_GET_TEST")));
             putList.add(hbaseDataStore.getPutForDocument(document));
         }
         tableInterface.put(putList);
@@ -526,5 +537,70 @@ public class HBaseDataStoreTest {
                 .close();
         hbaseDataStore.getAll(TEST_APP, ids);
         verify(tableInterface, times(1)).close();
+    }
+
+    @Test
+    public void testSaveDocumentsWithUnmarshallException() throws IOException {
+        SerDe.init(mapper);
+
+        DocumentTranslator documentTranslator = new DocumentTranslator(getTranslatorConfigWithUnmarshallJsonPath());
+        hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
+
+        Table table = Table.builder()
+                .name("consumer_app")
+                .build();
+
+
+        String eventJson1 = "{\"app\":\"consumer_app\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"eventData\":{\"category\":\"Check Balance\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"funnelInfo\":\"[{funnelData={startPercentage=30.0, endPercentage=100.0}, funnelId=1}]\"},"
+                + "\"ingestionTime\":1591707569435}";
+
+        String eventJson2 = "{\"app\":\"consumer_app\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"eventData\":{\"category\":\"Check Balance\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"funnelInfo\":\"[{funnelData={startPercentage=10.0, endPercentage=30.0}, funnelId=2}]\"},"
+                + "\"ingestionTime\":1591707569435}";
+
+        String eventJson3 = "{\"app\":\"consumer_app\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"eventData\":{\"category\":\"Check Balance\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"funnelInfo\":\"[{funnelData={startPercentage=0.0, endPercentage=100.0}, funnelId=3}]\"},"
+                + "\"ingestionTime\":1591707569435}";
+
+        String eventJson4 = "{\"app\":\"consumer_app\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"eventData\":{\"category\":\"Check Balance\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"funnelInfo\":\"[{\\\"funnelData\\\":{\\\"startPercentage\\\":20.0,\\\"endPercentage\\\":40.0},"
+                + "\\\"funnelId\\\":\\\"4\\\"}]\"},\"ingestionTime\":1591707569435}";
+        Document document1 = buildTestDocument(eventJson1);
+        Document document2 = buildTestDocument(eventJson2);
+        Document document3 = buildTestDocument(eventJson3);
+        Document document4 = buildTestDocument(eventJson4);
+
+        List<Document> translatedDocuments = hbaseDataStore
+                .saveAll(table, ImmutableList.of(document1, document2, document3, document4));
+        Assert.assertEquals(1, translatedDocuments.size());
+        Assert.assertEquals("4", translatedDocuments.get(0).getData().at("/eventData/funnelInfo")
+                .get(0).get("funnelId").asText());
+
+    }
+
+    private Document buildTestDocument(String eventJson) throws IOException {
+        Document document = new Document();
+        document.setDate(new Date());
+        document.setId(UUID.randomUUID()
+                .toString());
+        document.setData(mapper.readTree(eventJson));
+        return document;
+    }
+
+    @NotNull
+    private TranslatorConfig getTranslatorConfigWithUnmarshallJsonPath() {
+        TranslatorConfig translatorConfig = new TranslatorConfig();
+        translatorConfig.setRawKeyVersion("2.0");
+        translatorConfig.setUnmarshallerConfig(UnmarshallerConfig.builder()
+                .unmarshallingEnabled(true)
+                .tableVsUnmarshallJsonPath(ImmutableMap.of("consumer_app", Arrays.asList(
+                        new String[]{"/eventData/funnelInfo"})))
+                .build());
+        return translatorConfig;
     }
 }

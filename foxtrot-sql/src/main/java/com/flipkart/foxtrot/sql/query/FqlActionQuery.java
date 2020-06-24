@@ -10,7 +10,8 @@ public class FqlActionQuery implements FqlQuery {
     private final ActionRequest actionRequest;
     private final List<String> selectedFields;
 
-    public FqlActionQuery(final ActionRequest actionRequest, List<String> selectedFields) {
+    public FqlActionQuery(final ActionRequest actionRequest,
+                          List<String> selectedFields) {
         super();
         this.actionRequest = actionRequest;
         this.selectedFields = selectedFields;

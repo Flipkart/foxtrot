@@ -13,16 +13,19 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import io.dropwizard.util.Duration;
@@ -46,12 +49,16 @@ import org.joda.time.DateTime;
  * Date: 29/03/14
  * Time: 9:22 PM
  */
-@AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class,
-        cacheable = true)
+@AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class HistogramAction extends Action<HistogramRequest> {
 
-    public HistogramAction(HistogramRequest parameter, AnalyticsLoader analyticsLoader) {
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    public HistogramAction(HistogramRequest parameter,
+                           AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -60,28 +67,6 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public void validateImpl(HistogramRequest parameter, String email) {
-        List<String> validationErrors = new ArrayList<>();
-        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
-            validationErrors.add("table name cannot be null or empty");
-        }
-        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
-            validationErrors.add("timestamp field cannot be null or empty");
-        }
-        if (parameter.getPeriod() == null) {
-            validationErrors.add("time period cannot be null");
-        }
-
-        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
-                .isEmpty()) {
-            validationErrors.add("distinct field cannot be empty (can be null)");
-        }
-
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
-        }
-    }
-
     public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
     }
@@ -92,7 +77,7 @@ public class HistogramAction extends Action<HistogramRequest> {
         HistogramRequest query = getParameter();
         if (null != query.getFilters()) {
             for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
 
@@ -114,6 +99,29 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
+    public void validateImpl(HistogramRequest parameter) {
+        List<String> validationErrors = new ArrayList<>();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
+            validationErrors.add("timestamp field cannot be null or empty");
+        }
+        if (parameter.getPeriod() == null) {
+            validationErrors.add("time period cannot be null");
+        }
+
+        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
+                .isEmpty()) {
+            validationErrors.add("distinct field cannot be empty (can be null)");
+        }
+
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
+    }
+
+    @Override
     public ActionResponse execute(HistogramRequest parameter) {
         SearchRequestBuilder searchRequestBuilder = getRequestBuilder(parameter);
         try {
@@ -128,7 +136,7 @@ public class HistogramAction extends Action<HistogramRequest> {
     @Override
     public SearchRequestBuilder getRequestBuilder(HistogramRequest parameter) {
         SearchRequestBuilder searchRequestBuilder;
-        AbstractAggregationBuilder aggregationBuilder = buildAggregation();
+        AbstractAggregationBuilder aggregationBuilder = buildAggregation(parameter);
         try {
             searchRequestBuilder = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
@@ -144,17 +152,20 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, HistogramRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      HistogramRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         return buildResponse(aggregations);
     }
 
-    private AbstractAggregationBuilder buildAggregation() {
+    private AbstractAggregationBuilder buildAggregation(HistogramRequest parameter) {
         DateHistogramInterval interval = Utils.getHistogramInterval(getParameter().getPeriod());
         DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(
                 getParameter().getField(), interval);
         if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
-            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
+            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(),
+                    parameter.accept(new CountPrecisionThresholdVisitorAdapter(
+                            elasticsearchTuningConfig.getPrecisionThreshold()))));
         }
         return histogramBuilder;
     }

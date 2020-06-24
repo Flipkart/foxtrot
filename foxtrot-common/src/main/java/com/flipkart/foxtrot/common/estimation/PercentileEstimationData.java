@@ -24,7 +24,9 @@ public class PercentileEstimationData extends EstimationData {
     }
 
     @Builder
-    public PercentileEstimationData(double[] values, long count, long cardinality) {
+    public PercentileEstimationData(double[] values,
+                                    long count,
+                                    long cardinality) {
         super(EstimationDataType.PERCENTILE, count);
         this.values = values;
         this.cardinality = cardinality;

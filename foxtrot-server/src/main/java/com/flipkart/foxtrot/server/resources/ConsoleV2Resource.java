@@ -13,11 +13,15 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ConsoleV2;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -31,10 +35,13 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v2/consoles")
+@Singleton
+@RolesAllowed({FoxtrotRole.Value.QUERY, FoxtrotRole.Value.CONSOLE})
 public class ConsoleV2Resource {
 
     private ConsolePersistence consolePersistence;
 
+    @Inject
     public ConsoleV2Resource(ConsolePersistence consolePersistence) {
         this.consolePersistence = consolePersistence;
     }
@@ -42,6 +49,7 @@ public class ConsoleV2Resource {
     @POST
     @Timed
     @ApiOperation("Save Console")
+    @RolesAllowed(FoxtrotRole.Value.CONSOLE)
     public ConsoleV2 save(ConsoleV2 console) {
         consolePersistence.saveV2(console, true);
         return console;
@@ -59,6 +67,7 @@ public class ConsoleV2Resource {
     @Path("/{id}/delete")
     @Timed
     @ApiOperation("Delete Console - via id")
+    @RolesAllowed(FoxtrotRole.Value.CONSOLE)
     public void delete(@PathParam("id") final String id) {
         consolePersistence.deleteV2(id);
     }
@@ -91,6 +100,7 @@ public class ConsoleV2Resource {
     @Path("/{id}/old/delete")
     @Timed
     @ApiOperation("Delete old version console - via id")
+    @RolesAllowed(FoxtrotRole.Value.CONSOLE)
     public void deleteOldVersion(@PathParam("id") final String id) {
         consolePersistence.deleteOldVersion(id);
     }
@@ -99,6 +109,7 @@ public class ConsoleV2Resource {
     @Timed
     @Path("/{id}/old/set/current")
     @ApiOperation("Set old version console with id: {id} as current console")
+    @RolesAllowed(FoxtrotRole.Value.CONSOLE)
     public void setOldVersionAsCurrent(@PathParam("id") final String id) {
         consolePersistence.setOldVersionAsCurrent(id);
     }

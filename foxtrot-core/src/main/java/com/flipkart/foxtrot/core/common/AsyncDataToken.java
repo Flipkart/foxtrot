@@ -20,7 +20,8 @@ public class AsyncDataToken {
     private String action;
     private String key;
 
-    public AsyncDataToken(String action, String key) {
+    public AsyncDataToken(String action,
+                          String key) {
         this.action = action;
         this.key = key;
     }

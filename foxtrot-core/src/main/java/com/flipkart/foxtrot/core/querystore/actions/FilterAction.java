@@ -14,17 +14,21 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Query;
+import com.flipkart.foxtrot.common.QueryResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -35,20 +39,20 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 1:00 PM
  */
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
 
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public FilterAction(Query parameter, AnalyticsLoader analyticsLoader) {
+    public FilterAction(Query parameter,
+                        AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -62,7 +66,30 @@ public class FilterAction extends Action<Query> {
         }
     }
 
-    public void validateImpl(Query parameter, String email) {
+    @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
+    public String getRequestCacheKey() {
+        long filterHashKey = 0L;
+        Query query = getParameter();
+        if (null != query.getFilters()) {
+            for (Filter filter : query.getFilters()) {
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
+            }
+        }
+        filterHashKey += 31 * (query.getSort() != null
+                               ? query.getSort()
+                                       .hashCode()
+                               : "SORT".hashCode());
+
+        return String.format("%s-%d-%d-%d", query.getTable(), query.getFrom(), query.getLimit(), filterHashKey);
+    }
+
+    @Override
+    public void validateImpl(Query parameter) {
         List<String> validationErrors = new ArrayList<>();
         if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
@@ -79,25 +106,16 @@ public class FilterAction extends Action<Query> {
             validationErrors.add("limit must be positive integer");
         }
 
+        if (parameter.getLimit() > elasticsearchTuningConfig.getDocumentsLimitAllowed()) {
+            validationErrors.add(String.format("Limit more than %s is not supported",
+                    elasticsearchTuningConfig.getDocumentsLimitAllowed()));
+        }
+
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
 
-    @Override
-    public String getRequestCacheKey() {
-        long filterHashKey = 0L;
-        Query query = getParameter();
-        if (null != query.getFilters()) {
-            for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
-            }
-        }
-        filterHashKey += 31 * (query.getSort() != null ? query.getSort()
-                .hashCode() : "SORT".hashCode());
-
-        return String.format("%s-%d-%d-%d", query.getTable(), query.getFrom(), query.getLimit(), filterHashKey);
-    }
 
     @Override
     public ActionResponse execute(Query parameter) {
@@ -112,10 +130,6 @@ public class FilterAction extends Action<Query> {
         }
     }
 
-    @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
-    }
 
     @Override
     public SearchRequestBuilder getRequestBuilder(Query parameter) {
@@ -130,7 +144,9 @@ public class FilterAction extends Action<Query> {
                     .setFrom(parameter.getFrom())
                     .addSort(Utils.storedFieldName(parameter.getSort()
                             .getField()), ResultSort.Order.desc == parameter.getSort()
-                            .getOrder() ? SortOrder.DESC : SortOrder.ASC)
+                            .getOrder()
+                                          ? SortOrder.DESC
+                                          : SortOrder.ASC)
                     .setSize(parameter.getLimit());
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
@@ -139,15 +155,22 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, Query parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      Query parameter) {
         List<String> ids = new ArrayList<>();
         SearchHits searchHits = ((SearchResponse) response).getHits();
         for (SearchHit searchHit : searchHits) {
             ids.add(searchHit.getId());
         }
         if (ids.isEmpty()) {
-            return new QueryResponse(Collections.<Document>emptyList(), 0);
+            return QueryResponse.builder()
+                    .documents(Collections.<Document>emptyList())
+                    .totalHits(0)
+                    .build();
         }
-        return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.getTotalHits());
+        return QueryResponse.builder()
+                .totalHits(searchHits.totalHits)
+                .documents(getQueryStore().getAll(parameter.getTable(), ids, true))
+                .build();
     }
 }

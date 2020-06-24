@@ -15,13 +15,19 @@ package com.flipkart.foxtrot.core.table.impl;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.exception.TableMapStoreException;
+import com.flipkart.foxtrot.common.exception.TableMapStoreException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
@@ -34,18 +40,12 @@ import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-public class TableMapStore implements MapStore<String, Table> {
+public class TableMapStore implements MapStore<String, Table>, Serializable {
 
     public static final String TABLE_META_INDEX = "table-meta";
     public static final String TABLE_META_TYPE = "table-meta";
     private static final Logger logger = LoggerFactory.getLogger(TableMapStore.class.getSimpleName());
-    private final ElasticsearchConnection elasticsearchConnection;
+    private static ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper objectMapper;
 
     public TableMapStore(ElasticsearchConnection elasticsearchConnection) {
@@ -60,13 +60,14 @@ public class TableMapStore implements MapStore<String, Table> {
     }
 
     @Override
-    public void store(String key, Table value) {
+    public void store(String key,
+                      Table value) {
         if (key == null || value == null || value.getName() == null) {
             throw new TableMapStoreException(String.format("Illegal Store Request - %s - %s", key, value));
         }
         logger.info("Storing key: {}", key);
         try {
-            Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(value, value.getClass());
+            Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(objectMapper, value);
             elasticsearchConnection.getClient()
                     .prepareIndex()
                     .setIndex(TABLE_META_INDEX)
@@ -157,6 +158,7 @@ public class TableMapStore implements MapStore<String, Table> {
         try {
             return objectMapper.readValue(response.getSourceAsBytes(), Table.class);
         } catch (Exception e) {
+            logger.error("Error", e);
             throw new TableMapStoreException("Error getting data for table: " + key);
         }
     }
@@ -217,16 +219,16 @@ public class TableMapStore implements MapStore<String, Table> {
         return ids;
     }
 
-    public static class Factory implements MapStoreFactory<String, Table> {
 
-        private final ElasticsearchConnection elasticsearchConnection;
+    public static class Factory implements MapStoreFactory<String, Table>, Serializable {
 
         public Factory(ElasticsearchConnection elasticsearchConnection) {
-            this.elasticsearchConnection = elasticsearchConnection;
+            TableMapStore.elasticsearchConnection = elasticsearchConnection;
         }
 
         @Override
-        public TableMapStore newMapStore(String mapName, Properties properties) {
+        public TableMapStore newMapStore(String mapName,
+                                         Properties properties) {
             return new TableMapStore(elasticsearchConnection);
         }
     }

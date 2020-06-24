@@ -617,3 +617,165 @@ function drawStackedLinesLegend(d, element) { // pie legend
   sortingReference.sort( function( a, b ) { return b.value - a.value; } )
   element.html(handlebars("#stacked-lines-legend-template", {data: sortingReference}));
 }
+
+/**
+ * Get logout url for gandalf
+ */
+function getLogoutUrl() {
+  var hostname = window.location.hostname;
+  switch (hostname) {
+      case "foxtrot.traefik.stg.phonepe.com":
+          return "http://gandalf.traefik.stg.phonepe.com/logout/echo";
+      case "foxtrot-internal.phonepe.com":
+      case "foxtrot-gandalf.traefik.prod.phonepe.com":
+      case "foxtrot.traefik.prod.phonepe.com":
+      case "foxtrot-es6.traefik.prod.phonepe.com":
+          return "https://gandalf-internal.phonepe.com/logout/echo";
+      default:
+          return "0";
+  }
+}
+
+/**
+ * submit logout form
+ */
+$("#logout-icon").click(function(){
+  var logoutUrl = getLogoutUrl();
+  if(logoutUrl != 0) { // prevent for local
+    $("#logout").submit();
+  }
+});
+
+$('#logout').attr('action', getLogoutUrl());
+
+
+
+function todayyesterdaydbyesterday(object){
+
+  // -------------- Starts added today yesterday and daybefore yesterday---------------
+
+  var filtertoday = "";
+  var timestamp = new Date().getTime();
+
+  var filterdate = new Date().getDate();
+  var filtermonth =new Date().getMonth();
+  var filteryear =new Date().getFullYear();
+  var timezeroToday = new Date(filteryear ,filtermonth ,filterdate).getTime();
+  var timezeroYesterday = new Date(filteryear ,filtermonth,  filterdate-1).getTime();
+  var timezeroBDYesterday = new Date(filteryear ,filtermonth,  filterdate-2).getTime();
+
+  var timeendYesterday = timezeroYesterday +86300000;         //86300000 is one day timestamp value 
+  var timeendBDYesterday = timezeroBDYesterday +86300000;    
+
+
+  if(globalFilters) {
+    filtertoday=getGlobalFilters();
+    // filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+  } else {
+    filtertoday=getPeriodSelect(object.id);
+    // filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+if (filtertoday=== "1t") {
+  filters.push({
+    field: "time",
+    operator: "between",
+    from:timezeroToday,
+    to:timestamp,
+  });
+}
+else if(filtertoday=== "2y"){
+  filters.push({
+    field: "time",
+    operator: "between",
+    from:timezeroYesterday,
+    to:timeendYesterday,
+  });
+}
+else if(filtertoday=== "3dby"){
+  filters.push({
+    field: "time",
+    operator: "between",
+    from:timezeroBDYesterday,
+    to:timeendBDYesterday,
+  });
+}
+else{
+  // filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, filtertoday))
+
+  if(globalFilters) {
+    // filtertoday=getGlobalFilters();
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+  } else {
+    // filtertoday=getPeriodSelect(object.id);
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+}
+
+ }
+
+//  -------- Starts Added today tomorrow day before yesterday for download and chart rendering -------------
+
+const todayTomorrow =  function(filters_arr, gf_obj,get_gf,get_ps,tv_fn,filter_obj ) {
+  var filtertoday = "";
+  var timestamp = new Date().getTime();
+
+  var filterdate = new Date().getDate();
+  var filtermonth =new Date().getMonth();
+  var filteryear =new Date().getFullYear();
+  var timezeroToday = new Date(filteryear ,filtermonth ,filterdate).getTime();
+  var timezeroYesterday = new Date(filteryear ,filtermonth,  filterdate-1).getTime();
+  var timezeroBDYesterday = new Date(filteryear ,filtermonth,  filterdate-2).getTime();
+
+  var timeendYesterday = timezeroYesterday +86400000;         //86400000 is one day timestamp value 24 hours
+  var timeendBDYesterday = timezeroBDYesterday +86400000;    
+
+
+  if(gf_obj) {
+    filtertoday=get_gf();
+    // filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+  } else {
+    filtertoday=get_ps(filter_obj.id);
+    // filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+if (filtertoday=== "1t") {
+  filters_arr.push({
+    field: "time",
+    operator: "between",
+    from:timezeroToday,
+    to:timestamp,
+  });
+}
+else if(filtertoday=== "2y"){
+  filters_arr.push({
+    field: "time",
+    operator: "between",
+    from:timezeroYesterday,
+    to:timeendYesterday,
+  });
+}
+else if(filtertoday=== "3dby"){
+  filters_arr.push({
+    field: "time",
+    operator: "between",
+    from:timezeroBDYesterday,
+    to:timeendBDYesterday,
+  });
+}
+else{
+  // filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, filtertoday))
+
+  if(gf_obj) {
+    // filtertoday=getGlobalFilters();
+    filters_arr.push(tv_fn(filter_obj.tileContext.period, filter_obj.tileContext.timeframe, get_gf()))
+  } else {
+    // filtertoday=getPeriodSelect(object.id);
+    filters_arr.push(tv_fn(filter_obj.tileContext.period, filter_obj.tileContext.timeframe, get_ps(filter_obj.id)))
+  }
+
+}
+
+}
+//  -------- Ends Added today tomorrow day before yesterday for download and chart rendering ----------------

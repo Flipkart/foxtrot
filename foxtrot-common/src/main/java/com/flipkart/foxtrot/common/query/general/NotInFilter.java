@@ -33,7 +33,8 @@ public class NotInFilter extends Filter {
     }
 
     @Builder
-    public NotInFilter(String field, List<Object> values) {
+    public NotInFilter(String field,
+                       List<Object> values) {
         super(FilterOperator.not_in, field);
         this.values = values;
     }

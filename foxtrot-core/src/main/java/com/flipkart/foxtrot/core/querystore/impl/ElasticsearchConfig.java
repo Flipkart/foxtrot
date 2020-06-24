@@ -13,15 +13,15 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import lombok.NoArgsConstructor;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 12:28 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 14/03/14
+ * Time: 12:28 AM
  */
 @NoArgsConstructor
 public class ElasticsearchConfig {
@@ -31,6 +31,7 @@ public class ElasticsearchConfig {
     @NotNull
     @JsonProperty
     private List<String> hosts;
+
     @Valid
     @NotNull
     @JsonProperty
@@ -43,15 +44,8 @@ public class ElasticsearchConfig {
         return hosts;
     }
 
-    public void setHosts(String hostString) {
-        if (hostString == null || hostString.trim()
-                .isEmpty()) {
-            return;
-        }
-
-        String[] hostParts = hostString.split(",");
-        this.hosts = new ArrayList<>();
-        Collections.addAll(this.hosts, hostParts);
+    public void setHosts(List<String> hosts) {
+        this.hosts = hosts;
     }
 
     public String getCluster() {
@@ -79,6 +73,9 @@ public class ElasticsearchConfig {
     }
 
     public long getGetQueryTimeout() {
-        return getQueryTimeout > 0 ? getQueryTimeout : DEFAULT_TIMEOUT;
+        return getQueryTimeout > 0
+               ? getQueryTimeout
+               : DEFAULT_TIMEOUT;
     }
+
 }

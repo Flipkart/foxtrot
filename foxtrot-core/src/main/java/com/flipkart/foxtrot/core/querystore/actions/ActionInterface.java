@@ -20,5 +20,6 @@ import com.flipkart.foxtrot.core.common.Action;
  ***/
 public interface ActionInterface {
 
-    String invoke(Action action, ActionRequest request);
+    String invoke(Action action,
+                  ActionRequest request);
 }

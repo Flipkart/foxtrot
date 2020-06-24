@@ -7,7 +7,8 @@ server:
       port: 17001
 
 elasticsearch:
-  hosts: localhost
+  hosts:
+  - stg-els601.phonepe.nm2
   cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
@@ -30,7 +31,7 @@ riemann:
 hbase:
   secure: false
   tableName: foxtrot
-  hbaseZookeeperQuorum: localhost:2181
+  hbaseZookeeperQuorum: stg-dwhxenial002-stg-cloud005.phonepe.nm2:2181
   hbaseZookeeperClientPort: 2181
   seggregatedTablePrefix: foxtrot-
   hbaseZookeeperZnodeParent: /hbase-unsecure
@@ -57,6 +58,12 @@ cardinality:
   initialDelay: 6
   maxCardinality: 20000
 
+elasticsearchTuningConfig:
+  precisionThreshold: 500
+  aggregationSize: 10000
+  scrollTimeInSeconds: 120
+  documentsLimitAllowed: 10000
+
 esIndexOptimizationConfig:
   active: true
   interval: 86400
@@ -72,6 +79,17 @@ deletionconfig:
   interval: 86400
   initialdelay: 60
 
+clusterRerouteConfig:
+  active: false
+  interval: 86400
+  initialDelay: 10
+  thresholdShardCountPercentage: 10
+
+sessionCleanupConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10
+
 emailConfig:
   from: noreply@phonepe.com
   host: ops-jump001.phonepe.nm1
@@ -79,12 +97,6 @@ emailConfig:
   user: AKIAJLCWHAOEDK4ZDOGQ
   password: AgjCxNI68hrnj6bIzuJCiZBlDXW+TioRoU11++Yx97
   url: /
-
-swagger:
-  resourcePackage: com.flipkart.foxtrot.server.resources
-  title: Foxtrot
-  description: A store abstraction and analytics system for real-time event data.
-  uriPrefix: "/foxtrot"
 
 gandalfConfig:
   httpConfig:
@@ -104,7 +116,7 @@ gandalfConfig:
     enabled: true
 
 primerBundleConfiguration:
-  enabled: true
+  enabled: false
   authTypesEnabled:
     CONFIG: false
     ANNOTATION: true
@@ -120,12 +132,89 @@ primerBundleConfiguration:
 
 restrictAccess: false
 
-segregationConfiguration:
-  tableEventConfigs:
-    phonepe_consumer_app_android:
-      phonepe_consumer_app_android_app_loaded:
-        - APP_LOADED
-  ignoredEventConfigs:
-    phonepe_consumer_app_android:
-      - ACTIVITY_VISITED
+gandalfConfiguration:
+  serviceBaseUrl: "localhost:17000"
+  username: "mudit.g@phonepe.com"
+  password: "gandalf@echo"
+
+swagger:
+  resourcePackage: com.flipkart.foxtrot.server.resources
+  title: Foxtrot
+  description: A store abstraction and analytics system for real-time event data.
   uriPrefix: "/foxtrot"
+
+distributedLockConfig:
+  locksConfig:
+    FUNNEL_APPROVAL:
+      lockExpiryTimeInMs: 2000
+
+funnelConfiguration:
+  querySize: 100
+  funnelIndex: foxtrot_funnel
+  funnelConsoleUrl: http://siphon-ui.traefik.stg.phonepe.com/#/
+  baseFunnelEventConfig:
+    eventType: APP_LOADED
+    category: APP_LOADED
+  funnelDropdownConfig:
+    eventTypes:
+      - APP_LOADED
+      - REFERRAL_RECEIVED
+      - FORCE_LOGOUT
+      - RESET_DEVICE_MAPPING
+      - USER_LOGOUT
+      - INSTALL_REFERRAL
+      - P2P_SEND_TRANSACTION_TAG_SELECTED
+      - P2P_SEND_TRANSACTION_CONTACT_CHANGE_INITIATED
+      - P2P_REQUEST_TRANSACTION_INITIATED
+      - P2P_REQUEST_CONTACT_SELECTED
+      - P2P_REQUEST_TRANSACTION_TAG_SELECTED
+      - P2P_REQUEST_TRANSACTION_CONTACT_CHANGE_INITIATED
+      - P2P_SPLIT_TRANSACTION_INITIATED
+      - P2P_SPLIT_CONTACT_SELECTED
+      - P2P_SPLIT_TRANSACTION_TAG_SELECTED
+      - P2P_SPLIT_TRANSACTION_CONTACT_CHANGE_INITIATED
+      - P2P_INIT
+      - MANAGE_REMINDER_INIT
+      - WALLET_TOPUP_INIT
+      - CHECK_BALANCE_INIT
+      - P2P_CONTACT_SELECTED
+    categories:
+      - P2PSendTransaction
+      - P2P_REQUEST_TRANSACTION
+      - P2P_Split_Transaction
+      - home
+      - RechargePayment
+      - DatacardPayment
+      - Notifications
+      - P2PPayToMoneyRequest
+      - CS
+      - Invite
+      - SendMoney
+      - ManageReminders
+      - WalletTopup
+      - CHECK_BALANCE
+      - P2P
+      - PAY
+    deviceAttributes:
+      - deviceId
+      - Model
+      - OS_Version
+      - Network_Provider
+      - Manufacturer
+      - Latitude
+      - Longitude
+      - OS
+
+auth:
+  enabled: false
+  jwt:
+    issuerId: foxtrot-server
+    privateKey: 123
+    sessionDuration: 15d
+
+  provider:
+    type: OAUTH_GOOGLE
+    clientId: 123
+    clientSecret: 123
+    server: abc
+    secureEndpoint: false

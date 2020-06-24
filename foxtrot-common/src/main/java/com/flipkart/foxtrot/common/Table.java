@@ -18,7 +18,6 @@ import java.io.Serializable;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,9 +27,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  * Representation for a table on foxtrot.
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Table implements Serializable {
 
@@ -46,4 +43,22 @@ public class Table implements Serializable {
     private int ttl;
 
     private boolean seggregatedBackend = false;
+
+    @Min(1)
+    @Max(256)
+    private int defaultRegions = 4;
+
+    @Builder
+    public Table(String name,
+                 int ttl,
+                 boolean seggregatedBackend,
+                 int defaultRegions) {
+        this.name = name;
+        this.ttl = ttl;
+        this.seggregatedBackend = seggregatedBackend;
+        if (defaultRegions == 0) {
+            defaultRegions = 4;
+        }
+        this.defaultRegions = defaultRegions;
+    }
 }
