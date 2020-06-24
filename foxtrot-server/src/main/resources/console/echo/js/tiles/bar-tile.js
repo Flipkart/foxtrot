@@ -26,7 +26,6 @@ function getBarChartFormValues() {
   var selectedValue = $("#bar-selected-value").val();
   var sortingbar =$('.bar-sorting-digits').is(':checked');
 
-  console.log("sortingbar....",sortingbar);
 
   if (eventField == "none") {
     return [[], false];
@@ -63,6 +62,7 @@ function setBarChartFormValues(object) {
   $(".bar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
   $("#bar-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
 
+  // ------  start for checkbox set values -------
   if(object.tileContext.sortingbar===true){
     $("#bar-sorting-digits").prop("checked", true);
   }
@@ -70,6 +70,8 @@ function setBarChartFormValues(object) {
     $("#bar-sorting-digits").val((object.tileContext.sortingbar == undefined ? 'undefined' : object.tileContext.sortingbar));
   }
 }
+  // ------  End for checkbox set values -------
+
 
 function clearBarChartForm() {
   $('.barForm')[0].reset();
@@ -156,12 +158,10 @@ BarTile.prototype.getData = function (data) {
       sortable.push([vehicle, sourceObject[vehicle]]);
   }
 
-  
+  // ------  start for sorting the values-------
    if (this.object.tileContext.hasOwnProperty('sortingbar')){
     if(this.object.tileContext.sortingbar){
        sortable= customSort(sortable); 
-    console.log("........ if block")
-
     }
     else{
       sortable.sort(sortFunction);
@@ -169,12 +169,11 @@ BarTile.prototype.getData = function (data) {
    }
    else{
     sortable.sort(sortFunction);
-    console.log("........ else block ")
-
    }
+
+  // ------  End for sorting the values-------
   
-  // console.log("customSort....",customSort(sortable));
-  console.log("this.object.tileContexts.",this.object.tileContext)
+
 
 
   function customSort(arr) {
