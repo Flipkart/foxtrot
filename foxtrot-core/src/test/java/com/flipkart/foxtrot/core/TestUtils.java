@@ -35,6 +35,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +46,8 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.settings.Settings;
 import org.joda.time.DateTime;
 import org.mockito.Matchers;
@@ -433,24 +434,19 @@ public class TestUtils {
     }
 
     public static void ensureIndex(ElasticsearchConnection connection,
-                                   final String table) {
-        IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(table);
-        IndicesExistsResponse indicesExistsResponse = connection.getClient()
-                .admin()
+                                   final String table) throws IOException {
+        boolean exists = connection.getClient()
                 .indices()
-                .exists(indicesExistsRequest)
-                .actionGet();
+                .exists(new GetIndexRequest(table), RequestOptions.DEFAULT);
 
-        if (!indicesExistsResponse.isExists()) {
+        if (!exists) {
             Settings indexSettings = Settings.builder()
                     .put("number_of_replicas", 0)
                     .build();
             CreateIndexRequest createRequest = new CreateIndexRequest(table).settings(indexSettings);
             connection.getClient()
-                    .admin()
                     .indices()
-                    .create(createRequest)
-                    .actionGet();
+                    .create(createRequest, RequestOptions.DEFAULT);
         }
     }
 }

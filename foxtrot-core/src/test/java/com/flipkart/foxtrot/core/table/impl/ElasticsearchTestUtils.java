@@ -26,7 +26,8 @@ import java.util.Collections;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 import org.testcontainers.containers.GenericContainer;
 
@@ -49,11 +50,9 @@ public class ElasticsearchTestUtils {
     public static void cleanupIndices(final ElasticsearchConnection elasticsearchConnection) {
         try {
             DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("_all");
-            final DeleteIndexResponse deleteIndexResponse = elasticsearchConnection.getClient()
-                    .admin()
+            final AcknowledgedResponse deleteIndexResponse = elasticsearchConnection.getClient()
                     .indices()
-                    .delete(deleteIndexRequest)
-                    .get();
+                    .delete(deleteIndexRequest, RequestOptions.DEFAULT);
             log.info("Delete index response: {}", deleteIndexResponse);
         } catch (Exception e) {
             log.error("Index Cleanup failed", e);
@@ -74,7 +73,7 @@ public class ElasticsearchTestUtils {
         static {
             try {
                 ElasticsearchContainerConfiguration configuration = new ElasticsearchContainerConfiguration();
-                configuration.setDockerImage("docker.elastic.co/elasticsearch/elasticsearch-oss:6.3.0");
+                configuration.setDockerImage("docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.8");
                 configuration.setClusterRamMb(100);
                 GenericContainer esContainer = new FixedHostPortGenericContainer(
                         configuration.getDockerImage()).withExposedPorts(configuration.getHttpPort(),
@@ -87,11 +86,12 @@ public class ElasticsearchTestUtils {
                         .withStartupTimeout(configuration.getTimeoutDuration());
                 esContainer.start();
 
-                Integer mappedPort = esContainer.getMappedPort(configuration.getTransportPort());
+                Integer mappedPort = esContainer.getMappedPort(configuration.getHttpPort());
 
                 elasticsearchConfig = new ElasticsearchConfig();
                 elasticsearchConfig.setHosts(Collections.singletonList(configuration.getHost()));
                 elasticsearchConfig.setPort(mappedPort);
+                elasticsearchConfig.setConnectionType(ElasticsearchConfig.ConnectionType.HTTP);
                 elasticsearchConfig.setCluster("elasticsearch");
                 elasticsearchConfig.setTableNamePrefix("foxtrot");
             } catch (Exception e) {

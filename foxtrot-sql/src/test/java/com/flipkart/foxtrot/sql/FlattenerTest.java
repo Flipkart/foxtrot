@@ -38,8 +38,8 @@ import org.junit.Test;
 
 public class FlattenerTest {
 
-    private static final String TABLE_NAME = "tableName";
     private ObjectMapper objectMapper = new ObjectMapper();
+    private static final String TABLE_NAME = "tableName";
 
     @Test
     public void flattenQueryResponseTest() throws IOException {

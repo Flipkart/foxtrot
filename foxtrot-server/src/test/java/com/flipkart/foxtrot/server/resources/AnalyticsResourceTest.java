@@ -15,13 +15,31 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.group.GroupRequest;
+import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.config.QueryConfig;
+import com.flipkart.foxtrot.server.ResourceTestUtils;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.Rule;
+import org.junit.Test;
 
 /**
  * Created by rishabh.goyal on 05/05/14.
@@ -35,19 +53,15 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .prepareRefresh("*")
-                .execute()
-                .actionGet();
-        resources = ResourceTestRule.builder()
-                .setMapper(getMapper())
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
+        resources = ResourceTestUtils.testResourceBuilder(getMapper())
                 .addResource(new AnalyticsResource(getQueryExecutorFactory(), getMapper(), new QueryConfig()))
                 .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .build();
     }
 
-    /*
+
     @Test
     public void testRunSync() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -86,8 +100,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
         }});
 
         Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
-        GroupResponse response = resources.client()
-                .target("/v1/analytics")
+        GroupResponse response = resources.target("/v1/analytics")
                 .request()
                 .post(serviceUserEntity, GroupResponse.class);
         assertEquals(expectedResponse, response.getResult());
@@ -101,8 +114,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
 
         try {
             Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
-            resources.client()
-                    .target("/v1/generate/test")
+            resources.target("/v1/generate/test")
                     .request()
                     .post(serviceUserEntity, GroupResponse.class);
             fail();
@@ -149,8 +161,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
             put("iphone", iPhoneResponse);
         }});
         Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
-        AsyncDataToken response = resources.client()
-                .target("/v1/analytics/async")
+        AsyncDataToken response = resources.target("/v1/analytics/async")
                 .request()
                 .post(serviceUserEntity, AsyncDataToken.class);
         await().pollDelay(2000, TimeUnit.MILLISECONDS)
@@ -168,8 +179,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
 
         GroupResponse expectedResponse = new GroupResponse();
         Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
-        AsyncDataToken asyncDataToken = resources.client()
-                .target("/v1/analytics/async")
+        AsyncDataToken asyncDataToken = resources.target("/v1/analytics/async")
                 .request()
                 .header("Authorization", "Bearer TOKEN")
                 .post(serviceUserEntity, AsyncDataToken.class);
@@ -179,5 +189,5 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                 getCacheManager().getCacheFor(asyncDataToken.getAction())
                         .get(asyncDataToken.getKey()));
         assertEquals(expectedResponse.getResult(), actualResponse.getResult());
-    }*/
+    }
 }

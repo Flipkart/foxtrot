@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.server.resources;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.flipkart.foxtrot.common.TableActionRequestVisitor;
 import com.flipkart.foxtrot.common.exception.ErrorCode;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
@@ -8,19 +9,26 @@ import com.flipkart.foxtrot.core.config.QueryConfig;
 import com.flipkart.foxtrot.gandalf.access.AccessServiceImpl;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.sql.FqlEngine;
+import com.flipkart.foxtrot.sql.fqlstore.FqlGetRequest;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStore;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class FqlV2ResourceTest extends FoxtrotResourceTest {
+
+    public FqlV2ResourceTest() throws IOException {
+    }
 
     @Rule
     public ResourceTestRule resources = ResourceTestRule.builder()
@@ -31,9 +39,6 @@ public class FqlV2ResourceTest extends FoxtrotResourceTest {
             .addProvider(new FoxtrotExceptionMapper(getMapper()))
             .setMapper(objectMapper)
             .build();
-
-    public FqlV2ResourceTest() throws IOException {
-    }
 
     @Test
     public void testExecuteQuery() {

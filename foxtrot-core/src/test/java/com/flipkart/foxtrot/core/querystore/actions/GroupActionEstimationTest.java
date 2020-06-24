@@ -12,6 +12,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,12 +30,9 @@ public class GroupActionEstimationTest extends ActionTest {
         List<Document> documents = TestUtils.getGroupDocumentsForEstimation(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .prepareRefresh("*")
-                .execute()
-                .actionGet();
-        getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
+        getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true, 1397658117000L);
         ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
                 .setMaxCardinality(MAX_CARDINALITY);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
