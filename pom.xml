@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <name>Foxtrot</name>
@@ -13,7 +11,7 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-83-SNAPSHOT</version>
+    <version>6.3.1-85-SNAPSHOT</version>
 
     <parent>
         <groupId>com.phonepe</groupId>
@@ -22,7 +20,8 @@
     </parent>
     <scm>
         <connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
-        <developerConnection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/flipkart-incubator/foxtrot.git
+        </developerConnection>
         <tag>HEAD</tag>
         <url>https://github.com/flipkart-incubator/foxtrot</url>
     </scm>
@@ -71,6 +70,9 @@
     </distributionManagement>
 
     <properties>
+        <caffeine.version>2.6.2</caffeine.version>
+        <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
+        <dropwizard.version>1.3.13</dropwizard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dropwizard.version>1.3.13</dropwizard.version>
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
@@ -79,16 +81,78 @@
         <gandalf.version>1.2.38</gandalf.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <es.container.version>1.0.4</es.container.version>
-        <caffeine.version>2.6.2</caffeine.version>
-        <maven.deploy.skip>true</maven.deploy.skip>
+        <gandalf.version>1.2.38</gandalf.version>
         <guava.version>24.1.1-jre</guava.version>
-        <sonar.sources>src/main</sonar.sources>
-        <sonar.tests>src/test</sonar.tests>
+        <lombok.version>1.16.16</lombok.version>
+        <maven.deploy.skip>true</maven.deploy.skip>
         <powermock.api.mockito.version>1.7.3</powermock.api.mockito.version>
         <powermock.module.junit4.version>1.7.3</powermock.module.junit4.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sonar.coverage.exclusions>
+            **com/flipkart/foxtrot/server/console/*,
+            **com/flipkart/foxtrot/server/di/**,
+            **com/flipkart/foxtrot/server/healthcheck/**,
+            **com/flipkart/foxtrot/server/utils/**,
+            **com/flipkart/foxtrot/server/utils/response/**,
+            **com/flipkart/foxtrot/server/providers/exception/**,
+            **com/flipkart/foxtrot/server/resources/UtilResource.java,
+            **com/flipkart/foxtrot/server/resources/HbaseRegionsMergeResource.java,
+            **com/flipkart/foxtrot/server/resources/FqlV2Resource.java,
+            **com/flipkart/foxtrot/server/resources/FqlResource.java,
+            **com/flipkart/foxtrot/server/resources/ESClusterResource.java,
+            **com/flipkart/foxtrot/server/resources/ConsoleV2Resource.java,
+            **com/flipkart/foxtrot/server/resources/ConsoleResource.java,
+            **com/flipkart/foxtrot/server/resources/ClusterInfoResource.java,
+            **com/flipkart/foxtrot/server/cluster/**,
+            **com/flipkart/foxtrot/server/App.java,
+            **com/flipkart/foxtrot/server/FoxtrotServer.java,
+            **com/flipkart/foxtrot/server/InitializerCommand.java,
+            **com/flipkart/foxtrot/server/jobs/consolehistory/**,
+            **com/flipkart/foxtrot/core/common/DataDeletionManager.java,
+            **com/flipkart/foxtrot/core/common/DataDeletionTask.java,
+            **com/flipkart/foxtrot/core/common/DataDeletionManagerConfig.java,
+            **/com/flipkart/foxtrot/core/common/AsyncDataToken.java,
+            **com/flipkart/foxtrot/core/jobs/**/*,
+            **com/flipkart/foxtrot/core/reroute/**,
+            **com/flipkart/foxtrot/core/funnel/**/*,
+            **com/flipkart/foxtrot/core/lock/**,
+            **com/flipkart/foxtrot/core/lock/HazelcastDistributedLock.java,
+            **com/flipkart/foxtrot/core/querystore/impl/AwsClusterDiscoveryConfig.java,
+            **com/flipkart/foxtrot/core/querystore/impl/ClusterConfig.java,
+            **com/flipkart/foxtrot/core/querystore/impl/ClusterDiscoveryConfig.java,
+            **com/flipkart/foxtrot/core/querystore/impl/ClusterDiscoveryType.java,
+            **com/flipkart/foxtrot/core/querystore/impl/MarathonClusterDiscoveryConfig.java,
+            **com/flipkart/foxtrot/core/querystore/impl/SimpleClusterDiscoveryConfig.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/HBaseUtil.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/HbaseRegions.java,
+            **com/flipkart/foxtrot/core/querystore/actions/spi/ElasticsearchTuningConfig.java,
+            **com/flipkart/foxtrot/core/jobs/optimization/EsIndexOptimizationConfig.java,
+            **com/flipkart/foxtrot/core/config/**,
+            **com/flipkart/foxtrot/core/email/EmailConfig.java,
+            **com/flipkart/foxtrot/core/email/EmailClient.java,
+            **com/flipkart/foxtrot/core/jobs/**/*,
+            **com/flipkart/foxtrot/core/jobs/BaseJobManager.java,
+            **com/flipkart/foxtrot/core/querystore/actions/Constants.java,
+            **com/flipkart/foxtrot/core/config/**,
+            **com/flipkart/foxtrot/core/cardinality/**,
+            **com/flipkart/foxtrot/core/funnel/**/*,
+            **com/flipkart/foxtrot/core/lock/**,
+            **com/flipkart/foxtrot/core/lock/HazelcastDistributedLock.java,
+            **com/flipkart/foxtrot/gandalf/**/*,
+            **com/flipkart/foxtrot/sql/fqlstore/FqlGetRequest.java,
+            **com/flipkart/foxtrot/sql/fqlstore/FqlStore.java,
+            **com/flipkart/foxtrot/sql/SqlElementVisitor.java,
+            **com/flipkart/foxtrot/sql/query/FqlDescribeTable.java,
+            **com/flipkart/foxtrot/sql/query/FqlShowTablesQuery.java,
+            **com/flipkart/foxtrot/sql/responseprocessors/model/**,
+            **com/google/common/base/Stopwatch.java,
+            *.js,
+            *.css,
+            **console/**/*,
+            **console/**/**/*,
+            src/main/resources/**
+        </sonar.coverage.exclusions>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.version>3.6.0.1398</sonar.version>
-        <sonar.language>java</sonar.language>
         <sonar.exclusions>
             **com/flipkart/foxtrot/common/**/*,
             **com/flipkart/foxtrot/server/console/*,
@@ -497,9 +561,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.phonepe.gandalf</groupId>
             <artifactId>gandalf-models</artifactId>
-            <version>${gandalf.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
@@ -514,6 +576,8 @@
                     <artifactId>dropwizard-service-discovery-bundle</artifactId>
                 </exclusion>
             </exclusions>
+            <groupId>com.phonepe.gandalf</groupId>
+            <version>${gandalf.version}</version>
         </dependency>
         <dependency>
             <groupId>com.phonepe.platform.http</groupId>
@@ -562,6 +626,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
+                    <compilerArgument>-parameters</compilerArgument>
                     <source>1.8</source>
                     <target>1.8</target>
                     <compilerArgument>-parameters</compilerArgument>
@@ -637,26 +702,73 @@
                     <skip>${maven.deploy.skip}</skip>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.5</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <id>localEs</id>
+            <properties>
+                <es.spawn.skip>false</es.spawn.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>noLocalEs</id>
+            <properties>
+                <es.spawn.skip>true</es.spawn.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>esTests</id>
+        </profile>
+        <profile>
+            <activation>
+                <file>
+                    <exists>${java.home}/../lib/tools.jar</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>lombok-maven-plugin</artifactId>
+                        <dependencies>
+                            <dependency>
+                                <artifactId>tools</artifactId>
+                                <groupId>sun.jdk</groupId>
+                                <scope>system</scope>
+                                <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                                <version>1.8</version>
+                            </dependency>
+                        </dependencies>
+                        <groupId>org.projectlombok</groupId>
+                        <version>1.16.10.0</version>
+                    </plugin>
+                </plugins>
+            </build>
+            <id>lombok-needs-tools-jar</id>
+        </profile>
+        <profile>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <configuration>
+                            <skip>${maven.deploy.skip}</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <id>docker</id>
+        </profile>
+        <profile>
+            <id>local</id>
+            <properties>
+                <project.version>6.3.1-3</project.version>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

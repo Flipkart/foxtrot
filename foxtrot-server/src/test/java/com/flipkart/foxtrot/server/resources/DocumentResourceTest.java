@@ -18,13 +18,9 @@ package com.flipkart.foxtrot.server.resources;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.server.ResourceTestUtils;
@@ -46,7 +42,6 @@ import javax.ws.rs.core.Response;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Matchers;
 
 /**
  * Created by rishabh.goyal on 04/05/14.

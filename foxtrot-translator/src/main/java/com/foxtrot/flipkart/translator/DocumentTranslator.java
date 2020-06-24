@@ -2,12 +2,14 @@ package com.foxtrot.flipkart.translator;
 
 import static com.collections.CollectionUtils.nullSafeList;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.exception.SerDeException;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.util.JsonUtils;
 import com.flipkart.foxtrot.common.util.Utils;
@@ -128,8 +130,11 @@ public class DocumentTranslator {
                         parentObjectNode.set(fieldName, jsonNode);
                     }
                 }
-            } catch (Exception e) {
+            } catch (SerDeException e) {
                 log.error("Error while expanding field at json path : {}", jsonPath, e);
+                throw e;
+            } catch (Exception e) {
+                log.error("Error while expanding field at json path : {}, eating exception ", jsonPath, e);
             }
         }
     }

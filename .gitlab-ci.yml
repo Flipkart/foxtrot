@@ -9,8 +9,8 @@
 
 stages:
   - build
-  - quality
   - deploy
+  - quality
   - merge
   - release
 

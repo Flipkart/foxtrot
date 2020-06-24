@@ -20,7 +20,9 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 12:28 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 14/03/14
+ * Time: 12:28 AM
  */
 @NoArgsConstructor
 public class ElasticsearchConfig {

@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.server.cluster;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.utils.ServerUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;

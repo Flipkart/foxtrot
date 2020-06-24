@@ -17,7 +17,6 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doReturn;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
@@ -39,7 +38,6 @@ import java.util.Map;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**

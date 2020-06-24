@@ -74,7 +74,7 @@ public class ElasticsearchConnection implements Managed {
     @Override
     public void stop() throws Exception {
         logger.info("Stopping ElasticSearch client");
-        if (client != null) {
+        if(client != null) {
             client.close();
         }
         client = null;

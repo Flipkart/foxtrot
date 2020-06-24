@@ -110,7 +110,7 @@ public class JsonUtils {
                     .writeValueAsBytes(obj);
         } catch (IOException e) {
             log.error("Error while serializing in toJson for object : {}, error: {}", obj, e);
-            throw new SerDeException(SERIALIZATION_ERROR, "Unable to serialize data from object");
+            throw new SerDeException(SERIALIZATION_ERROR, "Unable to serialize data from object", e);
         }
     }
 
@@ -121,7 +121,7 @@ public class JsonUtils {
                     .readTree(json);
         } catch (IOException e) {
             log.error("Error while deserializing toJsonNode for json: {}, error: {}", json, e);
-            throw new SerDeException(DESERIALIZATION_ERROR, "Unable to deserialize data from json");
+            throw new SerDeException(DESERIALIZATION_ERROR, "Unable to deserialize data from json", e);
         }
     }
 
@@ -134,7 +134,7 @@ public class JsonUtils {
         } catch (Exception e) {
             log.error("Error while converting toObject for object: {}, error: {}, {}", obj, e.getCause(),
                     e.getMessage());
-            throw new SerDeException(SERIALIZATION_ERROR, "Unable to serialize data with class");
+            throw new SerDeException(SERIALIZATION_ERROR, "Unable to serialize data with class", e);
         }
     }
 
@@ -147,7 +147,7 @@ public class JsonUtils {
         } catch (Exception e) {
             log.error("Error while converting toObject for object: {}, error: {}, {}", obj, e.getCause(),
                     e.getMessage());
-            throw new SerDeException(SERIALIZATION_ERROR, "Unable to serialize data with type reference");
+            throw new SerDeException(SERIALIZATION_ERROR, "Unable to serialize data with type reference", e);
         }
     }
 }

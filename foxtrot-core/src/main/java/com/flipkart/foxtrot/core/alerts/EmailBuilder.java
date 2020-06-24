@@ -32,7 +32,8 @@ class EmailBuilder implements InternalSystemEventVisitor<Email> {
     public Email visit(QueryProcessingError queryProcessingError) {
         final FoxtrotException exception = queryProcessingError.getException();
         if (ErrorCode.CARDINALITY_OVERFLOW == exception.getCode()) {
-            return richEmailBuilder.build(templateIdFromEvent(queryProcessingError), Collections.emptyList(),
+            return richEmailBuilder.
+                        build(templateIdFromEvent(queryProcessingError), Collections.emptyList(),
                     exception.toMap());
         }
         return null;
