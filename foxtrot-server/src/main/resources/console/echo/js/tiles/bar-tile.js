@@ -40,6 +40,7 @@ function getBarChartFormValues() {
     uniqueKey = currentFieldList[parseInt(uniqueKey)].field
   }
 
+
   return {
     "period": period
     , "timeframe": timeframe
@@ -61,7 +62,13 @@ function setBarChartFormValues(object) {
   $("#bar-uniquekey").selectpicker('refresh');
   $(".bar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
   $("#bar-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
-  $("#bar-sorting-digits").val((object.tileContext.sortingbar == undefined ? 'undefined' : object.tileContext.sortingbar));
+
+  if(object.tileContext.sortingbar===true){
+    $("#bar-sorting-digits").prop("checked", true);
+  }
+  else{
+    $("#bar-sorting-digits").val((object.tileContext.sortingbar == undefined ? 'undefined' : object.tileContext.sortingbar));
+  }
 }
 
 function clearBarChartForm() {
