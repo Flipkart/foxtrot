@@ -174,14 +174,14 @@ public class ESAuthStore implements AuthStore {
                                        Duration sessionDuration) {
         log.info("Cleaning up sessions older than: {}", sessionDuration);
         Date oldestValidDate = new Date(date.getTime() - sessionDuration.toMilliseconds());
-        /*val deletedCount = connection.getClient()
+        val deletedCount = connection.getClient()
                 .deleteByQuery(new DeleteByQueryRequest(TOKENS_INDEX).setDocTypes(TOKEN_TYPE)
                         .setIndicesOptions(Utils.indicesOptions())
                         .setQuery(QueryBuilders.rangeQuery("expiry")
                                 .lt(oldestValidDate.getTime()))
                         .setRefresh(true), RequestOptions.DEFAULT)
                 .getDeleted();
-        log.info("Deleted {} expired tokens", deletedCount);*/
+        log.info("Deleted {} expired tokens", deletedCount);
         return true;
     }
 
@@ -200,11 +200,10 @@ public class ESAuthStore implements AuthStore {
 
     @SneakyThrows
     public long deleteTokensForUser(String userId) {
-        /*return connection.getClient()
+        return connection.getClient()
                 .deleteByQuery(new DeleteByQueryRequest(TOKENS_INDEX).setDocTypes(TOKEN_TYPE)
                         .setQuery(QueryBuilders.termQuery("userId", userId))
                         .setRefresh(true), RequestOptions.DEFAULT)
-                .getDeleted();*/
-        return 0L;
+                .getDeleted();
     }
 }
