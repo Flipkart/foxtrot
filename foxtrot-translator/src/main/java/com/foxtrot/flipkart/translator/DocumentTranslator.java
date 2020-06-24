@@ -131,10 +131,14 @@ public class DocumentTranslator {
                     }
                 }
             } catch (SerDeException e) {
-                log.error("Error while expanding field at json path : {}", jsonPath, e);
+                if(log.isDebugEnabled()){
+                    log.debug("Error while expanding field at json path : {}", jsonPath, e);
+                }
                 throw e;
             } catch (Exception e) {
-                log.error("Error while expanding field at json path : {}, eating exception ", jsonPath, e);
+                if(log.isDebugEnabled()) {
+                    log.debug("Error while expanding field at json path : {}, eating exception ", jsonPath, e);
+                }
             }
         }
     }
