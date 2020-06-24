@@ -24,6 +24,10 @@ function getBarChartFormValues() {
   var uniqueKey = $("#bar-uniquekey").val();
   var ignoreDigits = $(".bar-ignored-digits").val();
   var selectedValue = $("#bar-selected-value").val();
+  var sortingbar =$('.bar-sorting-digits').is(':checked');
+
+  console.log("sortingbar....",sortingbar);
+
   if (eventField == "none") {
     return [[], false];
   }
@@ -43,6 +47,7 @@ function getBarChartFormValues() {
     , "uniqueKey": uniqueKey
     , "ignoreDigits" : ignoreDigits
     , "selectedValue": selectedValue
+    ,  "sortingbar":sortingbar
   };
 }
 
@@ -56,6 +61,7 @@ function setBarChartFormValues(object) {
   $("#bar-uniquekey").selectpicker('refresh');
   $(".bar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
   $("#bar-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
+  $("#bar-sorting-digits").val((object.tileContext.sortingbar == undefined ? 'undefined' : object.tileContext.sortingbar));
 }
 
 function clearBarChartForm() {
@@ -142,8 +148,37 @@ BarTile.prototype.getData = function (data) {
   for (var vehicle in sourceObject) {
       sortable.push([vehicle, sourceObject[vehicle]]);
   }
+
   
-  sortable.sort(sortFunction);
+   if (this.object.tileContext.hasOwnProperty('sortingbar')){
+    if(this.object.tileContext.sortingbar){
+       sortable= customSort(sortable); 
+    console.log("........ if block")
+
+    }
+    else{
+      sortable.sort(sortFunction);
+    }
+   }
+   else{
+    sortable.sort(sortFunction);
+    console.log("........ else block ")
+
+   }
+  
+  // console.log("customSort....",customSort(sortable));
+  console.log("this.object.tileContexts.",this.object.tileContext)
+
+
+  function customSort(arr) {
+    arr.sort(function(a,b) {
+          var descA = a[1];
+          var descB = b[1];
+          return ((descA > descB) ? -1 : ((descA > descB) ? 1 : 0));
+    });
+    
+    return arr;
+ }
   
   // sort by first index
   function sortFunction(a, b) {
