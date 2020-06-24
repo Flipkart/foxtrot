@@ -179,6 +179,13 @@
                                 <input type="text" class="form-control copy-page-name" id="copy-page-name">
                                 <span class="error copy-pg-error">Please enter page name</span>
                             </div>
+                            <div class="form-group">
+                                <select id="listConsoleCopyTab" class="listConsoleCopyTab">
+                                    <option value="none">Select console</option>
+                                </select>
+                                <span class="error copy-console-error">Please Select console</span>
+                            </div>
+    
                             <div class="form-group add-page-btn-div">
                                 <button type="button" class="btn custom-modal-tab-btn copy-page-submit"
                                     id="custom-modal-tab-btn"><span>Save</span></button>
@@ -299,8 +306,10 @@
                                                 <div></div>
                                             </div>
                                         </label></div>
-                                    <img src="img/sub-page.png" data-target="#copy-page" data-toggle="modal"
-                                        title="Copy Page" id="copy-page-img" alt="Copy Page" />
+                                    <!-- <img src="img/sub-page.png" data-target="#copy-page" data-toggle="modal"
+                                        title="Copy Page" id="copy-page-img" alt="Copy Page" /> -->
+                                    <img src="img/duplicates.png" data-target="#copy-page" data-toggle="modal"
+                                        title="Copy Tabs" id="copy-page-img" alt="Copy Page"/>
                                     <img src="img/copy-db.png" data-target="#copy-dashboard" data-toggle="modal"
                                         title="Copy Dashboard" alt="Copy Dashboard" />
                                     <img data-target="#save-dashboard" data-toggle="modal" id="saveConsole"
