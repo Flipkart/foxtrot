@@ -34,7 +34,7 @@ public class GroupActionEstimationTest extends ActionTest {
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
         getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true, 1397658117000L);
         ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
-                .setMaxCardinality(15000);
+                .setMaxCardinality(MAX_CARDINALITY);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 

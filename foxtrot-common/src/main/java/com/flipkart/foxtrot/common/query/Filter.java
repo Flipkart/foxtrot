@@ -138,7 +138,7 @@ public abstract class Filter implements Serializable {
                 .append("field", field)
                 .toString();
     }
-    
+
     @JsonIgnore
     public boolean isFilterTemporal() {
         return false;

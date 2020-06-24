@@ -64,6 +64,7 @@ public class CountAction extends Action<CountRequest> {
 
     @Override
     public String getRequestCacheKey() {
+        preprocess();
         long filterHashKey = 0L;
         CountRequest request = getParameter();
         if (null != request.getFilters()) {
