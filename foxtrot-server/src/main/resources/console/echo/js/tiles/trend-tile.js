@@ -80,6 +80,7 @@ TrendTile.prototype.getQuery = function(object) {
 
   var data = {
     "opcode": "stats",
+    "consoleId": getCurrentConsoleId(),
     "table": object.tileContext.table,
     "filters": filters,
     "field": object.tileContext.statsFieldName
