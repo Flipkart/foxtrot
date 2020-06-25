@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.cardinality;
 
+import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
@@ -9,7 +10,6 @@ import com.flipkart.foxtrot.common.estimation.FixedEstimationData;
 import com.flipkart.foxtrot.common.estimation.PercentileEstimationData;
 import com.flipkart.foxtrot.common.estimation.TermHistogramEstimationData;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterVisitorAdapter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
@@ -23,9 +23,9 @@ import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.actions.GroupAction;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -64,56 +64,59 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
 
 
     @Override
-    public void validateCardinality(GroupAction groupAction,
-                                    GroupRequest groupRequest) {
+    public void validateCardinality(Action action,
+                                    ActionRequest actionRequest,
+                                    String table,
+                                    List<String> groupingColumns) {
         // Perform cardinality analysis and see how much this fucks up the cluster
         if (queryStore instanceof ElasticsearchQueryStore
                 && ((ElasticsearchQueryStore) queryStore).getCardinalityConfig()
                 .isEnabled()) {
             double probability = 0;
             try {
-                TableFieldMapping fieldMappings = tableMetadataManager.getFieldMappings(groupRequest.getTable(), true,
-                        false);
+                TableFieldMapping fieldMappings = tableMetadataManager.getFieldMappings(table, true, false);
                 if (null == fieldMappings) {
                     fieldMappings = TableFieldMapping.builder()
                             .mappings(Collections.emptySet())
-                            .table(groupRequest.getTable())
+                            .table(table)
                             .build();
                 }
 
-                probability = estimateProbability(fieldMappings, groupRequest, groupAction);
+                String cacheKey = action.getRequestCacheKey();
+
+                probability = estimateProbability(fieldMappings, actionRequest, cacheKey, table, groupingColumns);
             } catch (Exception e) {
                 log.error("Error running estimation", e);
             }
 
             if (probability > PROBABILITY_CUT_OFF) {
-                final String content = groupAction.requestString();
+                final String content = action.requestString();
                 log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
                         probability, content);
-                throw FoxtrotExceptions.createCardinalityOverflow(groupRequest, content, groupRequest.getNesting()
-                        .get(0), probability);
+                throw FoxtrotExceptions.createCardinalityOverflow(actionRequest, content, groupingColumns.get(0), probability);
             } else {
-                log.info("Allowing group by with probability {} for query: {}", probability, groupRequest);
+                log.info("Allowing group by with probability {} for query: {}", probability, action);
             }
         }
     }
 
     private double estimateProbability(TableFieldMapping tableFieldMapping,
-                                       GroupRequest groupRequest,
-                                       GroupAction groupAction) {
+                                       ActionRequest actionRequest,
+                                       String cacheKey,
+                                       String table,
+                                       List<String> groupingColumns) {
         Set<FieldMetadata> mappings = tableFieldMapping.getMappings();
         Map<String, FieldMetadata> metaMap = mappings.stream()
                 .collect(Collectors.toMap(FieldMetadata::getField, mapping -> mapping));
 
-        String cacheKey = groupAction.getRequestCacheKey();
         long estimatedMaxDocCount = extractMaxDocCount(metaMap);
         log.debug("cacheKey:{} msg:DOC_COUNT_ESTIMATION_COMPLETED maxDocCount:{}", cacheKey, estimatedMaxDocCount);
-        long estimatedDocCountBasedOnTime = estimateDocCountBasedOnTime(estimatedMaxDocCount, groupRequest,
+        long estimatedDocCountBasedOnTime = estimateDocCountBasedOnTime(estimatedMaxDocCount, actionRequest,
                 tableMetadataManager, tableFieldMapping.getTable());
         log.debug("cacheKey:{} msg:TIME_BASED_DOC_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{}",
                 cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime);
         long estimatedDocCountAfterFilters = estimateDocCountWithFilters(estimatedDocCountBasedOnTime, metaMap,
-                groupRequest.getFilters(), groupAction);
+                actionRequest.getFilters(), cacheKey);
         log.debug("cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} "
                         + "docCountAfterFilters:{}", cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime,
                 estimatedDocCountAfterFilters);
@@ -125,14 +128,12 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
 
         long outputCardinality = 1;
         final AtomicBoolean reduceCardinality = new AtomicBoolean(false);
-        for (int i = 0; i < groupRequest.getNesting()
-                .size(); i++) {
-            final String field = groupRequest.getNesting()
-                    .get(i);
+        for (int i = 0; i < groupingColumns.size(); i++) {
+            final String field = groupingColumns.get(i);
             FieldMetadata metadata = metaMap.get(field);
             if (null == metadata || null == metadata.getEstimationData()) {
                 log.warn("cacheKey:{} msg:NO_FIELD_ESTIMATION_DATA table:{} field:{}", cacheKey,
-                        groupRequest.getTable(), field);
+                        table, field);
                 continue;
             }
             long fieldCardinality = metadata.getEstimationData()
@@ -197,7 +198,7 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
             log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, "
                             + "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  Query: {}", outputCardinality,
                     estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters,
-                    tableFieldMapping, groupRequest.toString());
+                    tableFieldMapping, actionRequest.toString());
             return 1.0;
         } else {
             return 0;
@@ -217,10 +218,10 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
     }
 
     private long estimateDocCountBasedOnTime(long currentDocCount,
-                                             GroupRequest parameter,
+                                             ActionRequest actionRequest,
                                              TableMetadataManager tableMetadataManager,
                                              String table) {
-        Interval queryInterval = new PeriodSelector(parameter.getFilters()).analyze();
+        Interval queryInterval = new PeriodSelector(actionRequest.getFilters()).analyze();
         long minutes = queryInterval.toDuration()
                 .getStandardMinutes();
         double days = (double) minutes / TimeUnit.DAYS.toMinutes(1);
@@ -244,12 +245,10 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
     private long estimateDocCountWithFilters(long currentDocCount,
                                              Map<String, FieldMetadata> metaMap,
                                              List<Filter> filters,
-                                             GroupAction groupAction) {
+                                             String cacheKey) {
         if (CollectionUtils.isNullOrEmpty(filters)) {
             return currentDocCount;
         }
-
-        String cacheKey = groupAction.getRequestCacheKey();
 
         double overallFilterMultiplier = 1;
         for (Filter filter : filters) {

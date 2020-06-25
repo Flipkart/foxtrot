@@ -36,8 +36,10 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import io.dropwizard.util.Duration;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -148,6 +150,11 @@ public class TrendAction extends Action<TrendRequest> {
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
+
+        List<String> groupingFields = new ArrayList<>();
+        groupingFields.add(parameter.getField());
+        getCardinalityValidator().validateCardinality(this, parameter, parameter.getTable(), groupingFields);
+
     }
 
     @Override

@@ -128,7 +128,7 @@ public class GroupAction extends Action<GroupRequest> {
             validationErrors.add("unique field cannot be empty (can be null)");
         }
 
-        getCardinalityValidator().validateCardinality(this, parameter);
+        getCardinalityValidator().validateCardinality(this, parameter, parameter.getTable(), parameter.getNesting());
 
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
