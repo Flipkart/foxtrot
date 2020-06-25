@@ -94,6 +94,7 @@ function NonStackedLineTile() {
     
     var data = {
       "opcode": "multi_query"
+      ,"consoleId": getCurrentConsoleId()
       , "table": object.tileContext.table
       , "filters": filters
       , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
