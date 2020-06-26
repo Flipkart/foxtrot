@@ -68,6 +68,10 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
                                     ActionRequest actionRequest,
                                     String table,
                                     List<String> groupingColumns) {
+        if(CollectionUtils.isNullOrEmpty(groupingColumns)){
+            return;
+        }
+
         // Perform cardinality analysis and see how much this fucks up the cluster
         if (queryStore instanceof ElasticsearchQueryStore
                 && ((ElasticsearchQueryStore) queryStore).getCardinalityConfig()
