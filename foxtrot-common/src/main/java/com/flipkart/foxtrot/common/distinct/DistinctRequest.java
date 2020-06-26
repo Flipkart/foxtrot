@@ -35,16 +35,20 @@ public class DistinctRequest extends ActionRequest {
     @Size(max = 10)
     private List<ResultSort> nesting;
 
+    private String consoleId;
+
     public DistinctRequest() {
         super(Opcodes.DISTINCT);
     }
 
     public DistinctRequest(List<Filter> filters,
                            String table,
-                           List<ResultSort> nesting) {
+                           List<ResultSort> nesting,
+                           String consoleId) {
         super(Opcodes.DISTINCT, filters);
         this.table = table;
         this.nesting = nesting;
+        this.consoleId = consoleId;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
@@ -71,6 +75,7 @@ public class DistinctRequest extends ActionRequest {
     public String toString() {
         return new ToStringBuilder(this).append("table", table)
                 .append("filters", getFilters())
+                .append("consoleId", consoleId)
                 .append("nesting", nesting)
                 .toString();
     }
