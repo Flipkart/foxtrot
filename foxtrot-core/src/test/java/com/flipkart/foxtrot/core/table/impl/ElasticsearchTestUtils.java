@@ -59,6 +59,18 @@ public class ElasticsearchTestUtils {
         }
     }
 
+    public static void cleanupIndex(final ElasticsearchConnection elasticsearchConnection, String indexName) {
+        try {
+            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(indexName);
+            final AcknowledgedResponse deleteIndexResponse = elasticsearchConnection.getClient()
+                    .indices()
+                    .delete(deleteIndexRequest, RequestOptions.DEFAULT);
+            log.info("Delete index response: {}", deleteIndexResponse);
+        } catch (Exception e) {
+            log.error("Index Cleanup failed", e);
+        }
+    }
+
     /**
      * Class to make sure we run the server only once.
      */

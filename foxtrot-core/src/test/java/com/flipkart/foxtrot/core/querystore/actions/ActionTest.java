@@ -69,7 +69,7 @@ public abstract class ActionTest {
     @Getter
     private static QueryExecutor queryExecutor;
     @Getter
-    private static DistributedTableMetadataManager tableMetadataManager;
+    protected static DistributedTableMetadataManager tableMetadataManager;
     @Getter
     private static CacheManager cacheManager;
     @Getter
@@ -119,13 +119,6 @@ public abstract class ActionTest {
                 elasticsearchConnection, cacheManager, mapper, new ElasticsearchTuningConfig(),cardinalityValidator);
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-
-        FunnelConfiguration funnelConfiguration = FunnelConfiguration.builder()
-                .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
-                        .eventType("APP_LOADED")
-                        .category("APP_LOADED")
-                        .build())
-                .build();
 
         queryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService,
                 ImmutableList.of(new ResponseCacheUpdater(cacheManager), new SlowQueryReporter()));

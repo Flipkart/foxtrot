@@ -210,19 +210,23 @@ public class TestUtils {
         return documents;
     }
 
-    public static List<Document> getGroupDocumentsForEstimation(ObjectMapper mapper) {
+    public static List<Document> getGroupDocumentsForEstimation(ObjectMapper mapper, long currentTime) {
         Random random = new Random();
         return IntStream.rangeClosed(0, 3_000)
                 .mapToObj(i -> Document.builder()
                         .id(UUID.randomUUID()
                                 .toString())
-                        .timestamp(i * 10_000 + 1397658117000L)
+                        .timestamp(i * 10_000 + currentTime)
                         .data(mapper.valueToTree(ImmutableMap.<String, Object>builder().put("deviceId",
                                 UUID.randomUUID()
                                         .toString())
-                                .put("os", new String[]{"ios", "android", "android", "android"}[random.nextInt(4)])
+                                // less than 2% ios
+                                .put("os", new String[]{"ios", "android"}[random.nextInt(100) < 2 ? 0 : 1])
                                 .put("registered", new boolean[]{true, false, false}[random.nextInt(3)])
-                                .put("value", random.nextInt(101))
+                                // less than 1% value will be less than 10
+                                .put("value", random.nextInt(100) < 2
+                                              ? (int) (Math.random() * (10))
+                                                : (int) (Math.random() * (100 - 10)) + 10)
                                 .build()))
                         .build())
                 .collect(Collectors.toList());
