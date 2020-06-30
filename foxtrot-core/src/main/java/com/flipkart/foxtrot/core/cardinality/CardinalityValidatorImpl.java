@@ -68,7 +68,7 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
                                     ActionRequest actionRequest,
                                     String table,
                                     List<String> groupingColumns) {
-        if(CollectionUtils.isNullOrEmpty(groupingColumns)){
+        if (CollectionUtils.isNullOrEmpty(groupingColumns)) {
             return;
         }
 
@@ -95,9 +95,10 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
 
             if (probability > PROBABILITY_CUT_OFF) {
                 final String content = action.requestString();
-                log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                log.info("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
                         probability, content);
-                throw FoxtrotExceptions.createCardinalityOverflow(actionRequest, content, groupingColumns.get(0), probability);
+                throw FoxtrotExceptions.createCardinalityOverflow(actionRequest, content, groupingColumns.get(0),
+                        probability);
             } else {
                 log.info("Allowing group by with probability {} for query: {}", probability, action);
             }
@@ -114,19 +115,27 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
                 .collect(Collectors.toMap(FieldMetadata::getField, mapping -> mapping));
 
         long estimatedMaxDocCount = extractMaxDocCount(metaMap);
-        log.debug("cacheKey:{} msg:DOC_COUNT_ESTIMATION_COMPLETED maxDocCount:{}", cacheKey, estimatedMaxDocCount);
+        if (log.isDebugEnabled()) {
+            log.debug("cacheKey:{} msg:DOC_COUNT_ESTIMATION_COMPLETED maxDocCount:{}", cacheKey, estimatedMaxDocCount);
+        }
         long estimatedDocCountBasedOnTime = estimateDocCountBasedOnTime(estimatedMaxDocCount, actionRequest,
                 tableMetadataManager, tableFieldMapping.getTable());
-        log.debug("cacheKey:{} msg:TIME_BASED_DOC_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{}",
-                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime);
+        if (log.isDebugEnabled()) {
+            log.debug("cacheKey:{} msg:TIME_BASED_DOC_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{}",
+                    cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime);
+        }
         long estimatedDocCountAfterFilters = estimateDocCountWithFilters(estimatedDocCountBasedOnTime, metaMap,
                 actionRequest.getFilters(), cacheKey);
-        log.debug("cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} "
-                        + "docCountAfterFilters:{}", cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime,
-                estimatedDocCountAfterFilters);
+        if (log.isDebugEnabled()) {
+            log.debug("cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} "
+                            + "docCountAfterFilters:{}", cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime,
+                    estimatedDocCountAfterFilters);
+        }
         if (estimatedDocCountAfterFilters < MIN_ESTIMATION_THRESHOLD) {
-            log.debug("cacheKey:{} msg:NESTING_ESTIMATION_SKIPPED estimatedDocCount:{} threshold:{}", cacheKey,
-                    estimatedDocCountAfterFilters, MIN_ESTIMATION_THRESHOLD);
+            if (log.isDebugEnabled()) {
+                log.debug("cacheKey:{} msg:NESTING_ESTIMATION_SKIPPED estimatedDocCount:{} threshold:{}", cacheKey,
+                        estimatedDocCountAfterFilters, MIN_ESTIMATION_THRESHOLD);
+            }
             return 0.0;
         }
 
@@ -136,8 +145,7 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
             final String field = groupingColumns.get(i);
             FieldMetadata metadata = metaMap.get(field);
             if (null == metadata || null == metadata.getEstimationData()) {
-                log.warn("cacheKey:{} msg:NO_FIELD_ESTIMATION_DATA table:{} field:{}", cacheKey,
-                        table, field);
+                log.warn("cacheKey:{} msg:NO_FIELD_ESTIMATION_DATA table:{} field:{}", cacheKey, table, field);
                 continue;
             }
             long fieldCardinality = metadata.getEstimationData()
@@ -166,13 +174,17 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
                                     .size();
                         }
                     });
-            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATED field:{} overallCardinality:{} fieldCardinality:{} "
-                            + "newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
-                    outputCardinality * fieldCardinality);
+            if (log.isDebugEnabled()) {
+                log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATED field:{} overallCardinality:{} fieldCardinality:{} "
+                                + "newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
+                        outputCardinality * fieldCardinality);
+            }
             fieldCardinality = (long) Utils.ensureOne(fieldCardinality);
-            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} "
-                            + "fieldCardinality:{} newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
-                    outputCardinality * fieldCardinality);
+            if (log.isDebugEnabled()) {
+                log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} "
+                                + "fieldCardinality:{} newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
+                        outputCardinality * fieldCardinality);
+            }
             outputCardinality *= fieldCardinality;
         }
 
@@ -186,10 +198,11 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
             outputCardinality = (long) (outputCardinality * ((double) estimatedDocCountAfterFilters
                     / estimatedMaxDocCount));
         }
-
-        log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} "
-                        + "docCountAfterFilters:{} outputCardinality:{}", cacheKey, estimatedMaxDocCount,
-                estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
+        if (log.isDebugEnabled()) {
+            log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} "
+                            + "docCountAfterFilters:{} outputCardinality:{}", cacheKey, estimatedMaxDocCount,
+                    estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
+        }
         long maxCardinality = MAX_CARDINALITY;
         if (queryStore instanceof ElasticsearchQueryStore
                 && ((ElasticsearchQueryStore) queryStore).getCardinalityConfig() != null &&
@@ -262,13 +275,18 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
                 log.warn("cacheKey:{} msg:NO_FIELD_ESTIMATION_DATA field:{}", cacheKey, filterField);
                 continue;
             }
-            log.debug("cacheKey:{} msg:FILTER_ESTIMATION_STARTED filter:{} mapping:{}", cacheKey, filter,
-                    fieldMetadata);
+            if (log.isDebugEnabled()) {
+                log.debug("cacheKey:{} msg:FILTER_ESTIMATION_STARTED filter:{} mapping:{}", cacheKey, filter,
+                        fieldMetadata);
+            }
             double currentFilterMultiplier = fieldMetadata.getEstimationData()
                     .accept(getDocCountWithFilterEstimationDataVisitor(filter, cacheKey));
-            log.debug("cacheKey:{} msg:FILTER_ESTIMATION_COMPLETED field:{} fieldMultiplier:{} overallOldMultiplier:{} "
-                            + "overallNewMultiplier:{}", cacheKey, filterField, currentFilterMultiplier,
-                    overallFilterMultiplier, overallFilterMultiplier * currentFilterMultiplier);
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "cacheKey:{} msg:FILTER_ESTIMATION_COMPLETED field:{} fieldMultiplier:{} overallOldMultiplier:{} "
+                                + "overallNewMultiplier:{}", cacheKey, filterField, currentFilterMultiplier,
+                        overallFilterMultiplier, overallFilterMultiplier * currentFilterMultiplier);
+            }
             overallFilterMultiplier *= currentFilterMultiplier;
         }
         return (long) (currentDocCount * overallFilterMultiplier);
@@ -369,9 +387,11 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
 
                 int numBuckets = maxBound - minBound + 1;
                 final double result = (double) numBuckets / 10.0;
-                log.debug("cacheKey:{} Between filter: {} " + "percentiles[{}] = {} to percentiles[{}] = {} "
-                                + "buckets {} multiplier {}", cacheKey, betweenFilter, minBound, percentiles[minBound],
-                        maxBound, percentiles[maxBound], numBuckets, result);
+                if (log.isDebugEnabled()) {
+                    log.debug("cacheKey:{} Between filter: {} " + "percentiles[{}] = {} to percentiles[{}] = {} "
+                                    + "buckets {} multiplier {}", cacheKey, betweenFilter, minBound, percentiles[minBound],
+                            maxBound, percentiles[maxBound], numBuckets, result);
+                }
                 return result;
             }
 
@@ -390,15 +410,19 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
                         .orElse(9);
                 int numBuckets = maxBound - minBound + 1;
                 final double result = (double) numBuckets / 10.0;
-                log.debug("cacheKey:{} EqualsFilter:{} numMatches:{} multiplier:{}", cacheKey, equalsFilter, numMatches,
-                        result);
+                if (log.isDebugEnabled()) {
+                    log.debug("cacheKey:{} EqualsFilter:{} numMatches:{} multiplier:{}", cacheKey, equalsFilter,
+                            numMatches, result);
+                }
                 return result;
             }
 
             @Override
             public Double visit(NotEqualsFilter notEqualsFilter) {
                 // There is no match, so all values will be considered
-                log.debug("cacheKey:{} NotEqualsFilter:{} multiplier: 1.0", cacheKey, notEqualsFilter);
+                if (log.isDebugEnabled()) {
+                    log.debug("cacheKey:{} NotEqualsFilter:{} multiplier: 1.0", cacheKey, notEqualsFilter);
+                }
                 return 1.0;
             }
 
@@ -415,8 +439,10 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
 
                 //Everything below this percentile do not affect
                 final double result = (double) (10 - minBound - 1) / 10.0;
-                log.debug("cacheKey:{} GreaterThanFilter: {} percentiles[{}] = {} multiplier: {}", cacheKey,
-                        greaterThanFilter, minBound, percentiles[minBound], result);
+                if (log.isDebugEnabled()) {
+                    log.debug("cacheKey:{} GreaterThanFilter: {} percentiles[{}] = {} multiplier: {}", cacheKey,
+                            greaterThanFilter, minBound, percentiles[minBound], result);
+                }
                 return result;
             }
 
@@ -433,8 +459,10 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
 
                 //Everything below this do not affect
                 final double result = (double) (10 - minBound - 1) / 10.0;
-                log.debug("cacheKey:{} GreaterEqualsFilter:{} percentiles[{}] = {} multiplier: {}", cacheKey,
-                        greaterEqualFilter, minBound, percentiles[minBound], result);
+                if (log.isDebugEnabled()) {
+                    log.debug("cacheKey:{} GreaterEqualsFilter:{} percentiles[{}] = {} multiplier: {}", cacheKey,
+                            greaterEqualFilter, minBound, percentiles[minBound], result);
+                }
                 return result;
             }
 
@@ -451,8 +479,10 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
 
                 //Everything above this do not affect
                 final double result = ((double) minBound + 1.0) / 10.0;
-                log.debug("cacheKey:{} LessThanFilter:{} percentiles[{}] = {} multiplier: {}", cacheKey, lessThanFilter,
-                        minBound, percentiles[minBound], result);
+                if (log.isDebugEnabled()) {
+                    log.debug("cacheKey:{} LessThanFilter:{} percentiles[{}] = {} multiplier: {}", cacheKey,
+                            lessThanFilter, minBound, percentiles[minBound], result);
+                }
                 return result;
             }
 
@@ -468,8 +498,10 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
                         .orElse(9);
                 //Everything above this do not affect
                 final double result = ((double) minBound + 1.0) / 10.0;
-                log.debug("cacheKey:{} LessEqualsFilter: {} percentiles[{}] = {} multiplier: {}", cacheKey,
-                        lessEqualFilter, minBound, percentiles[minBound], result);
+                if (log.isDebugEnabled()) {
+                    log.debug("cacheKey:{} LessEqualsFilter: {} percentiles[{}] = {} multiplier: {}", cacheKey,
+                            lessEqualFilter, minBound, percentiles[minBound], result);
+                }
                 return result;
             }
         };
