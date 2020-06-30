@@ -27,6 +27,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidator;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
@@ -54,6 +55,7 @@ public abstract class Action<P extends ActionRequest> {
     private P parameter;
     private ElasticsearchConnection connection;
     private CacheKeyVisitor cacheKeyVisitor;
+    private CardinalityValidator cardinalityValidator;
 
     protected Action(P parameter,
                      AnalyticsLoader analyticsLoader) {
@@ -63,6 +65,7 @@ public abstract class Action<P extends ActionRequest> {
         this.connection = analyticsLoader.getElasticsearchConnection();
         this.objectMapper = analyticsLoader.getObjectMapper();
         this.cacheKeyVisitor = new CacheKeyVisitor();
+        this.cardinalityValidator = analyticsLoader.getCardinalityValidator();
     }
 
     public String cacheKey() {
@@ -166,6 +169,10 @@ public abstract class Action<P extends ActionRequest> {
         return tableMetadataManager;
     }
 
+    public CardinalityValidator getCardinalityValidator() {
+        return cardinalityValidator;
+    }
+
     public QueryStore getQueryStore() {
         return queryStore;
     }
@@ -186,7 +193,7 @@ public abstract class Action<P extends ActionRequest> {
         return lessThanFilter;
     }
 
-    protected String requestString() {
+    public String requestString() {
         try {
             return objectMapper.writeValueAsString(parameter);
         } catch (JsonProcessingException e) {

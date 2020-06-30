@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -22,24 +23,37 @@ import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.exception.CardinalityOverflowException;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.exception.MalformedQueryException;
+import com.flipkart.foxtrot.common.group.GroupRequest;
+import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.stats.AnalyticsRequestFlags;
 import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import io.dropwizard.jackson.Jackson;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
+import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +63,13 @@ import org.junit.Test;
  */
 public class StatsTrendActionTest extends ActionTest {
 
+    private static final String STATS_TREND_CARDINALITY_TEST_TABLE = "stats-trend-cardinality-test-table";
+
+    private static final Long time = DateTime.now()
+            .minusDays(1)
+            .toDate()
+            .getTime();
+
     @Before
     public void setUp() throws Exception {
         super.setup();
@@ -57,6 +78,34 @@ public class StatsTrendActionTest extends ActionTest {
         getElasticsearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
+
+        tableMetadataManager.save(Table.builder()
+                .name(STATS_TREND_CARDINALITY_TEST_TABLE)
+                .ttl(30)
+                .build());
+        // have 30,000 docs for cardinality test
+        for (int i = 0; i < 10; i++) {
+
+            List<Document> documentsForEstimation = TestUtils.getTestDocumentsForCardinalityEstimation(getMapper(), time,
+                    300);
+            getQueryStore().save(STATS_TREND_CARDINALITY_TEST_TABLE, documentsForEstimation);
+
+            getElasticsearchConnection().getClient()
+                    .indices()
+                    .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
+        }
+
+
+        getTableMetadataManager().getFieldMappings(STATS_TREND_CARDINALITY_TEST_TABLE, true, true, time);
+        ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
+                .setMaxCardinality(1500);
+        getTableMetadataManager().updateEstimationData(STATS_TREND_CARDINALITY_TEST_TABLE, time);
+    }
+
+    @After
+    public void afterMethod() {
+        ElasticsearchTestUtils.cleanupIndex(getElasticsearchConnection(),
+                ElasticsearchUtils.getCurrentIndex(STATS_TREND_CARDINALITY_TEST_TABLE, time));
     }
 
     @Test
@@ -609,6 +658,103 @@ public class StatsTrendActionTest extends ActionTest {
                 .get(0)
                 .getStats()
                 .get("count"));
+    }
+
+    // Block queries on high cardinality fields
+    @Test(expected = CardinalityOverflowException.class)
+    public void testEstimationNoFilterHighCardinality() {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(STATS_TREND_CARDINALITY_TEST_TABLE);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setNesting(Collections.singletonList("deviceId"));
+
+        getQueryExecutor().execute(request);
+    }
+
+    @Test
+    // High cardinality field queries are allowed if in a small time span
+    public void testEstimationTemporalFilterHighCardinality() {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(STATS_TREND_CARDINALITY_TEST_TABLE);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setNesting(Collections.singletonList("deviceId"));
+
+        request.setFilters(ImmutableList.of(BetweenFilter.builder()
+                .field("_timestamp")
+                .temporal(true)
+                .from(time)
+                .to(time + 2 * 60000)
+                .build()));
+
+        StatsTrendResponse response = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        Assert.assertFalse(response.getBuckets()
+                .isEmpty());
+    }
+
+
+    @Test
+    // High cardinality field queries are allowed if scoped in small cardinality field
+    public void testEstimationCardinalFilterHighCardinality() {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(STATS_TREND_CARDINALITY_TEST_TABLE);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setNesting(Collections.singletonList("deviceId"));
+        request.setFilters(ImmutableList.of(EqualsFilter.builder()
+                .field("os")
+                .value("ios")
+                .build()));
+
+        StatsTrendResponse response = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        Assert.assertFalse(response.getBuckets()
+                .isEmpty());
+    }
+
+    @Test(expected = CardinalityOverflowException.class)
+    public void testEstimationGTFilterHighCardinality() {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(STATS_TREND_CARDINALITY_TEST_TABLE);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setNesting(Collections.singletonList("deviceId"));
+        request.setFilters(ImmutableList.of(GreaterThanFilter.builder()
+                .field("value")
+                .value(10)
+                .build()));
+        getQueryExecutor().execute(request);
+    }
+
+    @Test
+    // High cardinality field queries with filters including small subset are allowed
+    public void testEstimationLTFilterHighCardinality() {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(STATS_TREND_CARDINALITY_TEST_TABLE);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setNesting(Collections.singletonList("deviceId"));
+        request.setFilters(ImmutableList.of(LessThanFilter.builder()
+                .field("value")
+                .value(3)
+                .build()));
+        StatsTrendResponse response = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        Assert.assertFalse(response.getBuckets()
+                .isEmpty());
+    }
+
+    @Test(expected = CardinalityOverflowException.class)
+    public void testEstimationLTFilterHighCardinalityBlocked() throws Exception {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(STATS_TREND_CARDINALITY_TEST_TABLE);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setNesting(Collections.singletonList("deviceId"));
+        request.setFilters(ImmutableList.of(LessThanFilter.builder()
+                .field("value")
+                .value(80)
+                .build()));
+        getQueryExecutor().execute(request);
     }
 
     private void filterNonZeroCounts(StatsTrendResponse statsTrendResponse) {

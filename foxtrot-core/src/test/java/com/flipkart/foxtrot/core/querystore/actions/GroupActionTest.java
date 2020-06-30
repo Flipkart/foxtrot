@@ -122,7 +122,7 @@ public class GroupActionTest extends ActionTest {
 
     @Test
     public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter()
-            throws FoxtrotException, JsonProcessingException {
+            throws FoxtrotException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
 

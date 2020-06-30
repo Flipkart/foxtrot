@@ -37,6 +37,8 @@ public class StatsTrendRequest extends ActionRequest {
 
     private Set<AnalyticsRequestFlags> flags;
 
+    private String consoleId;
+
     public StatsTrendRequest() {
         super(Opcodes.STATS_TREND);
     }
@@ -51,7 +53,8 @@ public class StatsTrendRequest extends ActionRequest {
                              Period period,
                              String timestamp,
                              double compression,
-                             Set<AnalyticsRequestFlags> flags) {
+                             Set<AnalyticsRequestFlags> flags,
+                             String consoleId) {
         super(Opcodes.STATS_TREND, filters);
         this.table = table;
         this.field = field;
@@ -62,6 +65,7 @@ public class StatsTrendRequest extends ActionRequest {
         this.timestamp = timestamp;
         this.compression = compression;
         this.flags = flags;
+        this.consoleId = consoleId;
     }
 
 
@@ -80,6 +84,7 @@ public class StatsTrendRequest extends ActionRequest {
                 .append("period", period)
                 .append("timestamp", timestamp)
                 .append("compression", compression)
+                .append("consoleId", consoleId)
                 .toString();
     }
 }

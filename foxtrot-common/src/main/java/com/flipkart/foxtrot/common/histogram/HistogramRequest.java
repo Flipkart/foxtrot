@@ -50,6 +50,8 @@ public class HistogramRequest extends ActionRequest {
 
     private CountPrecision precision;
 
+    private String consoleId;
+
     private String uniqueCountOn;
 
     public HistogramRequest() {
@@ -62,12 +64,14 @@ public class HistogramRequest extends ActionRequest {
                             String table,
                             String field,
                             String uniqueCountOn,
-                            Period period) {
+                            Period period,
+                            String consoleId) {
         super(Opcodes.HISTOGRAM, filters);
         this.table = table;
         this.field = field;
         this.uniqueCountOn = uniqueCountOn;
         this.period = period;
+        this.consoleId = consoleId;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
@@ -81,6 +85,7 @@ public class HistogramRequest extends ActionRequest {
                 .append("field", field)
                 .append("uniqueCountOn", uniqueCountOn)
                 .append("period", period)
+                .append("consoleId", consoleId)
                 .toString();
     }
 

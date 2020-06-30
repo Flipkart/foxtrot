@@ -31,6 +31,8 @@ public class CountRequest extends ActionRequest {
 
     private CountPrecision precision;
 
+    private String consoleId;
+
     public CountRequest() {
         super(Opcodes.COUNT);
     }
@@ -44,6 +46,7 @@ public class CountRequest extends ActionRequest {
         return new ToStringBuilder(this).appendSuper(super.toString())
                 .append("table", table)
                 .append("field", field)
+                .append("consoleId", consoleId)
                 .append("isDistinct", isDistinct)
                 .toString();
     }

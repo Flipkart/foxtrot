@@ -49,6 +49,8 @@ public class TrendRequest extends ActionRequest {
 
     private CountPrecision precision;
 
+    private String consoleId;
+
     public TrendRequest() {
         super(Opcodes.TREND);
     }
@@ -59,7 +61,8 @@ public class TrendRequest extends ActionRequest {
                         String timestamp,
                         Period period,
                         List<String> values,
-                        String uniqueCountOn) {
+                        String uniqueCountOn,
+                        String consoleId) {
         super(Opcodes.TREND, filters);
         this.table = table;
         this.field = field;
@@ -67,6 +70,7 @@ public class TrendRequest extends ActionRequest {
         this.period = period;
         this.values = values;
         this.uniqueCountOn = uniqueCountOn;
+        this.consoleId = consoleId;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
@@ -82,6 +86,7 @@ public class TrendRequest extends ActionRequest {
                 .append("period", period)
                 .append("values", values)
                 .append("uniqueCountOn", uniqueCountOn)
+                .append("consoleId", consoleId)
                 .toString();
     }
 

@@ -358,7 +358,7 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         List<Filter> filters = baseEventFilter();
         filters.add(funnelIdFilter(funnelId));
 
-        HistogramRequest histogramRequest = new HistogramRequest(filters, table, field, null, period);
+        HistogramRequest histogramRequest = new HistogramRequest(filters, table, field, null, period, null);
 
         return (HistogramResponse) queryExecutor.execute(histogramRequest);
     }
@@ -368,7 +368,7 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
                                                      Period period) {
         List<Filter> filters = baseEventFilter();
 
-        HistogramRequest histogramRequest = new HistogramRequest(filters, table, field, null, period);
+        HistogramRequest histogramRequest = new HistogramRequest(filters, table, field, null, period, null);
 
         return (HistogramResponse) queryExecutor.execute(histogramRequest);
     }
