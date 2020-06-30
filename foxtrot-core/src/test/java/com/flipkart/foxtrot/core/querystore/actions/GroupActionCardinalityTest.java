@@ -46,14 +46,14 @@ public class GroupActionCardinalityTest extends ActionTest {
                 .name(CARDINALITY_TEST_TABLE)
                 .ttl(30)
                 .build());
-        List<Document> documents = TestUtils.getTestDocumentsForCardinalityEstimation(getMapper(), time, 3000);
+        List<Document> documents = TestUtils.getTestDocumentsForCardinalityEstimation(getMapper(), time, 300);
         getQueryStore().save(CARDINALITY_TEST_TABLE, documents);
         getElasticsearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
         getTableMetadataManager().getFieldMappings(CARDINALITY_TEST_TABLE, true, true, time);
         ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
-                .setMaxCardinality(15000);
+                .setMaxCardinality(1500);
         getTableMetadataManager().updateEstimationData(CARDINALITY_TEST_TABLE, time);
     }
 
@@ -102,14 +102,13 @@ public class GroupActionCardinalityTest extends ActionTest {
     }
 
     @Test
-    public void testEstimationPercentileCardinality() throws Exception {
+    public void testEstimationPercentileCardinality() {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(CARDINALITY_TEST_TABLE);
         groupRequest.setNesting(Collections.singletonList("value"));
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
-        Assert.assertTrue(response.getResult()
-                .containsKey("0"));
+        Assert.assertFalse(response.getResult().isEmpty());
     }
 
     @Test

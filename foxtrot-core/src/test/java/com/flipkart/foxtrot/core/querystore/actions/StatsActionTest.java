@@ -85,14 +85,14 @@ public class StatsActionTest extends ActionTest {
                 .ttl(30)
                 .build());
         List<Document> documentsForEstimation = TestUtils.getTestDocumentsForCardinalityEstimation(getMapper(), time,
-                3000);
+                300);
         getQueryStore().save(STATS_CARDINALITY_TEST_TABLE, documentsForEstimation);
         getElasticsearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
         getTableMetadataManager().getFieldMappings(STATS_CARDINALITY_TEST_TABLE, true, true, time);
         ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
-                .setMaxCardinality(15000);
+                .setMaxCardinality(1500);
         getTableMetadataManager().updateEstimationData(STATS_CARDINALITY_TEST_TABLE, time);
     }
 

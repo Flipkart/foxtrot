@@ -90,7 +90,7 @@ public class TrendActionTest extends ActionTest {
         for (int i = 0; i < 10; i++) {
 
             List<Document> documentsForEstimation = TestUtils.getTestDocumentsForCardinalityEstimation(getMapper(), time,
-                    3000);
+                    300);
             getQueryStore().save(TREND_CARDINALITY_TEST_TABLE, documentsForEstimation);
 
             getElasticsearchConnection().getClient()
@@ -104,7 +104,7 @@ public class TrendActionTest extends ActionTest {
 
         getTableMetadataManager().getFieldMappings(TREND_CARDINALITY_TEST_TABLE, true, true, time);
         ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
-                .setMaxCardinality(15000);
+                .setMaxCardinality(1500);
         getTableMetadataManager().updateEstimationData(TREND_CARDINALITY_TEST_TABLE, time);
     }
 
