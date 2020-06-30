@@ -210,9 +210,11 @@ public class TestUtils {
         return documents;
     }
 
-    public static List<Document> getGroupDocumentsForEstimation(ObjectMapper mapper, long currentTime) {
+    public static List<Document> getTestDocumentsForCardinalityEstimation(ObjectMapper mapper,
+                                                                          long currentTime,
+                                                                          int documentCount) {
         Random random = new Random();
-        return IntStream.rangeClosed(0, 3_000)
+        return IntStream.rangeClosed(0, documentCount)
                 .mapToObj(i -> Document.builder()
                         .id(UUID.randomUUID()
                                 .toString())
@@ -286,17 +288,17 @@ public class TestUtils {
         return documents;
     }
 
-    public static List<Document> getStatsDocuments(ObjectMapper mapper) {
+    public static List<Document> getStatsDocuments(ObjectMapper mapper, Long time) {
         List<Document> documents = Lists.newArrayList();
-        documents.add(TestUtils.getDocument("Z", 1467282856000L,
+        documents.add(TestUtils.getDocument("Z", time,
                 new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 10}, mapper));
-        documents.add(TestUtils.getDocument("Y", 1467331200000L,
+        documents.add(TestUtils.getDocument("Y", time,
                 new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 20}, mapper));
-        documents.add(TestUtils.getDocument("X", 1467417600000L,
+        documents.add(TestUtils.getDocument("X", time,
                 new Object[]{"os", "ios", "version", 3, "device", "galaxy", "battery", 30}, mapper));
-        documents.add(TestUtils.getDocument("W", 1467504000000L,
+        documents.add(TestUtils.getDocument("W", time,
                 new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 40}, mapper));
-        documents.add(TestUtils.getDocument("A", 1467590400000L,
+        documents.add(TestUtils.getDocument("A", time,
                 new Object[]{"os", "wp", "version", 3, "device", "nexus", "battery", 50}, mapper));
         return documents;
     }

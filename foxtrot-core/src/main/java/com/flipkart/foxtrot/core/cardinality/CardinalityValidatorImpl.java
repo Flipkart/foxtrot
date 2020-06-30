@@ -442,12 +442,12 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
             public Double visit(LessThanFilter lessThanFilter) {
                 //Percentage of values lesser than to bound
                 //Found when we find a percentile value >= bound
-                int minBound = IntStream.rangeClosed(0, 9)
+                int minBound = 9 - IntStream.rangeClosed(0, 9)
                         .filter(i -> percentiles[9 - i] < lessThanFilter.getValue()
                                 .doubleValue())
                         //Stop when we find a value >= bound
                         .findFirst()
-                        .orElse(0);
+                        .orElse(9);
 
                 //Everything above this do not affect
                 final double result = ((double) minBound + 1.0) / 10.0;
@@ -460,12 +460,12 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
             public Double visit(LessEqualFilter lessEqualFilter) {
                 //Percentage of values lesser than or equal to bound
                 //Found when we find a percentile value > bound
-                int minBound = IntStream.rangeClosed(0, 9)
+                int minBound = 9 - IntStream.rangeClosed(0, 9)
                         .filter(i -> percentiles[9 - i] <= lessEqualFilter.getValue()
                                 .doubleValue())
                         //Stop when we find a value > bound
                         .findFirst()
-                        .orElse(0);
+                        .orElse(9);
                 //Everything above this do not affect
                 final double result = ((double) minBound + 1.0) / 10.0;
                 log.debug("cacheKey:{} LessEqualsFilter: {} percentiles[{}] = {} multiplier: {}", cacheKey,
