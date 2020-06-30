@@ -12,19 +12,20 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.ActionRequestBuilder;
-import org.elasticsearch.action.search.MultiSearchRequestBuilder;
+import org.elasticsearch.action.search.MultiSearchRequest;
 import org.elasticsearch.action.search.MultiSearchResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.glassfish.hk2.api.MultiException;
 
 /***
@@ -92,22 +93,43 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     @Override
     public ActionResponse execute(MultiQueryRequest parameter) {
-        MultiSearchRequestBuilder multiSearchRequestBuilder = getRequestBuilder(parameter);
+        if (Utils.hasTemporalFilters(parameter.getFilters())) {
+            val offendingRequests = parameter.getRequests()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> Utils.hasTemporalFilters(entry.getValue()
+                            .getFilters()))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(offendingRequests)) {
+                throw FoxtrotExceptions.createMalformedQueryException(parameter, Collections.singletonList(
+                        "Temporal filters passed in multi query as well as children: " + offendingRequests));
+            }
+        }
+        MultiSearchRequest multiSearchRequestBuilder = getRequestBuilder(parameter, Collections.emptyList());
         try {
             log.info("Search: {}", multiSearchRequestBuilder);
-            MultiSearchResponse multiSearchResponse = multiSearchRequestBuilder.execute()
-                    .actionGet();
+            MultiSearchResponse multiSearchResponse = getConnection().getClient()
+                    .multiSearch(multiSearchRequestBuilder, RequestOptions.DEFAULT);
             return getResponse(multiSearchResponse, parameter);
-        } catch (ElasticsearchException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
     @Override
-    public MultiSearchRequestBuilder getRequestBuilder(MultiQueryRequest parameter) {
+    public MultiSearchRequest getRequestBuilder(MultiQueryRequest parameter,
+                                                List<Filter> extraFilters) {
 
-        MultiSearchRequestBuilder multiSearchRequestBuilder = getConnection().getClient()
-                .prepareMultiSearch();
+        MultiSearchRequest multiSearchRequest = new MultiSearchRequest();
+        val filterBuilder = ImmutableList.<Filter>builder();
+        if (null != parameter.getFilters()) {
+            filterBuilder.addAll(parameter.getFilters());
+        }
+        if (null != extraFilters) {
+            filterBuilder.addAll(extraFilters);
+        }
+        val filters = filterBuilder.build();
 
         for (Map.Entry<String, ActionRequest> entry : parameter.getRequests()
                 .entrySet()) {
@@ -116,12 +138,12 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             if (null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
             }
-            ActionRequestBuilder requestBuilder = action.getRequestBuilder(request);
-            if (requestBuilder instanceof SearchRequestBuilder) {
-                multiSearchRequestBuilder.add((SearchRequestBuilder) requestBuilder);
+            org.elasticsearch.action.ActionRequest requestBuilder = action.getRequestBuilder(request, filters);
+            if (requestBuilder instanceof SearchRequest) {
+                multiSearchRequest.add((SearchRequest) requestBuilder);
             }
         }
-        return multiSearchRequestBuilder;
+        return multiSearchRequest;
     }
 
     @Override

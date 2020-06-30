@@ -12,6 +12,8 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidator;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidatorImpl;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
@@ -67,11 +69,13 @@ public abstract class ActionTest {
     @Getter
     private static QueryExecutor queryExecutor;
     @Getter
-    private static DistributedTableMetadataManager tableMetadataManager;
+    protected static DistributedTableMetadataManager tableMetadataManager;
     @Getter
     private static CacheManager cacheManager;
     @Getter
     private static HbaseTableConnection tableConnection;
+    @Getter
+    private static CardinalityValidator cardinalityValidator;
 
     static {
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -109,17 +113,12 @@ public abstract class ActionTest {
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators,
                 mapper, cardinalityConfig);
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
+
+        cardinalityValidator = new CardinalityValidatorImpl(queryStore, tableMetadataManager);
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
-                elasticsearchConnection, cacheManager, mapper, new ElasticsearchTuningConfig());
+                elasticsearchConnection, cacheManager, mapper, new ElasticsearchTuningConfig(),cardinalityValidator);
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-
-        FunnelConfiguration funnelConfiguration = FunnelConfiguration.builder()
-                .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
-                        .eventType("APP_LOADED")
-                        .category("APP_LOADED")
-                        .build())
-                .build();
 
         queryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService,
                 ImmutableList.of(new ResponseCacheUpdater(cacheManager), new SlowQueryReporter()));

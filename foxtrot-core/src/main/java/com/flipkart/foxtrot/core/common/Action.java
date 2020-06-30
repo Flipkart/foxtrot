@@ -27,6 +27,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidator;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
@@ -37,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.elasticsearch.action.ActionRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +55,7 @@ public abstract class Action<P extends ActionRequest> {
     private P parameter;
     private ElasticsearchConnection connection;
     private CacheKeyVisitor cacheKeyVisitor;
+    private CardinalityValidator cardinalityValidator;
 
     protected Action(P parameter,
                      AnalyticsLoader analyticsLoader) {
@@ -64,6 +65,7 @@ public abstract class Action<P extends ActionRequest> {
         this.connection = analyticsLoader.getElasticsearchConnection();
         this.objectMapper = analyticsLoader.getObjectMapper();
         this.cacheKeyVisitor = new CacheKeyVisitor();
+        this.cardinalityValidator = analyticsLoader.getCardinalityValidator();
     }
 
     public String cacheKey() {
@@ -144,7 +146,8 @@ public abstract class Action<P extends ActionRequest> {
 
     public abstract String getRequestCacheKey();
 
-    public abstract ActionRequestBuilder getRequestBuilder(P parameter);
+    public abstract org.elasticsearch.action.ActionRequest getRequestBuilder(P parameter,
+                                                                             List<Filter> extraFilters);
 
     public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
                                                P parameter);
@@ -164,6 +167,10 @@ public abstract class Action<P extends ActionRequest> {
 
     public TableMetadataManager getTableMetadataManager() {
         return tableMetadataManager;
+    }
+
+    public CardinalityValidator getCardinalityValidator() {
+        return cardinalityValidator;
     }
 
     public QueryStore getQueryStore() {
@@ -186,7 +193,7 @@ public abstract class Action<P extends ActionRequest> {
         return lessThanFilter;
     }
 
-    protected String requestString() {
+    public String requestString() {
         try {
             return objectMapper.writeValueAsString(parameter);
         } catch (JsonProcessingException e) {

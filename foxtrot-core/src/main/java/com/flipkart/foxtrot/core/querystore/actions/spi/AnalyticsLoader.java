@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.exception.AnalyticsActionLoaderException;
 import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.cache.CacheManager;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidator;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -64,6 +65,7 @@ public class AnalyticsLoader implements Managed {
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+    private final CardinalityValidator cardinalityValidator;
 
     @Inject
     public AnalyticsLoader(TableMetadataManager tableMetadataManager,
@@ -72,7 +74,8 @@ public class AnalyticsLoader implements Managed {
                            ElasticsearchConnection elasticsearchConnection,
                            CacheManager cacheManager,
                            ObjectMapper objectMapper,
-                           ElasticsearchTuningConfig elasticsearchTuningConfig) {
+                           ElasticsearchTuningConfig elasticsearchTuningConfig,
+                           CardinalityValidator cardinalityValidator) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
@@ -80,6 +83,7 @@ public class AnalyticsLoader implements Managed {
         this.cacheManager = cacheManager;
         this.objectMapper = objectMapper;
         this.elasticsearchTuningConfig = elasticsearchTuningConfig;
+        this.cardinalityValidator = cardinalityValidator;
     }
 
     @SuppressWarnings("unchecked")

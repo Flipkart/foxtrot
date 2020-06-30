@@ -13,11 +13,16 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+
 
 /***
  Created by mudit.g on Jan, 2019
@@ -43,13 +48,8 @@ public class FqlStoreServiceImpl implements FqlStoreService {
                 .toString());
         try {
             elasticsearchConnection.getClient()
-                    .prepareIndex()
-                    .setIndex(FQL_STORE_INDEX)
-                    .setType(DOCUMENT_TYPE_NAME)
-                    .setId(fqlStore.getId())
-                    .setSource(objectMapper.writeValueAsBytes(fqlStore), XContentType.JSON)
-                    .execute()
-                    .get();
+                    .index(new IndexRequest(FQL_STORE_INDEX, DOCUMENT_TYPE_NAME, fqlStore.getId()).source(
+                            objectMapper.writeValueAsBytes(fqlStore), XContentType.JSON), RequestOptions.DEFAULT);
             log.info("Saved FQL Query : {}", fqlStore.getQuery());
         } catch (Exception e) {
             throw new FqlPersistenceException(
@@ -63,15 +63,13 @@ public class FqlStoreServiceImpl implements FqlStoreService {
         List<FqlStore> fqlStoreList = new ArrayList<>();
         try {
             searchHits = elasticsearchConnection.getClient()
-                    .prepareSearch(FQL_STORE_INDEX)
-                    .setTypes(DOCUMENT_TYPE_NAME)
-                    .setQuery(QueryBuilders.prefixQuery(TITLE_FIELD, fqlGetRequest.getTitle()
-                            .toLowerCase()))
-                    .setSearchType(SearchType.QUERY_THEN_FETCH)
-                    .setFrom(fqlGetRequest.getFrom())
-                    .setSize(fqlGetRequest.getSize())
-                    .execute()
-                    .actionGet()
+                    .search(new SearchRequest(FQL_STORE_INDEX).types(DOCUMENT_TYPE_NAME)
+                            .searchType(SearchType.QUERY_THEN_FETCH)
+                            .source(new SearchSourceBuilder().query(QueryBuilders.prefixQuery(TITLE_FIELD,
+                                    fqlGetRequest.getTitle()
+                                            .toLowerCase()))
+                                    .from(fqlGetRequest.getFrom())
+                                    .size(fqlGetRequest.getSize())), RequestOptions.DEFAULT)
                     .getHits();
             for (SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
                 fqlStoreList.add(objectMapper.readValue(searchHit.getSourceAsString(), FqlStore.class));
