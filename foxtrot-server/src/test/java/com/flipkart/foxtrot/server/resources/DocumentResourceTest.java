@@ -39,6 +39,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 

@@ -24,6 +24,9 @@ function getBarChartFormValues() {
   var uniqueKey = $("#bar-uniquekey").val();
   var ignoreDigits = $(".bar-ignored-digits").val();
   var selectedValue = $("#bar-selected-value").val();
+  var sortingbar =$('.bar-sorting-digits').is(':checked');
+
+
   if (eventField == "none") {
     return [[], false];
   }
@@ -36,6 +39,7 @@ function getBarChartFormValues() {
     uniqueKey = currentFieldList[parseInt(uniqueKey)].field
   }
 
+
   return {
     "period": period
     , "timeframe": timeframe
@@ -43,6 +47,7 @@ function getBarChartFormValues() {
     , "uniqueKey": uniqueKey
     , "ignoreDigits" : ignoreDigits
     , "selectedValue": selectedValue
+    ,  "sortingbar":sortingbar
   };
 }
 
@@ -56,7 +61,17 @@ function setBarChartFormValues(object) {
   $("#bar-uniquekey").selectpicker('refresh');
   $(".bar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
   $("#bar-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
+
+  // ------  start for checkbox set values -------
+  if(object.tileContext.sortingbar===true){
+    $("#bar-sorting-digits").prop("checked", true);
+  }
+  else{
+    $("#bar-sorting-digits").val((object.tileContext.sortingbar == undefined ? 'undefined' : object.tileContext.sortingbar));
+  }
 }
+  // ------  End for checkbox set values -------
+
 
 function clearBarChartForm() {
   $('.barForm')[0].reset();
@@ -142,8 +157,34 @@ BarTile.prototype.getData = function (data) {
   for (var vehicle in sourceObject) {
       sortable.push([vehicle, sourceObject[vehicle]]);
   }
+
+  // ------  start for sorting the values-------
+   if (this.object.tileContext.hasOwnProperty('sortingbar')){
+    if(this.object.tileContext.sortingbar){
+       sortable= customSort(sortable); 
+    }
+    else{
+      sortable.sort(sortFunction);
+    }
+   }
+   else{
+    sortable.sort(sortFunction);
+   }
+
+  // ------  End for sorting the values-------
   
-  sortable.sort(sortFunction);
+
+
+
+  function customSort(arr) {
+    arr.sort(function(a,b) {
+          var descA = a[1];
+          var descB = b[1];
+          return ((descA > descB) ? -1 : ((descA > descB) ? 1 : 0));
+    });
+    
+    return arr;
+ }
   
   // sort by first index
   function sortFunction(a, b) {

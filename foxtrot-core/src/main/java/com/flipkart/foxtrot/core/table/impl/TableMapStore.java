@@ -22,21 +22,30 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.support.WriteRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +58,7 @@ public class TableMapStore implements MapStore<String, Table>, Serializable {
     private final ObjectMapper objectMapper;
 
     public TableMapStore(ElasticsearchConnection elasticsearchConnection) {
-        this.elasticsearchConnection = elasticsearchConnection;
+        TableMapStore.elasticsearchConnection = elasticsearchConnection;
         this.objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -69,14 +78,11 @@ public class TableMapStore implements MapStore<String, Table>, Serializable {
         try {
             Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(objectMapper, value);
             elasticsearchConnection.getClient()
-                    .prepareIndex()
-                    .setIndex(TABLE_META_INDEX)
-                    .setType(TABLE_META_TYPE)
-                    .setSource(sourceMap)
-                    .setId(key)
-                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
-                    .execute()
-                    .actionGet();
+                    .index(new IndexRequest().index(TABLE_META_INDEX)
+                            .type(TABLE_META_TYPE)
+                            .source(sourceMap)
+                            .id(key)
+                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
         } catch (Exception e) {
             throw new TableMapStoreException("Error saving meta: ", e);
         }
@@ -92,9 +98,7 @@ public class TableMapStore implements MapStore<String, Table>, Serializable {
         }
 
         logger.info("Store all called for multiple values");
-        BulkRequestBuilder bulkRequestBuilder = elasticsearchConnection.getClient()
-                .prepareBulk()
-                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+        BulkRequest bulkRequestBuilder = new BulkRequest().setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
         for (Map.Entry<String, Table> mapEntry : map.entrySet()) {
             try {
                 if (mapEntry.getValue() == null) {
@@ -102,60 +106,58 @@ public class TableMapStore implements MapStore<String, Table>, Serializable {
                             String.format("Illegal Store Request - Object is Null for Table - %s", mapEntry.getKey()));
                 }
                 Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(objectMapper, mapEntry.getValue());
-                bulkRequestBuilder.add(elasticsearchConnection.getClient()
-                        .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
-                        .setSource(sourceMap));
+                bulkRequestBuilder.add(
+                        new IndexRequest(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey()).source(sourceMap));
             } catch (Exception e) {
                 throw new TableMapStoreException("Error bulk saving meta: ", e);
             }
         }
-        bulkRequestBuilder.execute()
-                .actionGet();
+        try {
+            elasticsearchConnection.getClient()
+                    .bulk(bulkRequestBuilder, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new TableMapStoreException("Error bulk saving meta: ", e);
+        }
     }
 
     @Override
     public void delete(String key) {
         logger.info("Delete called for value: {}", key);
-        elasticsearchConnection.getClient()
-                .prepareDelete()
-                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
-                .setIndex(TABLE_META_INDEX)
-                .setType(TABLE_META_TYPE)
-                .setId(key)
-                .execute()
-                .actionGet();
+        try {
+            elasticsearchConnection.getClient()
+                    .delete(new DeleteRequest(TABLE_META_INDEX, TABLE_META_TYPE, key).setRefreshPolicy(
+                            WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new TableMapStoreException("Error bulk saving meta: ", e);
+        }
         logger.info("Deleted value: {}", key);
     }
 
     @Override
     public void deleteAll(Collection<String> keys) {
         logger.info("Delete all called for multiple values: {}", keys);
-        BulkRequestBuilder bulRequestBuilder = elasticsearchConnection.getClient()
-                .prepareBulk()
-                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+        BulkRequest bulRequest = new BulkRequest().setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
         for (String key : keys) {
-            bulRequestBuilder.add(elasticsearchConnection.getClient()
-                    .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
+            bulRequest.add(new DeleteRequest(TABLE_META_INDEX, TABLE_META_TYPE, key));
         }
-        bulRequestBuilder.execute()
-                .actionGet();
+        try {
+            elasticsearchConnection.getClient()
+                    .bulk(bulRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new TableMapStoreException("Error bulk saving meta: ", e);
+        }
         logger.info("Deleted multiple values: {}", keys);
     }
 
     @Override
     public Table load(String key) {
         logger.info("Load called for: {}", key);
-        GetResponse response = elasticsearchConnection.getClient()
-                .prepareGet()
-                .setIndex(TABLE_META_INDEX)
-                .setType(TABLE_META_TYPE)
-                .setId(key)
-                .execute()
-                .actionGet();
-        if (!response.isExists()) {
-            return null;
-        }
         try {
+            GetResponse response = elasticsearchConnection.getClient()
+                    .get(new GetRequest(TABLE_META_INDEX, TABLE_META_TYPE, key), RequestOptions.DEFAULT);
+            if (!response.isExists()) {
+                return null;
+            }
             return objectMapper.readValue(response.getSourceAsBytes(), Table.class);
         } catch (Exception e) {
             logger.error("Error", e);
@@ -166,11 +168,15 @@ public class TableMapStore implements MapStore<String, Table>, Serializable {
     @Override
     public Map<String, Table> loadAll(Collection<String> keys) {
         logger.info("Load all called for multiple keys");
-        MultiGetResponse response = elasticsearchConnection.getClient()
-                .prepareMultiGet()
-                .add(TABLE_META_INDEX, TABLE_META_TYPE, keys)
-                .execute()
-                .actionGet();
+        final MultiGetRequest multiGetRequest = new MultiGetRequest();
+        keys.forEach(key -> multiGetRequest.add(TABLE_META_INDEX, TABLE_META_TYPE, key));
+        MultiGetResponse response = null;
+        try {
+            response = elasticsearchConnection.getClient()
+                    .multiGet(multiGetRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new TableMapStoreException("Error bulk saving meta: ", e);
+        }
         Map<String, Table> tables = Maps.newHashMap();
         for (MultiGetItemResponse multiGetItemResponse : response) {
             try {
@@ -188,15 +194,17 @@ public class TableMapStore implements MapStore<String, Table>, Serializable {
     @Override
     public Set<String> loadAllKeys() {
         logger.info("Load all keys called");
-        SearchResponse response = elasticsearchConnection.getClient()
-                .prepareSearch(TABLE_META_INDEX)
-                .setTypes(TABLE_META_TYPE)
-                .setQuery(QueryBuilders.matchAllQuery())
-                .setSize(ElasticsearchQueryUtils.QUERY_SIZE)
-                .setScroll(new TimeValue(30, TimeUnit.SECONDS))
-                .setFetchSource(false)
-                .execute()
-                .actionGet();
+        SearchResponse response = null;
+        try {
+            response = elasticsearchConnection.getClient()
+                    .search(new SearchRequest(TABLE_META_INDEX).types(TABLE_META_TYPE)
+                            .source(new SearchSourceBuilder().query(QueryBuilders.matchAllQuery())
+                                    .size(ElasticsearchQueryUtils.QUERY_SIZE)
+                                    .fetchSource(false))
+                            .scroll(new TimeValue(30, TimeUnit.SECONDS)), RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new TableMapStoreException("Error bulk saving meta: ", e);
+        }
         Set<String> ids = Sets.newHashSet();
         do {
             for (SearchHit hit : response.getHits()
@@ -207,11 +215,13 @@ public class TableMapStore implements MapStore<String, Table>, Serializable {
                     .getHits().length) {
                 break;
             }
-            response = elasticsearchConnection.getClient()
-                    .prepareSearchScroll(response.getScrollId())
-                    .setScroll(new TimeValue(60000))
-                    .execute()
-                    .actionGet();
+            try {
+                response = elasticsearchConnection.getClient()
+                        .scroll(new SearchScrollRequest(response.getScrollId()).scroll(new TimeValue(60000)),
+                                RequestOptions.DEFAULT);
+            } catch (IOException e) {
+                throw new TableMapStoreException("Error bulk saving meta: ", e);
+            }
         } while (response.getHits()
                 .getHits().length != 0)
                 ;

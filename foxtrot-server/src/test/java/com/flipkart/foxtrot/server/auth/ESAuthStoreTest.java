@@ -1,21 +1,38 @@
 package com.flipkart.foxtrot.server.auth;
 
+import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.auth.FoxtrotRole;
+import com.flipkart.foxtrot.core.auth.User;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
+import com.google.common.collect.Sets;
+import io.dropwizard.jackson.Jackson;
+import io.dropwizard.util.Duration;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.Objects;
+import lombok.SneakyThrows;
+import lombok.val;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  *
  */
 public class ESAuthStoreTest {
 
-    /*private AuthStore authStore;
-    private ElasticsearchRestConnection elasticsearchRestConnection;
+    private AuthStore authStore;
     private ElasticsearchConnection elasticsearchConnection;
 
     @Before
     public void setup() throws Exception {
-        elasticsearchRestConnection = ElasticsearchTestUtils.getRestConnection();
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         TestUtils.ensureIndex(elasticsearchConnection, ESAuthStore.USERS_INDEX);
         TestUtils.ensureIndex(elasticsearchConnection, ESAuthStore.TOKENS_INDEX);
-        authStore = new ESAuthStore(elasticsearchRestConnection, Jackson.newObjectMapper());
+        authStore = new ESAuthStore(elasticsearchConnection, Jackson.newObjectMapper());
     }
 
     @After
@@ -122,5 +139,5 @@ public class ESAuthStoreTest {
         Assert.assertNotNull(authStore.getToken(token2.getId())
                 .orElse(null));
         Assert.assertTrue(authStore.deleteUser(TEST_USER));
-    }*/
+    }
 }

@@ -27,21 +27,24 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import io.dropwizard.util.Duration;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import java.util.concurrent.TimeUnit;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.joda.time.DateTime;
 
 /**
@@ -75,8 +78,8 @@ public class HistogramAction extends Action<HistogramRequest> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         HistogramRequest query = getParameter();
-        if (null != query.getFilters()) {
-            for (Filter filter : query.getFilters()) {
+        if(null != query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
                 filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
@@ -123,32 +126,25 @@ public class HistogramAction extends Action<HistogramRequest> {
 
     @Override
     public ActionResponse execute(HistogramRequest parameter) {
-        SearchRequestBuilder searchRequestBuilder = getRequestBuilder(parameter);
+        SearchRequest query = getRequestBuilder(parameter, Collections.emptyList());
         try {
-            SearchResponse response = searchRequestBuilder.execute()
-                    .actionGet(getGetQueryTimeout());
+            SearchResponse response = getConnection().getClient()
+                    .search(query);
             return getResponse(response, parameter);
-        } catch (ElasticsearchException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(HistogramRequest parameter) {
-        SearchRequestBuilder searchRequestBuilder;
-        AbstractAggregationBuilder aggregationBuilder = buildAggregation(parameter);
-        try {
-            searchRequestBuilder = getConnection().getClient()
-                    .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                    .setSize(QUERY_SIZE)
-                    .addAggregation(aggregationBuilder);
-        } catch (Exception e) {
-            throw FoxtrotExceptions.queryCreationException(parameter, e);
-        }
-        return searchRequestBuilder;
+    public SearchRequest getRequestBuilder(HistogramRequest parameter,
+                                           List<Filter> extraFilters) {
+        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
+                Utils.indicesOptions())
+                .source(new SearchSourceBuilder().size(QUERY_SIZE)
+                        .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
+                        .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
+                        .aggregation(buildAggregation(parameter)));
     }
 
     @Override

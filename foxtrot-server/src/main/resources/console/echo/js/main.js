@@ -837,54 +837,101 @@ $(document).ready(function () {
           saveConsole();
       });
       $(".copy-page-submit").click(function (e) {
-
-          var currentViewingTab = getParameterByName("tab");
-
-          // validation
-          if ($(".copy-page-name").val().length == 0) {
-              $(".copy-pg-error").show();
-              return;
-          } else {
-              $(".copy-pg-error").hide();
-              var tabIndex = 0;
-
-              // figure out index
-              if (currentViewingTab.length > 0) {
-                  tabIndex = globalData.findIndex(x => x.id == currentViewingTab.trim().toLowerCase().split(' ').join("_"));
-              }
-
-              // loop and update the required details for new tab/page
-              var newName = $(".copy-page-name").val();
-              var tmpObject = JSON.parse(JSON.stringify(globalData[tabIndex]));
-              var converntedString = convertName(newName);
-              tmpObject["id"] = converntedString;
-              tmpObject["name"] = newName;
-              var tileListArray = tmpObject["tileList"];
-              var newTileData = {}
-              for (var i = 0; i < tileListArray.length; i++) {
-                  var newID = guid();
-                  var tmpTileData = tmpObject["tileData"][tileListArray[i]];
-                  if(tmpTileData != undefined) {
+        
+        var currentViewingTab = getParameterByName("tab");
+    
+        // validation
+        if ($(".copy-page-name").val().length == 0) {
+            $(".copy-pg-error").show();
+            return;
+        } else {
+            $(".copy-pg-error").hide();
+        }
+  
+        if ($(".listConsoleCopyTab").val() == "none") {
+            $(".copy-console-error").show();
+            return;
+        } else {
+            $(".copy-console-error").hide();
+            var tabIndex = 0;
+    
+            // figure out index
+            if (currentViewingTab.length > 0) {
+                tabIndex = globalData.findIndex(x => x.id == currentViewingTab.trim().toLowerCase().split(' ').join("_"));
+            }
+    
+            // loop and update the required details for new tab/page
+            var newName = $(".copy-page-name").val();
+            var tmpObject = JSON.parse(JSON.stringify(globalData[tabIndex]));
+            var converntedString = convertName(newName);
+            tmpObject["id"] = converntedString;
+            tmpObject["name"] = newName;
+            var tileListArray = tmpObject["tileList"];
+            var newTileData = {}
+            for (var i = 0; i < tileListArray.length; i++) {
+                var newID = guid();
+                var tmpTileData = tmpObject["tileData"][tileListArray[i]];
+                if (tmpTileData != undefined) {
                     newTileData[newID] = Object.values(tmpTileData);
                     tileListArray[i] = newID;
                     tmpTileData["id"] = newID;
                     tmpTileData["tileContext"]["tabName"] = newName;
                     newTileData[newID] = tmpTileData;
-                  }
-              }
+                }
+            }
+    
+            tmpObject.tileData = newTileData
+            var selectedCopyConsole = $(".listConsoleCopyTab").val();
+            var copyingConsoleDetails = consoleList.find(x => x.id === selectedCopyConsole);
+    
+            if (copyingConsoleDetails) {
+                var sections = copyingConsoleDetails.sections;
+                sections.push(tmpObject);
+    
+                var name = copyingConsoleDetails.name;
+                var copyingGlobalData = copyingConsoleDetails.sections;
+                for (var i = 0; i < copyingGlobalData.length; i++) { // remove unwanted objects used when adding widgets
+                    var secArray = copyingGlobalData[i].tileData;
+                    for (var key in secArray) {
+                        var deleteObject = secArray[key];
+                        delete deleteObject.tileContext.tableFields;
+                        delete deleteObject.tileContext.editTileId;
+                        delete deleteObject.tileContext.tableDropdownIndex;
+                    }
+                }
+                var convertedName = convertName(name);
+                var representation = {
+                    id: convertedName,
+                    name: name,
+                    sections: copyingGlobalData,
+                    "freshConsole": (isViewingVersionConsole == true ? false : true)
+                };
+    
+                $.ajax({
+                    url: apiUrl + ("/v2/consoles"),
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(representation),
+                    success: function (resp) {
+                        loadConsolesWithoutRefreshing(representation.id, {
+                            "isCopy": true,
+                            "tabName": converntedString
+                        })
+                        // window.location.href = window.location.origin+window.location.pathname+"?console="+representation.id+"&tab="+converntedString;
+                    },
+                    error: function () {
+                        var msg = "Could not copy console";
+                        showErrorAlert("Oops", msg);
+                        hideConsoleModal("save-dashboard");
+                    }
+                })
+            }
+            hideConsoleModal("copy-page");
+            $(".copy-page-name").val('');
+            $(".listConsoleCopyTab").val('none');
+        }
+    });
 
-              tmpObject.tileData = newTileData
-              globalData.push(tmpObject);
-              hideConsoleModal("copy-page");
-              generateNewPageList(sectionNumber + 1, newName);
-              generateSectionbtn(newName, false);
-
-              consoleTabs({}, {
-                  "id": newName
-              });
-              $(".copy-page-name").val('');
-          }
-      });
       $("#delete-dashboard-tab-btn").click(function () {
           currentConsoleName = $("#delete-dashboard-name").val();
           if (isViewingVersionConsole) {

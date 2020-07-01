@@ -1,8 +1,8 @@
 package com.flipkart.foxtrot.sql;
 
-import static com.flipkart.foxtrot.sql.Constants.REGEX;
-import static com.flipkart.foxtrot.sql.Constants.REPLACEMENT;
-import static com.flipkart.foxtrot.sql.Constants.SQL_FIELD_REGEX;
+import static com.flipkart.foxtrot.sql.constants.Constants.REGEX;
+import static com.flipkart.foxtrot.sql.constants.Constants.REPLACEMENT;
+import static com.flipkart.foxtrot.sql.constants.Constants.SQL_FIELD_REGEX;
 
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
@@ -28,9 +28,13 @@ import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import com.flipkart.foxtrot.common.stats.AnalyticsRequestFlags;
+import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
+import com.flipkart.foxtrot.sql.constants.Constants;
+import com.flipkart.foxtrot.sql.constants.FqlFunctionType;
 import com.flipkart.foxtrot.sql.extendedsql.ExtendedSqlStatement;
 import com.flipkart.foxtrot.sql.extendedsql.desc.Describe;
 import com.flipkart.foxtrot.sql.extendedsql.showtables.ShowTables;
@@ -39,9 +43,11 @@ import com.flipkart.foxtrot.sql.query.FqlDescribeTable;
 import com.flipkart.foxtrot.sql.query.FqlShowTablesQuery;
 import com.flipkart.foxtrot.sql.util.QueryUtils;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import io.dropwizard.util.Duration;
 import java.io.StringReader;
 import java.util.List;
+import java.util.Set;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -191,6 +197,10 @@ public class QueryTranslator extends SqlElementVisitor {
                 request = createStatsTrendActionRequest();
                 break;
 
+            case SUM:
+            case AVG:
+            case MIN:
+            case MAX:
             case STATS:
                 request = createStatsActionRequest();
                 break;
@@ -262,7 +272,7 @@ public class QueryTranslator extends SqlElementVisitor {
         group.setTable(tableName);
         group.setNesting(groupBycolumnsList);
         group.setFilters(filters);
-        setUniqueCountOn(group);
+        setGroupAggregation(group);
         return group;
     }
 
@@ -329,16 +339,6 @@ public class QueryTranslator extends SqlElementVisitor {
         return distinctRequest;
     }
 
-    private void setUniqueCountOn(GroupRequest group) {
-        if (calledAction instanceof CountRequest) {
-            CountRequest countRequest = (CountRequest) this.calledAction;
-            boolean distinct = countRequest.isDistinct();
-            if (distinct) {
-                group.setUniqueCountOn(countRequest.getField());
-            }
-        }
-    }
-
     private ResultSort generateResultSort(List<OrderByElement> orderByElements) {
 
         if (CollectionUtils.isEmpty(orderByElements)) {
@@ -354,6 +354,22 @@ public class QueryTranslator extends SqlElementVisitor {
                                   : ResultSort.Order.desc);
         logger.info("ResultSort: {}", resultSortColumn);
         return resultSortColumn;
+    }
+
+    private void setGroupAggregation(GroupRequest group) {
+        if (calledAction instanceof CountRequest) {
+            CountRequest countRequest = (CountRequest) this.calledAction;
+            if (countRequest.isDistinct()) {
+                group.setUniqueCountOn(countRequest.getField());
+            } else {
+                group.setAggregationField(countRequest.getField());
+                group.setStats(Sets.newHashSet(Stat.COUNT));
+            }
+        } else if (calledAction instanceof StatsRequest) {
+            StatsRequest statsRequest = (StatsRequest) this.calledAction;
+            group.setStats(statsRequest.getStats());
+            group.setAggregationField(statsRequest.getField());
+        }
     }
 
     private List<ResultSort> generateColumnSort(List<OrderByElement> orderItems) {
@@ -408,6 +424,22 @@ public class QueryTranslator extends SqlElementVisitor {
                         actionRequest = parseCountRequest(function.getParameters(), function.isAllColumns(),
                                 function.isDistinct());
                         break;
+                    case SUM:
+                        actionRequest = parseStatsFunction(function.getParameters()
+                                .getExpressions(), Sets.newHashSet(Stat.SUM));
+                        break;
+                    case MIN:
+                        actionRequest = parseStatsFunction(function.getParameters()
+                                .getExpressions(), Sets.newHashSet(Stat.MIN));
+                        break;
+                    case MAX:
+                        actionRequest = parseStatsFunction(function.getParameters()
+                                .getExpressions(), Sets.newHashSet(Stat.MAX));
+                        break;
+                    case AVG:
+                        actionRequest = parseStatsFunction(function.getParameters()
+                                .getExpressions(), Sets.newHashSet(Stat.AVG));
+                        break;
                     case DESC:
                     case SELECT:
                     case GROUP:
@@ -428,20 +460,32 @@ public class QueryTranslator extends SqlElementVisitor {
         }
 
         private FqlQueryType getType(String function) {
-            if (function.equalsIgnoreCase("trend")) {
+            if (function.equalsIgnoreCase(FqlFunctionType.TREND)) {
                 return FqlQueryType.TREND;
             }
-            if (function.equalsIgnoreCase("statstrend")) {
+            if (function.equalsIgnoreCase(FqlFunctionType.STATSTREND)) {
                 return FqlQueryType.STATSTREND;
             }
-            if (function.equalsIgnoreCase("stats")) {
+            if (function.equalsIgnoreCase(FqlFunctionType.STATS)) {
                 return FqlQueryType.STATS;
             }
-            if (function.equalsIgnoreCase("histogram")) {
+            if (function.equalsIgnoreCase(FqlFunctionType.HISTOGRAM)) {
                 return FqlQueryType.HISTOGRAM;
             }
-            if (function.equalsIgnoreCase("count")) {
+            if (function.equalsIgnoreCase(FqlFunctionType.COUNT)) {
                 return FqlQueryType.COUNT;
+            }
+            if (function.equalsIgnoreCase(FqlFunctionType.SUM)) {
+                return FqlQueryType.SUM;
+            }
+            if (function.equalsIgnoreCase(FqlFunctionType.AVG)) {
+                return FqlQueryType.AVG;
+            }
+            if (function.equalsIgnoreCase(FqlFunctionType.MIN)) {
+                return FqlQueryType.MIN;
+            }
+            if (function.equalsIgnoreCase(FqlFunctionType.MAX)) {
+                return FqlQueryType.MAX;
             }
             return FqlQueryType.SELECT;
         }
@@ -476,6 +520,17 @@ public class QueryTranslator extends SqlElementVisitor {
                                 .toLowerCase()));
             }
             return statsTrendRequest;
+        }
+
+        /*
+            When asked for specific stats then add those stats and skip percentiles to save on execution time
+         */
+        private StatsRequest parseStatsFunction(List expressions,
+                                                Set<Stat> stats) {
+            StatsRequest statsRequest = parseStatsFunction(expressions);
+            statsRequest.setStats(stats);
+            statsRequest.setFlags(Sets.newHashSet(AnalyticsRequestFlags.STATS_SKIP_PERCENTILES));
+            return statsRequest;
         }
 
         private StatsRequest parseStatsFunction(List expressions) {
@@ -769,9 +824,7 @@ public class QueryTranslator extends SqlElementVisitor {
                         .replaceAll(REGEX, REPLACEMENT));
 
             }
-            throw new
-
-                    FqlParsingException(
+            throw new FqlParsingException(
                     "Only the function 'temporal([fieldname)' and fieldname is supported in where clause");
         }
 

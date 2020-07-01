@@ -87,49 +87,45 @@ $(".search-input").keyup(function () {
 })
 
 EventBus.addEventListener('hosts_loaded', function (event, data) {
-    if (!data.hasOwnProperty('nodesMap')) {
+    if (!data.hasOwnProperty('nodes')) {
         return;
     }
-    var nodes = data['nodesMap'];
+    var nodes = data['nodes'];
     var hosts = [];
     for (var nodeId in nodes) {
         var node = nodes[nodeId];
         var host = new HostData();
-        host.name = node.node.name;
-        host.ip = node.node.hostAddress;
-        host.host = node.node.hostName;
+        host.name = node.name;
+        host.ip = node.ip;
+        host.host = node.host;
 
-        host.memoryTotal = bytesToSize(node.os.mem.total.bytes);
-        host.memoryUsed = bytesToSize(node.os.mem.used.bytes);
-        host.memoryUsedPercent = toPercentage(node.os.mem.used.bytes, node.os.mem.total.bytes);
+        host.memoryTotal = bytesToSize(node.os.mem.total_in_bytes);
+        host.memoryUsed = bytesToSize(node.os.mem.used_in_bytes);
+        host.memoryUsedPercent = toPercentage(node.os.mem.used_in_bytes, node.os.mem.total_in_bytes);
 
-        host.diskTotal = bytesToSize(node.fs.total.total.bytes);
-        host.diskUsed = bytesToSize(node.fs.total.total.bytes - node.fs.total.free.bytes);
-        host.diskUsedPercent = toPercentage(node.fs.total.total.bytes - node.fs.total.free.bytes, node.fs.total.total.bytes);
+        host.diskTotal = bytesToSize(node.fs.total.total_in_bytes);
+        host.diskUsed = bytesToSize(node.fs.total.total_in_bytes - node.fs.total.free_in_bytes);
+        host.diskUsedPercent = toPercentage(node.fs.total.total_in_bytes - node.fs.total.free_in_bytes, node.fs.total.total_in_bytes);
 
-        host.jvmTotal = bytesToSize(node.jvm.mem.heapCommitted.bytes);
-        host.jvmUsed = bytesToSize(node.jvm.mem.heapUsed.bytes);
-        host.jvmUsedPercent = toPercentage(node.jvm.mem.heapUsed.bytes, node.jvm.mem.heapCommitted.bytes);
+        host.jvmTotal = bytesToSize(node.jvm.mem.heap_committed_in_bytes);
+        host.jvmUsed = bytesToSize(node.jvm.mem.heap_used_in_bytes);
+        host.jvmUsedPercent = toPercentage(node.jvm.mem.heap_used_in_bytes, node.jvm.mem.heap_committed_in_bytes);
 
-        if (node.hasOwnProperty('breaker')) {
-            fieldBreaker = null;
-            for (var i = 0; i < node.breaker.allStats.length; i++) {
-                if (node.breaker.allStats[i].name == 'fielddata') {
-                    fieldBreaker = node.breaker.allStats[i];
-                }
-            }
-            host.fieldCache = toPercentage(fieldBreaker.estimated, fieldBreaker.limit);
+        if (node.hasOwnProperty('breakers')) {
+            host.fieldCache = toPercentage(
+                                    node.breakers.fielddata.estimated_size_in_bytes,
+                                    node.breakers.fielddata.limit_size_in_bytes);
         } else {
             host.fieldCache = "100";
         }
 
-        if (node.indices.fieldData.hasOwnProperty("memorySizeInBytes")) {
-            host.fieldCacheAbs = bytesToSize(node.indices.fieldData.memorySizeInBytes);
+        if (node.indices.fielddata.hasOwnProperty("memory_size_in_bytes")) {
+            host.fieldCacheAbs = bytesToSize(node.indices.fielddata.memory_size_in_bytes);
         } else {
             host.fieldCacheAbs = 'N/A'
         }
 
-        host.fieldCacheEvictions = node.indices.fieldData.evictions;
+        host.fieldCacheEvictions = node.indices.fielddata.evictions;
         hosts.push(host);
 
     }
@@ -159,12 +155,12 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
     }
     var indices = data.indicesStatsResponse['indices'];
     var indexTable = {}
+    var tableNamePrefix =  (esConfig.hasOwnProperty("tableNamePrefix"))
+            ? tableNamePrefix = esConfig.tableNamePrefix
+            : tableNamePrefix = "foxtrot";
     for (var indexName in indices) {
-        var tableNamePrefix = null;
-        if (esConfig.hasOwnProperty("tableNamePrefix")) {
-            tableNamePrefix = esConfig.tableNamePrefix;
-        } else {
-            tableNamePrefix = "foxtrot";
+        if(!indexName.startsWith(tableNamePrefix)) {
+            continue;
         }
         var normalizedName = normalizedName = indexName.replace(new RegExp("^" + tableNamePrefix + "-"), "").replace(/-table-[0-9\-]+$/, "");
         if (!indexTable.hasOwnProperty(normalizedName)) {
@@ -178,7 +174,7 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
         var indexData = indexTable[normalizedName];
         indexData.days += 1;
         indexData.events += indices[indexName].primaries.docs.count;
-        indexData.size += indices[indexName].primaries.store.sizeInBytes;
+        indexData.size += indices[indexName].primaries.store.size_in_bytes;
     }
     var tables = []
     for (var i in indexTable) {
@@ -293,19 +289,19 @@ function loadIndexData() {
             url: '/foxtrot/v1/clusterhealth/indicesstats',
             success: function (data) {
                 hideLoader();
-                if (typeof data.indicesStatsResponse.primaries.docs != "undefined") {
-                    cluster.documentCount = data.indicesStatsResponse.primaries.docs.count;
+                if (typeof data._all.primaries.docs != "undefined") {
+                    cluster.documentCount = data._all.primaries.docs.count;
                 } else {
                     cluster.documentCount = 0;
                 }
 
-                if (typeof data.indicesStatsResponse.primaries.store != "undefined") {
-                    cluster.dataSize = bytesToSize(data.indicesStatsResponse.primaries.store.sizeInBytes);
+                if (typeof data._all.primaries.store != "undefined") {
+                    cluster.dataSize = bytesToSize(data._all.primaries.store.size_in_bytes);
                 } else {
                     cluster.dataSize = bytesToSize(0);
                 }
-                if (typeof data.indicesStatsResponse.total.store != "undefined") {
-                    cluster.replicatedDataSize = bytesToSize(data.indicesStatsResponse.total.store.sizeInBytes);
+                if (typeof data._all.total.store != "undefined") {
+                    cluster.replicatedDataSize = bytesToSize(data._all.total.store.size_in_bytes);
                 } else {
                     cluster.replicatedDataSize = bytesToSize(0);
                 }

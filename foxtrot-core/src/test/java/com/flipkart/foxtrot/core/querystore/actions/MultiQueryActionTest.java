@@ -14,6 +14,7 @@ package com.flipkart.foxtrot.core.querystore.actions;/**
  * limitations under the License.
  */
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
@@ -31,12 +32,17 @@ import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,12 +57,10 @@ public class MultiQueryActionTest extends ActionTest {
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .prepareRefresh("*")
-                .execute()
-                .actionGet();
-    }
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
+        await().pollDelay(2000, TimeUnit.MILLISECONDS)
+                .until(() -> true);    }
 
     @Test(expected = NullPointerException.class)
     public void testQueryException() throws FoxtrotException, JsonProcessingException {
@@ -166,6 +170,44 @@ public class MultiQueryActionTest extends ActionTest {
                 .size());
         assertEquals(2, countResponse.getCount());
     }*/
+
+    @Test
+    public void testMultiQueryCommonFilters() throws FoxtrotException, JsonProcessingException {
+
+        HashMap<String, ActionRequest> requests = Maps.newHashMap();
+        Query query = new Query();
+        query.setTable(TestUtils.TEST_TABLE_NAME);
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.asc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+        requests.put("1", query);
+
+        CountRequest countRequest = new CountRequest();
+        countRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        countRequest.setField("os");
+        countRequest.setDistinct(false);
+        requests.put("2", countRequest);
+
+        MultiQueryRequest multiQueryRequest = new MultiQueryRequest(requests);
+        multiQueryRequest.setFilters(Collections.singletonList(new EqualsFilter("os", "ios")));
+
+        ActionResponse actionResponse = getQueryExecutor().execute(multiQueryRequest);
+        MultiQueryResponse multiQueryResponse = null;
+        if (actionResponse instanceof MultiQueryResponse) {
+            multiQueryResponse = (MultiQueryResponse) actionResponse;
+        }
+        assertNotNull(multiQueryResponse);
+
+        QueryResponse queryResponse = (QueryResponse) multiQueryResponse.getResponses()
+                .get("1");
+        CountResponse countResponse = (CountResponse) multiQueryResponse.getResponses()
+                .get("2");
+
+        assertEquals(2, queryResponse.getDocuments()
+                .size());
+        assertEquals(2, countResponse.getCount());
+    }
 
     @Test
     public void testQueryNoFilterAscending() throws FoxtrotException, JsonProcessingException {

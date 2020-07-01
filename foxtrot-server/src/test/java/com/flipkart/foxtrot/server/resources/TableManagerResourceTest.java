@@ -14,6 +14,10 @@ package com.flipkart.foxtrot.server.resources;
 
 import static com.flipkart.foxtrot.core.TestUtils.TEST_TABLE_NAME;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
@@ -23,13 +27,14 @@ import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.server.ResourceTestUtils;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import java.io.IOException;
 import java.util.UUID;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.apache.commons.httpclient.HttpStatus;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -48,10 +53,8 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         super();
         this.tableManager = new FoxtrotTableManager(getTableMetadataManager(), getQueryStore(), getDataStore());
         this.tableManager = spy(tableManager);
-        resources = ResourceTestRule.builder()
+        resources = ResourceTestUtils.testResourceBuilder(getMapper())
                 .addResource(new TableManagerResource(tableManager))
-                .addProvider(new FoxtrotExceptionMapper(getMapper()))
-                .setMapper(getMapper())
                 .build();
     }
 
