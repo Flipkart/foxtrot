@@ -65,10 +65,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 @SuppressWarnings("squid:CallToDeprecatedMethod")
 public class GroupAction extends Action<GroupRequest> {
 
-    private static final long MAX_CARDINALITY = 50000;
-    private static final long MIN_ESTIMATION_THRESHOLD = 1000;
-    private static final double PROBABILITY_CUT_OFF = 0.5;
-
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     public GroupAction(GroupRequest parameter,
@@ -178,7 +174,7 @@ public class GroupAction extends Action<GroupRequest> {
                 .source(new SearchSourceBuilder().size(QUERY_SIZE)
                         .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
                         .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
-                        .aggregation(buildAggregation(parameter)));
+                        .aggregation(buildAggregation()));
     }
 
     @Override
@@ -193,7 +189,7 @@ public class GroupAction extends Action<GroupRequest> {
         return new GroupResponse(getMap(fields, aggregations));
     }
 
-    private AbstractAggregationBuilder buildAggregation(GroupRequest parameter) {
+    private AbstractAggregationBuilder buildAggregation() {
         return Utils.buildTermsAggregation(getParameter().getNesting()
                         .stream()
                         .map(x -> new ResultSort(x, ResultSort.Order.asc))
