@@ -227,8 +227,8 @@ public class TestUtils {
                                 .put("registered", new boolean[]{true, false, false}[random.nextInt(3)])
                                 // less than 1% value will be less than 10
                                 .put("value", random.nextInt(100) < 2
-                                              ? (int) (Math.random() * (10))
-                                                : (int) (Math.random() * (100 - 10)) + 10)
+                                              ? (int) (Math.random() * (4))
+                                                : (int) (Math.random() * (100 - 4)) + 4)
                                 .build()))
                         .build())
                 .collect(Collectors.toList());
