@@ -3,7 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>Foxtrot</name>
-    <description>Foxtrot is a scalable data and query store service for for real-time event data.
+    <description>
+        Foxtrot is a scalable data and query store service for for real-time event data.
     </description>
     <url>https://git@github.com/flipkart-incubator/foxtrot</url>
 
@@ -72,8 +73,13 @@
         <caffeine.version>2.6.2</caffeine.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <dropwizard.version>1.3.13</dropwizard.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <dropwizard.version>1.3.13</dropwizard.version>
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
+        <lombok.version>1.16.16</lombok.version>
         <es.container.version>1.0.4</es.container.version>
+        <gandalf.version>1.2.38</gandalf.version>
+        <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <es.container.version>1.0.4</es.container.version>
         <gandalf.version>1.2.38</gandalf.version>
         <guava.version>24.1.1-jre</guava.version>
@@ -228,10 +234,70 @@
             **console/**/**/*,
             src/main/resources/**
         </sonar.exclusions>
-        <sonar.language>java</sonar.language>
-        <sonar.sources>src/main</sonar.sources>
-        <sonar.tests>src/test</sonar.tests>
-        <sonar.version>3.6.0.1398</sonar.version>
+        <sonar.coverage.exclusions>
+            **com/flipkart/foxtrot/server/console/*,
+            **com/flipkart/foxtrot/server/di/**,
+            **com/flipkart/foxtrot/server/healthcheck/**,
+            **com/flipkart/foxtrot/server/utils/**,
+            **com/flipkart/foxtrot/server/utils/response/**,
+            **com/flipkart/foxtrot/server/providers/exception/**,
+            **com/flipkart/foxtrot/server/resources/UtilResource.java,
+            **com/flipkart/foxtrot/server/resources/HbaseRegionsMergeResource.java,
+            **com/flipkart/foxtrot/server/resources/FqlV2Resource.java,
+            **com/flipkart/foxtrot/server/resources/FqlResource.java,
+            **com/flipkart/foxtrot/server/resources/ESClusterResource.java,
+            **com/flipkart/foxtrot/server/resources/ConsoleV2Resource.java,
+            **com/flipkart/foxtrot/server/resources/ConsoleResource.java,
+            **com/flipkart/foxtrot/server/resources/ClusterInfoResource.java,
+            **com/flipkart/foxtrot/server/cluster/**,
+            **com/flipkart/foxtrot/server/App.java,
+            **com/flipkart/foxtrot/server/FoxtrotServer.java,
+            **com/flipkart/foxtrot/server/InitializerCommand.java,
+            **com/flipkart/foxtrot/server/jobs/consolehistory/**,
+            **com/flipkart/foxtrot/core/common/DataDeletionManager.java,
+            **com/flipkart/foxtrot/core/common/DataDeletionTask.java,
+            **com/flipkart/foxtrot/core/common/DataDeletionManagerConfig.java,
+            **/com/flipkart/foxtrot/core/common/AsyncDataToken.java,
+            **com/flipkart/foxtrot/core/jobs/**/*,
+            **com/flipkart/foxtrot/core/reroute/**,
+            **com/flipkart/foxtrot/core/funnel/**/*,
+            **com/flipkart/foxtrot/core/lock/**,
+            **com/flipkart/foxtrot/core/lock/HazelcastDistributedLock.java,
+            **com/flipkart/foxtrot/core/querystore/impl/AwsClusterDiscoveryConfig.java,
+            **com/flipkart/foxtrot/core/querystore/impl/ClusterConfig.java,
+            **com/flipkart/foxtrot/core/querystore/impl/ClusterDiscoveryConfig.java,
+            **com/flipkart/foxtrot/core/querystore/impl/ClusterDiscoveryType.java,
+            **com/flipkart/foxtrot/core/querystore/impl/MarathonClusterDiscoveryConfig.java,
+            **com/flipkart/foxtrot/core/querystore/impl/SimpleClusterDiscoveryConfig.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/HBaseUtil.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/HbaseRegions.java,
+            **com/flipkart/foxtrot/core/querystore/actions/spi/ElasticsearchTuningConfig.java,
+            **com/flipkart/foxtrot/core/jobs/optimization/EsIndexOptimizationConfig.java,
+            **com/flipkart/foxtrot/core/config/**,
+            **com/flipkart/foxtrot/core/email/EmailConfig.java,
+            **com/flipkart/foxtrot/core/email/EmailClient.java,
+            **com/flipkart/foxtrot/core/jobs/**/*,
+            **com/flipkart/foxtrot/core/jobs/BaseJobManager.java,
+            **com/flipkart/foxtrot/core/querystore/actions/Constants.java,
+            **com/flipkart/foxtrot/core/config/**,
+            **com/flipkart/foxtrot/core/cardinality/**,
+            **com/flipkart/foxtrot/core/funnel/**/*,
+            **com/flipkart/foxtrot/core/lock/**,
+            **com/flipkart/foxtrot/core/lock/HazelcastDistributedLock.java,
+            **com/flipkart/foxtrot/gandalf/**/*,
+            **com/flipkart/foxtrot/sql/fqlstore/FqlGetRequest.java,
+            **com/flipkart/foxtrot/sql/fqlstore/FqlStore.java,
+            **com/flipkart/foxtrot/sql/SqlElementVisitor.java,
+            **com/flipkart/foxtrot/sql/query/FqlDescribeTable.java,
+            **com/flipkart/foxtrot/sql/query/FqlShowTablesQuery.java,
+            **com/flipkart/foxtrot/sql/responseprocessors/model/**,
+            **com/google/common/base/Stopwatch.java,
+            *.js,
+            *.css,
+            **console/**/*,
+            **console/**/**/*,
+            src/main/resources/**
+        </sonar.coverage.exclusions>
     </properties>
 
     <modules>
@@ -309,6 +375,21 @@
                 <artifactId>powermock-module-junit4</artifactId>
                 <version>${powermock.module.junit4.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.10</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.2</version>
             </dependency>
 
         </dependencies>
@@ -496,6 +577,7 @@
                     <compilerArgument>-parameters</compilerArgument>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <compilerArgument>-parameters</compilerArgument>
                 </configuration>
             </plugin>
             <plugin>

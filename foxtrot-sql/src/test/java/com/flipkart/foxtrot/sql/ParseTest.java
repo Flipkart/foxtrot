@@ -103,8 +103,11 @@ public class ParseTest {
         query.setLimit(20);
         ResultSort sort = new ResultSort("test.name", Order.asc);
         query.setSort(sort);
-        ImmutableList filters = ImmutableList.of(new EqualsFilter("a", "b"), new EqualsFilter("c", 2.5),
-                new BetweenFilter("e", 10, 30, true), new GreaterThanFilter("x", 99, false));
+        ImmutableList filters = ImmutableList.of(
+                new EqualsFilter("a", "b"),
+                new EqualsFilter("c", 2.5),
+                new BetweenFilter("e", 10, 30, true),
+                new GreaterThanFilter("x", 99, false));
         query.setFilters(filters);
         FqlActionQuery fqlActionQuery = new FqlActionQuery(query, new ArrayList<>());
         Assert.assertEquals(writer.writeValueAsString(fqlActionQuery),
@@ -120,7 +123,9 @@ public class ParseTest {
         query.setField("header.configName");
         query.setPeriod(Period.minutes);
         query.setTimestamp("header.timestamp");
-        query.setFilters(ImmutableList.of(new NotEqualsFilter("a", 10), new LessEqualFilter("a", 20, false)));
+        query.setFilters(ImmutableList.of(
+                new NotEqualsFilter("a" ,10),
+                new LessEqualFilter("a", 20, false)));
         FqlActionQuery fqlActionQuery = new FqlActionQuery(query, new ArrayList<>());
         Assert.assertEquals(writer.writeValueAsString(fqlActionQuery),
                 writer.writeValueAsString(queryTranslator.translate(sql)));

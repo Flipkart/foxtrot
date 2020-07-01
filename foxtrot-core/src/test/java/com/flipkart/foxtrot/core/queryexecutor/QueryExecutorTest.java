@@ -24,6 +24,8 @@ import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidator;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidatorImpl;
 import com.flipkart.foxtrot.core.common.RequestWithNoAction;
 import com.flipkart.foxtrot.core.common.noncacheable.NonCacheableAction;
 import com.flipkart.foxtrot.core.common.noncacheable.NonCacheableActionRequest;
@@ -91,9 +93,11 @@ public class QueryExecutorTest {
         when(tableMetadataManager.exists(ArgumentMatchers.anyString())).thenReturn(true);
         when(tableMetadataManager.get(ArgumentMatchers.anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = mock(QueryStore.class);
+        CardinalityValidator cardinalityValidator = new CardinalityValidatorImpl(queryStore, tableMetadataManager);
+
         analyticsLoader = spy(
                 new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager,
-                        mapper, new ElasticsearchTuningConfig()));
+                        mapper, new ElasticsearchTuningConfig(), cardinalityValidator));
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
 

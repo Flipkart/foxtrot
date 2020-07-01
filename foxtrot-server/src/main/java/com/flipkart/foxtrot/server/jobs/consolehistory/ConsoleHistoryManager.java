@@ -16,13 +16,16 @@ import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
@@ -62,14 +65,12 @@ public class ConsoleHistoryManager extends BaseJobManager {
         executor.executeWithLock(() -> {
             try {
                 SearchResponse searchResponse = connection.getClient()
-                        .prepareSearch(INDEX_V2)
-                        .setTypes(TYPE)
-                        .setSearchType(SearchType.QUERY_THEN_FETCH)
-                        .addAggregation(AggregationBuilders.terms("names")
-                                .field("name.keyword")
-                                .size(1000))
-                        .execute()
-                        .actionGet();
+                        .search(new SearchRequest(INDEX_V2).types(TYPE)
+                                .searchType(SearchType.QUERY_THEN_FETCH)
+                                .source(new SearchSourceBuilder().aggregation(AggregationBuilders.terms("names")
+                                        .field("name.keyword")
+                                        .size(1000))), RequestOptions.DEFAULT);
+
                 Terms agg = searchResponse.getAggregations()
                         .get("names");
                 for (Terms.Bucket entry : agg.getBuckets()) {
@@ -86,16 +87,13 @@ public class ConsoleHistoryManager extends BaseJobManager {
         String updatedAt = "updatedAt";
         try {
             SearchHits searchHits = connection.getClient()
-                    .prepareSearch(INDEX_HISTORY)
-                    .setTypes(TYPE)
-                    .setSearchType(SearchType.QUERY_THEN_FETCH)
-                    .setQuery(QueryBuilders.termQuery("name.keyword", name))
-                    .addSort(SortBuilders.fieldSort(updatedAt)
-                            .order(SortOrder.DESC))
-                    .setFrom(10)
-                    .setSize(9000)
-                    .execute()
-                    .actionGet()
+                    .search(new SearchRequest(INDEX_HISTORY).types(TYPE)
+                            .searchType(SearchType.QUERY_THEN_FETCH)
+                            .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("name.keyword", name))
+                                    .sort(SortBuilders.fieldSort(updatedAt)
+                                            .order(SortOrder.DESC))
+                                    .from(10)
+                                    .size(9000)), RequestOptions.DEFAULT)
                     .getHits();
             for (SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
                 ConsoleV2 consoleV2 = mapper.readValue(searchHit.getSourceAsString(), ConsoleV2.class);

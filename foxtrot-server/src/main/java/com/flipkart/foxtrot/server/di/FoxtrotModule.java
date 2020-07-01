@@ -9,6 +9,8 @@ import com.flipkart.foxtrot.core.cache.CacheFactory;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidator;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidatorImpl;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
 import com.flipkart.foxtrot.core.config.QueryConfig;
@@ -146,6 +148,7 @@ public class FoxtrotModule extends AbstractModule {
         bind(AuthStore.class).to(ESAuthStore.class);
         bind(AuthProvider.class).to(GoogleAuthProvider.class);
         bind(SessionDataStore.class).to(DistributedSessionDataStore.class);
+        bind(CardinalityValidator.class).to(CardinalityValidatorImpl.class);
 
     }
 

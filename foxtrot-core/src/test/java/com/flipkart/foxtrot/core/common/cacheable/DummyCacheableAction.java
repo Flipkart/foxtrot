@@ -18,11 +18,13 @@ package com.flipkart.foxtrot.core.common.cacheable;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.exception.MalformedQueryException;
+import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.annotations.VisibleForTesting;
-import org.elasticsearch.action.ActionRequestBuilder;
+import java.util.List;
+import org.elasticsearch.action.ActionRequest;
 
 /**
  * Created by rishabh.goyal on 02/05/14.
@@ -57,7 +59,8 @@ public class DummyCacheableAction extends Action<DummyCacheableActionRequest> {
     }
 
     @Override
-    public ActionRequestBuilder getRequestBuilder(DummyCacheableActionRequest parameter) throws FoxtrotException {
+    public ActionRequest getRequestBuilder(DummyCacheableActionRequest parameter,
+                                           List<Filter> extraFilters) throws FoxtrotException {
         return null;
     }
 

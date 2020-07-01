@@ -37,6 +37,8 @@ public class StatsRequest extends ActionRequest {
 
     private Set<AnalyticsRequestFlags> flags;
 
+    private String consoleId;
+
     public StatsRequest() {
         super(Opcodes.STATS);
     }
@@ -47,7 +49,8 @@ public class StatsRequest extends ActionRequest {
                         List<Double> percentiles,
                         Set<Stat> stats,
                         List<String> nesting,
-                        Set<AnalyticsRequestFlags> flags) {
+                        Set<AnalyticsRequestFlags> flags,
+                        String consoleId) {
         super(Opcodes.STATS, filters);
         this.table = table;
         this.field = field;
@@ -55,6 +58,7 @@ public class StatsRequest extends ActionRequest {
         this.stats = stats;
         this.nesting = nesting;
         this.flags = flags;
+        this.consoleId = consoleId;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
@@ -69,6 +73,7 @@ public class StatsRequest extends ActionRequest {
                 .append("stats", stats)
                 .append("percentiles", percentiles)
                 .append("nesting", nesting)
+                .append("consoleId", consoleId)
                 .toString();
     }
 

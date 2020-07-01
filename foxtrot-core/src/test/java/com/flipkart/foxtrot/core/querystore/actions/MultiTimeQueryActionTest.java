@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,11 +41,8 @@ public class MultiTimeQueryActionTest extends ActionTest {
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .prepareRefresh("*")
-                .execute()
-                .actionGet();
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
     }
 
     @Test(expected = NullPointerException.class)

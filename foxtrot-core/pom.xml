@@ -166,14 +166,9 @@
         <!-- Elasticsearch -->
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
-            <artifactId>transport</artifactId>
-            <version>6.0.1</version>
-        </dependency>
-       <!-- <dependency>
-            <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
             <version>6.8.8</version>
-        </dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

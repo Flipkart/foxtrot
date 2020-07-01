@@ -32,16 +32,16 @@ import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
+import org.elasticsearch.search.aggregations.metrics.avg.ParsedAvg;
 import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.max.InternalMax;
-import org.elasticsearch.search.aggregations.metrics.min.InternalMin;
+import org.elasticsearch.search.aggregations.metrics.max.ParsedMax;
+import org.elasticsearch.search.aggregations.metrics.min.ParsedMin;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.elasticsearch.search.aggregations.metrics.stats.InternalStats;
-import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
-import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
-import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
+import org.elasticsearch.search.aggregations.metrics.stats.ParsedStats;
+import org.elasticsearch.search.aggregations.metrics.stats.extended.ParsedExtendedStats;
+import org.elasticsearch.search.aggregations.metrics.sum.ParsedSum;
+import org.elasticsearch.search.aggregations.metrics.valuecount.ParsedValueCount;
 import org.joda.time.DateTimeZone;
 
 /**
@@ -262,7 +262,7 @@ public class Utils {
         return IndicesOptions.lenientExpandOpen();
     }
 
-    public static Map<String, Number> createStatsResponse(InternalExtendedStats extendedStats) {
+    public static Map<String, Number> createStatsResponse(ParsedExtendedStats extendedStats) {
         Map<String, Number> stats = Maps.newHashMap();
         stats.put(AVG, extendedStats.getAvg());
         stats.put(SUM, extendedStats.getSum());
@@ -275,7 +275,7 @@ public class Utils {
         return stats;
     }
 
-    public static Map<String, Number> createStatsResponse(InternalStats internalStats) {
+    public static Map<String, Number> createStatsResponse(ParsedStats internalStats) {
         Map<String, Number> stats = Maps.newHashMap();
         stats.put(AVG, internalStats.getAvg());
         stats.put(SUM, internalStats.getSum());
@@ -285,23 +285,23 @@ public class Utils {
         return stats;
     }
 
-    public static Map<String, Number> createStatResponse(InternalMax statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedMax statAggregation) {
         return ImmutableMap.of(MAX, statAggregation.getValue());
     }
 
-    public static Map<String, Number> createStatResponse(InternalMin statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedMin statAggregation) {
         return ImmutableMap.of(MIN, statAggregation.getValue());
     }
 
-    public static Map<String, Number> createStatResponse(InternalAvg statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedAvg statAggregation) {
         return ImmutableMap.of(AVG, statAggregation.getValue());
     }
 
-    public static Map<String, Number> createStatResponse(InternalSum statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedSum statAggregation) {
         return ImmutableMap.of(SUM, statAggregation.getValue());
     }
 
-    public static Map<String, Number> createStatResponse(InternalValueCount statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedValueCount statAggregation) {
         return ImmutableMap.of(COUNT, statAggregation.getValue());
     }
 
@@ -330,20 +330,20 @@ public class Utils {
     }
 
     public static Map<String, Number> toStats(Aggregation statAggregation) {
-        if (statAggregation instanceof InternalExtendedStats) {
-            return Utils.createStatsResponse((InternalExtendedStats) statAggregation);
-        } else if (statAggregation instanceof InternalStats) {
-            return Utils.createStatsResponse((InternalStats) statAggregation);
-        } else if (statAggregation instanceof InternalMax) {
-            return Utils.createStatResponse((InternalMax) statAggregation);
-        } else if (statAggregation instanceof InternalMin) {
-            return Utils.createStatResponse((InternalMin) statAggregation);
-        } else if (statAggregation instanceof InternalAvg) {
-            return Utils.createStatResponse((InternalAvg) statAggregation);
-        } else if (statAggregation instanceof InternalSum) {
-            return Utils.createStatResponse((InternalSum) statAggregation);
-        } else if (statAggregation instanceof InternalValueCount) {
-            return Utils.createStatResponse((InternalValueCount) statAggregation);
+        if (statAggregation instanceof ParsedExtendedStats) {
+            return Utils.createStatsResponse((ParsedExtendedStats) statAggregation);
+        } else if (statAggregation instanceof ParsedStats) {
+            return Utils.createStatsResponse((ParsedStats) statAggregation);
+        } else if (statAggregation instanceof ParsedMax) {
+            return Utils.createStatResponse((ParsedMax) statAggregation);
+        } else if (statAggregation instanceof ParsedMin) {
+            return Utils.createStatResponse((ParsedMin) statAggregation);
+        } else if (statAggregation instanceof ParsedAvg) {
+            return Utils.createStatResponse((ParsedAvg) statAggregation);
+        } else if (statAggregation instanceof ParsedSum) {
+            return Utils.createStatResponse((ParsedSum) statAggregation);
+        } else if (statAggregation instanceof ParsedValueCount) {
+            return Utils.createStatResponse((ParsedValueCount) statAggregation);
         }
         return new HashMap<>();
     }

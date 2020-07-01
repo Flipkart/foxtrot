@@ -12,8 +12,9 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 import io.dropwizard.lifecycle.Managed;
+import io.dropwizard.server.ServerFactory;
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.Inet4Address;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -42,7 +43,7 @@ public class ClusterManager implements Managed {
     @Inject
     public ClusterManager(HazelcastConnection connection,
                           List<HealthCheck> healthChecks,
-                          FoxtrotServerConfiguration configuration) throws IOException {
+                          ServerFactory serverFactory) throws IOException {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);
@@ -53,14 +54,14 @@ public class ClusterManager implements Managed {
         hazelcastConnection.getHazelcastConfig()
                 .getMapConfigs()
                 .put(MAP_NAME, mapConfig);
-        String hostname = InetAddress.getLocalHost()
+        String hostname = Inet4Address.getLocalHost()
                 .getCanonicalHostName();
         //Auto detect marathon environment and query for host environment variable
         if (!Strings.isNullOrEmpty(System.getenv("HOST"))) {
             hostname = System.getenv("HOST");
         }
         Preconditions.checkNotNull(hostname, "Could not retrieve hostname, cannot proceed");
-        int port = ServerUtils.port(configuration.getServerFactory());
+        int port = ServerUtils.port(serverFactory);
         //Auto detect marathon environment and query for host environment variable
         if (!Strings.isNullOrEmpty(System.getenv("PORT_" + port))) {
             port = Integer.parseInt(System.getenv("PORT_" + port));

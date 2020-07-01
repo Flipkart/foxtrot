@@ -38,6 +38,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,11 +54,8 @@ public class GroupActionTest extends ActionTest {
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .prepareRefresh("*")
-                .execute()
-                .actionGet();
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
         getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
         ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
                 .setMaxCardinality(MAX_CARDINALITY);
@@ -126,7 +125,7 @@ public class GroupActionTest extends ActionTest {
 
     @Test
     public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter()
-            throws FoxtrotException, JsonProcessingException {
+            throws FoxtrotException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
 
