@@ -38,10 +38,14 @@ public class MultiQueryRequest extends ActionRequest {
     }
 
     public MultiQueryRequest(Map<String, ActionRequest> requests, String consoleId) {
+        this(requests);
+        this.consoleId = consoleId;
+    }
+
+    public MultiQueryRequest(Map<String, ActionRequest> requests) {
         super(Opcodes.MULTI_QUERY);
         Assert.assertTrue(CollectionUtils.isNotEmpty(requests));
         this.requests = requests;
-        this.consoleId = consoleId;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
