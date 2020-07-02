@@ -58,7 +58,7 @@ cardinality:
   active: true
   interval: 86400
   initialDelay: 6
-  maxCardinality: 20000
+  maxCardinality: 20
 
 elasticsearchTuningConfig:
   precisionThreshold: 500
