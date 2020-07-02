@@ -5,14 +5,25 @@ var rowList = [];
 var selectedList = [];
 var fetchedData = [];
 
+// function loadConsole() { // load console list api
+//     $.when(getConsole()).done(function (a1) {
+//         $.when( appendConsoleList(a1)).done(function (a1) {
+//             // appendConsoleList(a1);
+//            triggerAPI(); 
+//         });
+//     });
+// }
+
+
 function loadConsole() { // load console list api
     $.when(getConsole()).done(function (a1) {
         appendConsoleList(a1);
+       triggerAPI(); 
     });
 }
 
 if(isLoggedIn()) {
-    loadConsole();  
+    loadConsole();     
 }  
 
 function renderTable(dataRaw) {
@@ -249,32 +260,38 @@ function triggerAPI() {
         var data = {
             "title": value,
         };
-        $.ajax({
-            method: 'POST',
-            url: apiUrl + "/v1/fql/get",
-            contentType: 'application/json',
-            data: JSON.stringify(data),
-            success: function (response) {
-                if (response) {
-                    generateAutoSugest(response);
-                } else {
-                    $("#auto-suggest").hide();
-                    //showErrorAlert('Oops', "No response found");
-                }
-            },
-            error: function (xhr, textStatus, error) {
+    }
+    else{
+        var data = {
+            "title": "",
+        };
+    }
+
+    $.ajax({
+        method: 'POST',
+        url: apiUrl + "/v1/fql/get",
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function (response) {
+            if (response) {
+                generateAutoSugest(response);
+            } else {
                 $("#auto-suggest").hide();
-                if (xhr.hasOwnProperty("responseText")) {
-                    var error = JSON.parse(xhr["responseText"]);
-                    if (error.hasOwnProperty('code')) {
-                        showErrorAlert('Oops', error['code']);
-                    } else {
-                        showErrorAlert('Oops', "Something went wrong");
-                    }
+                //showErrorAlert('Oops', "No response found");
+            }
+        },
+        error: function (xhr, textStatus, error) {
+            $("#auto-suggest").hide();
+            if (xhr.hasOwnProperty("responseText")) {
+                var error = JSON.parse(xhr["responseText"]);
+                if (error.hasOwnProperty('code')) {
+                    showErrorAlert('Oops', error['code']);
+                } else {
+                    showErrorAlert('Oops', "Something went wrong");
                 }
             }
-        });
-    }
+        }
+    });
 }
 
 /**
@@ -300,6 +317,12 @@ $input.on('keydown', function () {
 function doneTyping() {
     triggerAPI();
 }
+// //on focus, start the countdown
+// $input.on('focus', function () {
+//     clearTimeout(typingTimer);
+//     typingTimer = setTimeout(doneTyping, doneTypingInterval);
+// });
+
 
 // hide auto suggest if user clicks anywhere on screen except list
 $(document).on('click', function(e) {
