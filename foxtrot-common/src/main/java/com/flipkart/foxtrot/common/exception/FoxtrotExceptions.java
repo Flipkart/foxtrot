@@ -61,7 +61,7 @@ public class FoxtrotExceptions {
                                                                          String field,
                                                                          double probability) {
         return new CardinalityOverflowException(actionRequest, requestStr, field,
-                actionRequest.accept(new ConsoleIdVisitorAdapter(null)),probability);
+                actionRequest.accept(new ConsoleIdVisitorAdapter()),probability);
     }
 
     public static DocumentMissingException createMissingDocumentException(Table table,

@@ -13,8 +13,9 @@ import com.flipkart.foxtrot.common.trend.TrendRequest;
 
 public class ConsoleIdVisitorAdapter extends ActionRequestVisitorAdapter<String> {
 
-    public ConsoleIdVisitorAdapter(String defaultValue) {
-        super(defaultValue);
+    private static final String DEFAULT_CONSOLE_ID = "none";
+    public ConsoleIdVisitorAdapter() {
+        super(DEFAULT_CONSOLE_ID);
     }
 
     public String visit(GroupRequest request) {
