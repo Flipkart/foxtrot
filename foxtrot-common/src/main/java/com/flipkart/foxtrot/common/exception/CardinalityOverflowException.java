@@ -37,6 +37,7 @@ public class CardinalityOverflowException extends FoxtrotException {
     public Map<String, Object> toMap() {
         return ImmutableMap.<String, Object>builder().put("field", this.field)
                 .put("probability", this.probability)
+                .put("consoleId", this.consoleId)
                 .put("request", this.actionRequest)
                 .put("requestStr", this.requestStr)
                 .build();
