@@ -10,16 +10,20 @@ import com.flipkart.foxtrot.common.query.MultiTimeQueryRequest;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
+import org.assertj.core.util.Strings;
 
 public class ConsoleIdVisitorAdapter extends ActionRequestVisitorAdapter<String> {
 
     private static final String DEFAULT_CONSOLE_ID = "none";
+
     public ConsoleIdVisitorAdapter() {
         super(DEFAULT_CONSOLE_ID);
     }
 
     public String visit(GroupRequest request) {
-        return request.getConsoleId();
+        return Strings.isNullOrEmpty(request.getConsoleId())
+               ? DEFAULT_CONSOLE_ID
+               : request.getConsoleId();
     }
 
     public String visit(Query request) {
@@ -27,15 +31,21 @@ public class ConsoleIdVisitorAdapter extends ActionRequestVisitorAdapter<String>
     }
 
     public String visit(StatsRequest request) {
-        return request.getConsoleId();
+        return Strings.isNullOrEmpty(request.getConsoleId())
+               ? DEFAULT_CONSOLE_ID
+               : request.getConsoleId();
     }
 
     public String visit(StatsTrendRequest request) {
-        return request.getConsoleId();
+        return Strings.isNullOrEmpty(request.getConsoleId())
+               ? DEFAULT_CONSOLE_ID
+               : request.getConsoleId();
     }
 
     public String visit(TrendRequest request) {
-        return request.getConsoleId();
+        return Strings.isNullOrEmpty(request.getConsoleId())
+               ? DEFAULT_CONSOLE_ID
+               : request.getConsoleId();
     }
 
     public String visit(DistinctRequest request) {
@@ -43,7 +53,9 @@ public class ConsoleIdVisitorAdapter extends ActionRequestVisitorAdapter<String>
     }
 
     public String visit(HistogramRequest request) {
-        return request.getConsoleId();
+        return Strings.isNullOrEmpty(request.getConsoleId())
+               ? DEFAULT_CONSOLE_ID
+               : request.getConsoleId();
     }
 
     public String visit(MultiTimeQueryRequest request) {
@@ -51,11 +63,15 @@ public class ConsoleIdVisitorAdapter extends ActionRequestVisitorAdapter<String>
     }
 
     public String visit(MultiQueryRequest request) {
-        return request.getConsoleId();
+        return Strings.isNullOrEmpty(request.getConsoleId())
+               ? DEFAULT_CONSOLE_ID
+               : request.getConsoleId();
     }
 
     public String visit(CountRequest request) {
-        return request.getConsoleId();
+        return Strings.isNullOrEmpty(request.getConsoleId())
+               ? DEFAULT_CONSOLE_ID
+               : request.getConsoleId();
     }
 
 }
