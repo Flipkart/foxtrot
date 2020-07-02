@@ -10,7 +10,7 @@ import com.flipkart.foxtrot.common.query.MultiTimeQueryRequest;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
-import org.assertj.core.util.Strings;
+import com.google.common.base.Strings;
 
 public class ConsoleIdVisitorAdapter extends ActionRequestVisitorAdapter<String> {
 
