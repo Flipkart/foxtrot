@@ -14,6 +14,7 @@ public class CardinalityOverflowException extends FoxtrotException {
     private static final long serialVersionUID = -8591567152701424689L;
 
     private final String requestStr;
+    private final String consoleId;
     private final String field;
     private final ActionRequest actionRequest;
     private final double probability;
@@ -21,11 +22,13 @@ public class CardinalityOverflowException extends FoxtrotException {
     public CardinalityOverflowException(ActionRequest actionRequest,
                                         String requestStr,
                                         String field,
+                                        String consoleId,
                                         double probability) {
         super(ErrorCode.CARDINALITY_OVERFLOW,
                 "Query blocked due to high cardinality. Consider using shorter time period");
         this.requestStr = requestStr;
         this.field = field;
+        this.consoleId = consoleId;
         this.actionRequest = actionRequest;
         this.probability = probability;
     }
@@ -34,6 +37,7 @@ public class CardinalityOverflowException extends FoxtrotException {
     public Map<String, Object> toMap() {
         return ImmutableMap.<String, Object>builder().put("field", this.field)
                 .put("probability", this.probability)
+                .put("consoleId", this.consoleId)
                 .put("request", this.actionRequest)
                 .put("requestStr", this.requestStr)
                 .build();

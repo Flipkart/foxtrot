@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.common.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.visitor.ConsoleIdVisitorAdapter;
 import java.util.Collections;
 import java.util.List;
 
@@ -59,7 +60,8 @@ public class FoxtrotExceptions {
                                                                          String requestStr,
                                                                          String field,
                                                                          double probability) {
-        return new CardinalityOverflowException(actionRequest, requestStr, field, probability);
+        return new CardinalityOverflowException(actionRequest, requestStr, field,
+                actionRequest.accept(new ConsoleIdVisitorAdapter()),probability);
     }
 
     public static DocumentMissingException createMissingDocumentException(Table table,

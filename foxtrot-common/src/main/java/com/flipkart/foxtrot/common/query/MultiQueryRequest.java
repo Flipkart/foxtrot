@@ -18,18 +18,28 @@ import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import java.util.Map;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Assert;
 
 /***
  Created by nitish.goyal on 22/08/18
  ***/
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class MultiQueryRequest extends ActionRequest {
 
     private Map<String, ActionRequest> requests;
 
+    private String consoleId;
+
     public MultiQueryRequest() {
         super(Opcodes.MULTI_QUERY);
+    }
+
+    public MultiQueryRequest(Map<String, ActionRequest> requests, String consoleId) {
+        this(requests);
+        this.consoleId = consoleId;
     }
 
     public MultiQueryRequest(Map<String, ActionRequest> requests) {
@@ -44,7 +54,10 @@ public class MultiQueryRequest extends ActionRequest {
 
     @Override
     public String toString() {
-        return requests.toString();
+        return new ToStringBuilder(this).appendSuper(super.toString())
+                .append("requests", requests.toString())
+                .append("consoleId", consoleId)
+                .toString();
     }
 
 }
