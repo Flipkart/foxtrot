@@ -12,7 +12,9 @@ public class StrSubstitutorEmailBodyBuilder implements EmailBodyBuilder {
 
     private static final Map<String, String> TEMPLATES = ImmutableMap.<String, String>builder().put(
             "query_processing_error_cardinality_overflow",
-            "Blocked Query: ${requestStr}\n" + "Suspect field: ${field}\n"
+            "Blocked Query: ${requestStr}\n"
+                    + "Console Id: ${consoleId}\n"
+                    +"Suspect field: ${field}\n"
                     + "Probability of screwing up the cluster: ${probability}")
             .build();
 

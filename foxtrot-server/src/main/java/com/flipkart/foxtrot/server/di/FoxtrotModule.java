@@ -131,7 +131,6 @@ public class FoxtrotModule extends AbstractModule {
         bind(FqlStoreService.class).to(FqlStoreServiceImpl.class);
         bind(AccessService.class).to(AccessServiceImpl.class);
         bind(CacheFactory.class).to(DistributedCacheFactory.class);
-        bind(InternalEventBus.class).to(GuavaInternalEventBus.class);
         bind(InternalEventBusConsumer.class).to(AlertingSystemEventConsumer.class);
         bind(ConsolePersistence.class).to(ElasticsearchConsolePersistence.class);
         bind(EmailSubjectBuilder.class).to(StrSubstitutorEmailSubjectBuilder.class);
@@ -243,6 +242,12 @@ public class FoxtrotModule extends AbstractModule {
     public List<IndexerEventMutator> provideMutators(FoxtrotServerConfiguration configuration,
                                                      ObjectMapper objectMapper) {
         return Collections.singletonList(new LargeTextNodeRemover(objectMapper, configuration.getTextNodeRemover()));
+    }
+
+    @Provides
+    @Singleton
+    public InternalEventBus internalEventBus() {
+        return new GuavaInternalEventBus();
     }
 
     @Provides
