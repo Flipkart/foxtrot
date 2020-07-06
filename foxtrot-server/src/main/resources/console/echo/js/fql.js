@@ -308,6 +308,12 @@ $input.on('keyup', function () {
     typingTimer = setTimeout(doneTyping, doneTypingInterval);
 });
 
+//on blur, start the countdown
+$input.on('blur', function () {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
+});
+
 //on keydown, clear the countdown 
 $input.on('keydown', function () {
     clearTimeout(typingTimer);
@@ -317,11 +323,11 @@ $input.on('keydown', function () {
 function doneTyping() {
     triggerAPI();
 }
-// //on focus, start the countdown
-// $input.on('focus', function () {
-//     clearTimeout(typingTimer);
-//     typingTimer = setTimeout(doneTyping, doneTypingInterval);
-// });
+//on focus, start the countdown
+$input.on('focus', function () {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
+});
 
 
 // hide auto suggest if user clicks anywhere on screen except list
