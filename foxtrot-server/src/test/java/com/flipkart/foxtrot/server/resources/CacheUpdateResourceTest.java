@@ -17,7 +17,7 @@ package com.flipkart.foxtrot.server.resources;/**
 import static org.junit.Assert.assertTrue;
 
 import com.flipkart.foxtrot.server.ResourceTestUtils;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
