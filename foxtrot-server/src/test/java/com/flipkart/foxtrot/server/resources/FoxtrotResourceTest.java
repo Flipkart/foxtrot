@@ -40,7 +40,7 @@ import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;

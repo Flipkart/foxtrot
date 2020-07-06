@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.funnel.persistence;
 import static com.collections.CollectionUtils.nullAndEmptySafeValueList;
 import static com.collections.CollectionUtils.nullSafeMap;
 import static com.flipkart.foxtrot.common.exception.ErrorCode.EXECUTION_EXCEPTION;
+import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.APPROVAL_DATE;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.DELETED;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.EVENT_ATTRIBUTES;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FIELD_VS_VALUES;
@@ -74,9 +75,9 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchFunnelStore.class);
 
 
-    private final ElasticsearchConnection connection;
-    private final MappingService mappingService;
-    private final FunnelConfiguration funnelConfiguration;
+    protected final ElasticsearchConnection connection;
+    protected final MappingService mappingService;
+    protected final FunnelConfiguration funnelConfiguration;
 
 
     @Inject
@@ -204,8 +205,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                 searchSourceBuilder.query(query);
             }
             val searchRequest = new SearchRequest(funnelConfiguration.getFunnelIndex()).types(TYPE)
-                    .source(new SearchSourceBuilder().fetchSource(true)
-                            .size(maxSize))
+                    .source(searchSourceBuilder)
                     .searchType(SearchType.QUERY_THEN_FETCH)
                     .indicesOptions(Utils.indicesOptions());
             SearchResponse response = connection.getClient()
@@ -270,10 +270,11 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         boolQueryBuilder.must(statusQueryBuilder);
         boolQueryBuilder.must(deletedQueryBuilder);
         try {
-            val searchRequest = new SearchRequest(funnelConfiguration.getFunnelIndex()).types(TYPE)
+            val searchRequest = new SearchRequest(funnelConfiguration.getFunnelIndex())
+                    .types(TYPE)
                     .source(new SearchSourceBuilder().query(boolQueryBuilder)
                             .fetchSource(true)
-                            .sort(SortBuilders.fieldSort(ID)
+                            .sort(SortBuilders.fieldSort(APPROVAL_DATE)
                                     .order(SortOrder.DESC)))
                     .indicesOptions(Utils.indicesOptions())
                     .searchType(SearchType.QUERY_THEN_FETCH);
