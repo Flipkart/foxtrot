@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.lock;
 
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import io.dropwizard.lifecycle.Managed;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -12,10 +13,12 @@ import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import net.javacrumbs.shedlock.provider.hazelcast.HazelcastLockProvider;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 @Slf4j
+@Order(45)
 @Singleton
-public class LockedExecutor {
+public class LockedExecutor implements Managed {
 
     private static final DistributedLockGroupConfig defaultDistributedLockGroupConfig;
 
@@ -27,14 +30,25 @@ public class LockedExecutor {
     /**
      * distributed lock provider
      */
-    private final LockProvider lockProvider;
+    private LockProvider lockProvider;
     private final HazelcastDistributedLockConfig distributedLockConfig;
+    private final HazelcastConnection hazelcastConnection;
 
     @Inject
     public LockedExecutor(final HazelcastDistributedLockConfig distributedLockConfig,
                           final HazelcastConnection hazelcastConnection) {
-        this.lockProvider = new HazelcastLockProvider(hazelcastConnection.getHazelcast());
+        this.hazelcastConnection = hazelcastConnection;
         this.distributedLockConfig = distributedLockConfig;
+    }
+
+    @Override
+    public void start() throws Exception {
+        this.lockProvider = new HazelcastLockProvider(hazelcastConnection.getHazelcast());
+    }
+
+    @Override
+    public void stop() throws Exception {
+        // Do Nothing
     }
 
     /**
@@ -143,4 +157,5 @@ public class LockedExecutor {
         return doItInLock(dataForProcessing, runFuncInsideLock, runFuncIfLockNotAcquired, t -> lockString, "default",
                 null);
     }
+
 }
