@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.funnel.persistence;
 import static com.collections.CollectionUtils.nullAndEmptySafeValueList;
 import static com.collections.CollectionUtils.nullSafeMap;
 import static com.flipkart.foxtrot.common.exception.ErrorCode.EXECUTION_EXCEPTION;
+import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.APPROVAL_DATE;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.DELETED;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.EVENT_ATTRIBUTES;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FIELD_VS_VALUES;
@@ -269,10 +270,11 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         boolQueryBuilder.must(statusQueryBuilder);
         boolQueryBuilder.must(deletedQueryBuilder);
         try {
-            val searchRequest = new SearchRequest(funnelConfiguration.getFunnelIndex()).types(TYPE)
+            val searchRequest = new SearchRequest(funnelConfiguration.getFunnelIndex())
+                    .types(TYPE)
                     .source(new SearchSourceBuilder().query(boolQueryBuilder)
                             .fetchSource(true)
-                            .sort(SortBuilders.fieldSort(ID)
+                            .sort(SortBuilders.fieldSort(APPROVAL_DATE)
                                     .order(SortOrder.DESC)))
                     .indicesOptions(Utils.indicesOptions())
                     .searchType(SearchType.QUERY_THEN_FETCH);
