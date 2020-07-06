@@ -204,8 +204,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                 searchSourceBuilder.query(query);
             }
             val searchRequest = new SearchRequest(funnelConfiguration.getFunnelIndex()).types(TYPE)
-                    .source(new SearchSourceBuilder().fetchSource(true)
-                            .size(maxSize))
+                    .source(searchSourceBuilder)
                     .searchType(SearchType.QUERY_THEN_FETCH)
                     .indicesOptions(Utils.indicesOptions());
             SearchResponse response = connection.getClient()
