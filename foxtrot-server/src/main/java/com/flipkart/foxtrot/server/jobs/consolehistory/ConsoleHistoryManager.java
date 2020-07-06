@@ -77,7 +77,7 @@ public class ConsoleHistoryManager extends BaseJobManager {
                     deleteOldData(entry.getKeyAsString());
                 }
             } catch (Exception e) {
-                log.info("Failed to get aggregations and delete data for index history. {}", e);
+                log.info("Failed to get aggregations and delete data for index history. ", e);
             }
 
         }, new LockConfiguration(consoleHistoryConfig.getJobName(), lockAtMostUntil));
