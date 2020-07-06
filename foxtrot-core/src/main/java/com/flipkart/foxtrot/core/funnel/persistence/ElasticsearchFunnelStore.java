@@ -74,9 +74,9 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchFunnelStore.class);
 
 
-    private final ElasticsearchConnection connection;
-    private final MappingService mappingService;
-    private final FunnelConfiguration funnelConfiguration;
+    protected final ElasticsearchConnection connection;
+    protected final MappingService mappingService;
+    protected final FunnelConfiguration funnelConfiguration;
 
 
     @Inject
