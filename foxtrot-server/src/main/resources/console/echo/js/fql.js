@@ -5,14 +5,6 @@ var rowList = [];
 var selectedList = [];
 var fetchedData = [];
 var AutoCallApiStartIndex = 20;
-// function loadConsole() { // load console list api
-//     $.when(getConsole()).done(function (a1) {
-//         $.when( appendConsoleList(a1)).done(function (a1) {
-//             // appendConsoleList(a1);
-//            triggerAPI(); 
-//         });
-//     });
-// }
 
 
 function loadConsole() { // load console list api
@@ -247,7 +239,6 @@ function generateAutoSugest(obj) {
 
 // function moreAutoSuggest() {
     $('#auto-suggest').on('click', '#more', function() {
-        console.log('more clicked!');
         triggerAPI();
       });
 
@@ -287,8 +278,6 @@ function triggerAPI() {
         success: function (response) {
             if (response) {
                 console.log("AutoCallApiStartIndex",AutoCallApiStartIndex);
-
-        console.log("response",response);
                 generateAutoSugest(response);
             } else {
                 $("#auto-suggest").hide();
