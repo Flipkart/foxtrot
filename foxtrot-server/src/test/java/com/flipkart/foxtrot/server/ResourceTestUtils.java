@@ -3,7 +3,7 @@ package com.flipkart.foxtrot.server;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.server.auth.DummyAuthFilter;
 import com.flipkart.foxtrot.server.auth.UserPrincipal;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.testing.junit.ResourceTestRule;

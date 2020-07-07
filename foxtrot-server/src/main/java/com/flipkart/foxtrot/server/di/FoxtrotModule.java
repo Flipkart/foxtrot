@@ -9,6 +9,8 @@ import com.flipkart.foxtrot.core.cache.CacheFactory;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidator;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidatorImpl;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
 import com.flipkart.foxtrot.core.config.QueryConfig;
@@ -129,7 +131,6 @@ public class FoxtrotModule extends AbstractModule {
         bind(FqlStoreService.class).to(FqlStoreServiceImpl.class);
         bind(AccessService.class).to(AccessServiceImpl.class);
         bind(CacheFactory.class).to(DistributedCacheFactory.class);
-        bind(InternalEventBus.class).to(GuavaInternalEventBus.class);
         bind(InternalEventBusConsumer.class).to(AlertingSystemEventConsumer.class);
         bind(ConsolePersistence.class).to(ElasticsearchConsolePersistence.class);
         bind(EmailSubjectBuilder.class).to(StrSubstitutorEmailSubjectBuilder.class);
@@ -146,6 +147,7 @@ public class FoxtrotModule extends AbstractModule {
         bind(AuthStore.class).to(ESAuthStore.class);
         bind(AuthProvider.class).to(GoogleAuthProvider.class);
         bind(SessionDataStore.class).to(DistributedSessionDataStore.class);
+        bind(CardinalityValidator.class).to(CardinalityValidatorImpl.class);
 
     }
 
@@ -240,6 +242,12 @@ public class FoxtrotModule extends AbstractModule {
     public List<IndexerEventMutator> provideMutators(FoxtrotServerConfiguration configuration,
                                                      ObjectMapper objectMapper) {
         return Collections.singletonList(new LargeTextNodeRemover(objectMapper, configuration.getTextNodeRemover()));
+    }
+
+    @Provides
+    @Singleton
+    public InternalEventBus internalEventBus() {
+        return new GuavaInternalEventBus();
     }
 
     @Provides

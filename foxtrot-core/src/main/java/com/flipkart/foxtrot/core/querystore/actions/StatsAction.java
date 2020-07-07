@@ -110,6 +110,9 @@ public class StatsAction extends Action<StatsRequest> {
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
+
+        getCardinalityValidator().validateCardinality(this, parameter, parameter.getTable(), parameter.getNesting());
+
     }
 
     @Override

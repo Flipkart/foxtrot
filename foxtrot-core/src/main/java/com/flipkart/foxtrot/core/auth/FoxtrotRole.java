@@ -21,6 +21,10 @@ public enum FoxtrotRole {
 
     public static class Value {
 
+        private Value() {
+            throw new IllegalStateException("Constant class");
+        }
+
         public static final String INGEST = "INGEST";
         public static final String CONSOLE = "CONSOLE";
         public static final String QUERY = "QUERY";

@@ -17,18 +17,11 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.server.ResourceTestUtils;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 

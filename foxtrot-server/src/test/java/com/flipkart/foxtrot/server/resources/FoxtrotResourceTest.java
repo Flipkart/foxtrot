@@ -17,6 +17,8 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidator;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidatorImpl;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
@@ -38,7 +40,7 @@ import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -88,6 +90,7 @@ public abstract class FoxtrotResourceTest {
     private final QueryExecutorFactory queryExecutorFactory;
     private final QueryStore queryStore;
     private final DataStore dataStore;
+    private final CardinalityValidator cardinalityValidator;
 
     protected FoxtrotResourceTest() throws IOException {
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
@@ -152,8 +155,9 @@ public abstract class FoxtrotResourceTest {
         dataStore = TestUtils.getDataStore();
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators,
                 mapper, cardinalityConfig);
+        cardinalityValidator = new CardinalityValidatorImpl(queryStore, tableMetadataManager);
         analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                cacheManager, mapper, new ElasticsearchTuningConfig());
+                cacheManager, mapper, new ElasticsearchTuningConfig(), cardinalityValidator);
         try {
             analyticsLoader.start();
             TestUtils.registerActions(analyticsLoader, mapper);

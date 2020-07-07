@@ -14,6 +14,7 @@ package com.flipkart.foxtrot.core.querystore.actions;/**
  * limitations under the License.
  */
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
@@ -39,6 +40,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.junit.Before;
@@ -57,8 +59,8 @@ public class MultiQueryActionTest extends ActionTest {
         getElasticsearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
-        Thread.sleep(2000);
-    }
+        await().pollDelay(2000, TimeUnit.MILLISECONDS)
+                .until(() -> true);    }
 
     @Test(expected = NullPointerException.class)
     public void testQueryException() throws FoxtrotException, JsonProcessingException {

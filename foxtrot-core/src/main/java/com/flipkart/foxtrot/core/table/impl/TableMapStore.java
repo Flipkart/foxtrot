@@ -58,7 +58,7 @@ public class TableMapStore implements MapStore<String, Table>, Serializable {
     private final ObjectMapper objectMapper;
 
     public TableMapStore(ElasticsearchConnection elasticsearchConnection) {
-        this.elasticsearchConnection = elasticsearchConnection;
+        TableMapStore.elasticsearchConnection = elasticsearchConnection;
         this.objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);

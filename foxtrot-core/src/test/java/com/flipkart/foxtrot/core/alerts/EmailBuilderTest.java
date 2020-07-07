@@ -26,16 +26,19 @@ public class EmailBuilderTest {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Lists.newArrayList("os", "deviceId"));
+        groupRequest.setConsoleId("bad console");
 
         QueryProcessingError error = new QueryProcessingError(groupRequest,
                 new CardinalityOverflowException(groupRequest, Jackson.newObjectMapper()
-                        .writeValueAsString(groupRequest), "deviceId", 0.75));
+                        .writeValueAsString(groupRequest), "deviceId", groupRequest.getConsoleId(), 0.75));
 
         final Email email = emailBuilder.visit(error);
         Assert.assertEquals("Blocked query as it might have screwed up the cluster", email.getSubject());
         Assert.assertEquals(
                 "Blocked Query: {\"opcode\":\"group\",\"filters\":[],\"bypassCache\":false,\"table\":\"test-table\","
-                        + "\"uniqueCountOn\":null,\"nesting\":[\"os\",\"deviceId\"],\"consoleId\":null,\"precision\":null}\n"
+                        +  "\"uniqueCountOn\":null,\"aggregationField\":null,\"stats\":null,\"nesting\":" +
+                        "[\"os\",\"deviceId\"],\"consoleId\":\"bad console\",\"precision\":null}\n"
+                        + "Console Id: bad console\n"
                         + "Suspect field: deviceId\n" + "Probability of screwing up the cluster: 0.75",
                 email.getContent());
     }
