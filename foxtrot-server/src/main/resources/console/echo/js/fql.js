@@ -4,7 +4,7 @@ var headerList = [];
 var rowList = [];
 var selectedList = [];
 var fetchedData = [];
-
+var AutoCallApiStartIndex = 20;
 // function loadConsole() { // load console list api
 //     $.when(getConsole()).done(function (a1) {
 //         $.when( appendConsoleList(a1)).done(function (a1) {
@@ -234,12 +234,22 @@ function generateAutoSugest(obj) {
         $.each(obj, function (key, value) {
             list += "<li class='list'><label>" + value.query + "</label></li>";
         })
+        if (obj.length % 20 === 0 && obj.length >= AutoCallApiStartIndex) {
+            AutoCallApiStartIndex += 20;
+            list += "<li id='more'><label>more...</label></li>";
+          }
         $("#auto-suggest").append(list);
         $("#auto-suggest").show();
     } else {
         $("#auto-suggest").hide();
     }
 }
+
+// function moreAutoSuggest() {
+    $('#auto-suggest').on('click', '#more', function() {
+        console.log('more clicked!');
+        triggerAPI();
+      });
 
 $("#auto-suggest").on("click", ".list", function () {
     $(".fql-query").val($(this).text())
@@ -264,6 +274,8 @@ function triggerAPI() {
     else{
         var data = {
             "title": "",
+            from: 0,
+            size: AutoCallApiStartIndex,
         };
     }
 
@@ -274,6 +286,9 @@ function triggerAPI() {
         data: JSON.stringify(data),
         success: function (response) {
             if (response) {
+                console.log("AutoCallApiStartIndex",AutoCallApiStartIndex);
+
+        console.log("response",response);
                 generateAutoSugest(response);
             } else {
                 $("#auto-suggest").hide();
