@@ -227,9 +227,11 @@ function generateAutoSugest(obj) {
             list += "<li class='list'><label>" + value.query + "</label></li>";
         })
         if (obj.length % 20 === 0 && obj.length >= AutoCallApiStartIndex) {
-            AutoCallApiStartIndex += 20;
+            // AutoCallApiStartIndex += 20;
             list += "<li id='more'><label>more...</label></li>";
           }
+            // list += "<li id='more'><label>more...</label></li>";
+        
         $("#auto-suggest").append(list);
         $("#auto-suggest").show();
     } else {
@@ -239,6 +241,7 @@ function generateAutoSugest(obj) {
 
 // function moreAutoSuggest() {
     $('#auto-suggest').on('click', '#more', function() {
+        AutoCallApiStartIndex += 20;
         triggerAPI();
       });
 
@@ -262,6 +265,7 @@ function triggerAPI() {
             "title": value,
         };
     }
+    
     else{
         var data = {
             "title": "",
@@ -312,11 +316,7 @@ $input.on('keyup', function () {
     typingTimer = setTimeout(doneTyping, doneTypingInterval);
 });
 
-//on blur, start the countdown
-$input.on('blur', function () {
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(doneTyping, doneTypingInterval);
-});
+
 
 //on keydown, clear the countdown 
 $input.on('keydown', function () {
@@ -325,14 +325,33 @@ $input.on('keydown', function () {
 
 //user is "finished typing," do something
 function doneTyping() {
+    AutoCallApiStartIndex = 20;
     triggerAPI();
 }
+
+//on blur, start the countdown
+$input.on('blur', function () {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
+});
+
+
 //on focus, start the countdown
 $input.on('focus', function () {
     clearTimeout(typingTimer);
     typingTimer = setTimeout(doneTyping, doneTypingInterval);
 });
+//on dblclick, start the countdown
+$input.on('dblclick', function () {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
+});
 
+//on click, start the countdown
+$input.on('click', function () {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
+});
 
 // hide auto suggest if user clicks anywhere on screen except list
 $(document).on('click', function(e) {
