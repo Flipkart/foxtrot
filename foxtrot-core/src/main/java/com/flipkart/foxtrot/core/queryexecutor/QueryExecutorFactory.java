@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.queryexecutor;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.model.visitor.FunnelExtrapolationValidator;
+import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import java.util.List;
@@ -23,12 +24,13 @@ public class QueryExecutorFactory {
     public QueryExecutorFactory(final AnalyticsLoader analyticsLoader,
                                 final ExecutorService executorService,
                                 final List<ActionExecutionObserver> executionObservers,
-                                final FunnelConfiguration funnelConfiguration) {
+                                final FunnelConfiguration funnelConfiguration,
+                                final FunnelStore funnelStore) {
         this.funnelExtrapolationValidator = new FunnelExtrapolationValidator();
         this.simpleQueryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService, executionObservers);
 
         this.extrapolationQueryExecutor = new ExtrapolationQueryExecutor(analyticsLoader, executorService,
-                executionObservers, simpleQueryExecutor, funnelConfiguration);
+                executionObservers, simpleQueryExecutor, funnelConfiguration, funnelStore);
     }
 
     public <T extends ActionRequest> QueryExecutor getExecutor(T request) {
