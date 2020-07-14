@@ -82,14 +82,17 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
     }
 
     public ActionResponse visit(GroupResponse groupResponse) {
+        log.debug("Original Query Response:{}", groupResponse);
         Funnel applicableFunnel = funnelStore.getByFunnelId(FunnelExtrapolationUtils.ensureFunnelId(actionRequest)
                 .toString());
         double extrapolationFactor = computeExtrapolationFactor(applicableFunnel);
         extrapolateGroupResponse(extrapolationFactor, groupResponse.getResult());
+        log.debug("Extrapolated Query Response:{}", groupResponse);
         return groupResponse;
     }
 
     public ActionResponse visit(HistogramResponse histogramResponse) {
+        log.debug("Original Query Response:{}", histogramResponse);
         HistogramRequest histogramRequest = (HistogramRequest) this.actionRequest;
         Funnel applicableFunnel = funnelStore.getByFunnelId(FunnelExtrapolationUtils.ensureFunnelId(histogramRequest)
                 .toString());
@@ -107,6 +110,7 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
                         .getValue()));
             }
         }
+        log.debug("Extrapolated Query Response:{}", histogramResponse);
         return histogramResponse;
     }
 
@@ -116,6 +120,8 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
     }
 
     public ActionResponse visit(StatsResponse statsResponse) {
+        log.debug("Original Query Response:{}", statsResponse);
+
         Funnel applicableFunnel = funnelStore.getByFunnelId(FunnelExtrapolationUtils.ensureFunnelId(actionRequest)
                 .toString());
         double extrapolationFactor = computeExtrapolationFactor(applicableFunnel);
@@ -127,10 +133,12 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         List<BucketResponse<StatsValue>> buckets = statsResponse.getBuckets();
         extrapolateStatsBuckets(extrapolationFactor, buckets);
 
+        log.debug("Extrapolated Query Response:{}", statsResponse);
         return statsResponse;
     }
 
     public ActionResponse visit(StatsTrendResponse statsTrendResponse) {
+        log.debug("Original Query Response:{}", statsTrendResponse);
         Funnel applicableFunnel = funnelStore.getByFunnelId(FunnelExtrapolationUtils.ensureFunnelId(actionRequest)
                 .toString());
         StatsTrendRequest statsTrendRequest = (StatsTrendRequest) actionRequest;
@@ -143,11 +151,12 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
 
         List<BucketResponse<List<StatsTrendValue>>> buckets = statsTrendResponse.getBuckets();
         extrapolateStatsTrendBuckets(extrapolationFactors, buckets);
-
+        log.debug("Extrapolated Query Response:{}", statsTrendResponse);
         return statsTrendResponse;
     }
 
     public ActionResponse visit(TrendResponse trendResponse) {
+        log.debug("Original Query Response:{}", trendResponse);
         Funnel applicableFunnel = funnelStore.getByFunnelId(FunnelExtrapolationUtils.ensureFunnelId(actionRequest)
                 .toString());
         TrendRequest trendRequest = (TrendRequest) actionRequest;
@@ -170,14 +179,19 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
                         }
                     });
         }
+        log.debug("Extrapolated Query Response:{}", trendResponse);
         return trendResponse;
     }
 
     public ActionResponse visit(CountResponse countResponse) {
+        log.debug("Original Query Response:{}", countResponse);
+
         Funnel applicableFunnel = funnelStore.getByFunnelId(FunnelExtrapolationUtils.ensureFunnelId(actionRequest)
                 .toString());
         double extrapolationFactor = computeExtrapolationFactor(applicableFunnel);
         countResponse.setCount((long) (countResponse.getCount() * extrapolationFactor));
+
+        log.debug("Extrapolated Query Response:{}", countResponse);
         return countResponse;
     }
 
@@ -187,6 +201,8 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
     }
 
     public ActionResponse visit(MultiQueryResponse multiQueryResponse) {
+        log.debug("Original Query Response:{}", multiQueryResponse);
+
         MultiQueryRequest multiQueryRequest = (MultiQueryRequest) actionRequest;
         if (CollectionUtils.isNotEmpty(multiQueryResponse.getResponses())) {
             for (Map.Entry<String, ActionResponse> entry : multiQueryResponse.getResponses()
@@ -198,6 +214,7 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
                         .accept(funnelExtrapolationResponseVisitor));
             }
         }
+        log.debug("Extrapolated Query Response:{}", multiQueryResponse);
         return multiQueryResponse;
     }
 
