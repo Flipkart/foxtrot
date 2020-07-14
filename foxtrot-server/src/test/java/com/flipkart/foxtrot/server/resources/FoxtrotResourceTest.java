@@ -176,7 +176,8 @@ public abstract class FoxtrotResourceTest {
                 .funnelIndex("foxtrot_funnel")
                 .build();
         queryExecutorFactory = new QueryExecutorFactory(analyticsLoader, executorService,
-                Collections.singletonList(new ResponseCacheUpdater(cacheManager)), funnelConfiguration);
+                Collections.singletonList(new ResponseCacheUpdater(cacheManager)), funnelConfiguration,
+                funnelExtrapolationValidator);
 
     }
 
