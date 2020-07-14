@@ -8,6 +8,7 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import static com.flipkart.foxtrot.common.exception.FoxtrotExceptions.ERROR_DELIMITER;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
@@ -44,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.Data;
@@ -227,26 +229,27 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             if (bulkRequest.numberOfActions() > 0) {
                 bulkRequest.timeout(new TimeValue(10, TimeUnit.SECONDS));
-                BulkResponse responses = getConnection().getClient()
+                BulkResponse bulkResponse = getConnection().getClient()
                         .bulk(bulkRequest);
                 logger.info("QueryStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                if (bulkResponse.hasFailures()) {
+
+                    printFailedDocuments(table, documents, bulkResponse);
+
+                    MetricUtil.getInstance()
+                            .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                    throw FoxtrotExceptions.createExecutionException(table,
+                            new RuntimeException(bulkSaveFailureMessage(bulkResponse)));
+                }
+
                 MetricUtil.getInstance()
                         .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-                for (int i = 0; i < responses.getItems().length; i++) {
-                    BulkItemResponse itemResponse = responses.getItems()[i];
-                    if (itemResponse.isFailed()) {
-                        String failedDocument = mapper.writeValueAsString(documents.get(i));
-                        logger.error("Table : {} Failure Message : {} Document : {}", table,
-                                itemResponse.getFailureMessage(), failedDocument);
-                    }
-                }
             }
         } catch (JsonProcessingException e) {
             logAndRegister(table, documents, stopwatch, action, e);
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (IOException e) {
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            logAndRegister(table, documents, stopwatch, action, e);
             Thread.currentThread()
                     .interrupt();
             throw FoxtrotExceptions.createExecutionException(table, e);
@@ -258,6 +261,28 @@ public class ElasticsearchQueryStore implements QueryStore {
             throw FoxtrotExceptions.createExecutionException(table, e);
         }
     }
+
+    private void printFailedDocuments(String table,
+                                      List<Document> documents,
+                                      BulkResponse bulkResponse) throws JsonProcessingException {
+        for (int i = 0; i < bulkResponse.getItems().length; i++) {
+            BulkItemResponse itemResponse = bulkResponse.getItems()[i];
+            if (itemResponse.isFailed()) {
+                String failedDocument = mapper.writeValueAsString(documents.get(i));
+                logger.error("Table : {} Failure Message : {} Document : {}", table, itemResponse.getFailureMessage(),
+                        failedDocument);
+            }
+        }
+    }
+
+
+    private static String bulkSaveFailureMessage(BulkResponse bulkResponse) {
+        return Stream.of(bulkResponse.getItems())
+                .filter(BulkItemResponse::isFailed)
+                .map(BulkItemResponse::getFailureMessage)
+                .collect(Collectors.joining(ERROR_DELIMITER));
+    }
+
 
     private void logAndRegister(String table,
                                 List<Document> documents,
