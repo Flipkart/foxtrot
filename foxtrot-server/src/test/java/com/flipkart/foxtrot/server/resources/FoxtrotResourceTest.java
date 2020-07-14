@@ -21,8 +21,11 @@ import com.flipkart.foxtrot.core.cardinality.CardinalityValidator;
 import com.flipkart.foxtrot.core.cardinality.CardinalityValidatorImpl;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
+import com.flipkart.foxtrot.core.funnel.persistence.ElasticsearchFunnelStore;
+import com.flipkart.foxtrot.core.funnel.services.MappingService;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -40,7 +43,6 @@ import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
-import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -175,9 +177,11 @@ public abstract class FoxtrotResourceTest {
                         .build())
                 .funnelIndex("foxtrot_funnel")
                 .build();
+        MappingService mappingService = new MappingService(elasticsearchConnection, funnelConfiguration);
+        ElasticsearchFunnelStore funnelStore = new ElasticsearchFunnelStore(elasticsearchConnection, mappingService,
+                funnelConfiguration);
         queryExecutorFactory = new QueryExecutorFactory(analyticsLoader, executorService,
-                Collections.singletonList(new ResponseCacheUpdater(cacheManager)), funnelConfiguration,
-                funnelExtrapolationValidator);
+                Collections.singletonList(new ResponseCacheUpdater(cacheManager)), funnelConfiguration, funnelStore);
 
     }
 
