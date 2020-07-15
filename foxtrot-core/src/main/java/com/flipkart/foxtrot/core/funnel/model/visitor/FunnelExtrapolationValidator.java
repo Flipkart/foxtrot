@@ -93,7 +93,7 @@ import lombok.extern.slf4j.Slf4j;
 
     @Override
     public Boolean visit(CountRequest countRequest) {
-        return !countRequest.isDistinct();
+        return isFunnelQuery(countRequest, actionRequest -> !countRequest.isDistinct());
     }
 
     private <T extends ActionRequest> Boolean isFunnelQuery(ActionRequest actionRequest,
