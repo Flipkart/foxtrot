@@ -38,6 +38,7 @@ import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import com.flipkart.foxtrot.core.util.FunnelExtrapolationUtils;
+import com.google.common.base.Preconditions;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,19 +84,23 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
 
     public ActionResponse visit(GroupResponse groupResponse) {
         log.debug("Original Query Response:{}", groupResponse);
-        Funnel applicableFunnel = funnelStore.getByFunnelId(FunnelExtrapolationUtils.ensureFunnelId(actionRequest)
-                .toString());
+
+        Funnel applicableFunnel = getApplicableFunnel(actionRequest);
+
         double extrapolationFactor = computeExtrapolationFactor(applicableFunnel);
+
         extrapolateGroupResponse(extrapolationFactor, groupResponse.getResult());
+
         log.debug("Extrapolated Query Response:{}", groupResponse);
         return groupResponse;
     }
 
     public ActionResponse visit(HistogramResponse histogramResponse) {
         log.debug("Original Query Response:{}", histogramResponse);
-        HistogramRequest histogramRequest = (HistogramRequest) this.actionRequest;
-        Funnel applicableFunnel = funnelStore.getByFunnelId(FunnelExtrapolationUtils.ensureFunnelId(histogramRequest)
-                .toString());
+        HistogramRequest histogramRequest = (HistogramRequest) actionRequest;
+
+        Funnel applicableFunnel = getApplicableFunnel(actionRequest);
+
         List<HistogramValue> extrapolationFactors = computeExtrapolationFactors(histogramRequest.getTable(),
                 histogramRequest.getField(), histogramRequest.getPeriod(), applicableFunnel);
 
@@ -110,6 +115,7 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
                         .getValue()));
             }
         }
+
         log.debug("Extrapolated Query Response:{}", histogramResponse);
         return histogramResponse;
     }
@@ -122,8 +128,8 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
     public ActionResponse visit(StatsResponse statsResponse) {
         log.debug("Original Query Response:{}", statsResponse);
 
-        Funnel applicableFunnel = funnelStore.getByFunnelId(FunnelExtrapolationUtils.ensureFunnelId(actionRequest)
-                .toString());
+        Funnel applicableFunnel = getApplicableFunnel(actionRequest);
+
         double extrapolationFactor = computeExtrapolationFactor(applicableFunnel);
         Map<String, Number> originalStats = statsResponse.getResult()
                 .getStats();
@@ -137,10 +143,17 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         return statsResponse;
     }
 
-    public ActionResponse visit(StatsTrendResponse statsTrendResponse) {
-        log.debug("Original Query Response:{}", statsTrendResponse);
+    private Funnel getApplicableFunnel(ActionRequest actionRequest) {
         Funnel applicableFunnel = funnelStore.getByFunnelId(FunnelExtrapolationUtils.ensureFunnelId(actionRequest)
                 .toString());
+        Preconditions.checkNotNull(applicableFunnel, "Funnel not found for extrapolation");
+        return applicableFunnel;
+    }
+
+    public ActionResponse visit(StatsTrendResponse statsTrendResponse) {
+        log.debug("Original Query Response:{}", statsTrendResponse);
+        Funnel applicableFunnel = getApplicableFunnel(actionRequest);
+
         StatsTrendRequest statsTrendRequest = (StatsTrendRequest) actionRequest;
 
         List<HistogramValue> extrapolationFactors = computeExtrapolationFactors(statsTrendRequest.getTable(),
@@ -157,8 +170,8 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
 
     public ActionResponse visit(TrendResponse trendResponse) {
         log.debug("Original Query Response:{}", trendResponse);
-        Funnel applicableFunnel = funnelStore.getByFunnelId(FunnelExtrapolationUtils.ensureFunnelId(actionRequest)
-                .toString());
+        Funnel applicableFunnel = getApplicableFunnel(actionRequest);
+
         TrendRequest trendRequest = (TrendRequest) actionRequest;
 
         List<HistogramValue> extrapolationFactors = computeExtrapolationFactors(trendRequest.getTable(),
@@ -186,8 +199,8 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
     public ActionResponse visit(CountResponse countResponse) {
         log.debug("Original Query Response:{}", countResponse);
 
-        Funnel applicableFunnel = funnelStore.getByFunnelId(FunnelExtrapolationUtils.ensureFunnelId(actionRequest)
-                .toString());
+        Funnel applicableFunnel = getApplicableFunnel(actionRequest);
+
         double extrapolationFactor = computeExtrapolationFactor(applicableFunnel);
         countResponse.setCount((long) (countResponse.getCount() * extrapolationFactor));
 
@@ -460,6 +473,7 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
 
         return (HistogramResponse) queryExecutor.execute(histogramRequest);
     }
+
 
     @Data
     @Builder
