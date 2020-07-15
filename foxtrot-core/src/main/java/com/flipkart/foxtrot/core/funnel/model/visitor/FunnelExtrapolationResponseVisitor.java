@@ -296,8 +296,8 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         long baseEventCountForFunnelId = getBaseEventCountForFunnelId(applicableFunnel, table);
 
         if (baseEventCountForFunnelId != 0) {
-            double extrapolationFactor = ((double) totalBaseEventCount / baseEventCountForFunnelId) * ((double) 100
-                    / applicableFunnel.getPercentage());
+            double extrapolationFactor = FunnelExtrapolationResponseVisitor.this.computeExtrapolationFactor(
+                    applicableFunnel, totalBaseEventCount, baseEventCountForFunnelId);
             log.info("Total Base Event Count: {}, Base Event Count for funnel id:{} is {},"
                             + " funnelPercentage:{}, calculated extrapolation factor: {}", totalBaseEventCount,
                     applicableFunnel.getId(), baseEventCountForFunnelId, applicableFunnel.getPercentage(),
@@ -305,6 +305,12 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
             return extrapolationFactor;
         }
         return 1.0;
+    }
+
+    private double computeExtrapolationFactor(Funnel applicableFunnel,
+                                              double totalBaseEventCount,
+                                              long baseEventCountForFunnelId) {
+        return (totalBaseEventCount / baseEventCountForFunnelId) * ((double) 100 / applicableFunnel.getPercentage());
     }
 
     private Number extrapolatedValue(String key,
@@ -418,9 +424,9 @@ public class FunnelExtrapolationResponseVisitor implements ResponseVisitor<Actio
         for (int i = 0; i < totalBaseEventCounts.size(); i++) {
             if (baseEventCountsForFunnelId.get(i)
                     .getCount() != 0) {
-                double extrapolationFactor = (((double) totalBaseEventCounts.get(i)
-                        .getCount() / baseEventCountsForFunnelId.get(i)
-                        .getCount()) * ((double) 100 / applicableFunnel.getPercentage()));
+                double extrapolationFactor = computeExtrapolationFactor(applicableFunnel, totalBaseEventCounts.get(i)
+                        .getCount(), baseEventCountsForFunnelId.get(i)
+                        .getCount());
                 extrapolationFactors.add(new HistogramValue(totalBaseEventCounts.get(i)
                         .getPeriod(), extrapolationFactor));
             } else {
