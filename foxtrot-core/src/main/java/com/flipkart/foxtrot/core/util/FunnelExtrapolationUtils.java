@@ -1,9 +1,9 @@
 package com.flipkart.foxtrot.core.util;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.exception.FunnelException;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
-import com.flipkart.foxtrot.core.funnel.model.visitor.FunnelExtrapolationValidator;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import edu.emory.mathcs.backport.java.util.Collections;
 import java.util.Arrays;
@@ -16,36 +16,48 @@ public class FunnelExtrapolationUtils {
 
     public static final String FUNNEL_ID_QUERY_FIELD = "eventData.funnelInfo.funnelId";
 
-    private static final List<String> VALID_STATS_FOR_EXTRAPOLATION = Arrays.asList(Utils.COUNT, Utils.SUM,
+    public static final List<String> VALID_STATS_FOR_EXTRAPOLATION = Arrays.asList(Utils.COUNT, Utils.SUM,
             Utils.SUM_OF_SQUARES);
 
     private FunnelExtrapolationUtils() {
+        throw new IllegalStateException("Utility Class");
+    }
 
+    public static Long ensureFunnelId(ActionRequest actionRequest) {
+        Optional<Long> funnelIdOptional = extractFunnelId(actionRequest);
+        if (!funnelIdOptional.isPresent()) {
+            log.error("Funnel id not present, function called without validation for action request :{}",
+                    actionRequest);
+            throw new FunnelException("Funnel id not present in action request");
+        }
+        return funnelIdOptional.get();
     }
 
     public static Optional<Long> extractFunnelId(ActionRequest actionRequest) {
-        FunnelExtrapolationValidator extrapolationValidator = new FunnelExtrapolationValidator();
-        boolean extrapolationApplicable = actionRequest.accept(extrapolationValidator);
-        if (extrapolationApplicable) {
-            // Extract funnel id if equals filter is applied on eventData.funnelInfo.funnelId
-            try {
-                Optional<Filter> funnelIdFilter = actionRequest.getFilters()
-                        .stream()
-                        .filter(filter -> (filter instanceof EqualsFilter) && (filter.getField()
-                                .equals(FUNNEL_ID_QUERY_FIELD)))
-                        .findFirst();
-                if (funnelIdFilter.isPresent()) {
-                    Long funnelId = Long.parseLong((String) (((EqualsFilter) funnelIdFilter.get()).getValue()));
-                    log.debug("Extrapolation applicable with funnel id :{} for actionRequest: {}", funnelId,
-                            actionRequest);
-                    return Optional.of(funnelId);
-                }
-            } catch (NumberFormatException ex) {
-                log.error("Error while extracting funnel id from action request : {} ", actionRequest, ex);
+        // Extract funnel id if equals filter is applied on eventData.funnelInfo.funnelId
+        try {
+            Optional<Filter> funnelIdFilter = actionRequest.getFilters()
+                    .stream()
+                    .filter(filter -> (filter instanceof EqualsFilter) && (filter.getField()
+                            .equals(FUNNEL_ID_QUERY_FIELD)))
+                    .findFirst();
+            if (funnelIdFilter.isPresent()) {
+                Long funnelId = Long.parseLong((((EqualsFilter) funnelIdFilter.get()).getValue()).toString());
+                return Optional.of(funnelId);
             }
+        } catch (NumberFormatException ex) {
+            log.error("Error while extracting funnel id from action request : {} ", actionRequest, ex);
         }
-        log.debug("Extrapolation not applicable for actionRequest: {}", actionRequest);
         return Optional.empty();
+    }
+
+    public static void printFunnelNotApplicableLog(ActionRequest actionRequest) {
+        log.debug("Extrapolation not applicable for actionRequest: {}", actionRequest);
+    }
+
+    public static void printFunnelApplicableLog(ActionRequest actionRequest,
+                                                Long funnelId) {
+        log.debug("Extrapolation applicable with funnel id :{} for actionRequest: {}", funnelId, actionRequest);
     }
 
     public static List<String> getValidStatsForExtrapolation() {
