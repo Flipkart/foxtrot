@@ -48,6 +48,7 @@ services:
     environment:
      - HOST=localhost
      - ELASTICSEARCH_HOST=elasticsearch
+     - ELASTICSEARCH_PORT=9300
      - ELASTICSEARCH_CLUSTER_NAME=elasticsearch
      - ELASTICSEARCH_TABLE_NAME_PREFIX=foxtrot
      - HBASE_TABLE_NAME=foxtrot
