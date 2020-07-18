@@ -71,6 +71,7 @@ public class FoxtrotTableManager implements TableManager {
             throw FoxtrotExceptions.createTableMissingException(table.getName());
         }
         metadataManager.save(table);
+        dataStore.updateTable(table);
     }
 
     @Override

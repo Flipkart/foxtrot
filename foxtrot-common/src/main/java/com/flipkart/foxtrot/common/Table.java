@@ -32,9 +32,7 @@ import java.io.Serializable;
  * Representation for a table on foxtrot.
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Table implements Serializable {
 
@@ -50,4 +48,19 @@ public class Table implements Serializable {
     private int ttl;
 
     private boolean seggregatedBackend = false;
+
+    @Min(1)
+    @Max(256)
+    private int defaultRegions = 4;
+
+    @Builder
+    public Table(String name, int ttl, boolean seggregatedBackend, int defaultRegions) {
+        this.name = name;
+        this.ttl = ttl;
+        this.seggregatedBackend = seggregatedBackend;
+        if (defaultRegions == 0) {
+            defaultRegions = 4;
+        }
+        this.defaultRegions = defaultRegions;
+    }
 }

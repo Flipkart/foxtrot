@@ -19,10 +19,13 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.table.TableManager;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
@@ -42,7 +45,9 @@ import java.util.concurrent.ExecutionException;
 @Api(value = "/v1/clusterhealth")
 @Singleton
 @PermitAll
+@Order(20)
 public class ClusterHealthResource {
+
     private final QueryStore queryStore;
 
     @Inject
@@ -50,11 +55,10 @@ public class ClusterHealthResource {
         this.queryStore = queryStore;
     }
 
-
     @GET
     @Timed
     @ApiOperation("getHealth")
-    public ClusterHealthResponse getHealth() throws ExecutionException, InterruptedException {
+    public ClusterHealthResponse getHealth() {
         return queryStore.getClusterHealth();
     }
 
@@ -62,7 +66,7 @@ public class ClusterHealthResource {
     @Timed
     @Path("/nodestats")
     @ApiOperation("getNodeStat")
-    public JsonNode getNodeStat() throws ExecutionException, InterruptedException {
+    public JsonNode getNodeStat() {
         return queryStore.getNodeStats();
     }
 
@@ -71,7 +75,7 @@ public class ClusterHealthResource {
     @Path("indicesstats")
     @ApiOperation("getIndicesStat")
     @SneakyThrows
-    public JsonNode getIndicesStat() throws ExecutionException, InterruptedException {
+    public JsonNode getIndicesStat() {
         return queryStore.getIndicesStats();
     }
 }
