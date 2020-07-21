@@ -150,10 +150,13 @@ function formatValues(bytes, convertTo) {
 }
 
 EventBus.addEventListener('indices_loaded', function (event, data) {
-    if (!data.indicesStatsResponse.hasOwnProperty('indices')) {
-        return;
+    var indices = []
+    if (data != undefined && data.indicesStatsResponse != undefined){
+         indices = data.indicesStatsResponse['indices'];    
+        if (!data.indicesStatsResponse.hasOwnProperty('indices')) {
+            return;
+        }
     }
-    var indices = data.indicesStatsResponse['indices'];
     var indexTable = {}
     var tableNamePrefix =  (esConfig.hasOwnProperty("tableNamePrefix"))
             ? tableNamePrefix = esConfig.tableNamePrefix
@@ -286,7 +289,7 @@ function loadIndexData() {
     indexLoadComplete = false;
     $.ajax({
             type: 'GET',
-            url: '/foxtrot/v1/clusterhealth/indicesstats',
+            url: 'http://foxtrot.traefik.stg.phonepe.com/foxtrot/v1/clusterhealth/indicesstats',
             success: function (data) {
                 hideLoader();
                 if (typeof data._all.primaries.docs != "undefined") {
@@ -377,7 +380,7 @@ $(document).ready(function () {
 
     $.ajax({
         type: 'GET',
-        url: '/foxtrot/v1/util/config',
+        url: 'http://foxtrot.traefik.stg.phonepe.com/foxtrot/v1/util/config',
         success: function (data) {
             esConfig = data['elasticsearch'];
             loadClusterHealth();
