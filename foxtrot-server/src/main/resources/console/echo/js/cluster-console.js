@@ -150,13 +150,11 @@ function formatValues(bytes, convertTo) {
 }
 
 EventBus.addEventListener('indices_loaded', function (event, data) {
-    var indices = []
-    if (data != undefined && data.indicesStatsResponse != undefined){
-         indices = data.indicesStatsResponse['indices'];    
-        if (!data.indicesStatsResponse.hasOwnProperty('indices')) {
-            return;
-        }
+    if (!data.hasOwnProperty('indices')) {
+       return;
     }
+     var indices = data['indices'];
+     
     var indexTable = {}
     var tableNamePrefix =  (esConfig.hasOwnProperty("tableNamePrefix"))
             ? tableNamePrefix = esConfig.tableNamePrefix
@@ -187,7 +185,12 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
         table.days = rawTable.days;
         table.events = rawTable.events;
         table.size = formatValues(rawTable.size, 'GB');
-        table.columnCount = data.tableColumnCount[rawTable.name];
+        if (data.tableColumnCount == undefined){
+            table.columnCount = data[rawTable.name];
+        }
+        else{
+            table.columnCount = data.tableColumnCount[rawTable.name];
+        }
         var calculateSize = rawTable.size/rawTable.events;
         table.avgSize = formatValues(calculateSize, 'KB');;
         tables.push(table);
@@ -289,7 +292,7 @@ function loadIndexData() {
     indexLoadComplete = false;
     $.ajax({
             type: 'GET',
-            url: 'http://foxtrot.traefik.stg.phonepe.com/foxtrot/v1/clusterhealth/indicesstats',
+            url: '/foxtrot/v1/clusterhealth/indicesstats',
             success: function (data) {
                 hideLoader();
                 if (typeof data._all.primaries.docs != "undefined") {
@@ -380,7 +383,7 @@ $(document).ready(function () {
 
     $.ajax({
         type: 'GET',
-        url: 'http://foxtrot.traefik.stg.phonepe.com/foxtrot/v1/util/config',
+        url: '/foxtrot/v1/util/config',
         success: function (data) {
             esConfig = data['elasticsearch'];
             loadClusterHealth();
