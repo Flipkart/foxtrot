@@ -21,8 +21,11 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.Min;
+
 /**
- * @author phaneesh
+ * AWS ECS based cluster configuration.
+ * See: https://github.com/hazelcast/hazelcast-aws#ecsfargate-configuration
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -34,7 +37,32 @@ public class AwsECSDiscoveryConfig extends ClusterDiscoveryConfig {
     private String network;
 
     @JsonProperty
+    private String accessKey;
+
+    @JsonProperty
+    private String secretKey;
+
+    @JsonProperty
+    private String region;
+
+    @JsonProperty
+    private String cluster;
+
+    @JsonProperty
+    private String family;
+
+    @JsonProperty
     private String serviceName;
+
+    @JsonProperty
+    private String hostHeader;
+
+    @JsonProperty
+    @Min(0)
+    private int opTimeoutSeconds;
+
+    @JsonProperty
+    private boolean isExternalClient;
 
     public AwsECSDiscoveryConfig() {
         super(ClusterDiscoveryType.FOXTROT_AWS_ECS);

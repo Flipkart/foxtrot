@@ -26,9 +26,9 @@ cluster:
   name: foxtrot
   discovery:
     type: ${DISCOVERY_TYPE}
-#    disableMulticast: true
-#    members: ["${HOSTNAME}:5701"]
-    network: ${NETWORK}
+    disableMulticast: true
+    members: ["${HOSTNAME}:5701"]
+
 cacheConfig:
   maxIdleSeconds: 15
   timeToLiveSeconds: 15

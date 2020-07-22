@@ -107,7 +107,7 @@ public class HazelcastConnection implements Managed {
                 discoveryConfig.addDiscoveryStrategyConfig(discoveryStrategyConfig);
                 break;
             case FOXTROT_AWS: {
-                AwsClusterDiscoveryConfig awsClusterDiscoveryConfig = (AwsClusterDiscoveryConfig) clusterConfig.getDiscovery();
+                AwsClusterDiscoveryConfig ec2Config = (AwsClusterDiscoveryConfig) clusterConfig.getDiscovery();
                 NetworkConfig hazelcastConfigNetworkConfig = hzConfig.getNetworkConfig();
                 JoinConfig hazelcastConfigNetworkConfigJoin = hazelcastConfigNetworkConfig.getJoin();
                 hazelcastConfigNetworkConfigJoin.getTcpIpConfig()
@@ -115,22 +115,44 @@ public class HazelcastConnection implements Managed {
                 hazelcastConfigNetworkConfigJoin.getMulticastConfig()
                         .setEnabled(false);
                 AwsConfig awsConfig = new AwsConfig();
-/*                awsConfig.setAccessKey(awsClusterDiscoveryConfig.getAccessKey());
-                awsConfig.setConnectionTimeoutSeconds(awsClusterDiscoveryConfig.getConnectionTimeoutSeconds());
-                awsConfig.setHostHeader(awsClusterDiscoveryConfig.getHostHeader());
-                awsConfig.setIamRole(awsClusterDiscoveryConfig.getIamRole());
-                awsConfig.setRegion(awsClusterDiscoveryConfig.getRegion());
-                awsConfig.setSecurityGroupName(awsClusterDiscoveryConfig.getSecurityGroupName());
-                awsConfig.setSecretKey(awsClusterDiscoveryConfig.getSecretKey());
-                awsConfig.setTagKey(awsClusterDiscoveryConfig.getTagKey());
-                awsConfig.setTagValue(awsClusterDiscoveryConfig.getTagValue());*/
+
+                if(!Strings.isNullOrEmpty(ec2Config.getServiceName())) {
+                    awsConfig.setProperty("service-name", ec2Config.getServiceName());
+                }
+                if(!Strings.isNullOrEmpty(ec2Config.getAccessKey())) {
+                    awsConfig.setProperty("access-key", ec2Config.getAccessKey());
+                }
+                if(!Strings.isNullOrEmpty(ec2Config.getSecretKey())) {
+                    awsConfig.setProperty("secret-key", ec2Config.getSecretKey());
+                }
+                if(!Strings.isNullOrEmpty(ec2Config.getIamRole())) {
+                    awsConfig.setProperty("iam-role", ec2Config.getIamRole());
+                }
+                if(!Strings.isNullOrEmpty(ec2Config.getRegion())) {
+                    awsConfig.setProperty("region", ec2Config.getRegion());
+                }
+                if(!Strings.isNullOrEmpty(ec2Config.getHostHeader())) {
+                    awsConfig.setProperty("host-header", ec2Config.getHostHeader());
+                }
+                if(!Strings.isNullOrEmpty(ec2Config.getSecurityGroupName())) {
+                    awsConfig.setProperty("security-group-name", ec2Config.getSecurityGroupName());
+                }
+                if(ec2Config.getOpTimeoutSeconds() > 0) {
+                    awsConfig.setProperty("connection-timeout-seconds",
+                                          Integer.toString(ec2Config.getOpTimeoutSeconds()));
+                    awsConfig.setProperty("read-timeout-seconds",
+                                          Integer.toString(ec2Config.getOpTimeoutSeconds()));
+                }
+                if(ec2Config.isExternalClient()) {
+                    awsConfig.setProperty("use-public-ip", Boolean.TRUE.toString());
+                }
                 hazelcastConfigNetworkConfigJoin.setAwsConfig(awsConfig);
                 hazelcastConfigNetworkConfigJoin.getAwsConfig()
                         .setEnabled(true);
                 break;
             }
             case FOXTROT_AWS_ECS:
-                AwsECSDiscoveryConfig awsECSDiscoveryConfig = (AwsECSDiscoveryConfig) clusterConfig.getDiscovery();
+                AwsECSDiscoveryConfig ecsConfig = (AwsECSDiscoveryConfig) clusterConfig.getDiscovery();
                 NetworkConfig hazelcastConfigNetworkConfig = hzConfig.getNetworkConfig();
 //                JoinConfig hazelcastConfigNetworkConfigJoin = hazelcastConfigNetworkConfig.getJoin();
                 hazelcastConfigNetworkConfig.getJoin()
@@ -139,26 +161,40 @@ public class HazelcastConnection implements Managed {
 
                 hazelcastConfigNetworkConfig.getInterfaces()
                         .setEnabled(true)
-                        .addInterface(awsECSDiscoveryConfig.getNetwork());
+                        .addInterface(ecsConfig.getNetwork());
 
                 AwsConfig awsConfig = new AwsConfig();
                 awsConfig.setEnabled(true);
-                if(!Strings.isNullOrEmpty(awsECSDiscoveryConfig.getServiceName())) {
-                    awsConfig.setProperty("service-name", awsECSDiscoveryConfig.getServiceName());
+                if(!Strings.isNullOrEmpty(ecsConfig.getAccessKey())) {
+                    awsConfig.setProperty("access-key", ecsConfig.getAccessKey());
                 }
-
-/*                awsConfig.setAccessKey(awsECSDiscoveryConfig.getAccessKey());
-                awsConfig.setConnectionTimeoutSeconds(awsECSDiscoveryConfig.getConnectionTimeoutSeconds());
-                awsConfig.setHostHeader(awsECSDiscoveryConfig.getHostHeader());
-                awsConfig.setIamRole(awsECSDiscoveryConfig.getIamRole());
-                awsConfig.setRegion(awsECSDiscoveryConfig.getRegion());
-                awsConfig.setSecurityGroupName(awsECSDiscoveryConfig.getSecurityGroupName());
-                awsConfig.setSecretKey(awsECSDiscoveryConfig.getSecretKey());
-                awsConfig.setTagKey(awsECSDiscoveryConfig.getTagKey());
-                awsConfig.setTagValue(awsECSDiscoveryConfig.getTagValue());
-                hazelcastConfigNetworkConfigJoin.setAwsConfig(awsConfig);
-                hazelcastConfigNetworkConfigJoin.getAwsConfig()
-                        .setEnabled(true);*/
+                if(!Strings.isNullOrEmpty(ecsConfig.getSecretKey())) {
+                    awsConfig.setProperty("secret-key", ecsConfig.getSecretKey());
+                }
+                if(!Strings.isNullOrEmpty(ecsConfig.getRegion())) {
+                    awsConfig.setProperty("region", ecsConfig.getRegion());
+                }
+                if(!Strings.isNullOrEmpty(ecsConfig.getCluster())) {
+                    awsConfig.setProperty("cluster", ecsConfig.getCluster());
+                }
+                if(!Strings.isNullOrEmpty(ecsConfig.getFamily())) {
+                    awsConfig.setProperty("family", ecsConfig.getFamily());
+                }
+                if(!Strings.isNullOrEmpty(ecsConfig.getServiceName())) {
+                    awsConfig.setProperty("service-name", ecsConfig.getServiceName());
+                }
+                if(!Strings.isNullOrEmpty(ecsConfig.getHostHeader())) {
+                    awsConfig.setProperty("host-header", ecsConfig.getHostHeader());
+                }
+                if(ecsConfig.getOpTimeoutSeconds() > 0) {
+                    awsConfig.setProperty("connection-timeout-seconds",
+                                          Integer.toString(ecsConfig.getOpTimeoutSeconds()));
+                    awsConfig.setProperty("read-timeout-seconds",
+                                          Integer.toString(ecsConfig.getOpTimeoutSeconds()));
+                }
+                if(ecsConfig.isExternalClient()) {
+                    awsConfig.setProperty("use-public-ip", Boolean.TRUE.toString());
+                }
                 break;
             case FOXTROT_KUBERNETES:
                 logger.info("Using Kubernetes");

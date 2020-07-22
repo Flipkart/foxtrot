@@ -15,6 +15,7 @@ VOLUME /var/log/foxtrot-server
 ADD config/docker.yml config/docker.yml
 ADD foxtrot-server/target/foxtrot-server*.jar server.jar
 ADD scripts/local_es_setup.sh local_es_setup.sh
+ADD startup.sh startup.sh
 
-CMD sh -c "java -Dfile.encoding=utf-8 -XX:+${GC_ALGO-UseG1GC} -Xms${JAVA_PROCESS_MIN_HEAP-1g} -Xmx${JAVA_PROCESS_MAX_HEAP-1g} ${JAVA_OPTS} -jar server.jar server ${CONFIG-PATH-config/docker.yml}"
+CMD ./startup.sh
 
