@@ -384,14 +384,19 @@ function resetGloblaDateFilter() {
 
 function loadParticularConsole() { // reload page based on selected console
   var selectedConsole = $("#listConsole").val();
-  if(window.location.href.indexOf("fql") > -1 || window.location.href.indexOf("browse") > -1) {
-    window.location.href = "/echo/index.htm?console=" + selectedConsole    
- } else {
-   //window.location.assign("index.htm?console=" + selectedConsole);
-   loadConsolesWithoutRefreshing(selectedConsole)
- }
+if(window.location.href.indexOf("fql") > -1) {
+  window.location.href = "/index.htm?console=" + selectedConsole ;
+  } else if(window.location.href.indexOf("browse") > -1) {
+    window.location.href = "/index.htm?console=" + selectedConsole ;
+  } 
+  else if(window.location.href.indexOf("index") > -1) {
+    loadConsolesWithoutRefreshing(selectedConsole)
+  } 
+  else {
+  //window.location.assign("index.htm?console=" + selectedConsole);
+  window.location.href = "/index.htm?console=" + selectedConsole ;
+  }
 }
-
 function getWhereOption(fieldType) {
   var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="in">In</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option><option value="exists">Exist</option><option value="not_in">Not In</option>';
 
