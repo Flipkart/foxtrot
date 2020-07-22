@@ -170,7 +170,7 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>3.11.7</version>
+            <version>${hazelcast.version}</version>
         </dependency>
 
         <dependency>
@@ -182,7 +182,7 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>3.11.7</version>
+            <version>${hazelcast.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

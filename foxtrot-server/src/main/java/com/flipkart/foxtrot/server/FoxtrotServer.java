@@ -19,10 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.impl.KubernetesClusterDiscoveryConfig;
-import com.flipkart.foxtrot.core.querystore.impl.MarathonClusterDiscoveryConfig;
-import com.flipkart.foxtrot.core.querystore.impl.SimpleClusterDiscoveryConfig;
+import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.di.FoxtrotModule;
@@ -125,6 +122,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         objectMapper.registerSubtypes(new NamedType(SimpleClusterDiscoveryConfig.class, "foxtrot_simple"));
         objectMapper.registerSubtypes(new NamedType(MarathonClusterDiscoveryConfig.class, "foxtrot_marathon"));
         objectMapper.registerSubtypes(new NamedType(KubernetesClusterDiscoveryConfig.class, "foxtrot_kubernetes"));
+        objectMapper.registerSubtypes(new NamedType(AwsECSDiscoveryConfig.class, "foxtrot_aws_ecs"));
     }
 
 }

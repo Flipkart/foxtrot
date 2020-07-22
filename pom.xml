@@ -68,6 +68,7 @@
         <sonar.jacoco.reportPaths>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPaths>
         <sonar.language>java</sonar.language>
         <sonar.exclusions>**com/flipkart/foxtrot/common/**/*</sonar.exclusions>
+        <hazelcast.version>4.0.2</hazelcast.version>
     </properties>
 
     <modules>

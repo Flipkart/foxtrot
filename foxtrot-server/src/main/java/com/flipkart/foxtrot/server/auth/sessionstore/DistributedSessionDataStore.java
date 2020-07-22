@@ -5,7 +5,7 @@ import com.google.common.base.Strings;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.NearCacheConfig;
-import com.hazelcast.core.IMap;
+import com.hazelcast.map.IMap;
 import io.dropwizard.lifecycle.Managed;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 

@@ -3,7 +3,7 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.cluster.ClusterMember;
-import com.hazelcast.core.Member;
+import com.hazelcast.cluster.Member;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
