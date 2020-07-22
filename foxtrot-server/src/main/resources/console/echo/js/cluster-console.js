@@ -150,10 +150,11 @@ function formatValues(bytes, convertTo) {
 }
 
 EventBus.addEventListener('indices_loaded', function (event, data) {
-    if (!data.indicesStatsResponse.hasOwnProperty('indices')) {
-        return;
+    if (!data.hasOwnProperty('indices')) {
+       return;
     }
-    var indices = data.indicesStatsResponse['indices'];
+     var indices = data['indices'];
+     
     var indexTable = {}
     var tableNamePrefix =  (esConfig.hasOwnProperty("tableNamePrefix"))
             ? tableNamePrefix = esConfig.tableNamePrefix
@@ -184,7 +185,12 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
         table.days = rawTable.days;
         table.events = rawTable.events;
         table.size = formatValues(rawTable.size, 'GB');
-        table.columnCount = data.tableColumnCount[rawTable.name];
+        if (data.tableColumnCount == undefined){
+            table.columnCount = data[rawTable.name];
+        }
+        else{
+            table.columnCount = data.tableColumnCount[rawTable.name];
+        }
         var calculateSize = rawTable.size/rawTable.events;
         table.avgSize = formatValues(calculateSize, 'KB');;
         tables.push(table);
