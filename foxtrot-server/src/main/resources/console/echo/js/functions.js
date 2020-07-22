@@ -331,7 +331,6 @@ function appendVersionConsoleList(array) {
 function loadConsolesWithoutRefreshing(selectedConsole) {
 
   stopRefreshInterval();
-   console.log("loadConsolesWithoutRefreshing.......") 
   getConsoleById(selectedConsole);
   //refereshTiles();
   isNewConsole = false;
