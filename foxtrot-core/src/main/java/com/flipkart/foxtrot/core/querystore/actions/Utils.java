@@ -43,14 +43,14 @@ public class Utils {
     private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
     private static final double DEFAULT_COMPRESSION = 100.0;
     private static final int PRECISION_THRESHOLD = 500;
-    private static final String COUNT = "count";
-    private static final String AVG = "avg";
-    private static final String SUM = "sum";
-    private static final String MIN = "min";
-    private static final String MAX = "max";
-    private static final String SUM_OF_SQUARES = "sum_of_squares";
-    private static final String VARIANCE = "variance";
-    private static final String STD_DEVIATION = "std_deviation";
+    public static final String COUNT = "count";
+    public static final String AVG = "avg";
+    public static final String SUM = "sum";
+    public static final String MIN = "min";
+    public static final String MAX = "max";
+    public static final String SUM_OF_SQUARES = "sum_of_squares";
+    public static final String VARIANCE = "variance";
+    public static final String STD_DEVIATION = "std_deviation";
     private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES
             = EnumSet.of(FieldType.INTEGER, FieldType.LONG, FieldType.FLOAT, FieldType.DOUBLE);
 
