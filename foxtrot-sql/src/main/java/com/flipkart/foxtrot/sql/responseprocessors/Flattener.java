@@ -18,9 +18,11 @@ import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
+import com.flipkart.foxtrot.common.stats.Stat.StatVisitor;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
+import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FieldHeader;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.flipkart.foxtrot.sql.responseprocessors.model.MetaData;
@@ -33,6 +35,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,6 +61,8 @@ public class Flattener implements ResponseVisitor<FlatRepresentation> {
         Map<String, MetaData> dataFields = generateFieldMappings(null,
                 objectMapper.valueToTree(groupResponse.getResult()), separator);
         GroupRequest groupRequest = (GroupRequest) request;
+
+        String statsHeader = getStatsHeader(groupRequest);
         List<Map<String, Object>> rows = Lists.newArrayList();
         for (Map.Entry<String, MetaData> groupData : dataFields.entrySet()) {
             String[] values = groupData.getKey()
@@ -73,16 +78,16 @@ public class Flattener implements ResponseVisitor<FlatRepresentation> {
                 }
                 fieldNames.put(fieldName, lengthMax(fieldNames.get(fieldName), values[i]));
             }
-            row.put(COUNT, groupData.getValue()
+            row.put(statsHeader, groupData.getValue()
                     .getData());
             rows.add(row);
         }
-        fieldNames.put(COUNT, 10);
+        fieldNames.put(statsHeader, 10);
         List<FieldHeader> headers = Lists.newArrayList();
         for (String fieldName : groupRequest.getNesting()) {
             headers.add(new FieldHeader(fieldName, fieldNames.get(fieldName)));
         }
-        headers.add(new FieldHeader(COUNT, 10));
+        headers.add(new FieldHeader(statsHeader, 10));
         return new FlatRepresentation("group", headers, rows);
     }
 
@@ -288,4 +293,53 @@ public class Flattener implements ResponseVisitor<FlatRepresentation> {
         return headers;
     }
 
+    private String getStatsHeader(GroupRequest groupRequest) {
+        String statsHeader = Utils.COUNT;
+        if(Objects.nonNull(groupRequest.getStats()) && groupRequest.getStats().stream().findFirst().isPresent()){
+            statsHeader = groupRequest.getStats().stream()
+                    .findFirst()
+                    .get().visit(new StatVisitor<String>() {
+                        @Override
+                        public String visitCount() {
+                            return Utils.COUNT;
+                        }
+
+                        @Override
+                        public String visitMin() {
+                            return Utils.MIN;
+                        }
+
+                        @Override
+                        public String visitMax() {
+                            return Utils.MAX;
+                        }
+
+                        @Override
+                        public String visitAvg() {
+                            return Utils.AVG;
+                        }
+
+                        @Override
+                        public String visitSum() {
+                            return Utils.SUM;
+                        }
+
+                        @Override
+                        public String visitSumOfSquares() {
+                            return Utils.SUM_OF_SQUARES;
+                        }
+
+                        @Override
+                        public String visitVariance() {
+                            return Utils.VARIANCE;
+                        }
+
+                        @Override
+                        public String visitStdDeviation() {
+                            return Utils.STD_DEVIATION;
+                        }
+                    });
+        }
+        return statsHeader;
+    }
 }
