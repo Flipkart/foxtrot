@@ -11,8 +11,17 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.query.general.*;
-import com.flipkart.foxtrot.common.query.numeric.*;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.general.ExistsFilter;
+import com.flipkart.foxtrot.common.query.general.InFilter;
+import com.flipkart.foxtrot.common.query.general.MissingFilter;
+import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
+import com.flipkart.foxtrot.common.query.general.NotInFilter;
+import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.stats.AnalyticsRequestFlags;
 import com.flipkart.foxtrot.common.stats.Stat;
@@ -32,22 +41,43 @@ import com.flipkart.foxtrot.sql.util.QueryUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.dropwizard.util.Duration;
+import java.io.StringReader;
+import java.util.List;
+import java.util.Set;
 import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.expression.*;
+import net.sf.jsqlparser.expression.DateValue;
+import net.sf.jsqlparser.expression.DoubleValue;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.TimeValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.relational.*;
+import net.sf.jsqlparser.expression.operators.relational.Between;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
+import net.sf.jsqlparser.expression.operators.relational.ItemsList;
+import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
+import net.sf.jsqlparser.expression.operators.relational.MinorThan;
+import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.select.OrderByElement;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItem;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.StringReader;
-import java.util.List;
-import java.util.Set;
 
 public class QueryTranslator extends SqlElementVisitor {
     private static final Logger logger = LoggerFactory.getLogger(QueryTranslator.class.getSimpleName());
@@ -84,14 +114,14 @@ public class QueryTranslator extends SqlElementVisitor {
         plainSelect.getFromItem()
                 .accept(this); //Populate table name
         List<Expression> groupByItems = plainSelect.getGroupByColumnReferences();
-        if(null != groupByItems) {
-        for(Expression groupByItem : CollectionUtils.nullSafeList(groupByItems)) {
-            queryType = FqlQueryType.GROUP;
-            if(groupByItem instanceof Column) {
-                Column column = (Column)groupByItem;
-                groupBycolumnsList.add(column.getFullyQualifiedName());
+        if (null != groupByItems) {
+            for (Expression groupByItem : CollectionUtils.nullSafeList(groupByItems)) {
+                queryType = FqlQueryType.GROUP;
+                if (groupByItem instanceof Column) {
+                    Column column = (Column) groupByItem;
+                    groupBycolumnsList.add(column.getFullyQualifiedName());
+                }
             }
-        }
         }
         if(FqlQueryType.SELECT == queryType) {
             List<OrderByElement> orderByElements = plainSelect.getOrderByElements();
@@ -320,12 +350,12 @@ public class QueryTranslator extends SqlElementVisitor {
             if(countRequest.isDistinct()) {
                 group.setUniqueCountOn(countRequest.getField());
             } else {
-                group.setStats(Sets.newHashSet(Stat.COUNT));
+                group.setAggregationType(Stat.COUNT);
                 group.setAggregationField(countRequest.getField());
             }
         } else if (calledAction instanceof StatsRequest){
             StatsRequest statsRequest = (StatsRequest) this.calledAction;
-            group.setStats(statsRequest.getStats());
+            group.setAggregationType(statsRequest.getStats().stream().findFirst().orElse(Stat.COUNT));
             group.setAggregationField(statsRequest.getField());
         }
     }

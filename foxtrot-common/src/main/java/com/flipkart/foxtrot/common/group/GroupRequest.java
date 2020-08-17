@@ -48,7 +48,7 @@ public class GroupRequest extends ActionRequest {
 
     private String aggregationField;
 
-    private Set<Stat> stats;
+    private Stat aggregationType;
 
     @NotNull
     @NotEmpty
@@ -61,13 +61,13 @@ public class GroupRequest extends ActionRequest {
     }
 
     public GroupRequest(List<Filter> filters, String table, String uniqueCountOn,
-                        String aggregationField, Set<Stat> stats,
+                        String aggregationField, Stat aggregationType,
                         List<String> nesting, CountPrecision precision) {
         super(Opcodes.GROUP, filters);
         this.table = table;
         this.uniqueCountOn = uniqueCountOn;
         this.aggregationField = aggregationField;
-        this.stats = stats;
+        this.aggregationType = aggregationType;
         this.nesting = nesting;
         this.precision = precision;
     }
@@ -80,7 +80,7 @@ public class GroupRequest extends ActionRequest {
     public String toString() {
         return new ToStringBuilder(this).appendSuper(super.toString())
                 .append("table", table)
-                .append("stats", stats)
+                .append("stats", aggregationType)
                 .append("uniqueCountOn", uniqueCountOn)
                 .append("aggregationField", aggregationField)
                 .append("nesting", nesting)

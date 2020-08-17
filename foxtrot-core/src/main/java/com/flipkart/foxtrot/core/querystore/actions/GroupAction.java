@@ -67,6 +67,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.flipkart.foxtrot.core.querystore.actions.Utils.statsString;
 import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
@@ -118,10 +119,8 @@ public class GroupAction extends Action<GroupRequest> {
                     .hashCode();
         }
 
-        if(!CollectionUtils.isNullOrEmpty(query.getStats())){
-            for(Stat stat : query.getStats()){
-                filterHashKey += 31 * stat.hashCode();
-            }
+        if(null != query.getAggregationType()){
+                filterHashKey += 31 * query.getAggregationType().hashCode();
         }
 
         for (int i = 0; i < query.getNesting()
@@ -761,7 +760,7 @@ public class GroupAction extends Action<GroupRequest> {
         final AbstractAggregationBuilder groupAggStats;
         if (isNumericField) {
             groupAggStats = Utils.buildStatsAggregation(groupRequest.getAggregationField(),
-                                                        groupRequest.getStats());
+                                                        Collections.singleton(groupRequest.getAggregationType()));
         } else {
             groupAggStats = buildCardinalityAggregation(groupRequest.getAggregationField(), groupRequest);
         }
@@ -793,7 +792,7 @@ public class GroupAction extends Action<GroupRequest> {
                 else if (!Strings.isNullOrEmpty(getParameter().getAggregationField())) {
                     String metricKey = Utils.getExtendedStatsAggregationKey(getParameter().getAggregationField());
                     levelCount.put(String.valueOf(bucket.getKey()), Utils.toStats(
-                            bucket.getAggregations().getAsMap().get(metricKey)));
+                            bucket.getAggregations().get(metricKey)).get(statsString(getParameter().getAggregationType())));
                 }
                 else {
                     levelCount.put(String.valueOf(bucket.getKey()), bucket.getDocCount());

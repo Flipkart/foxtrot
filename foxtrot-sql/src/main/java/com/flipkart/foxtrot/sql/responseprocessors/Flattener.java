@@ -13,6 +13,7 @@ import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
 import com.flipkart.foxtrot.common.query.QueryResponse;
+import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.stats.Stat.StatVisitor;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
@@ -29,6 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.flipkart.foxtrot.common.Opcodes.COUNT;
+import static com.flipkart.foxtrot.core.querystore.actions.Utils.statsString;
 import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.generateFieldMappings;
 import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genericParse;
 
@@ -84,53 +86,12 @@ public class Flattener implements ResponseVisitor {
 
     private String getStatsHeader(GroupRequest groupRequest) {
         String statsHeader = Utils.COUNT;
-        if(Objects.nonNull(groupRequest.getStats()) && groupRequest.getStats().stream().findFirst().isPresent()){
-            statsHeader = groupRequest.getStats().stream()
-                    .findFirst()
-                    .get().visit(new StatVisitor<String>() {
-                            @Override
-                            public String visitCount() {
-                                return Utils.COUNT;
-                            }
-
-                            @Override
-                            public String visitMin() {
-                                return Utils.MIN;
-                            }
-
-                            @Override
-                            public String visitMax() {
-                                return Utils.MAX;
-                            }
-
-                            @Override
-                            public String visitAvg() {
-                                return Utils.AVG;
-                            }
-
-                            @Override
-                            public String visitSum() {
-                                return Utils.SUM;
-                            }
-
-                            @Override
-                            public String visitSumOfSquares() {
-                                return Utils.SUM_OF_SQUARES;
-                            }
-
-                            @Override
-                            public String visitVariance() {
-                                return Utils.VARIANCE;
-                            }
-
-                            @Override
-                            public String visitStdDeviation() {
-                                return Utils.STD_DEVIATION;
-                            }
-                        });
+        if(Objects.nonNull(groupRequest.getAggregationType())){
+            statsHeader = statsString(groupRequest.getAggregationType());
         }
         return statsHeader;
     }
+
 
     @Override
     public void visit(HistogramResponse histogramResponse) {

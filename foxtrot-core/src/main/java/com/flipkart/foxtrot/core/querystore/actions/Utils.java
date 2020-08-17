@@ -7,6 +7,7 @@ import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.Stat;
+import com.flipkart.foxtrot.common.stats.Stat.StatVisitor;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -353,4 +354,48 @@ public class Utils {
         return null != fieldMetadata && NUMERIC_FIELD_TYPES.contains(fieldMetadata.getType());
     }
 
+    public static String statsString(Stat aggregationType) {
+        return aggregationType
+                .visit(new StatVisitor<String>() {
+                    @Override
+                    public String visitCount() {
+                        return Utils.COUNT;
+                    }
+
+                    @Override
+                    public String visitMin() {
+                        return Utils.MIN;
+                    }
+
+                    @Override
+                    public String visitMax() {
+                        return Utils.MAX;
+                    }
+
+                    @Override
+                    public String visitAvg() {
+                        return Utils.AVG;
+                    }
+
+                    @Override
+                    public String visitSum() {
+                        return Utils.SUM;
+                    }
+
+                    @Override
+                    public String visitSumOfSquares() {
+                        return Utils.SUM_OF_SQUARES;
+                    }
+
+                    @Override
+                    public String visitVariance() {
+                        return Utils.VARIANCE;
+                    }
+
+                    @Override
+                    public String visitStdDeviation() {
+                        return Utils.STD_DEVIATION;
+                    }
+                });
+    }
 }
