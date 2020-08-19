@@ -4,15 +4,18 @@ var headerList = [];
 var rowList = [];
 var selectedList = [];
 var fetchedData = [];
+var AutoCallApiStartIndex = 20;
+
 
 function loadConsole() { // load console list api
     $.when(getConsole()).done(function (a1) {
         appendConsoleList(a1);
+       triggerAPI(); 
     });
 }
 
 if(isLoggedIn()) {
-    loadConsole();  
+    loadConsole();     
 }  
 
 function renderTable(dataRaw) {
@@ -223,12 +226,24 @@ function generateAutoSugest(obj) {
         $.each(obj, function (key, value) {
             list += "<li class='list'><label>" + value.query + "</label></li>";
         })
+        if (obj.length % 20 === 0 && obj.length >= AutoCallApiStartIndex) {
+            // AutoCallApiStartIndex += 20;
+            list += "<li id='more'><label>more...</label></li>";
+          }
+            // list += "<li id='more'><label>more...</label></li>";
+        
         $("#auto-suggest").append(list);
         $("#auto-suggest").show();
     } else {
         $("#auto-suggest").hide();
     }
 }
+
+// function moreAutoSuggest() {
+    $('#auto-suggest').on('click', '#more', function() {
+        AutoCallApiStartIndex += 20;
+        triggerAPI();
+      });
 
 $("#auto-suggest").on("click", ".list", function () {
     $(".fql-query").val($(this).text())
@@ -249,32 +264,42 @@ function triggerAPI() {
         var data = {
             "title": value,
         };
-        $.ajax({
-            method: 'POST',
-            url: apiUrl + "/v1/fql/get",
-            contentType: 'application/json',
-            data: JSON.stringify(data),
-            success: function (response) {
-                if (response) {
-                    generateAutoSugest(response);
-                } else {
-                    $("#auto-suggest").hide();
-                    //showErrorAlert('Oops', "No response found");
-                }
-            },
-            error: function (xhr, textStatus, error) {
+    }
+    
+    else{
+        var data = {
+            "title": "",
+            from: 0,
+            size: AutoCallApiStartIndex,
+        };
+    }
+
+    $.ajax({
+        method: 'POST',
+        url: apiUrl + "/v1/fql/get",
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function (response) {
+            if (response) {
+                console.log("AutoCallApiStartIndex",AutoCallApiStartIndex);
+                generateAutoSugest(response);
+            } else {
                 $("#auto-suggest").hide();
-                if (xhr.hasOwnProperty("responseText")) {
-                    var error = JSON.parse(xhr["responseText"]);
-                    if (error.hasOwnProperty('code')) {
-                        showErrorAlert('Oops', error['code']);
-                    } else {
-                        showErrorAlert('Oops', "Something went wrong");
-                    }
+                //showErrorAlert('Oops', "No response found");
+            }
+        },
+        error: function (xhr, textStatus, error) {
+            $("#auto-suggest").hide();
+            if (xhr.hasOwnProperty("responseText")) {
+                var error = JSON.parse(xhr["responseText"]);
+                if (error.hasOwnProperty('code')) {
+                    showErrorAlert('Oops', error['code']);
+                } else {
+                    showErrorAlert('Oops', "Something went wrong");
                 }
             }
-        });
-    }
+        }
+    });
 }
 
 /**
@@ -291,6 +316,8 @@ $input.on('keyup', function () {
     typingTimer = setTimeout(doneTyping, doneTypingInterval);
 });
 
+
+
 //on keydown, clear the countdown 
 $input.on('keydown', function () {
     clearTimeout(typingTimer);
@@ -298,8 +325,33 @@ $input.on('keydown', function () {
 
 //user is "finished typing," do something
 function doneTyping() {
+    AutoCallApiStartIndex = 20;
     triggerAPI();
 }
+
+//on blur, start the countdown
+$input.on('blur', function () {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
+});
+
+
+//on focus, start the countdown
+$input.on('focus', function () {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
+});
+//on dblclick, start the countdown
+$input.on('dblclick', function () {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
+});
+
+//on click, start the countdown
+$input.on('click', function () {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
+});
 
 // hide auto suggest if user clicks anywhere on screen except list
 $(document).on('click', function(e) {
