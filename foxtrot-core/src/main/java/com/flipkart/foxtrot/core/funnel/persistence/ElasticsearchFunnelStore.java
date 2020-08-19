@@ -8,7 +8,6 @@ import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.DELETE
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.EVENT_ATTRIBUTES;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FIELD_VS_VALUES;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FUNNEL_STATUS;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.ID;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.DOT;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.TYPE;
 
@@ -195,7 +194,6 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     @Override
     public List<Funnel> getAll(boolean deleted) {
 
-        int maxSize = 1000;
         List<Funnel> funnels = new ArrayList<>();
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder().fetchSource(true)
@@ -270,8 +268,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         boolQueryBuilder.must(statusQueryBuilder);
         boolQueryBuilder.must(deletedQueryBuilder);
         try {
-            val searchRequest = new SearchRequest(funnelConfiguration.getFunnelIndex())
-                    .types(TYPE)
+            val searchRequest = new SearchRequest(funnelConfiguration.getFunnelIndex()).types(TYPE)
                     .source(new SearchSourceBuilder().query(boolQueryBuilder)
                             .fetchSource(true)
                             .sort(SortBuilders.fieldSort(APPROVAL_DATE)
