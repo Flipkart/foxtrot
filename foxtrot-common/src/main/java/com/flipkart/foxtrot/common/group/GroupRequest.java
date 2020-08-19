@@ -80,7 +80,7 @@ public class GroupRequest extends ActionRequest {
     public String toString() {
         return new ToStringBuilder(this).appendSuper(super.toString())
                 .append("table", table)
-                .append("stats", aggregationType)
+                .append("aggregationType", aggregationType)
                 .append("uniqueCountOn", uniqueCountOn)
                 .append("aggregationField", aggregationField)
                 .append("nesting", nesting)
