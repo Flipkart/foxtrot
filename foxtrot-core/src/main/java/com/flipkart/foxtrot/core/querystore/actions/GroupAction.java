@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static com.flipkart.foxtrot.core.querystore.actions.Utils.statsString;
 import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 import com.flipkart.foxtrot.common.ActionResponse;
@@ -23,7 +24,6 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
-import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -102,10 +103,9 @@ public class GroupAction extends Action<GroupRequest> {
                     .hashCode();
         }
 
-        if (!CollectionUtils.isNullOrEmpty(query.getStats())) {
-            for (Stat stat : query.getStats()) {
-                filterHashKey += 31 * stat.hashCode();
-            }
+        if (Objects.nonNull(query.getAggregationType())) {
+            filterHashKey += 31 * query.getAggregationType()
+                    .hashCode();
         }
 
         for (int i = 0; i < query.getNesting()
@@ -169,8 +169,8 @@ public class GroupAction extends Action<GroupRequest> {
     @Override
     public SearchRequest getRequestBuilder(GroupRequest parameter,
                                            List<Filter> extraFilters) {
-        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                .indicesOptions(Utils.indicesOptions())
+        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
+                Utils.indicesOptions())
                 .source(new SearchSourceBuilder().size(QUERY_SIZE)
                         .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
                         .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
@@ -212,7 +212,8 @@ public class GroupAction extends Action<GroupRequest> {
                 groupRequest.getAggregationField());
         final AbstractAggregationBuilder groupAggStats;
         if (isNumericField) {
-            groupAggStats = Utils.buildStatsAggregation(groupRequest.getAggregationField(), groupRequest.getStats());
+            groupAggStats = Utils.buildStatsAggregation(groupRequest.getAggregationField(),
+                    Collections.singleton(groupRequest.getAggregationType()));
         } else {
             groupAggStats = buildCardinalityAggregation(groupRequest.getAggregationField(), groupRequest);
         }
@@ -242,9 +243,8 @@ public class GroupAction extends Action<GroupRequest> {
                     levelCount.put(String.valueOf(bucket.getKey()), cardinality.getValue());
                 } else if (!Strings.isNullOrEmpty(getParameter().getAggregationField())) {
                     String metricKey = Utils.getExtendedStatsAggregationKey(getParameter().getAggregationField());
-                    levelCount.put(String.valueOf(bucket.getKey()), Utils.toStats(bucket.getAggregations()
-                            .getAsMap()
-                            .get(metricKey)));
+                    levelCount.put(String.valueOf(bucket.getKey()), Utils.toStats(
+                            bucket.getAggregations().get(metricKey)).get(statsString(getParameter().getAggregationType())));
                 } else {
                     levelCount.put(String.valueOf(bucket.getKey()), bucket.getDocCount());
                 }

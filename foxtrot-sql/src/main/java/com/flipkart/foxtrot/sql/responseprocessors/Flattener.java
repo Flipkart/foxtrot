@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.sql.responseprocessors;
 
 import static com.flipkart.foxtrot.common.Opcodes.COUNT;
+import static com.flipkart.foxtrot.core.querystore.actions.Utils.statsString;
 import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.generateFieldMappings;
 import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genericParse;
 
@@ -295,50 +296,8 @@ public class Flattener implements ResponseVisitor<FlatRepresentation> {
 
     private String getStatsHeader(GroupRequest groupRequest) {
         String statsHeader = Utils.COUNT;
-        if(Objects.nonNull(groupRequest.getStats()) && groupRequest.getStats().stream().findFirst().isPresent()){
-            statsHeader = groupRequest.getStats().stream()
-                    .findFirst()
-                    .get().visit(new StatVisitor<String>() {
-                        @Override
-                        public String visitCount() {
-                            return Utils.COUNT;
-                        }
-
-                        @Override
-                        public String visitMin() {
-                            return Utils.MIN;
-                        }
-
-                        @Override
-                        public String visitMax() {
-                            return Utils.MAX;
-                        }
-
-                        @Override
-                        public String visitAvg() {
-                            return Utils.AVG;
-                        }
-
-                        @Override
-                        public String visitSum() {
-                            return Utils.SUM;
-                        }
-
-                        @Override
-                        public String visitSumOfSquares() {
-                            return Utils.SUM_OF_SQUARES;
-                        }
-
-                        @Override
-                        public String visitVariance() {
-                            return Utils.VARIANCE;
-                        }
-
-                        @Override
-                        public String visitStdDeviation() {
-                            return Utils.STD_DEVIATION;
-                        }
-                    });
+        if(Objects.nonNull(groupRequest.getAggregationType())){
+            statsHeader = statsString(groupRequest.getAggregationType());
         }
         return statsHeader;
     }

@@ -363,11 +363,11 @@ public class QueryTranslator extends SqlElementVisitor {
                 group.setUniqueCountOn(countRequest.getField());
             } else {
                 group.setAggregationField(countRequest.getField());
-                group.setStats(Sets.newHashSet(Stat.COUNT));
+                group.setAggregationType(Stat.COUNT);
             }
         } else if (calledAction instanceof StatsRequest) {
             StatsRequest statsRequest = (StatsRequest) this.calledAction;
-            group.setStats(statsRequest.getStats());
+            group.setAggregationType(statsRequest.getStats().stream().findFirst().orElse(Stat.COUNT));
             group.setAggregationField(statsRequest.getField());
         }
     }
