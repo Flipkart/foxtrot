@@ -93,14 +93,15 @@ public class CardinalityValidatorImpl implements CardinalityValidator {
                 log.error("Error running estimation", e);
             }
 
+            final String content = action.requestString();
+
             if (probability > PROBABILITY_CUT_OFF) {
-                final String content = action.requestString();
                 log.info("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
                         probability, content);
                 throw FoxtrotExceptions.createCardinalityOverflow(actionRequest, content, groupingColumns.get(0),
                         probability);
             } else {
-                log.info("Allowing group by with probability {} for query: {}", probability, action);
+                log.info("Allowing group by with probability {} for query: {}", probability, content);
             }
         }
     }
