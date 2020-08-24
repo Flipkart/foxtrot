@@ -1,3 +1,5 @@
+var apiUrl = getHostUrl();
+
 $.tablesorter.addParser({
     // set a unique id
     id: 'sizesorter',
@@ -151,7 +153,7 @@ function formatValues(bytes, convertTo) {
 
 EventBus.addEventListener('indices_loaded', function (event, data) {
     if (!data.hasOwnProperty('indices')) {
-       return;
+        return; 
     }
      var indices = data['indices'];
      
@@ -189,7 +191,14 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
             table.columnCount = data[rawTable.name];
         }
         else{
-            table.columnCount = data.tableColumnCount[rawTable.name];
+            // table.columnCount = data.tableColumnCount[rawTable.name];
+            if (data.tableColumnCount == undefined){
+                table.columnCount = data[rawTable.name];
+            }
+            else{
+                table.columnCount = data.tableColumnCount[rawTable.name];
+            }
+    
         }
         var calculateSize = rawTable.size/rawTable.events;
         table.avgSize = formatValues(calculateSize, 'KB');;
@@ -254,7 +263,7 @@ function loadData() {
     dataLoadComplete = false;
     $.ajax({
             type: 'GET',
-            url: '/foxtrot/v1/clusterhealth/nodestats',
+            url: apiUrl+'/v1/clusterhealth/nodestats',
             success: function (data) {
                 hideLoader();
                 EventBus.dispatch('hosts_loaded', this, data);
@@ -291,8 +300,9 @@ function loadIndexData() {
 
     indexLoadComplete = false;
     $.ajax({
+       
             type: 'GET',
-            url: '/foxtrot/v1/clusterhealth/indicesstats',
+            url: apiUrl+'/v1/clusterhealth/indicesstats',
             success: function (data) {
                 hideLoader();
                 if (typeof data._all.primaries.docs != "undefined") {
@@ -343,7 +353,7 @@ function loadClusterHealth() {
     clusterLoadComplete = false;
     $.ajax({
             type: 'GET',
-            url: '/foxtrot/v1/clusterhealth',
+            url: apiUrl+'/v1/clusterhealth',
             success: function (data) {
                 cluster.name = data.clusterName;
                 cluster.status = data.status;
@@ -383,7 +393,7 @@ $(document).ready(function () {
 
     $.ajax({
         type: 'GET',
-        url: '/foxtrot/v1/util/config',
+        url: apiUrl+'/v1/util/config',
         success: function (data) {
             esConfig = data['elasticsearch'];
             loadClusterHealth();
