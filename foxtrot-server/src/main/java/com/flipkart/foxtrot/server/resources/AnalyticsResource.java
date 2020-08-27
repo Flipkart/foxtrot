@@ -25,12 +25,10 @@ import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.config.QueryConfig;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.server.auth.UserPrincipal;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.responseprocessors.Flattener;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
-import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.io.OutputStreamWriter;
@@ -78,8 +76,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("runSync")
     @RolesAllowed(FoxtrotRole.Value.QUERY)
-    public ActionResponse runSync(@Auth final UserPrincipal userPrincipal,
-                                  @Valid final ActionRequest request) {
+    public ActionResponse runSync(@Valid final ActionRequest request) {
         preprocess(request);
         return executorFactory.getExecutor(request)
                 .execute(request);
@@ -90,8 +87,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("runSyncAsync")
     @RolesAllowed(FoxtrotRole.Value.QUERY)
-    public AsyncDataToken runSyncAsync(@Auth final UserPrincipal userPrincipal,
-                                       @Valid final ActionRequest request) {
+    public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) {
         return executorFactory.getExecutor(request)
                 .executeAsync(request);
     }

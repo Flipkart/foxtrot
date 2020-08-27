@@ -34,8 +34,6 @@ import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
-import com.flipkart.foxtrot.server.auth.AuthConfig;
-import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
@@ -89,9 +87,6 @@ public class FoxtrotServerConfiguration extends Configuration {
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
 
     @Valid
-    private SessionCleanupConfig sessionCleanupConfig;
-
-    @Valid
     private ConsoleHistoryConfig consoleHistoryConfig;
     @Valid
     private EmailConfig emailConfig;
@@ -139,10 +134,6 @@ public class FoxtrotServerConfiguration extends Configuration {
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
 
     private ClusterRerouteConfig clusterRerouteConfig;
-
-    @Valid
-    @NotNull
-    private AuthConfig auth;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
