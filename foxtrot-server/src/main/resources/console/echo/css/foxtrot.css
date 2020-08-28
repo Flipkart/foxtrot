@@ -2749,6 +2749,26 @@ div.tab button:first-child {
   color: #7d909a;
 }
 
+#fql-form textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  
+}
+
+#fql-form textarea:hover {
+  border: 1px solid #32a6f9;
+  color: #000 !important;
+}
+
+#fql-form textarea {
+  background: none !important;
+  /* border: none !important; */
+  border: solid 1px #c0cbd1 !important;
+  /* color: #dbdbdb !important; */
+  color: #7d909a !important;
+}
+
+
 #fql-form input:focus {
   outline: none;
   box-shadow: none;
