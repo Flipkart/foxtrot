@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
-import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.config.QueryConfig;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutorFactory;
@@ -33,7 +32,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -56,7 +54,6 @@ import lombok.extern.slf4j.Slf4j;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/analytics")
 @Singleton
-@RolesAllowed(FoxtrotRole.Value.QUERY)
 public class AnalyticsResource {
 
     private final QueryExecutorFactory executorFactory;
@@ -75,7 +72,6 @@ public class AnalyticsResource {
     @POST
     @Timed
     @ApiOperation("runSync")
-    @RolesAllowed(FoxtrotRole.Value.QUERY)
     public ActionResponse runSync(@Valid final ActionRequest request) {
         preprocess(request);
         return executorFactory.getExecutor(request)
@@ -86,7 +82,6 @@ public class AnalyticsResource {
     @Path("/async")
     @Timed
     @ApiOperation("runSyncAsync")
-    @RolesAllowed(FoxtrotRole.Value.QUERY)
     public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) {
         return executorFactory.getExecutor(request)
                 .executeAsync(request);

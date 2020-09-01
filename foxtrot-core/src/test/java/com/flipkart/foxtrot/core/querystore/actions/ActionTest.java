@@ -17,8 +17,6 @@ import com.flipkart.foxtrot.core.cardinality.CardinalityValidatorImpl;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
-import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
-import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.queryexecutor.QueryExecutor;
 import com.flipkart.foxtrot.core.queryexecutor.SimpleQueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;

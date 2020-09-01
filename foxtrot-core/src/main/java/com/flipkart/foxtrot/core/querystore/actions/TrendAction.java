@@ -36,7 +36,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import io.dropwizard.util.Duration;
 import java.io.IOException;
 import java.util.ArrayList;

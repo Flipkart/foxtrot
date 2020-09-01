@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.config.QueryConfig;
 import com.flipkart.foxtrot.gandalf.access.AccessService;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
@@ -20,7 +19,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.io.OutputStreamWriter;
 import java.util.List;
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -36,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 @Path("/v1/fql")
 @Api(value = "/v1/fql", description = "FQL API")
 @Singleton
-@RolesAllowed(FoxtrotRole.Value.QUERY)
 public class FqlResource {
 
     private final QueryConfig queryConfig;

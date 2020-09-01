@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -27,8 +26,6 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.exception.CardinalityOverflowException;
 import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.exception.MalformedQueryException;
-import com.flipkart.foxtrot.common.group.GroupRequest;
-import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
@@ -48,7 +45,6 @@ import io.dropwizard.jackson.Jackson;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;

@@ -32,7 +32,6 @@ import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
-import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.TestUtils;
@@ -50,11 +49,11 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.joda.time.DateTime;
 
 /**
  * Created by rishabh.goyal on 29/04/14.

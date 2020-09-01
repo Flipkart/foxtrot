@@ -14,13 +14,11 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -76,7 +74,6 @@ public class TableManagerResource {
     @POST
     @Timed
     @ApiOperation("Save Table")
-    @RolesAllowed(FoxtrotRole.Value.SYSADMIN)
     public Response save(@Valid final Table table,
                          @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
@@ -90,7 +87,6 @@ public class TableManagerResource {
     @Timed
     @Path("/{name}")
     @ApiOperation("Update Table")
-    @RolesAllowed(FoxtrotRole.Value.SYSADMIN)
     public Response get(@PathParam("name") final String name,
                         @Valid final Table table) {
         table.setName(name);
@@ -103,7 +99,6 @@ public class TableManagerResource {
     @Timed
     @Path("/{name}/delete")
     @ApiOperation("Delete Table")
-    @RolesAllowed(FoxtrotRole.Value.SYSADMIN)
     public Response delete(@PathParam("name") String name) {
         name = ElasticsearchUtils.getValidTableName(name);
         tableManager.delete(name);
