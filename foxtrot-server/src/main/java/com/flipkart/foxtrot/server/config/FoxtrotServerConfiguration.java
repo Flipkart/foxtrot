@@ -26,7 +26,10 @@ import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
+import com.flipkart.foxtrot.server.auth.AuthConfig;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
+import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import io.dropwizard.Configuration;
@@ -63,21 +66,33 @@ public class FoxtrotServerConfiguration extends Configuration {
     private CardinalityConfig cardinality;
     @Valid
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
+
+    @Valid
+    private SessionCleanupConfig sessionCleanupConfig;
+
     @Valid
     private ConsoleHistoryConfig consoleHistoryConfig;
+    @Valid
     private EmailConfig emailConfig;
+    @Valid
     private CacheConfig cacheConfig;
 
+    @Valid
     private RangerConfiguration rangerConfiguration;
 
+    @Valid
     private SegregationConfiguration segregationConfiguration;
 
     @NotNull
     private boolean restrictAccess;
 
-    private GandalfConfiguration gandalfConfiguration;
-
+    @Valid
     private ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    @Valid
+    private String swaggerHost;
+
+    private String swaggerScheme;
 
     @Builder.Default
     private TranslatorConfig translatorConfig = new TranslatorConfig();
@@ -85,6 +100,12 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     @Builder.Default
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
+
+    private ClusterRerouteConfig clusterRerouteConfig;
+
+    @Valid
+    @NotNull
+    private AuthConfig auth;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
@@ -94,7 +115,7 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.emailConfig = new EmailConfig();
         this.segregationConfiguration = new SegregationConfiguration();
         this.restrictAccess = true;
-        this.elasticsearchTuningConfig = new ElasticsearchTuningConfig();
+        this.clusterRerouteConfig = new ClusterRerouteConfig();
     }
 
 }

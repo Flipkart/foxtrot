@@ -36,4 +36,6 @@ public interface DataStore {
     Document get(final Table table, final String id);
 
     List<Document> getAll(final Table table, final List<String> ids);
+
+    void updateTable(final Table table);
 }

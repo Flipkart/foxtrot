@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.server.ServerFactory;
 import org.slf4j.Logger;
@@ -78,6 +79,10 @@ public class ClusterManager implements Managed {
 
     public Collection<ClusterMember> getMembers() {
         return members.values();
+    }
+
+    public Collection<Member> getHazelcastMembers() {
+        return hazelcastConnection.getHazelcast().getCluster().getMembers();
     }
 
     private static final class NodeDataUpdater implements Runnable {

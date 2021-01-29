@@ -13,7 +13,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -23,6 +23,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
@@ -97,7 +98,7 @@ public class CountAction extends Action<CountRequest> {
 
     @Override
     public ActionResponse execute(CountRequest parameter) {
-        SearchRequest request = getRequestBuilder(parameter);
+        SearchRequest request = getRequestBuilder(parameter, Collections.emptyList());
 
         try {
             SearchResponse response = getConnection()
@@ -112,14 +113,14 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(CountRequest parameter) {
+    public SearchRequest getRequestBuilder(CountRequest parameter, List<Filter> extraFilters) {
         if (parameter.isDistinct()) {
             try {
                 return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                                 .indicesOptions(Utils.indicesOptions())
                                 .source(new SearchSourceBuilder()
                                     .size(QUERY_SIZE)
-                                    .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
+                                    .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
                                     .aggregation(Utils.buildCardinalityAggregation(parameter.getField(),
                                                                           parameter.accept(new CountPrecisionThresholdVisitorAdapter(
                                                                                   elasticsearchTuningConfig.getPrecisionThreshold())))))
@@ -135,7 +136,7 @@ public class CountAction extends Action<CountRequest> {
                         .indicesOptions(Utils.indicesOptions())
                         .source(new SearchSourceBuilder()
                                .size(QUERY_SIZE)
-                               .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters())));
+                               .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters)));
             }
             catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);

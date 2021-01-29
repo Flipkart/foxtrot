@@ -6,6 +6,8 @@ server:
     - type: http
       port: 17001
 
+swaggerScheme: ${SWAGGER_SCHEME}
+
 elasticsearch:
   hosts:
   - ${ELASTICSEARCH_HOST}
@@ -67,3 +69,21 @@ consoleHistoryConfig:
   interval: 86400
   initialDelay: 10
 
+sessionCleanupConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10
+
+auth:
+  enabled: ${AUTH_ENABLED}
+  jwt:
+    issuerId: foxtrot-server
+    privateKey: ${PRIVATE_KEY}
+    sessionDuration: 15d
+
+  provider:
+    type: OAUTH_GOOGLE
+    clientId: ${GOOGLE_CLIENT_ID}
+    clientSecret: ${GOOGLE_CLIENT_SECRET}
+    server: ${GOOGLE_CALLBACK_HOST_PORT}
+    secureEndpoint: ${GOOGLE_SECURE_ENDPOINT}

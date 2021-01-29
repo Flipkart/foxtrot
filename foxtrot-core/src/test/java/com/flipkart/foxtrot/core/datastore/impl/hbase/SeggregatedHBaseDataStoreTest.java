@@ -27,7 +27,7 @@ public class SeggregatedHBaseDataStoreTest {
     public void testSameTable() {
         HbaseConfig hbaseConfig = new HbaseConfig();
         hbaseConfig.setTableName("foxtrot-test");
-        Table table = new Table(TestUtils.TEST_TABLE_NAME, 7, false);
+        Table table = new Table(TestUtils.TEST_TABLE_NAME, 7, false, 1);
         Assert.assertEquals(hbaseConfig.getTableName(), TableUtil.getTableName(hbaseConfig, table));
     }
 
@@ -35,7 +35,7 @@ public class SeggregatedHBaseDataStoreTest {
     public void testSegTable() {
         HbaseConfig hbaseConfig = new HbaseConfig();
         hbaseConfig.setTableName("foxtrot-test");
-        Table table = new Table(TestUtils.TEST_TABLE_NAME, 7, true);
+        Table table = new Table(TestUtils.TEST_TABLE_NAME, 7, true, 1);
         Assert.assertEquals(TestUtils.TEST_TABLE_NAME, TableUtil.getTableName(hbaseConfig, table));
     }
 
@@ -44,7 +44,7 @@ public class SeggregatedHBaseDataStoreTest {
         HbaseConfig hbaseConfig = new HbaseConfig();
         hbaseConfig.setTableName("foxtrot-test");
         hbaseConfig.setSeggregatedTablePrefix("foxtrot-");
-        Table table = new Table(TestUtils.TEST_TABLE_NAME, 7, true);
+        Table table = new Table(TestUtils.TEST_TABLE_NAME, 7, true, 1);
         Assert.assertEquals(String.format("%s%s", hbaseConfig.getSeggregatedTablePrefix(), TestUtils.TEST_TABLE_NAME),
                             TableUtil.getTableName(hbaseConfig, table)
                            );

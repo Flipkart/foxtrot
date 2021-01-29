@@ -27,7 +27,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -125,14 +125,14 @@ public class FilterAction extends Action<Query> {
     @Override
     public ActionResponse execute(Query parameter) {
         if (parameter.isScrollRequest()) {
-            return executeScrollRequest(parameter);
+            return executeScrollRequest(parameter, Collections.emptyList());
         }
         return executeRequest(parameter);
     }
 
     @Override
-    public SearchRequest getRequestBuilder(Query parameter) {
-        SearchRequest searchRequest = getSearchRequest(parameter);
+    public SearchRequest getRequestBuilder(Query parameter, List<Filter> extraFilters) {
+        SearchRequest searchRequest = getSearchRequest(parameter, extraFilters);
         //Adding from here since from isn't supported in scroll request
         searchRequest.source().from(parameter.getFrom());
         return searchRequest;
@@ -161,13 +161,13 @@ public class FilterAction extends Action<Query> {
     }
 
 
-    private SearchRequest getScrollRequestBuilder(Query parameter) {
-        SearchRequest searchRequest = getSearchRequest(parameter);
+    private SearchRequest getScrollRequestBuilder(Query parameter, List<Filter> extraFilters) {
+        SearchRequest searchRequest = getSearchRequest(parameter, extraFilters);
         searchRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
         return searchRequest;
     }
 
-    private SearchRequest getSearchRequest(Query parameter) {
+    private SearchRequest getSearchRequest(Query parameter, List<Filter> extraFilters) {
         return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                 .indicesOptions(Utils.indicesOptions())
                 .types(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
@@ -175,13 +175,13 @@ public class FilterAction extends Action<Query> {
                 .source(new SearchSourceBuilder()
                                 .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
                                 .size(parameter.getLimit())
-                                .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
+                                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
                                 .sort(Utils.storedFieldName(parameter.getSort().getField()),
                                       ResultSort.Order.desc == parameter.getSort().getOrder()
                                       ? SortOrder.DESC : SortOrder.ASC));
     }
 
-    private ActionResponse executeScrollRequest(Query parameter) {
+    private ActionResponse executeScrollRequest(Query parameter, List<Filter> extraFilters) {
         List<String> ids = new ArrayList<>();
         String scrollId;
         long totalHits = 0;
@@ -199,7 +199,7 @@ public class FilterAction extends Action<Query> {
                 }
             }
             else {
-                SearchRequest searchRequest = getScrollRequestBuilder(parameter);
+                SearchRequest searchRequest = getScrollRequestBuilder(parameter, extraFilters);
                 SearchResponse searchResponse = getConnection()
                         .getClient()
                         .search(searchRequest, RequestOptions.DEFAULT);
@@ -237,7 +237,7 @@ public class FilterAction extends Action<Query> {
     }
 
     private ActionResponse executeRequest(Query parameter) {
-        SearchRequest search = getRequestBuilder(parameter);
+        SearchRequest search = getRequestBuilder(parameter, Collections.emptyList());
         try {
             logger.info("Search: {}", search);
             SearchResponse response = getConnection()

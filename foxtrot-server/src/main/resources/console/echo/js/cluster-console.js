@@ -60,6 +60,8 @@ function Table() {
     this.days = 0;
     this.events = 0;
     this.size = "";
+    this.columnCount = "";
+    this.avgSize = "";
 }
 
 var cluster = {
@@ -138,11 +140,20 @@ EventBus.addEventListener('hosts_loaded', function (event, data) {
     });
 });
 
+function formatValues(bytes, convertTo) {
+    if(convertTo == "GB") {
+        return(bytes / 1073741824).toFixed(2) + " GB";
+    } else {
+        return(bytes / 1024).toFixed(2) + " KB"
+    }
+
+}
+
 EventBus.addEventListener('indices_loaded', function (event, data) {
-    if (!data.hasOwnProperty('indices')) {
+    if (!data.indicesStatsResponse.hasOwnProperty('indices')) {
         return;
     }
-    var indices = data['indices'];
+    var indices = data.indicesStatsResponse['indices'];
     var indexTable = {}
     var tableNamePrefix =  (esConfig.hasOwnProperty("tableNamePrefix"))
             ? tableNamePrefix = esConfig.tableNamePrefix
@@ -172,7 +183,10 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
         table.name = rawTable.name;
         table.days = rawTable.days;
         table.events = rawTable.events;
-        table.size = bytesToSize(rawTable.size);
+        table.size = formatValues(rawTable.size, 'GB');
+        table.columnCount = data.tableColumnCount[rawTable.name];
+        var calculateSize = rawTable.size/rawTable.events;
+        table.avgSize = formatValues(calculateSize, 'KB');;
         tables.push(table);
     }
     $('.table-data-area').html(handlebars("#tables-template", {
@@ -181,7 +195,11 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
     $(".table-data-table").tablesorter({
         sortList: [
             [3, 1]
-        ]
+        ],
+        headers  : {
+            3 : { sorter : 'digit' },
+            4 : { sorter : 'digit' }
+          }
     });
 })
 
@@ -287,7 +305,6 @@ function loadIndexData() {
                 } else {
                     cluster.replicatedDataSize = bytesToSize(0);
                 }
-                console.log(data);
                 //EventBus.dispatch('cluster_loaded', this, data);
                 EventBus.dispatch('indices_loaded', this, data);
             }

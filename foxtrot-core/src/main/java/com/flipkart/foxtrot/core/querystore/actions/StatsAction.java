@@ -11,7 +11,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -107,7 +107,7 @@ public class StatsAction extends Action<StatsRequest> {
 
     @Override
     public ActionResponse execute(StatsRequest parameter) {
-        SearchRequest query = getRequestBuilder(parameter);
+        SearchRequest query = getRequestBuilder(parameter, Collections.emptyList());
         try {
             SearchResponse response = getConnection()
                     .getClient()
@@ -120,11 +120,11 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(StatsRequest parameter) {
+    public SearchRequest getRequestBuilder(StatsRequest parameter, List<Filter> extraFilters) {
         final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                 .size(0)
                 .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
-                .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()));
+                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters));
 
         AbstractAggregationBuilder percentiles = null;
         final String field = getParameter().getField();

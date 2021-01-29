@@ -13,7 +13,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.dropwizard.util.Duration;
@@ -119,7 +119,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
 
     @Override
     public ActionResponse execute(StatsTrendRequest parameter) {
-        SearchRequest query = getRequestBuilder(parameter);
+        SearchRequest query = getRequestBuilder(parameter, Collections.emptyList());
         try {
             SearchResponse response = getConnection()
                     .getClient()
@@ -132,13 +132,13 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(StatsTrendRequest parameter) {
+    public SearchRequest getRequestBuilder(StatsTrendRequest parameter, List<Filter> extraFilters) {
         return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                 .indicesOptions(Utils.indicesOptions())
                 .source(new SearchSourceBuilder()
                                 .size(0)
                                 .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
-                                .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
+                                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
                                 .aggregation(buildAggregation(parameter, parameter.getTable())));
 
     }

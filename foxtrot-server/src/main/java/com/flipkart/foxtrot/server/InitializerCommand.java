@@ -66,6 +66,8 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
         createMetaIndex(connection, TableMapStore.TABLE_META_INDEX, numReplicas);
         createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX_HISTORY, numReplicas);
         createMetaIndex(connection, FqlStoreServiceImpl.FQL_STORE_INDEX, numReplicas);
+        createMetaIndex(connection, "user-meta", numReplicas);
+        createMetaIndex(connection, "tokens", numReplicas);
 
         logger.info("Creating mapping");
         PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();

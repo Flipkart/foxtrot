@@ -21,7 +21,8 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
+import com.flipkart.foxtrot.server.ResourceTestUtils;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -37,21 +38,21 @@ import java.util.UUID;
  */
 public class ClusterHealthResourceTest extends FoxtrotResourceTest {
 
+    private FoxtrotTableManager tableManager;
+
     @Rule
     public ResourceTestRule resources;
 
     public ClusterHealthResourceTest() throws Exception {
         super();
-        resources = ResourceTestRule.builder()
+        resources = ResourceTestUtils.testResourceBuilder(getMapper())
                 .addResource(new ClusterHealthResource(getQueryStore()))
-                .addProvider(new FoxtrotExceptionMapper(getMapper()))
-                .setMapper(getMapper())
                 .build();
     }
 
     @Test
     public void testClusterHealthApi() {
-        JsonNode response = resources.client()
+        JsonNode response = resources
                 .target("/v1/clusterhealth")
                 .request()
                 .get(JsonNode.class);
@@ -61,7 +62,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testNodeStats() throws FoxtrotException {
-        JsonNode response = resources.client()
+        JsonNode response = resources
                 .target("/v1/clusterhealth/nodestats")
                 .request()
                 .get(JsonNode.class);
@@ -86,7 +87,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
         documents.add(document2);
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
-        JsonNode response = resources.client()
+        JsonNode response = resources
                 .target("/v1/clusterhealth/indicesstats")
                 .request()
                 .get(JsonNode.class);
