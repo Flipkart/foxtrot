@@ -19,19 +19,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Min;
 
 /**
- * AWS EC2 based cluster configuration.
+ * AWS ECS based cluster configuration.
  * See: https://github.com/hazelcast/hazelcast-aws#ecsfargate-configuration
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class AwsClusterDiscoveryConfig extends ClusterDiscoveryConfig {
+public class AwsECSDiscoveryConfig extends ClusterDiscoveryConfig {
+
+    @NotEmpty
     @JsonProperty
-    private String serviceName;
+    private String network;
 
     @JsonProperty
     private String accessKey;
@@ -40,16 +43,19 @@ public class AwsClusterDiscoveryConfig extends ClusterDiscoveryConfig {
     private String secretKey;
 
     @JsonProperty
-    private String iamRole;
-
-    @JsonProperty
     private String region;
 
     @JsonProperty
-    private String hostHeader;
+    private String cluster;
 
     @JsonProperty
-    private String securityGroupName;
+    private String family;
+
+    @JsonProperty
+    private String serviceName;
+
+    @JsonProperty
+    private String hostHeader;
 
     @JsonProperty
     @Min(0)
@@ -58,8 +64,8 @@ public class AwsClusterDiscoveryConfig extends ClusterDiscoveryConfig {
     @JsonProperty
     private boolean isExternalClient;
 
-    public AwsClusterDiscoveryConfig() {
-        super(ClusterDiscoveryType.FOXTROT_AWS);
+    public AwsECSDiscoveryConfig() {
+        super(ClusterDiscoveryType.FOXTROT_AWS_ECS);
     }
 
 }

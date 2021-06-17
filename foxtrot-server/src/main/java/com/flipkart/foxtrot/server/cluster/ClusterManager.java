@@ -6,10 +6,10 @@ import com.flipkart.foxtrot.server.utils.ServerUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.hazelcast.cluster.Member;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.MapConfig;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.Member;
+import com.hazelcast.map.IMap;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.server.ServerFactory;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ public class ClusterManager implements Managed {
         mapConfig.setTimeToLiveSeconds(MAP_REFRESH_TIME + 2); //Reduce jitter
         mapConfig.setBackupCount(1);
         mapConfig.setAsyncBackupCount(2);
-        mapConfig.setEvictionPolicy(EvictionPolicy.NONE);
+        mapConfig.getEvictionConfig().setEvictionPolicy(EvictionPolicy.NONE);
         hazelcastConnection.getHazelcastConfig()
                 .getMapConfigs()
                 .put(MAP_NAME, mapConfig);

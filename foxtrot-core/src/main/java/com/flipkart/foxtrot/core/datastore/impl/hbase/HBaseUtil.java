@@ -46,29 +46,17 @@ public abstract class HBaseUtil {
         columnDescriptor.setCompressionType(Compression.Algorithm.GZ);
         hTableDescriptor.addFamily(columnDescriptor);
         Configuration configuration = HBaseUtil.create(hbaseConfig);
-        Connection connection = ConnectionFactory.createConnection(configuration);
-        Admin hBaseAdmin = null;
-        try {
-            hBaseAdmin = connection.getAdmin();
-            hBaseAdmin.createTable(hTableDescriptor);
-        }
-        catch (Exception e) {
-            logger.error("Could not create table: " + tableName, e);
-        }
-        finally {
-            try {
-                if (hBaseAdmin != null) {
-                    hBaseAdmin.close();
+        try(Connection connection = ConnectionFactory.createConnection(configuration)) {
+            try (Admin admin = connection.getAdmin()) {
+                if (admin.tableExists(TableName.valueOf(tableName))) {
+                    logger.info("Table {} already exists. Nothing to do.", tableName);
+                    return;
                 }
+                logger.info("Creating table: {}", tableName);
+                admin.createTable(hTableDescriptor);
             }
             catch (Exception e) {
-                logger.error("Error closing hbase admin", e);
-            }
-            try {
-                connection.close();
-            }
-            catch (Exception e) {
-                logger.error("Error closing hbase connection", e);
+                logger.error("Could not create table: " + tableName, e);
             }
         }
     }

@@ -46,6 +46,7 @@ services:
     volumes:
      - /var/log/foxtrot-server
     environment:
+     - INIT_SLEEP=15
      - HOST=localhost
      - ELASTICSEARCH_HOST=elasticsearch
      - ELASTICSEARCH_PORT=9300

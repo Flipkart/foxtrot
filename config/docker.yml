@@ -27,7 +27,7 @@ cluster:
   discovery:
     type: ${DISCOVERY_TYPE}
     disableMulticast: true
-    members: ["localhost:5701"]
+    members: ["${HOSTNAME}:5701"]
 
 cacheConfig:
   maxIdleSeconds: 15
