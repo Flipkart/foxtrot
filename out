@@ -1,0 +1,774 @@
+Attaching to elasticsearch, foxtrot_hbase_1, foxtrot_server
+[33mhbase_1           |[0m /usr/lib/python2.7/dist-packages/supervisor/options.py:296: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+[33mhbase_1           |[0m   'Supervisord is running as root and it is searching '
+[32mfoxtrot_server    |[0m No CONFIG_PATH defined. We shall be using default config from /config/docker.yml
+[33mhbase_1           |[0m 2020-07-22 09:39:17,221 CRIT Supervisor running as root (no user in config file)
+[32mfoxtrot_server    |[0m Init sleep of 15 seconds specified. Waiting...
+[33mhbase_1           |[0m 2020-07-22 09:39:17,221 WARN Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+[33mhbase_1           |[0m Unlinking stale socket /var/run/supervisor.sock
+[33mhbase_1           |[0m 2020-07-22 09:39:17,531 INFO RPC interface 'supervisor' initialized
+[33mhbase_1           |[0m 2020-07-22 09:39:17,531 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+[33mhbase_1           |[0m 2020-07-22 09:39:17,531 INFO supervisord started with pid 1
+[33mhbase_1           |[0m 2020-07-22 09:39:18,533 INFO spawned: 'stdout' with pid 8
+[33mhbase_1           |[0m 2020-07-22 09:39:18,535 INFO spawned: 'hbase-rest' with pid 9
+[33mhbase_1           |[0m 2020-07-22 09:39:18,536 INFO spawned: 'hbase' with pid 10
+[33mhbase_1           |[0m starting rest, logging to /opt/hbase/bin/../logs/hbase--rest-hbase.out
+[36melasticsearch     |[0m [2020-07-22T09:39:19,168][INFO ][o.e.e.NodeEnvironment    ] [5q9Ine5] using [1] data paths, mounts [[/ (overlay)]], net usable_space [2.4gb], net total_space [28.5gb], types [overlay]
+[36melasticsearch     |[0m [2020-07-22T09:39:19,171][INFO ][o.e.e.NodeEnvironment    ] [5q9Ine5] heap size [512mb], compressed ordinary object pointers [true]
+[36melasticsearch     |[0m [2020-07-22T09:39:19,200][INFO ][o.e.n.Node               ] [5q9Ine5] node name derived from node ID [5q9Ine5JToGzVTBOdMThhw]; set [node.name] to override
+[36melasticsearch     |[0m [2020-07-22T09:39:19,200][INFO ][o.e.n.Node               ] [5q9Ine5] version[6.8.8], pid[1], build[oss/docker/2f4c224/2020-03-18T23:22:18.622755Z], OS[Linux/5.3.0-62-generic/amd64], JVM[AdoptOpenJDK/OpenJDK 64-Bit Server VM/14/14+36]
+[36melasticsearch     |[0m [2020-07-22T09:39:19,201][INFO ][o.e.n.Node               ] [5q9Ine5] JVM arguments [-Xms1g, -Xmx1g, -XX:+UseG1GC, -XX:G1ReservePercent=25, -XX:InitiatingHeapOccupancyPercent=30, -Des.networkaddress.cache.ttl=60, -Des.networkaddress.cache.negative.ttl=10, -XX:+AlwaysPreTouch, -Xss1m, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djna.nosys=true, -XX:-OmitStackTraceInFastThrow, -Dio.netty.noUnsafe=true, -Dio.netty.noKeySetOptimization=true, -Dio.netty.recycler.maxCapacityPerThread=0, -Dlog4j.shutdownHookEnabled=false, -Dlog4j2.disable.jmx=true, -Djava.io.tmpdir=/tmp/elasticsearch-4753755361850039883, -XX:+HeapDumpOnOutOfMemoryError, -XX:HeapDumpPath=data, -XX:ErrorFile=logs/hs_err_pid%p.log, -Xlog:gc*,gc+age=trace,safepoint:file=logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m, -Djava.locale.providers=COMPAT, -XX:UseAVX=2, -Xms512m, -Xmx512m, -Des.path.home=/usr/share/elasticsearch, -Des.path.conf=/usr/share/elasticsearch/config, -Des.distribution.flavor=oss, -Des.distribution.type=docker]
+[33mhbase_1           |[0m 2020-07-22 09:39:19,573 INFO success: stdout entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+[33mhbase_1           |[0m 2020-07-22 09:39:19,573 INFO success: hbase-rest entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+[33mhbase_1           |[0m 2020-07-22 09:39:19,573 INFO success: hbase entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+[33mhbase_1           |[0m hbase stderr | OpenJDK 64-Bit Server VM warning:  hbase stderr | ignoring option PermSize=128m; support was removed in 8.0 hbase stderr | 
+[33mhbase_1           |[0m hbase stderr | OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=128m; support was removed in 8.0
+[33mhbase_1           |[0m hbase-rest stdout | starting rest, logging to /opt/hbase/bin/../logs/hbase--rest-hbase.out
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,097 INFO  [main] util.VersionInfo: HBase 1.2.1
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,098 INFO  [main] util.VersionInfo: Source code repository git://asf-dev/home/busbey/projects/hbase revision=8d8a7107dc4ccbf36a92f64675dc60392f85c015
+[33mhbase_1           |[0m 2020-07-22 09:39:19,098 INFO  [main] util.VersionInfo: Compiled by busbey on Wed Mar 30 11:19:21 CDT 2016
+[33mhbase_1           |[0m 2020-07-22 09:39:19,098 INFO  [main] util.VersionInfo: From source with checksum f4bb4a14bb4e0b72b46f729dae98a772
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,572 INFO  [main] master.HMasterCommandLine: Starting a zookeeper cluster
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,630 INFO  [main] server.ZooKeeperServer: Server environment:zookeeper.version=3.4.6-1569965, built on 02/20/2014 09:09 GMT
+[33mhbase_1           |[0m 2020-07-22 09:39:19,634 INFO exited: hbase-rest (exit status 0; expected)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,634 INFO  [main] server.ZooKeeperServer: Server environment:host.name=hbase
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,638 INFO  [main] server.ZooKeeperServer: Server environment:java.version=1.8.0_72-internal
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,639 INFO  [main] server.ZooKeeperServer: Server environment:java.vendor=Oracle Corporation
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,639 INFO  [main] server.ZooKeeperServer: Server environment:java.home=/usr/lib/jvm/java-8-openjdk-amd64/jre
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,640 INFO  [main] server.ZooKeeperServer: Server environment:java.class.path=/opt/hbase/bin/../conf:/usr/lib/jvm/java-8-openjdk-amd64/lib/tools.jar:/opt/hbase/bin/..:/opt/hbase/bin/../lib/activation-1.1.jar:/opt/hbase/bin/../lib/antisamy-1.4.3.jar:/opt/hbase/bin/../lib/aopalliance-1.0.jar:/opt/hbase/bin/../lib/apacheds-i18n-2.0.0-M15.jar:/opt/hbase/bin/../lib/apacheds-kerberos-codec-2.0.0-M15.jar:/opt/hbase/bin/../lib/api-asn1-api-1.0.0-M20.jar:/opt/hbase/bin/../lib/api-util-1.0.0-M20.jar:/opt/hbase/bin/../lib/asm-3.1.jar:/opt/hbase/bin/../lib/avro-1.7.4.jar:/opt/hbase/bin/../lib/batik-css-1.7.jar:/opt/hbase/bin/../lib/batik-ext-1.7.jar:/opt/hbase/bin/../lib/batik-util-1.7.jar:/opt/hbase/bin/../lib/bsh-core-2.0b4.jar:/opt/hbase/bin/../lib/commons-beanutils-1.7.0.jar:/opt/hbase/bin/../lib/commons-beanutils-core-1.7.0.jar:/opt/hbase/bin/../lib/commons-cli-1.2.jar:/opt/hbase/bin/../lib/commons-codec-1.9.jar:/opt/hbase/bin/../lib/commons-collections-3.2.2.jar:/opt/hbase/bin/../lib/commons-compress-1.4.1.jar:/opt/hbase/bin/../lib/commons-configuration-1.6.jar:/opt/hbase/bin/../lib/commons-daemon-1.0.13.jar:/opt/hbase/bin/../lib/commons-digester-1.8.jar:/opt/hbase/bin/../lib/commons-el-1.0.jar:/opt/hbase/bin/../lib/commons-fileupload-1.2.jar:/opt/hbase/bin/../lib/commons-httpclient-3.1.jar:/opt/hbase/bin/../lib/commons-io-2.4.jar:/opt/hbase/bin/../lib/commons-lang-2.6.jar:/opt/hbase/bin/../lib/commons-logging-1.2.jar:/opt/hbase/bin/../lib/commons-math-2.2.jar:/opt/hbase/bin/../lib/commons-math3-3.1.1.jar:/opt/hbase/bin/../lib/commons-net-3.1.jar:/opt/hbase/bin/../lib/disruptor-3.3.0.jar:/opt/hbase/bin/../lib/esapi-2.1.0.jar:/opt/hbase/bin/../lib/findbugs-annotations-1.3.9-1.jar:/opt/hbase/bin/../lib/guava-12.0.1.jar:/opt/hbase/bin/../lib/guice-3.0.jar:/opt/hbase/bin/../lib/guice-servlet-3.0.jar:/opt/hbase/bin/../lib/hadoop-annotations-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-auth-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-client-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-common-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-hdfs-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-mapreduce-client-app-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-mapreduce-client-common-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-mapreduce-client-core-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-mapreduce-client-jobclient-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-mapreduce-client-shuffle-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-yarn-api-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-yarn-client-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-yarn-common-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-yarn-server-common-2.5.1.jar:/opt/hbase/bin/../lib/hbase-annotations-1.2.1-tests.jar:/opt/hbase/bin/../lib/hbase-annotations-1.2.1.jar:/opt/hbase/bin/../lib/hbase-client-1.2.1.jar:/opt/hbase/bin/../lib/hbase-common-1.2.1-tests.jar:/opt/hbase/bin/../lib/hbase-common-1.2.1.jar:/opt/hbase/bin/../lib/hbase-examples-1.2.1.jar:/opt/hbase/bin/../lib/hbase-external-blockcache-1.2.1.jar:/opt/hbase/bin/../lib/hbase-hadoop-compat-1.2.1.jar:/opt/hbase/bin/../lib/hbase-hadoop2-compat-1.2.1.jar:/opt/hbase/bin/../lib/hbase-it-1.2.1-tests.jar:/opt/hbase/bin/../lib/hbase-it-1.2.1.jar:/opt/hbase/bin/../lib/hbase-prefix-tree-1.2.1.jar:/opt/hbase/bin/../lib/hbase-procedure-1.2.1.jar:/opt/hbase/bin/../lib/hbase-protocol-1.2.1.jar:/opt/hbase/bin/../lib/hbase-resource-bundle-1.2.1.jar:/opt/hbase/bin/../lib/hbase-rest-1.2.1.jar:/opt/hbase/bin/../lib/hbase-server-1.2.1-tests.jar:/opt/hbase/bin/../lib/hbase-server-1.2.1.jar:/opt/hbase/bin/../lib/hbase-shell-1.2.1.jar:/opt/hbase/bin/../lib/hbase-thrift-1.2.1.jar:/opt/hbase/bin/../lib/htrace-core-3.1.0-incubating.jar:/opt/hbase/bin/../lib/httpclient-4.2.5.jar:/opt/hbase/bin/../lib/httpcore-4.4.1.jar:/opt/hbase/bin/../lib/jackson-core-asl-1.9.13.jar:/opt/hbase/bin/../lib/jackson-jaxrs-1.9.13.jar:/opt/hbase/bin/../lib/jackson-mapper-asl-1.9.13.jar:/opt/hbase/bin/../lib/jackson-xc-1.9.13.jar:/opt/hbase/bin/../lib/jamon-runtime-2.4.1.jar:/opt/hbase/bin/../lib/jasper-compiler-5.5.23.jar:/opt/hbase/bin/../lib/jasper-runtime-5.5.23.jar:/opt/hbase/bin/../lib/java-xmlbuilder-0.4.jar:/opt/hbase/bin/../lib/javax.inject-1.jar:/opt/hbase/bin/../lib/jaxb-api-2.2.2.jar:/opt/hbase/bin/../lib/jaxb-impl-2.2.3-1.jar:/opt/hbase/bin/../lib/jcodings-1.0.8.jar:/opt/hbase/bin/../lib/jersey-client-1.9.jar:/opt/hbase/bin/../lib/jersey-core-1.9.jar:/opt/hbase/bin/../lib/jersey-guice-1.9.jar:/opt/hbase/bin/../lib/jersey-json-1.9.jar:/opt/hbase/bin/../lib/jersey-server-1.9.jar:/opt/hbase/bin/../lib/jets3t-0.9.0.jar:/opt/hbase/bin/../lib/jettison-1.3.3.jar:/opt/hbase/bin/../lib/jetty-6.1.26.jar:/opt/hbase/bin/../lib/jetty-sslengine-6.1.26.jar:/opt/hbase/bin/../lib/jetty-util-6.1.26.jar:/opt/hbase/bin/../lib/joni-2.1.2.jar:/opt/hbase/bin/../lib/jruby-complete-1.6.8.jar:/opt/hbase/bin/../lib/jsch-0.1.42.jar:/opt/hbase/bin/../lib/jsp-2.1-6.1.14.jar:/opt/hbase/bin/../lib/jsp-api-2.1-6.1.14.jar:/opt/hbase/bin/../lib/jsr305-1.3.9.jar:/opt/hbase/bin/../lib/junit-4.12.jar:/opt/hbase/bin/../lib/leveldbjni-all-1.8.jar:/opt/hbase/bin/../lib/libthrift-0.9.3.jar:/opt/hbase/bin/../lib/log4j-1.2.17.jar:/opt/hbase/bin/../lib/metrics-core-2.2.0.jar:/opt/hbase/bin/../lib/nekohtml-1.9.12.jar:/opt/hbase/bin/../lib/netty-all-4.0.23.Final.jar:/opt/hbase/bin/../lib/paranamer-2.3.jar:/opt/hbase/bin/../lib/protobuf-java-2.5.0.jar:/opt/hbase/bin/../lib/servlet-api-2.5-6.1.14.jar:/opt/hbase/bin/../lib/servlet-api-2.5.jar:/opt/hbase/bin/../lib/slf4j-api-1.7.7.jar:/opt/hbase/bin/../lib/slf4j-log4j12-1.7.5.jar:/opt/hbase/bin/../lib/snappy-java-1.0.4.1.jar:/opt/hbase/bin/../lib/spymemcached-2.11.6.jar:/opt/hbase/bin/../lib/xalan-2.7.0.jar:/opt/hbase/bin/../lib/xml-apis-1.3.03.jar:/opt/hbase/bin/../lib/xml-apis-ext-1.3.04.jar:/opt/hbase/bin/../lib/xmlenc-0.52.jar:/opt/hbase/bin/../lib/xom-1.2.5.jar:/opt/hbase/bin/../lib/xz-1.0.jar:/opt/hbase/bin/../lib/zookeeper-3.4.6.jar:
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,640 INFO  [main] server.ZooKeeperServer: Server environment:java.library.path=/usr/java/packages/lib/amd64:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,641 INFO  [main] server.ZooKeeperServer: Server environment:java.io.tmpdir=/tmp
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,641 INFO  [main] server.ZooKeeperServer: Server environment:java.compiler=<NA>
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,642 INFO  [main] server.ZooKeeperServer: Server environment:os.name=Linux
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,642 INFO  [main] server.ZooKeeperServer: Server environment:os.arch=amd64
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,642 INFO  [main] server.ZooKeeperServer: Server environment:os.version=5.3.0-62-generic
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,643 INFO  [main] server.ZooKeeperServer: Server environment:user.name=root
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,643 INFO  [main] server.ZooKeeperServer: Server environment:user.home=/root
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,644 INFO  [main] server.ZooKeeperServer: Server environment:user.dir=/opt
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,695 INFO  [main] server.ZooKeeperServer: Created server with tickTime 2000 minSessionTimeout 4000 maxSessionTimeout 40000 datadir /data/zookeeper/zookeeper_0/version-2 snapdir /data/zookeeper/zookeeper_0/version-2
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,712 INFO  [main] server.NIOServerCnxnFactory: binding to port 0.0.0.0/0.0.0.0:2181
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:19,731 INFO  [main] persistence.FileSnap: Reading snapshot /data/zookeeper/zookeeper_0/version-2/snapshot.1ec33
+[36melasticsearch     |[0m [2020-07-22T09:39:20,627][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [aggs-matrix-stats]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,631][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [analysis-common]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,631][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [ingest-common]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,631][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [ingest-geoip]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,631][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [ingest-user-agent]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,631][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [lang-expression]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,631][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [lang-mustache]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,631][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [lang-painless]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,632][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [mapper-extras]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,632][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [parent-join]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,632][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [percolator]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,632][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [rank-eval]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,632][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [reindex]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,632][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [repository-url]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,632][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [transport-netty4]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,632][INFO ][o.e.p.PluginsService     ] [5q9Ine5] loaded module [tribe]
+[36melasticsearch     |[0m [2020-07-22T09:39:20,633][INFO ][o.e.p.PluginsService     ] [5q9Ine5] no plugins loaded
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:20,371 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxnFactory: Accepted socket connection from /127.0.0.1:34206
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:20,383 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxn: Processing stat command from /127.0.0.1:34206
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:20,395 INFO  [Thread-2] server.NIOServerCnxn: Stat command output
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:20,396 INFO  [Thread-2] server.NIOServerCnxn: Closed socket connection for client /127.0.0.1:34206 (no session established for client)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:20,396 INFO  [main] zookeeper.MiniZooKeeperCluster: Started MiniZooKeeperCluster and ran successful 'stat' on client port=2181
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:20,397 INFO  [main] master.HMasterCommandLine: Starting up instance of localHBaseCluster; master=1, regionserversCount=1
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:20,794 WARN  [main] util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:21,373 INFO  [main] regionserver.RSRpcServices: master/hbase/172.18.0.2:0 server-side HConnection retries=350
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:21,604 INFO  [main] ipc.SimpleRpcScheduler: Using deadline as user call queue, count=3
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:21,624 INFO  [main] ipc.RpcServer: master/hbase/172.18.0.2:0: started 10 reader(s) listening on port=41229
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:21,694 INFO  [main] impl.MetricsConfig: loaded properties from hadoop-metrics2-hbase.properties
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:21,719 INFO  [main] impl.MetricsSystemImpl: Scheduled snapshot period at 10 second(s).
+[33mhbase_1           |[0m 2020-07-22 09:39:21,719 INFO  [main] impl.MetricsSystemImpl: HBase metrics system started
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:21,995 INFO  [main] zookeeper.RecoverableZooKeeper: Process identifier=master:41229 connecting to ZooKeeper ensemble=localhost:2181
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,000 INFO  [main] zookeeper.ZooKeeper: Client environment:zookeeper.version=3.4.6-1569965, built on 02/20/2014 09:09 GMT
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,000 INFO  [main] zookeeper.ZooKeeper: Client environment:host.name=hbase
+[33mhbase_1           |[0m 2020-07-22 09:39:22,000 INFO  [main] zookeeper.ZooKeeper: Client environment:java.version=1.8.0_72-internal
+[33mhbase_1           |[0m 2020-07-22 09:39:22,000 INFO  [main] zookeeper.ZooKeeper: Client environment:java.vendor=Oracle Corporation
+[33mhbase_1           |[0m 2020-07-22 09:39:22,001 INFO  [main] zookeeper.ZooKeeper: Client environment:java.home=/usr/lib/jvm/java-8-openjdk-amd64/jre
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,001 INFO  [main] zookeeper.ZooKeeper: Client environment:java.class.path=/opt/hbase/bin/../conf:/usr/lib/jvm/java-8-openjdk-amd64/lib/tools.jar:/opt/hbase/bin/..:/opt/hbase/bin/../lib/activation-1.1.jar:/opt/hbase/bin/../lib/antisamy-1.4.3.jar:/opt/hbase/bin/../lib/aopalliance-1.0.jar:/opt/hbase/bin/../lib/apacheds-i18n-2.0.0-M15.jar:/opt/hbase/bin/../lib/apacheds-kerberos-codec-2.0.0-M15.jar:/opt/hbase/bin/../lib/api-asn1-api-1.0.0-M20.jar:/opt/hbase/bin/../lib/api-util-1.0.0-M20.jar:/opt/hbase/bin/../lib/asm-3.1.jar:/opt/hbase/bin/../lib/avro-1.7.4.jar:/opt/hbase/bin/../lib/batik-css-1.7.jar:/opt/hbase/bin/../lib/batik-ext-1.7.jar:/opt/hbase/bin/../lib/batik-util-1.7.jar:/opt/hbase/bin/../lib/bsh-core-2.0b4.jar:/opt/hbase/bin/../lib/commons-beanutils-1.7.0.jar:/opt/hbase/bin/../lib/commons-beanutils-core-1.7.0.jar:/opt/hbase/bin/../lib/commons-cli-1.2.jar:/opt/hbase/bin/../lib/commons-codec-1.9.jar:/opt/hbase/bin/../lib/commons-collections-3.2.2.jar:/opt/hbase/bin/../lib/commons-compress-1.4.1.jar:/opt/hbase/bin/../lib/commons-configuration-1.6.jar:/opt/hbase/bin/../lib/commons-daemon-1.0.13.jar:/opt/hbase/bin/../lib/commons-digester-1.8.jar:/opt/hbase/bin/../lib/commons-el-1.0.jar:/opt/hbase/bin/../lib/commons-fileupload-1.2.jar:/opt/hbase/bin/../lib/commons-httpclient-3.1.jar:/opt/hbase/bin/../lib/commons-io-2.4.jar:/opt/hbase/bin/../lib/commons-lang-2.6.jar:/opt/hbase/bin/../lib/commons-logging-1.2.jar:/opt/hbase/bin/../lib/commons-math-2.2.jar:/opt/hbase/bin/../lib/commons-math3-3.1.1.jar:/opt/hbase/bin/../lib/commons-net-3.1.jar:/opt/hbase/bin/../lib/disruptor-3.3.0.jar:/opt/hbase/bin/../lib/esapi-2.1.0.jar:/opt/hbase/bin/../lib/findbugs-annotations-1.3.9-1.jar:/opt/hbase/bin/../lib/guava-12.0.1.jar:/opt/hbase/bin/../lib/guice-3.0.jar:/opt/hbase/bin/../lib/guice-servlet-3.0.jar:/opt/hbase/bin/../lib/hadoop-annotations-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-auth-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-client-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-common-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-hdfs-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-mapreduce-client-app-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-mapreduce-client-common-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-mapreduce-client-core-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-mapreduce-client-jobclient-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-mapreduce-client-shuffle-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-yarn-api-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-yarn-client-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-yarn-common-2.5.1.jar:/opt/hbase/bin/../lib/hadoop-yarn-server-common-2.5.1.jar:/opt/hbase/bin/../lib/hbase-annotations-1.2.1-tests.jar:/opt/hbase/bin/../lib/hbase-annotations-1.2.1.jar:/opt/hbase/bin/../lib/hbase-client-1.2.1.jar:/opt/hbase/bin/../lib/hbase-common-1.2.1-tests.jar:/opt/hbase/bin/../lib/hbase-common-1.2.1.jar:/opt/hbase/bin/../lib/hbase-examples-1.2.1.jar:/opt/hbase/bin/../lib/hbase-external-blockcache-1.2.1.jar:/opt/hbase/bin/../lib/hbase-hadoop-compat-1.2.1.jar:/opt/hbase/bin/../lib/hbase-hadoop2-compat-1.2.1.jar:/opt/hbase/bin/../lib/hbase-it-1.2.1-tests.jar:/opt/hbase/bin/../lib/hbase-it-1.2.1.jar:/opt/hbase/bin/../lib/hbase-prefix-tree-1.2.1.jar:/opt/hbase/bin/../lib/hbase-procedure-1.2.1.jar:/opt/hbase/bin/../lib/hbase-protocol-1.2.1.jar:/opt/hbase/bin/../lib/hbase-resource-bundle-1.2.1.jar:/opt/hbase/bin/../lib/hbase-rest-1.2.1.jar:/opt/hbase/bin/../lib/hbase-server-1.2.1-tests.jar:/opt/hbase/bin/../lib/hbase-server-1.2.1.jar:/opt/hbase/bin/../lib/hbase-shell-1.2.1.jar:/opt/hbase/bin/../lib/hbase-thrift-1.2.1.jar:/opt/hbase/bin/../lib/htrace-core-3.1.0-incubating.jar:/opt/hbase/bin/../lib/httpclient-4.2.5.jar:/opt/hbase/bin/../lib/httpcore-4.4.1.jar:/opt/hbase/bin/../lib/jackson-core-asl-1.9.13.jar:/opt/hbase/bin/../lib/jackson-jaxrs-1.9.13.jar:/opt/hbase/bin/../lib/jackson-mapper-asl-1.9.13.jar:/opt/hbase/bin/../lib/jackson-xc-1.9.13.jar:/opt/hbase/bin/../lib/jamon-runtime-2.4.1.jar:/opt/hbase/bin/../lib/jasper-compiler-5.5.23.jar:/opt/hbase/bin/../lib/jasper-runtime-5.5.23.jar:/opt/hbase/bin/../lib/java-xmlbuilder-0.4.jar:/opt/hbase/bin/../lib/javax.inject-1.jar:/opt/hbase/bin/../lib/jaxb-api-2.2.2.jar:/opt/hbase/bin/../lib/jaxb-impl-2.2.3-1.jar:/opt/hbase/bin/../lib/jcodings-1.0.8.jar:/opt/hbase/bin/../lib/jersey-client-1.9.jar:/opt/hbase/bin/../lib/jersey-core-1.9.jar:/opt/hbase/bin/../lib/jersey-guice-1.9.jar:/opt/hbase/bin/../lib/jersey-json-1.9.jar:/opt/hbase/bin/../lib/jersey-server-1.9.jar:/opt/hbase/bin/../lib/jets3t-0.9.0.jar:/opt/hbase/bin/../lib/jettison-1.3.3.jar:/opt/hbase/bin/../lib/jetty-6.1.26.jar:/opt/hbase/bin/../lib/jetty-sslengine-6.1.26.jar:/opt/hbase/bin/../lib/jetty-util-6.1.26.jar:/opt/hbase/bin/../lib/joni-2.1.2.jar:/opt/hbase/bin/../lib/jruby-complete-1.6.8.jar:/opt/hbase/bin/../lib/jsch-0.1.42.jar:/opt/hbase/bin/../lib/jsp-2.1-6.1.14.jar:/opt/hbase/bin/../lib/jsp-api-2.1-6.1.14.jar:/opt/hbase/bin/../lib/jsr305-1.3.9.jar:/opt/hbase/bin/../lib/junit-4.12.jar:/opt/hbase/bin/../lib/leveldbjni-all-1.8.jar:/opt/hbase/bin/../lib/libthrift-0.9.3.jar:/opt/hbase/bin/../lib/log4j-1.2.17.jar:/opt/hbase/bin/../lib/metrics-core-2.2.0.jar:/opt/hbase/bin/../lib/nekohtml-1.9.12.jar:/opt/hbase/bin/../lib/netty-all-4.0.23.Final.jar:/opt/hbase/bin/../lib/paranamer-2.3.jar:/opt/hbase/bin/../lib/protobuf-java-2.5.0.jar:/opt/hbase/bin/../lib/servlet-api-2.5-6.1.14.jar:/opt/hbase/bin/../lib/servlet-api-2.5.jar:/opt/hbase/bin/../lib/slf4j-api-1.7.7.jar:/opt/hbase/bin/../lib/slf4j-log4j12-1.7.5.jar:/opt/hbase/bin/../lib/snappy-java-1.0.4.1.jar:/opt/hbase/bin/../lib/spymemcached-2.11.6.jar:/opt/hbase/bin/../lib/xalan-2.7.0.jar:/opt/hbase/bin/../lib/xml-apis-1.3.03.jar:/opt/hbase/bin/../lib/xml-apis-ext-1.3.04.jar:/opt/hbase/bin/../lib/xmlenc-0.52.jar:/opt/hbase/bin/../lib/xom-1.2.5.jar:/opt/hbase/bin/../lib/xz-1.0.jar:/opt/hbase/bin/../lib/zookeeper-3.4.6.jar:
+[33mhbase_1           |[0m 2020-07-22 09:39:22,001 INFO  [main] zookeeper.ZooKeeper: Client environment:java.library.path=/usr/java/packages/lib/amd64:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib
+[33mhbase_1           |[0m 2020-07-22 09:39:22,001 INFO  [main] zookeeper.ZooKeeper: Client environment:java.io.tmpdir=/tmp
+[33mhbase_1           |[0m 2020-07-22 09:39:22,001 INFO  [main] zookeeper.ZooKeeper: Client environment:java.compiler=<NA>
+[33mhbase_1           |[0m 2020-07-22 09:39:22,001 INFO  [main] zookeeper.ZooKeeper: Client environment:os.name=Linux
+[33mhbase_1           |[0m 2020-07-22 09:39:22,001 INFO  [main] zookeeper.ZooKeeper: Client environment:os.arch=amd64
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,001 INFO  [main] zookeeper.ZooKeeper: Client environment:os.version=5.3.0-62-generic
+[33mhbase_1           |[0m 2020-07-22 09:39:22,001 INFO  [main] zookeeper.ZooKeeper: Client environment:user.name=root
+[33mhbase_1           |[0m 2020-07-22 09:39:22,001 INFO  [main] zookeeper.ZooKeeper: Client environment:user.home=/root
+[33mhbase_1           |[0m 2020-07-22 09:39:22,001 INFO  [main] zookeeper.ZooKeeper: Client environment:user.dir=/opt
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,002 INFO  [main] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2181 sessionTimeout=10000 watcher=master:412290x0, quorum=localhost:2181, baseZNode=/hbase
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,020 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Opening socket connection to server localhost/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,020 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxnFactory: Accepted socket connection from /127.0.0.1:34218
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,021 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Socket connection established to localhost/127.0.0.1:2181, initiating session
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,022 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.ZooKeeperServer: Client attempting to establish new session at /127.0.0.1:34218
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,030 INFO  [SyncThread:0] persistence.FileTxnLog: Creating new log file: log.2100c
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,041 INFO  [SyncThread:0] server.ZooKeeperServer: Established session 0x17375e441fa0000 with negotiated timeout 10000 for client /127.0.0.1:34218
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,042 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Session establishment complete on server localhost/127.0.0.1:2181, sessionid = 0x17375e441fa0000, negotiated timeout = 10000
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,046 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Got user-level KeeperException when processing sessionid:0x17375e441fa0000 type:create cxid:0x1 zxid:0x2100d txntype:-1 reqpath:n/a Error Path:/hbase Error:KeeperErrorCode = NodeExists for /hbase
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,086 INFO  [RpcServer.responder] ipc.RpcServer: RpcServer.responder: starting
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,090 INFO  [RpcServer.listener,port=41229] ipc.RpcServer: RpcServer.listener,port=41229: starting
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,328 INFO  [main] mortbay.log: Logging to org.slf4j.impl.Log4jLoggerAdapter(org.mortbay.log) via org.mortbay.log.Slf4jLog
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,333 INFO  [main] http.HttpRequestLog: Http request log for http.requests.master is not defined
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,347 INFO  [main] http.HttpServer: Added global filter 'safety' (class=org.apache.hadoop.hbase.http.HttpServer$QuotingInputFilter)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,347 INFO  [main] http.HttpServer: Added global filter 'clickjackingprevention' (class=org.apache.hadoop.hbase.http.ClickjackingPreventionFilter)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,350 INFO  [main] http.HttpServer: Added filter static_user_filter (class=org.apache.hadoop.hbase.http.lib.StaticUserWebFilter$StaticUserFilter) to context master
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,350 INFO  [main] http.HttpServer: Added filter static_user_filter (class=org.apache.hadoop.hbase.http.lib.StaticUserWebFilter$StaticUserFilter) to context static
+[33mhbase_1           |[0m 2020-07-22 09:39:22,350 INFO  [main] http.HttpServer: Added filter static_user_filter (class=org.apache.hadoop.hbase.http.lib.StaticUserWebFilter$StaticUserFilter) to context logs
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,377 INFO  [main] http.HttpServer: Jetty bound to port 16010
+[33mhbase_1           |[0m 2020-07-22 09:39:22,377 INFO  [main] mortbay.log: jetty-6.1.26
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,843 INFO  [main] mortbay.log: Started SelectChannelConnector@0.0.0.0:16010
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,853 INFO  [main] master.HMaster: hbase.rootdir=file:/data/hbase, hbase.cluster.distributed=false
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:22,877 INFO  [main] master.HMaster: Adding backup master ZNode /hbase/backup-masters/hbase,41229,1595410761736
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,033 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Got user-level KeeperException when processing sessionid:0x17375e441fa0000 type:create cxid:0x10 zxid:0x2100f txntype:-1 reqpath:n/a Error Path:/hbase/master Error:KeeperErrorCode = NodeExists for /hbase/master
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,053 INFO  [hbase:41229.activeMasterManager] master.ActiveMasterManager: Another master is the active master, hbase,41223,1595410680501; waiting to become the next active master
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,085 INFO  [main] regionserver.RSRpcServices: regionserver/hbase/172.18.0.2:0 server-side HConnection retries=350
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,086 INFO  [main] ipc.SimpleRpcScheduler: Using deadline as user call queue, count=3
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,147 INFO  [main] ipc.RpcServer: regionserver/hbase/172.18.0.2:0: started 10 reader(s) listening on port=41633
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,149 INFO  [main] zookeeper.RecoverableZooKeeper: Process identifier=regionserver:41633 connecting to ZooKeeper ensemble=localhost:2181
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,151 INFO  [main] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2181 sessionTimeout=10000 watcher=regionserver:416330x0, quorum=localhost:2181, baseZNode=/hbase
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,158 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Opening socket connection to server localhost/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,158 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxnFactory: Accepted socket connection from /127.0.0.1:34220
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,207 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Socket connection established to localhost/127.0.0.1:2181, initiating session
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,208 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.ZooKeeperServer: Client attempting to establish new session at /127.0.0.1:34220
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,219 INFO  [SyncThread:0] server.ZooKeeperServer: Established session 0x17375e441fa0001 with negotiated timeout 10000 for client /127.0.0.1:34220
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,219 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Session establishment complete on server localhost/127.0.0.1:2181, sessionid = 0x17375e441fa0001, negotiated timeout = 10000
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,227 INFO  [RpcServer.responder] ipc.RpcServer: RpcServer.responder: starting
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,234 INFO  [RpcServer.listener,port=41633] ipc.RpcServer: RpcServer.listener,port=41633: starting
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,298 INFO  [main] http.HttpRequestLog: Http request log for http.requests.regionserver is not defined
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,299 INFO  [main] http.HttpServer: Added global filter 'safety' (class=org.apache.hadoop.hbase.http.HttpServer$QuotingInputFilter)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,299 INFO  [main] http.HttpServer: Added global filter 'clickjackingprevention' (class=org.apache.hadoop.hbase.http.ClickjackingPreventionFilter)
+[36melasticsearch     |[0m [2020-07-22T09:39:24,622][INFO ][o.e.d.DiscoveryModule    ] [5q9Ine5] using discovery type [zen] and host providers [settings]
+[36melasticsearch     |[0m [2020-07-22T09:39:25,037][INFO ][o.e.n.Node               ] [5q9Ine5] initialized
+[36melasticsearch     |[0m [2020-07-22T09:39:25,037][INFO ][o.e.n.Node               ] [5q9Ine5] starting ...
+[36melasticsearch     |[0m [2020-07-22T09:39:25,175][INFO ][o.e.t.TransportService   ] [5q9Ine5] publish_address {172.18.0.3:9300}, bound_addresses {0.0.0.0:9300}
+[36melasticsearch     |[0m [2020-07-22T09:39:25,196][INFO ][o.e.b.BootstrapChecks    ] [5q9Ine5] bound or publishing to a non-loopback address, enforcing bootstrap checks
+[36melasticsearch     |[0m [2020-07-22T09:39:28,230][INFO ][o.e.c.s.MasterService    ] [5q9Ine5] zen-disco-elected-as-master ([0] nodes joined), reason: new_master {5q9Ine5}{5q9Ine5JToGzVTBOdMThhw}{_w0q-7V6SiWl02g_-m4GQA}{172.18.0.3}{172.18.0.3:9300}
+[36melasticsearch     |[0m [2020-07-22T09:39:28,233][INFO ][o.e.c.s.ClusterApplierService] [5q9Ine5] new_master {5q9Ine5}{5q9Ine5JToGzVTBOdMThhw}{_w0q-7V6SiWl02g_-m4GQA}{172.18.0.3}{172.18.0.3:9300}, reason: apply cluster state (from master [master {5q9Ine5}{5q9Ine5JToGzVTBOdMThhw}{_w0q-7V6SiWl02g_-m4GQA}{172.18.0.3}{172.18.0.3:9300} committed version [1] source [zen-disco-elected-as-master ([0] nodes joined)]])
+[36melasticsearch     |[0m [2020-07-22T09:39:28,243][INFO ][o.e.h.n.Netty4HttpServerTransport] [5q9Ine5] publish_address {172.18.0.3:9200}, bound_addresses {0.0.0.0:9200}
+[36melasticsearch     |[0m [2020-07-22T09:39:28,243][INFO ][o.e.n.Node               ] [5q9Ine5] started
+[36melasticsearch     |[0m [2020-07-22T09:39:28,386][INFO ][o.e.g.GatewayService     ] [5q9Ine5] recovered [7] indices into cluster_state
+[36melasticsearch     |[0m [2020-07-22T09:39:28,659][INFO ][o.e.c.r.a.AllocationService] [5q9Ine5] Cluster health status changed from [RED] to [GREEN] (reason: [shards started [[consoles_history][0], [table-meta][0], [consoles_v2][0], [consoles][0]] ...]).
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,300 INFO  [main] http.HttpServer: Added filter static_user_filter (class=org.apache.hadoop.hbase.http.lib.StaticUserWebFilter$StaticUserFilter) to context regionserver
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,300 INFO  [main] http.HttpServer: Added filter static_user_filter (class=org.apache.hadoop.hbase.http.lib.StaticUserWebFilter$StaticUserFilter) to context logs
+[33mhbase_1           |[0m 2020-07-22 09:39:23,300 INFO  [main] http.HttpServer: Added filter static_user_filter (class=org.apache.hadoop.hbase.http.lib.StaticUserWebFilter$StaticUserFilter) to context static
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,303 INFO  [main] http.HttpServer: Jetty bound to port 36787
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,303 INFO  [main] mortbay.log: jetty-6.1.26
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,427 INFO  [main] mortbay.log: Started SelectChannelConnector@0.0.0.0:36787
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,519 INFO  [M:0;hbase:41229] zookeeper.RecoverableZooKeeper: Process identifier=hconnection-0x33489efd connecting to ZooKeeper ensemble=localhost:2181
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,519 INFO  [M:0;hbase:41229] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2181 sessionTimeout=10000 watcher=hconnection-0x33489efd0x0, quorum=localhost:2181, baseZNode=/hbase
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,523 INFO  [M:0;hbase:41229-SendThread(localhost:2181)] zookeeper.ClientCnxn: Opening socket connection to server localhost/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,523 INFO  [M:0;hbase:41229-SendThread(localhost:2181)] zookeeper.ClientCnxn: Socket connection established to localhost/127.0.0.1:2181, initiating session
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,526 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxnFactory: Accepted socket connection from /127.0.0.1:34222
+[33mhbase_1           |[0m 2020-07-22 09:39:23,528 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.ZooKeeperServer: Client attempting to establish new session at /127.0.0.1:34222
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,530 INFO  [SyncThread:0] server.ZooKeeperServer: Established session 0x17375e441fa0002 with negotiated timeout 10000 for client /127.0.0.1:34222
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,530 INFO  [M:0;hbase:41229-SendThread(localhost:2181)] zookeeper.ClientCnxn: Session establishment complete on server localhost/127.0.0.1:2181, sessionid = 0x17375e441fa0002, negotiated timeout = 10000
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:23,563 INFO  [M:0;hbase:41229] regionserver.HRegionServer: ClusterId : 0cbe9efc-c509-45a5-97a4-499957bb7b66
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,001 INFO  [SessionTracker] server.ZooKeeperServer: Expiring session 0x17375e303770005, timeout of 10000ms exceeded
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,001 INFO  [SessionTracker] server.ZooKeeperServer: Expiring session 0x17375e303770000, timeout of 10000ms exceeded
+[33mhbase_1           |[0m 2020-07-22 09:39:32,001 INFO  [SessionTracker] server.ZooKeeperServer: Expiring session 0x17375e303770004, timeout of 10000ms exceeded
+[33mhbase_1           |[0m 2020-07-22 09:39:32,001 INFO  [SessionTracker] server.ZooKeeperServer: Expiring session 0x17375e303770002, timeout of 10000ms exceeded
+[33mhbase_1           |[0m 2020-07-22 09:39:32,001 INFO  [SessionTracker] server.ZooKeeperServer: Expiring session 0x17375e303770003, timeout of 10000ms exceeded
+[33mhbase_1           |[0m 2020-07-22 09:39:32,001 INFO  [SessionTracker] server.ZooKeeperServer: Expiring session 0x17375e303770001, timeout of 10000ms exceeded
+[33mhbase_1           |[0m 2020-07-22 09:39:32,001 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Processed session termination for sessionid: 0x17375e303770005
+[33mhbase_1           |[0m 2020-07-22 09:39:32,001 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Processed session termination for sessionid: 0x17375e303770000
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,001 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Processed session termination for sessionid: 0x17375e303770004
+[33mhbase_1           |[0m 2020-07-22 09:39:32,001 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Processed session termination for sessionid: 0x17375e303770002
+[33mhbase_1           |[0m 2020-07-22 09:39:32,001 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Processed session termination for sessionid: 0x17375e303770003
+[33mhbase_1           |[0m 2020-07-22 09:39:32,001 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Processed session termination for sessionid: 0x17375e303770001
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,010 INFO  [hbase:41229.activeMasterManager] master.ActiveMasterManager: Deleting ZNode for /hbase/backup-masters/hbase,41229,1595410761736 from backup master directory
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,013 WARN  [hbase:41229.activeMasterManager] hbase.ZNodeClearer: Environment variable HBASE_ZNODE_FILE not set; znodes will not be cleared on crash by start scripts (Longer MTTR!)
+[33mhbase_1           |[0m 2020-07-22 09:39:32,013 INFO  [hbase:41229.activeMasterManager] master.ActiveMasterManager: Registered Active Master=hbase,41229,1595410761736
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,056 INFO  [hbase:41229.activeMasterManager] coordination.SplitLogManagerCoordination: Found 0 orphan tasks and 0 rescan nodes
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,060 INFO  [RS:0;hbase:41633] zookeeper.RecoverableZooKeeper: Process identifier=hconnection-0x561d3720 connecting to ZooKeeper ensemble=localhost:2181
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,060 INFO  [RS:0;hbase:41633] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2181 sessionTimeout=10000 watcher=hconnection-0x561d37200x0, quorum=localhost:2181, baseZNode=/hbase
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,065 INFO  [RS:0;hbase:41633-SendThread(localhost:2181)] zookeeper.ClientCnxn: Opening socket connection to server localhost/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,066 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxnFactory: Accepted socket connection from /127.0.0.1:34328
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,066 INFO  [RS:0;hbase:41633-SendThread(localhost:2181)] zookeeper.ClientCnxn: Socket connection established to localhost/127.0.0.1:2181, initiating session
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,067 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.ZooKeeperServer: Client attempting to establish new session at /127.0.0.1:34328
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,068 INFO  [SyncThread:0] server.ZooKeeperServer: Established session 0x17375e441fa0003 with negotiated timeout 10000 for client /127.0.0.1:34328
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,068 INFO  [RS:0;hbase:41633-SendThread(localhost:2181)] zookeeper.ClientCnxn: Session establishment complete on server localhost/127.0.0.1:2181, sessionid = 0x17375e441fa0003, negotiated timeout = 10000
+[33mhbase_1           |[0m 2020-07-22 09:39:32,069 INFO  [hbase:41229.activeMasterManager] zookeeper.RecoverableZooKeeper: Process identifier=hconnection-0x445dd583 connecting to ZooKeeper ensemble=localhost:2181
+[33mhbase_1           |[0m 2020-07-22 09:39:32,069 INFO  [hbase:41229.activeMasterManager] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2181 sessionTimeout=10000 watcher=hconnection-0x445dd5830x0, quorum=localhost:2181, baseZNode=/hbase
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,070 INFO  [RS:0;hbase:41633] regionserver.HRegionServer: ClusterId : 0cbe9efc-c509-45a5-97a4-499957bb7b66
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,075 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Got user-level KeeperException when processing sessionid:0x17375e441fa0001 type:create cxid:0x9 zxid:0x2101c txntype:-1 reqpath:n/a Error Path:/hbase/flush-table-proc/acquired Error:KeeperErrorCode = NodeExists for /hbase/flush-table-proc/acquired
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,079 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Got user-level KeeperException when processing sessionid:0x17375e441fa0001 type:create cxid:0xc zxid:0x2101d txntype:-1 reqpath:n/a Error Path:/hbase/online-snapshot/acquired Error:KeeperErrorCode = NodeExists for /hbase/online-snapshot/acquired
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,085 INFO  [RS:0;hbase:41633] regionserver.MemStoreFlusher: globalMemStoreLimit=3.1 G, globalMemStoreLimitLowMark=2.9 G, maxHeap=7.7 G
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,086 INFO  [hbase:41229.activeMasterManager-SendThread(localhost:2181)] zookeeper.ClientCnxn: Opening socket connection to server localhost/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,087 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxnFactory: Accepted socket connection from /127.0.0.1:34330
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,087 INFO  [hbase:41229.activeMasterManager-SendThread(localhost:2181)] zookeeper.ClientCnxn: Socket connection established to localhost/127.0.0.1:2181, initiating session
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,087 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.ZooKeeperServer: Client attempting to establish new session at /127.0.0.1:34330
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,089 INFO  [SyncThread:0] server.ZooKeeperServer: Established session 0x17375e441fa0004 with negotiated timeout 10000 for client /127.0.0.1:34330
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,089 INFO  [hbase:41229.activeMasterManager-SendThread(localhost:2181)] zookeeper.ClientCnxn: Session establishment complete on server localhost/127.0.0.1:2181, sessionid = 0x17375e441fa0004, negotiated timeout = 10000
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,090 INFO  [RS:0;hbase:41633] regionserver.HRegionServer: CompactionChecker runs every 10sec
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,098 INFO  [hbase:41229.activeMasterManager] balancer.StochasticLoadBalancer: loading config
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,106 INFO  [RS:0;hbase:41633] regionserver.RegionServerCoprocessorHost: System coprocessor loading is enabled
+[33mhbase_1           |[0m 2020-07-22 09:39:32,106 INFO  [RS:0;hbase:41633] regionserver.RegionServerCoprocessorHost: Table coprocessor loading is enabled
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,107 INFO  [RS:0;hbase:41633] regionserver.HRegionServer: reportForDuty to master=hbase,41229,1595410761736 with port=41633, startcode=1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,187 INFO  [hbase:41229.activeMasterManager] master.HMaster: Server active/primary master=hbase,41229,1595410761736, sessionid=0x17375e441fa0000, setting cluster-up flag (Was=true)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,196 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Got user-level KeeperException when processing sessionid:0x17375e441fa0000 type:create cxid:0x2f zxid:0x21020 txntype:-1 reqpath:n/a Error Path:/hbase/flush-table-proc/acquired Error:KeeperErrorCode = NodeExists for /hbase/flush-table-proc/acquired
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,198 INFO  [hbase:41229.activeMasterManager] procedure.ZKProcedureUtil: Clearing all procedure znodes: /hbase/flush-table-proc/acquired /hbase/flush-table-proc/reached /hbase/flush-table-proc/abort
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,201 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Got user-level KeeperException when processing sessionid:0x17375e441fa0000 type:create cxid:0x35 zxid:0x21021 txntype:-1 reqpath:n/a Error Path:/hbase/online-snapshot/acquired Error:KeeperErrorCode = NodeExists for /hbase/online-snapshot/acquired
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,202 INFO  [hbase:41229.activeMasterManager] procedure.ZKProcedureUtil: Clearing all procedure znodes: /hbase/online-snapshot/acquired /hbase/online-snapshot/reached /hbase/online-snapshot/abort
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,222 INFO  [hbase:41229.activeMasterManager] master.MasterCoprocessorHost: System coprocessor loading is enabled
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,234 INFO  [hbase:41229.activeMasterManager] procedure2.ProcedureExecutor: Starting procedure executor threads=9
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,235 INFO  [hbase:41229.activeMasterManager] wal.WALProcedureStore: Starting WAL Procedure Store lease recovery
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,237 WARN  [hbase:41229.activeMasterManager] wal.WALProcedureStore: Remove uninitialized log: DeprecatedRawLocalFileStatus{path=file:/data/hbase/MasterProcWALs/state-00000000000000000219.log; isDirectory=false; length=0; replication=1; blocksize=33554432; modification_time=1595410713000; access_time=0; owner=; group=; permission=rw-rw-rw-; isSymlink=false}
+[32mfoxtrot_server    |[0m done
+[32mfoxtrot_server    |[0m Executing Init Command: java -jar server.jar initialize /config/docker.yml
+[32mfoxtrot_server    |[0m ERROR StatusLogger Log4j2 could not find a logging implementation. Please add log4j-core to the classpath. Using SimpleLogger to log to the console...
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,394]  [main] [ElasticsearchConnection]: Starting ElasticSearch Client
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,657]  [main] [ElasticsearchConnection]: Started ElasticSearch Client
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,804]  [main] [InitializerCommand]: # data nodes: 1, Setting replica count to: 0
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,823]  [main] [InitializerCommand]: Index consoles already exists. Nothing to do.
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,830]  [main] [InitializerCommand]: Index consoles_v2 already exists. Nothing to do.
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,834]  [main] [InitializerCommand]: Index table-meta already exists. Nothing to do.
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,838]  [main] [InitializerCommand]: Index consoles_history already exists. Nothing to do.
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,842]  [main] [InitializerCommand]: Index fql-store already exists. Nothing to do.
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,846]  [main] [InitializerCommand]: Index user-meta already exists. Nothing to do.
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,850]  [main] [InitializerCommand]: Index tokens already exists. Nothing to do.
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,850]  [main] [InitializerCommand]: Creating mapping
+[36melasticsearch     |[0m [2020-07-22T09:39:34,960][INFO ][o.e.c.m.MetaDataIndexTemplateService] [5q9Ine5] adding template [template_foxtrot_mappings] for index patterns [foxtrot-*]
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,966]  [main] [InitializerCommand]: Created mapping: true
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,966]  [main] [ElasticsearchConnection]: Stopping ElasticSearch client
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:34,968]  [main] [InitializerCommand]: Creating hbase table
+[32mfoxtrot_server    |[0m WARN  [2020-07-22 09:39:35,221]  [main] [NativeCodeLoader]: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,246 INFO  [hbase:41229.activeMasterManager] wal.WALProcedureStore: Lease acquired for flushLogId: 220
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,260 INFO  [hbase:41229.activeMasterManager] zookeeper.RecoverableZooKeeper: Process identifier=replicationLogCleaner connecting to ZooKeeper ensemble=localhost:2181
+[33mhbase_1           |[0m 2020-07-22 09:39:32,260 INFO  [hbase:41229.activeMasterManager] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2181 sessionTimeout=10000 watcher=replicationLogCleaner0x0, quorum=localhost:2181, baseZNode=/hbase
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,263 INFO  [hbase:41229.activeMasterManager-SendThread(localhost:2181)] zookeeper.ClientCnxn: Opening socket connection to server localhost/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,263 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxnFactory: Accepted socket connection from /127.0.0.1:34332
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,264 INFO  [hbase:41229.activeMasterManager-SendThread(localhost:2181)] zookeeper.ClientCnxn: Socket connection established to localhost/127.0.0.1:2181, initiating session
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,265 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.ZooKeeperServer: Client attempting to establish new session at /127.0.0.1:34332
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,271 INFO  [SyncThread:0] server.ZooKeeperServer: Established session 0x17375e441fa0005 with negotiated timeout 10000 for client /127.0.0.1:34332
+[33mhbase_1           |[0m 2020-07-22 09:39:32,271 INFO  [hbase:41229.activeMasterManager-SendThread(localhost:2181)] zookeeper.ClientCnxn: Session establishment complete on server localhost/127.0.0.1:2181, sessionid = 0x17375e441fa0005, negotiated timeout = 10000
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,276 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Got user-level KeeperException when processing sessionid:0x17375e441fa0005 type:create cxid:0x1 zxid:0x21023 txntype:-1 reqpath:n/a Error Path:/hbase/replication/rs Error:KeeperErrorCode = NodeExists for /hbase/replication/rs
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,284 INFO  [hbase:41229.activeMasterManager] master.ServerManager: Waiting for region servers count to settle; currently checked in 0, slept for 0 ms, expecting minimum of 1, maximum of 2147483647, timeout of 4500 ms, interval of 1500 ms.
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:32,288 WARN  [RS:0;hbase:41633] regionserver.HRegionServer: reportForDuty failed; sleeping and then retrying.
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:33,787 INFO  [hbase:41229.activeMasterManager] master.ServerManager: Waiting for region servers count to settle; currently checked in 0, slept for 1503 ms, expecting minimum of 1, maximum of 2147483647, timeout of 4500 ms, interval of 1500 ms.
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,289 INFO  [RS:0;hbase:41633] regionserver.HRegionServer: reportForDuty to master=hbase,41229,1595410761736 with port=41633, startcode=1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,290 INFO  [hbase:41229.activeMasterManager] master.ServerManager: Waiting for region servers count to settle; currently checked in 0, slept for 3006 ms, expecting minimum of 1, maximum of 2147483647, timeout of 4500 ms, interval of 1500 ms.
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,302 INFO  [B.defaultRpcServer.handler=5,queue=2,port=41229] master.ServerManager: Registering server=hbase,41633,1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,312 WARN  [RS:0;hbase:41633] hbase.ZNodeClearer: Environment variable HBASE_ZNODE_FILE not set; znodes will not be cleared on crash by start scripts (Longer MTTR!)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,315 INFO  [RS:0;hbase:41633] hfile.CacheConfig: Allocating LruBlockCache size=3.10 GB, blockSize=64 KB
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,324 INFO  [RS:0;hbase:41633] hfile.CacheConfig: blockCache=LruBlockCache{blockCount=0, currentSize=3412528, freeSize=3323299792, maxSize=3326712320, heapSize=3412528, minSize=3160376576, minFactor=0.95, multiSize=1580188288, multiFactor=0.5, singleSize=790094144, singleFactor=0.25}, cacheDataOnRead=true, cacheDataOnWrite=false, cacheIndexesOnWrite=false, cacheBloomsOnWrite=false, cacheEvictOnClose=false, cacheDataCompressed=false, prefetchOnOpen=false
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,340 INFO  [hbase:41229.activeMasterManager] master.ServerManager: Waiting for region servers count to settle; currently checked in 1, slept for 3056 ms, expecting minimum of 1, maximum of 2147483647, timeout of 4500 ms, interval of 1500 ms.
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,372 INFO  [RS:0;hbase:41633] wal.WALFactory: Instantiating WALProvider of type class org.apache.hadoop.hbase.wal.DefaultWALProvider
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,385 INFO  [RS:0;hbase:41633] wal.FSHLog: WAL configuration: blocksize=32 MB, rollsize=30.40 MB, prefix=hbase%2C41633%2C1595410763148.default, suffix=, logDir=file:/data/hbase/WALs/hbase,41633,1595410763148, archiveDir=file:/data/hbase/oldWALs
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,423 INFO  [RS:0;hbase:41633] wal.FSHLog: Slow sync cost: 0 ms, current pipeline: []
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,424 INFO  [RS:0;hbase:41633] wal.FSHLog: New WAL /data/hbase/WALs/hbase,41633,1595410763148/hbase%2C41633%2C1595410763148.default.1595410775385
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,450 INFO  [RS:0;hbase:41633] regionserver.MetricsRegionServerWrapperImpl: Computing regionserver metrics every 5000 milliseconds
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,458 INFO  [RS:0;hbase:41633] regionserver.ReplicationSourceManager: Current list of replicators: [hbase,37695,1595404637854, hbase,41633,1595410763148, hbase,43049,1595410682202] other RSs: [hbase,41633,1595410763148]
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,498 INFO  [SplitLogWorker-hbase:41633] regionserver.SplitLogWorker: SplitLogWorker hbase,41633,1595410763148 starting
+[33mhbase_1           |[0m 2020-07-22 09:39:35,500 INFO  [RS:0;hbase:41633] regionserver.HeapMemoryManager: Starting HeapMemoryTuner chore.
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,502 INFO  [RS:0;hbase:41633] regionserver.HRegionServer: Serving as hbase,41633,1595410763148, RpcServer on hbase/172.18.0.2:41633, sessionid=0x17375e441fa0001
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,514 INFO  [RS:0;hbase:41633] quotas.RegionServerQuotaManager: Quota support disabled
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,534 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxnFactory: Accepted socket connection from /172.18.0.4:53314
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,537 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.ZooKeeperServer: Client attempting to establish new session at /172.18.0.4:53314
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:35,539 INFO  [SyncThread:0] server.ZooKeeperServer: Established session 0x17375e441fa0006 with negotiated timeout 40000 for client /172.18.0.4:53314
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,845 INFO  [hbase:41229.activeMasterManager] master.ServerManager: Finished waiting for region servers count to settle; checked in 1, slept for 4561 ms, expecting minimum of 1, maximum of 2147483647, master is running
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,846 INFO  [hbase:41229.activeMasterManager] master.MasterFileSystem: Log folder file:/data/hbase/WALs/hbase,43049,1595410682202 doesn't belong to a known region server, splitting
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,847 INFO  [hbase:41229.activeMasterManager] master.MasterFileSystem: Log folder file:/data/hbase/WALs/hbase,41633,1595410763148 belongs to an existing region server
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,850 INFO  [hbase:41229.activeMasterManager] master.SplitLogManager: dead splitlog workers [hbase,43049,1595410682202]
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,851 INFO  [hbase:41229.activeMasterManager] master.SplitLogManager: Started splitting 1 logs in [file:/data/hbase/WALs/hbase,43049,1595410682202-splitting] for [hbase,43049,1595410682202]
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,861 INFO  [SplitLogWorker-hbase:41633] coordination.ZkSplitLogWorkerCoordination: worker hbase,41633,1595410763148 acquired task /hbase/splitWAL/WALs%2Fhbase%2C43049%2C1595410682202-splitting%2Fhbase%252C43049%252C1595410682202..meta.1595410688276.meta
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,861 INFO  [main-EventThread] coordination.SplitLogManagerCoordination: task /hbase/splitWAL/WALs%2Fhbase%2C43049%2C1595410682202-splitting%2Fhbase%252C43049%252C1595410682202..meta.1595410688276.meta acquired by hbase,41633,1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,885 INFO  [RS_LOG_REPLAY_OPS-hbase:41633-0] wal.WALSplitter: Splitting wal: file:/data/hbase/WALs/hbase,43049,1595410682202-splitting/hbase%2C43049%2C1595410682202..meta.1595410688276.meta, length=1016
+[33mhbase_1           |[0m 2020-07-22 09:39:36,886 INFO  [RS_LOG_REPLAY_OPS-hbase:41633-0] wal.WALSplitter: DistributedLogReplay = false
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,939 INFO  [RS_LOG_REPLAY_OPS-hbase:41633-0] wal.WALSplitter: 3 split writers finished; closing...
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,943 INFO  [split-log-closeStream-1] wal.WALSplitter: Rename file:/data/hbase/data/hbase/meta/1588230740/recovered.edits/0000000000000000677.temp to file:/data/hbase/data/hbase/meta/1588230740/recovered.edits/0000000000000000678
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,944 INFO  [RS_LOG_REPLAY_OPS-hbase:41633-0] wal.WALSplitter: Processed 2 edits across 1 regions; edits skipped=1; log file=file:/data/hbase/WALs/hbase,43049,1595410682202-splitting/hbase%2C43049%2C1595410682202..meta.1595410688276.meta, length=1016, corrupted=false, progress failed=false
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,947 INFO  [RS_LOG_REPLAY_OPS-hbase:41633-0] coordination.ZkSplitLogWorkerCoordination: successfully transitioned task /hbase/splitWAL/WALs%2Fhbase%2C43049%2C1595410682202-splitting%2Fhbase%252C43049%252C1595410682202..meta.1595410688276.meta to final state DONE hbase,41633,1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,947 INFO  [RS_LOG_REPLAY_OPS-hbase:41633-0] handler.WALSplitterHandler: worker hbase,41633,1595410763148 done with task org.apache.hadoop.hbase.coordination.ZkSplitLogWorkerCoordination$ZkSplitTaskDetails@bb64aec in 84ms
+[33mhbase_1           |[0m 2020-07-22 09:39:36,947 INFO  [main-EventThread] coordination.SplitLogManagerCoordination: task /hbase/splitWAL/WALs%2Fhbase%2C43049%2C1595410682202-splitting%2Fhbase%252C43049%252C1595410682202..meta.1595410688276.meta entered state: DONE hbase,41633,1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,948 INFO  [main-EventThread] wal.WALSplitter: Archived processed log file:/data/hbase/WALs/hbase,43049,1595410682202-splitting/hbase%2C43049%2C1595410682202..meta.1595410688276.meta to file:/data/hbase/oldWALs/hbase%2C43049%2C1595410682202..meta.1595410688276.meta
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,949 INFO  [main-EventThread] coordination.SplitLogManagerCoordination: Done splitting /hbase/splitWAL/WALs%2Fhbase%2C43049%2C1595410682202-splitting%2Fhbase%252C43049%252C1595410682202..meta.1595410688276.meta
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,950 WARN  [hbase:41229.activeMasterManager] master.SplitLogManager: Returning success without actually splitting and deleting all the log files in path file:/data/hbase/WALs/hbase,43049,1595410682202-splitting: [DeprecatedRawLocalFileStatus{path=file:/data/hbase/WALs/hbase,43049,1595410682202-splitting/hbase%2C43049%2C1595410682202.default.1595410683976; isDirectory=false; length=669; replication=1; blocksize=33554432; modification_time=1595410689000; access_time=0; owner=; group=; permission=rw-rw-rw-; isSymlink=false}]
+[33mhbase_1           |[0m java.io.IOException: Directory /data/hbase/WALs/hbase,43049,1595410682202-splitting is not empty
+[33mhbase_1           |[0m 	at org.apache.hadoop.fs.RawLocalFileSystem.delete(RawLocalFileSystem.java:360)
+[33mhbase_1           |[0m 	at org.apache.hadoop.fs.ChecksumFileSystem.delete(ChecksumFileSystem.java:540)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.SplitLogManager.splitLogDistributed(SplitLogManager.java:296)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.MasterFileSystem.splitLog(MasterFileSystem.java:398)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.MasterFileSystem.splitMetaLog(MasterFileSystem.java:313)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.MasterFileSystem.splitMetaLog(MasterFileSystem.java:304)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.HMaster.splitMetaLogBeforeAssignment(HMaster.java:989)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.HMaster.finishActiveMasterInitialization(HMaster.java:695)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.HMaster.access$500(HMaster.java:184)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.HMaster$1.run(HMaster.java:1729)
+[33mhbase_1           |[0m 	at java.lang.Thread.run(Thread.java:745)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,951 INFO  [hbase:41229.activeMasterManager] master.SplitLogManager: finished splitting (more than or equal to) 1016 bytes in 1 log files in [file:/data/hbase/WALs/hbase,43049,1595410682202-splitting] in 100ms
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,964 INFO  [hbase:41229.activeMasterManager] zookeeper.MetaTableLocator: Failed verification of hbase:meta,,1 at address=hbase,43049,1595410682202, exception=Connection refused
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,965 INFO  [hbase:41229.activeMasterManager] master.SplitLogManager: dead splitlog workers [hbase,43049,1595410682202]
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,965 INFO  [hbase:41229.activeMasterManager] master.SplitLogManager: file:/data/hbase/WALs/hbase,43049,1595410682202-splitting is empty dir, no logs to split
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,965 INFO  [hbase:41229.activeMasterManager] master.SplitLogManager: Started splitting 0 logs in [file:/data/hbase/WALs/hbase,43049,1595410682202-splitting] for [hbase,43049,1595410682202]
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,965 WARN  [hbase:41229.activeMasterManager] master.SplitLogManager: Returning success without actually splitting and deleting all the log files in path file:/data/hbase/WALs/hbase,43049,1595410682202-splitting: [DeprecatedRawLocalFileStatus{path=file:/data/hbase/WALs/hbase,43049,1595410682202-splitting/hbase%2C43049%2C1595410682202.default.1595410683976; isDirectory=false; length=669; replication=1; blocksize=33554432; modification_time=1595410689000; access_time=0; owner=; group=; permission=rw-rw-rw-; isSymlink=false}]
+[33mhbase_1           |[0m java.io.IOException: Directory /data/hbase/WALs/hbase,43049,1595410682202-splitting is not empty
+[33mhbase_1           |[0m 	at org.apache.hadoop.fs.RawLocalFileSystem.delete(RawLocalFileSystem.java:360)
+[33mhbase_1           |[0m 	at org.apache.hadoop.fs.ChecksumFileSystem.delete(ChecksumFileSystem.java:540)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.SplitLogManager.splitLogDistributed(SplitLogManager.java:296)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.MasterFileSystem.splitLog(MasterFileSystem.java:398)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.MasterFileSystem.splitMetaLog(MasterFileSystem.java:313)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.MasterFileSystem.splitMetaLog(MasterFileSystem.java:304)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.HMaster.splitMetaLogBeforeAssignment(HMaster.java:989)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.HMaster.assignMeta(HMaster.java:917)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.HMaster.finishActiveMasterInitialization(HMaster.java:728)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.HMaster.access$500(HMaster.java:184)
+[33mhbase_1           |[0m 	at org.apache.hadoop.hbase.master.HMaster$1.run(HMaster.java:1729)
+[33mhbase_1           |[0m 	at java.lang.Thread.run(Thread.java:745)
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,966 INFO  [hbase:41229.activeMasterManager] master.SplitLogManager: finished splitting (more than or equal to) 0 bytes in 0 log files in [file:/data/hbase/WALs/hbase,43049,1595410682202-splitting] in 1ms
+[33mhbase_1           |[0m 2020-07-22 09:39:36,966 INFO  [hbase:41229.activeMasterManager] zookeeper.MetaTableLocator: Deleting hbase:meta region location in ZooKeeper
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,969 INFO  [hbase:41229.activeMasterManager] master.AssignmentManager: Setting node as OFFLINED in ZooKeeper for region {ENCODED => 1588230740, NAME => 'hbase:meta,,1', STARTKEY => '', ENDKEY => ''}
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,975 INFO  [hbase:41229.activeMasterManager] master.AssignmentManager: Assigning hbase:meta,,1.1588230740 to hbase,41633,1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,975 INFO  [hbase:41229.activeMasterManager] master.RegionStates: Transition {1588230740 state=OFFLINE, ts=1595410776969, server=null} to {1588230740 state=PENDING_OPEN, ts=1595410776975, server=hbase,41633,1595410763148}
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,985 INFO  [PriorityRpcServer.handler=0,queue=0,port=41633] regionserver.RSRpcServices: Open hbase:meta,,1.1588230740
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,990 INFO  [hbase:41229.activeMasterManager] master.ServerManager: AssignmentManager hasn't finished failover cleanup; waiting
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,994 INFO  [RS_OPEN_META-hbase:41633-0] wal.WALFactory: Instantiating WALProvider of type class org.apache.hadoop.hbase.wal.DefaultWALProvider
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,995 INFO  [RS_OPEN_META-hbase:41633-0] wal.FSHLog: WAL configuration: blocksize=32 MB, rollsize=30.40 MB, prefix=hbase%2C41633%2C1595410763148..meta, suffix=.meta, logDir=file:/data/hbase/WALs/hbase,41633,1595410763148, archiveDir=file:/data/hbase/oldWALs
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:36,996 INFO  [AM.ZK.Worker-pool2-t1] master.RegionStates: Transition {1588230740 state=PENDING_OPEN, ts=1595410776975, server=hbase,41633,1595410763148} to {1588230740 state=OPENING, ts=1595410776996, server=hbase,41633,1595410763148}
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,006 INFO  [RS_OPEN_META-hbase:41633-0] wal.FSHLog: Slow sync cost: 0 ms, current pipeline: []
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,006 INFO  [RS_OPEN_META-hbase:41633-0] wal.FSHLog: New WAL /data/hbase/WALs/hbase,41633,1595410763148/hbase%2C41633%2C1595410763148..meta.1595410776995.meta
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,041 INFO  [RS_OPEN_META-hbase:41633-0] regionserver.RegionCoprocessorHost: Loaded coprocessor org.apache.hadoop.hbase.coprocessor.MultiRowMutationEndpoint from HTD of hbase:meta successfully.
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,084 INFO  [StoreOpener-1588230740-1] hfile.CacheConfig: blockCache=LruBlockCache{blockCount=0, currentSize=3412528, freeSize=3323299792, maxSize=3326712320, heapSize=3412528, minSize=3160376576, minFactor=0.95, multiSize=1580188288, multiFactor=0.5, singleSize=790094144, singleFactor=0.25}, cacheDataOnRead=true, cacheDataOnWrite=false, cacheIndexesOnWrite=false, cacheBloomsOnWrite=false, cacheEvictOnClose=false, cacheDataCompressed=false, prefetchOnOpen=false
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,090 INFO  [StoreOpener-1588230740-1] compactions.CompactionConfiguration: size [134217728, 9223372036854775807, 9223372036854775807); files [3, 10); ratio 1.200000; off-peak ratio 5.000000; throttle point 2684354560; major period 604800000, major jitter 0.500000, min locality to compact 0.000000
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,136 INFO  [RS_OPEN_META-hbase:41633-0] regionserver.HRegion: Replaying edits from file:/data/hbase/data/hbase/meta/1588230740/recovered.edits/0000000000000000678
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,141 INFO  [RS_OPEN_META-hbase:41633-0] regionserver.HRegion: Flushing 1/1 column families, memstore=1.38 KB; WAL is null, using passed sequenceid=678
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,189 INFO  [RS_OPEN_META-hbase:41633-0] regionserver.DefaultStoreFlusher: Flushed, sequenceid=678, memsize=1.4 K, hasBloomFilter=false, into tmp file file:/data/hbase/data/hbase/meta/1588230740/.tmp/ec2b6cf702f1488f8d734d1e8a2a5d6a
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,210 INFO  [RS_OPEN_META-hbase:41633-0] regionserver.HStore: Added file:/data/hbase/data/hbase/meta/1588230740/info/ec2b6cf702f1488f8d734d1e8a2a5d6a, entries=6, sequenceid=678, filesize=5.3 K
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,211 INFO  [RS_OPEN_META-hbase:41633-0] regionserver.HRegion: Finished memstore flush of ~1.38 KB/1416, currentsize=0 B/0 for region hbase:meta,,1.1588230740 in 71ms, sequenceid=678, compaction requested=false; wal=null
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,223 INFO  [RS_OPEN_META-hbase:41633-0] regionserver.HRegion: Onlined 1588230740; next sequenceid=679
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,234 INFO  [PostOpenDeployTasks:1588230740] regionserver.HRegionServer: Post open deploy tasks for hbase:meta,,1.1588230740
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,235 INFO  [PostOpenDeployTasks:1588230740] zookeeper.MetaTableLocator: Setting hbase:meta region location in ZooKeeper as hbase,41633,1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,236 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Got user-level KeeperException when processing sessionid:0x17375e441fa0001 type:setData cxid:0x39 zxid:0x2102e txntype:-1 reqpath:n/a Error Path:/hbase/meta-region-server Error:KeeperErrorCode = NoNode for /hbase/meta-region-server
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,241 INFO  [AM.ZK.Worker-pool2-t2] master.RegionStates: Transition {1588230740 state=OPENING, ts=1595410776996, server=hbase,41633,1595410763148} to {1588230740 state=OPEN, ts=1595410777241, server=hbase,41633,1595410763148}
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,242 INFO  [AM.ZK.Worker-pool2-t2] coordination.ZkOpenRegionCoordination: Handling OPENED of 1588230740 from hbase,41229,1595410761736; deleting unassigned node
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,249 INFO  [hbase:41229.activeMasterManager] master.HMaster: hbase:meta with replicaId 0 assigned=1, rit=false, location=hbase,41633,1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,309 INFO  [hbase:41229.activeMasterManager] hbase.MetaMigrationConvertingToPB: META already up-to date with PB serialization
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,322 INFO  [hbase:41229.activeMasterManager] master.RegionStates: Transition {d7c0a1ab1664e7d809c8b3dcacccddf7 state=OPEN, ts=1595410777322, server=hbase,43049,1595410682202} to {d7c0a1ab1664e7d809c8b3dcacccddf7 state=OFFLINE, ts=1595410777322, server=hbase,43049,1595410682202}
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,322 INFO  [hbase:41229.activeMasterManager] master.RegionStates: Transition {d0d5370755b75937494d142505e5a2a4 state=OPEN, ts=1595410777322, server=hbase,43049,1595410682202} to {d0d5370755b75937494d142505e5a2a4 state=OFFLINE, ts=1595410777322, server=hbase,43049,1595410682202}
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,323 INFO  [hbase:41229.activeMasterManager] master.AssignmentManager: Found regions out on cluster or in RIT; presuming failover
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,442 INFO  [hbase:41229.activeMasterManager] master.AssignmentManager: Joined the cluster in 133ms, failover=true
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,443 INFO  [ProcedureExecutor-0] procedure.ServerCrashProcedure: Start processing crashed hbase,43049,1595410682202
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,650 INFO  [ProcedureExecutor-2] master.SplitLogManager: dead splitlog workers [hbase,43049,1595410682202]
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,651 INFO  [ProcedureExecutor-2] master.SplitLogManager: Started splitting 1 logs in [file:/data/hbase/WALs/hbase,43049,1595410682202-splitting] for [hbase,43049,1595410682202]
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,655 INFO  [SplitLogWorker-hbase:41633] coordination.ZkSplitLogWorkerCoordination: worker hbase,41633,1595410763148 acquired task /hbase/splitWAL/WALs%2Fhbase%2C43049%2C1595410682202-splitting%2Fhbase%252C43049%252C1595410682202.default.1595410683976
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,655 INFO  [main-EventThread] coordination.SplitLogManagerCoordination: task /hbase/splitWAL/WALs%2Fhbase%2C43049%2C1595410682202-splitting%2Fhbase%252C43049%252C1595410682202.default.1595410683976 acquired by hbase,41633,1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,669 INFO  [RS_LOG_REPLAY_OPS-hbase:41633-1] wal.WALSplitter: Splitting wal: file:/data/hbase/WALs/hbase,43049,1595410682202-splitting/hbase%2C43049%2C1595410682202.default.1595410683976, length=669
+[33mhbase_1           |[0m 2020-07-22 09:39:37,669 INFO  [RS_LOG_REPLAY_OPS-hbase:41633-1] wal.WALSplitter: DistributedLogReplay = false
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,686 INFO  [RS_LOG_REPLAY_OPS-hbase:41633-1] wal.WALSplitter: 3 split writers finished; closing...
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,686 INFO  [RS_LOG_REPLAY_OPS-hbase:41633-1] wal.WALSplitter: Processed 0 edits across 0 regions; edits skipped=2; log file=file:/data/hbase/WALs/hbase,43049,1595410682202-splitting/hbase%2C43049%2C1595410682202.default.1595410683976, length=669, corrupted=false, progress failed=false
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,687 INFO  [RS_LOG_REPLAY_OPS-hbase:41633-1] coordination.ZkSplitLogWorkerCoordination: successfully transitioned task /hbase/splitWAL/WALs%2Fhbase%2C43049%2C1595410682202-splitting%2Fhbase%252C43049%252C1595410682202.default.1595410683976 to final state DONE hbase,41633,1595410763148
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:37,696]  [main] [HBaseUtil]: Table foxtrot already exists. Nothing to do.
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:37,709]  [main] [InitializerCommand]: Initialization complete...
+[32mfoxtrot_server    |[0m Starting foxtrot with command line: java -Dfile.encoding=utf-8 -XX:+UseG1GC -Xms1g -Xmx1g  -jar server.jar server /config/docker.yml
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,687 INFO  [RS_LOG_REPLAY_OPS-hbase:41633-1] handler.WALSplitterHandler: worker hbase,41633,1595410763148 done with task org.apache.hadoop.hbase.coordination.ZkSplitLogWorkerCoordination$ZkSplitTaskDetails@7dfa1b92 in 32ms
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,687 INFO  [main-EventThread] coordination.SplitLogManagerCoordination: task /hbase/splitWAL/WALs%2Fhbase%2C43049%2C1595410682202-splitting%2Fhbase%252C43049%252C1595410682202.default.1595410683976 entered state: DONE hbase,41633,1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,688 INFO  [main-EventThread] wal.WALSplitter: Archived processed log file:/data/hbase/WALs/hbase,43049,1595410682202-splitting/hbase%2C43049%2C1595410682202.default.1595410683976 to file:/data/hbase/oldWALs/hbase%2C43049%2C1595410682202.default.1595410683976
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,688 INFO  [main-EventThread] coordination.SplitLogManagerCoordination: Done splitting /hbase/splitWAL/WALs%2Fhbase%2C43049%2C1595410682202-splitting%2Fhbase%252C43049%252C1595410682202.default.1595410683976
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,689 INFO  [ProcedureExecutor-2] master.SplitLogManager: finished splitting (more than or equal to) 669 bytes in 1 log files in [file:/data/hbase/WALs/hbase,43049,1595410682202-splitting] in 38ms
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,697 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Processed session termination for sessionid: 0x17375e441fa0006
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,699 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxn: Closed socket connection for client /172.18.0.4:53314 which had sessionid 0x17375e441fa0006
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,791 INFO  [ProcedureExecutor-2] master.AssignmentManager: Assigning 2 region(s) to hbase,41633,1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,798 INFO  [ProcedureExecutor-2] master.RegionStates: Transition {d0d5370755b75937494d142505e5a2a4 state=OFFLINE, ts=1595410777793, server=hbase,43049,1595410682202} to {d0d5370755b75937494d142505e5a2a4 state=PENDING_OPEN, ts=1595410777798, server=hbase,41633,1595410763148}
+[33mhbase_1           |[0m 2020-07-22 09:39:37,798 INFO  [ProcedureExecutor-2] master.RegionStates: Transition {d7c0a1ab1664e7d809c8b3dcacccddf7 state=OFFLINE, ts=1595410777793, server=hbase,43049,1595410682202} to {d7c0a1ab1664e7d809c8b3dcacccddf7 state=PENDING_OPEN, ts=1595410777798, server=hbase,41633,1595410763148}
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,801 INFO  [PriorityRpcServer.handler=2,queue=0,port=41633] regionserver.RSRpcServices: Open hbase:namespace,,1586108027618.d0d5370755b75937494d142505e5a2a4.
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,802 INFO  [PriorityRpcServer.handler=2,queue=0,port=41633] regionserver.RSRpcServices: Open foxtrot,,1586108035639.d7c0a1ab1664e7d809c8b3dcacccddf7.
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,807 INFO  [AM.ZK.Worker-pool2-t5] master.RegionStates: Transition {d0d5370755b75937494d142505e5a2a4 state=PENDING_OPEN, ts=1595410777798, server=hbase,41633,1595410763148} to {d0d5370755b75937494d142505e5a2a4 state=OPENING, ts=1595410777807, server=hbase,41633,1595410763148}
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,811 INFO  [AM.ZK.Worker-pool2-t6] master.RegionStates: Transition {d7c0a1ab1664e7d809c8b3dcacccddf7 state=PENDING_OPEN, ts=1595410777798, server=hbase,41633,1595410763148} to {d7c0a1ab1664e7d809c8b3dcacccddf7 state=OPENING, ts=1595410777811, server=hbase,41633,1595410763148}
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,814 INFO  [RS_OPEN_REGION-hbase:41633-1] compress.CodecPool: Got brand-new compressor [.gz]
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,826 INFO  [StoreOpener-d0d5370755b75937494d142505e5a2a4-1] hfile.CacheConfig: blockCache=LruBlockCache{blockCount=2, currentSize=3421240, freeSize=3323291080, maxSize=3326712320, heapSize=3421240, minSize=3160376576, minFactor=0.95, multiSize=1580188288, multiFactor=0.5, singleSize=790094144, singleFactor=0.25}, cacheDataOnRead=true, cacheDataOnWrite=false, cacheIndexesOnWrite=false, cacheBloomsOnWrite=false, cacheEvictOnClose=false, cacheDataCompressed=false, prefetchOnOpen=false
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,826 INFO  [StoreOpener-d0d5370755b75937494d142505e5a2a4-1] compactions.CompactionConfiguration: size [134217728, 9223372036854775807, 9223372036854775807); files [3, 10); ratio 1.200000; off-peak ratio 5.000000; throttle point 2684354560; major period 604800000, major jitter 0.500000, min locality to compact 0.000000
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,838 INFO  [StoreOpener-d7c0a1ab1664e7d809c8b3dcacccddf7-1] hfile.CacheConfig: blockCache=LruBlockCache{blockCount=2, currentSize=3421240, freeSize=3323291080, maxSize=3326712320, heapSize=3421240, minSize=3160376576, minFactor=0.95, multiSize=1580188288, multiFactor=0.5, singleSize=790094144, singleFactor=0.25}, cacheDataOnRead=true, cacheDataOnWrite=false, cacheIndexesOnWrite=false, cacheBloomsOnWrite=false, cacheEvictOnClose=false, cacheDataCompressed=false, prefetchOnOpen=false
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,839 INFO  [StoreOpener-d7c0a1ab1664e7d809c8b3dcacccddf7-1] compactions.CompactionConfiguration: size [134217728, 9223372036854775807, 9223372036854775807); files [3, 10); ratio 1.200000; off-peak ratio 5.000000; throttle point 2684354560; major period 604800000, major jitter 0.500000, min locality to compact 0.000000
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,847 INFO  [StoreFileOpenerThread-d-1] compress.CodecPool: Got brand-new decompressor [.gz]
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,850 INFO  [StoreFileOpenerThread-d-1] compress.CodecPool: Got brand-new decompressor [.gz]
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,850 INFO  [StoreFileOpenerThread-d-1] compress.CodecPool: Got brand-new decompressor [.gz]
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,850 INFO  [StoreFileOpenerThread-d-1] compress.CodecPool: Got brand-new decompressor [.gz]
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,871 INFO  [RS_OPEN_REGION-hbase:41633-1] regionserver.HRegion: Onlined d7c0a1ab1664e7d809c8b3dcacccddf7; next sequenceid=10236
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,873 INFO  [RS_OPEN_REGION-hbase:41633-0] regionserver.HRegion: Onlined d0d5370755b75937494d142505e5a2a4; next sequenceid=195
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,882 INFO  [PostOpenDeployTasks:d7c0a1ab1664e7d809c8b3dcacccddf7] regionserver.HRegionServer: Post open deploy tasks for foxtrot,,1586108035639.d7c0a1ab1664e7d809c8b3dcacccddf7.
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,892 INFO  [PostOpenDeployTasks:d0d5370755b75937494d142505e5a2a4] regionserver.HRegionServer: Post open deploy tasks for hbase:namespace,,1586108027618.d0d5370755b75937494d142505e5a2a4.
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,961 INFO  [PostOpenDeployTasks:d7c0a1ab1664e7d809c8b3dcacccddf7] hbase.MetaTableAccessor: Updated row foxtrot,,1586108035639.d7c0a1ab1664e7d809c8b3dcacccddf7. with server=hbase,41633,1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,961 INFO  [PostOpenDeployTasks:d0d5370755b75937494d142505e5a2a4] hbase.MetaTableAccessor: Updated row hbase:namespace,,1586108027618.d0d5370755b75937494d142505e5a2a4. with server=hbase,41633,1595410763148
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,975 INFO  [AM.ZK.Worker-pool2-t8] master.RegionStates: Transition {d7c0a1ab1664e7d809c8b3dcacccddf7 state=OPENING, ts=1595410777811, server=hbase,41633,1595410763148} to {d7c0a1ab1664e7d809c8b3dcacccddf7 state=OPEN, ts=1595410777975, server=hbase,41633,1595410763148}
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,976 INFO  [AM.ZK.Worker-pool2-t7] master.RegionStates: Transition {d0d5370755b75937494d142505e5a2a4 state=OPENING, ts=1595410777807, server=hbase,41633,1595410763148} to {d0d5370755b75937494d142505e5a2a4 state=OPEN, ts=1595410777976, server=hbase,41633,1595410763148}
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,979 INFO  [AM.ZK.Worker-pool2-t10] master.RegionStates: Offlined d7c0a1ab1664e7d809c8b3dcacccddf7 from hbase,43049,1595410682202
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:37,980 INFO  [AM.ZK.Worker-pool2-t11] master.RegionStates: Offlined d0d5370755b75937494d142505e5a2a4 from hbase,43049,1595410682202
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:38,082 INFO  [ProcedureExecutor-2] procedure.ServerCrashProcedure: Finished processing of crashed hbase,43049,1595410682202
+[32mfoxtrot_server    |[0m ERROR StatusLogger Log4j2 could not find a logging implementation. Please add log4j-core to the classpath. Using SimpleLogger to log to the console...
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:39,444]  [main] [DefaultServerFactory]: Registering jersey handler with root path prefix: /
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:39,447]  [main] [DefaultServerFactory]: Registering admin handler with root path prefix: /
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:39,447]  [main] [AssetsBundle]: Registering AssetBundle with name: console for path /*
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:39,474]  [main] [AssetsBundle]: Registering AssetBundle with name: swagger-assets for path /foxtrot/swagger-static/*
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:39,474]  [main] [AssetsBundle]: Registering AssetBundle with name: swagger-oauth2-connect for path /foxtrot/oauth2-redirect.html/*
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:43,919]  [main] [Reflections]: Reflections took 4424 ms to scan 1 urls, producing 79344 keys and 149875 values 
+[32mfoxtrot_server    |[0m WARN  [2020-07-22 09:39:44,666]  [main] [ExecutorServiceBuilder]: Parameter 'maximumPoolSize' is conflicting with unbounded work queues
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:44,690]  [main] [ManagedInstaller]: managed =
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection)
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection)
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection)
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager)
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader)
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.core.common.DataDeletionManager)
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.server.cluster.ClusterManager)
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.core.cardinality.CardinalityCalculationManager)
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.core.internalevents.EventBusInitializer)
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationManager)
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryManager)
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.server.auth.sessionstore.DistributedSessionDataStore)
+[32mfoxtrot_server    |[0m     (com.flipkart.foxtrot.server.jobs.sessioncleanup.ExpiredSessionsCleaner)
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:44,691]  [main] [HealthCheckInstaller]: health checks =
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     hazelcastHealthcheck (com.flipkart.foxtrot.server.healthcheck.HazelcastHealthCheck)
+[32mfoxtrot_server    |[0m     hbaseHealthcheck (com.flipkart.foxtrot.server.healthcheck.HBaseHealthCheck)
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:44,692]  [main] [WebFilterInstaller]: filters =
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     /*                       (com.flipkart.foxtrot.server.auth.filter.UserAuthenticationFilter)   .userauthentication
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m WARN  [2020-07-22 09:39:44,725]  [main] [NativeCodeLoader]: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:45,426]  [main] [ServerFactory]: Starting foxtrot
+[32mfoxtrot_server    |[0m  _______   ______   ___   ___ .___________..______        ______   .___________.
+[32mfoxtrot_server    |[0m |   ____| /  __  \  \  \ /  / |           ||   _  \      /  __  \  |           |
+[32mfoxtrot_server    |[0m |  |__   |  |  |  |  \  V  /  `---|  |----`|  |_)  |    |  |  |  | `---|  |----`
+[32mfoxtrot_server    |[0m |   __|  |  |  |  |   >   <       |  |     |      /     |  |  |  |     |  |
+[32mfoxtrot_server    |[0m |  |     |  `--'  |  /  .  \      |  |     |  |\  \----.|  `--'  |     |  |
+[32mfoxtrot_server    |[0m |__|      \______/  /__/ \__\     |__|     | _| `._____| \______/      |__|
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:45,532]  [main] [SetUIDListener]: Opened application@7b2c82c{HTTP/1.1,[http/1.1]}{0.0.0.0:17000}
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:45,532]  [main] [SetUIDListener]: Opened admin@30fa6986{HTTP/1.1,[http/1.1]}{0.0.0.0:17001}
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:45,535]  [main] [Server]: jetty-9.4.z-SNAPSHOT; built: 2019-04-29T20:42:08.989Z; git: e1bc35120a6617ee3df052294e433f3a25ce7097; jvm 1.8.0_252-8u252-b09-1~16.04-b09
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:45,549]  [main] [HbaseTableConnection]: Starting HBase Connection
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:45,641]  [main] [HbaseTableConnection]: Started HBase Connection
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:45,641]  [main] [ElasticsearchConnection]: Starting ElasticSearch Client
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:46,241]  [main] [ElasticsearchConnection]: Started ElasticSearch Client
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:46,242]  [main] [HazelcastConnection]: Starting Hazelcast Instance
+[32mfoxtrot_server    |[0m WARN  [2020-07-22 09:39:46,342]  [main] [AddressPicker]: [LOCAL] [foxtrot] [4.0.2] You configured your member address as host name. Please be aware of that your dns can be spoofed. Make sure that your dns configurations are correct.
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:46,342]  [main] [AddressPicker]: [LOCAL] [foxtrot] [4.0.2] Resolving domain name 'fac2f46c5b7f' to address(es): [172.18.0.4]
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:46,342]  [main] [AddressPicker]: [LOCAL] [foxtrot] [4.0.2] Interfaces is disabled, trying to pick one address from TCP-IP config addresses: [fac2f46c5b7f/172.18.0.4]
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:46,342]  [main] [AddressPicker]: [LOCAL] [foxtrot] [4.0.2] Prefer IPv4 stack is true, prefer IPv6 addresses is false
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:46,345]  [main] [AddressPicker]: [LOCAL] [foxtrot] [4.0.2] Picked [fac2f46c5b7f]:5701, using socket ServerSocket[addr=/0.0.0.0,localport=5701], bind any local is true
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:46,375]  [main] [system]: [fac2f46c5b7f]:5701 [foxtrot] [4.0.2] Hazelcast 4.0.2 (20200702 - 2de3027) starting at [fac2f46c5b7f]:5701
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:46,375]  [main] [system]: [fac2f46c5b7f]:5701 [foxtrot] [4.0.2] Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:46,694]  [main] [BackpressureRegulator]: [fac2f46c5b7f]:5701 [foxtrot] [4.0.2] Backpressure is disabled
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:47,116]  [main] [Node]: [fac2f46c5b7f]:5701 [foxtrot] [4.0.2] Creating TcpIpJoiner
+[32mfoxtrot_server    |[0m WARN  [2020-07-22 09:39:47,118]  [main] [CPSubsystem]: [fac2f46c5b7f]:5701 [foxtrot] [4.0.2] CP Subsystem is not enabled. CP data structures will operate in UNSAFE mode! Please note that UNSAFE mode will not provide strong consistency guarantees.
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:47,423]  [main] [OperationExecutorImpl]: [fac2f46c5b7f]:5701 [foxtrot] [4.0.2] Starting 8 partition threads and 5 generic threads (1 dedicated for priority tasks)
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:47,432]  [main] [Diagnostics]: [fac2f46c5b7f]:5701 [foxtrot] [4.0.2] Diagnostics disabled. To enable add -Dhazelcast.diagnostics.enabled=true to the JVM arguments.
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:47,446]  [main] [LifecycleService]: [fac2f46c5b7f]:5701 [foxtrot] [4.0.2] [fac2f46c5b7f]:5701 is STARTING
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:47,480]  [main] [ClusterService]: [fac2f46c5b7f]:5701 [foxtrot] [4.0.2] 
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m Members {size:1, ver:1} [
+[32mfoxtrot_server    |[0m 	Member [fac2f46c5b7f]:5701 - 259b100b-6b86-4551-a0cf-775a4676c26d this
+[32mfoxtrot_server    |[0m ]
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:47,495]  [main] [LifecycleService]: [fac2f46c5b7f]:5701 [foxtrot] [4.0.2] [fac2f46c5b7f]:5701 is STARTED
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:47,495]  [main] [HazelcastConnection]: Started Hazelcast Instance
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:47,526]  [main] [PartitionStateManager]: [fac2f46c5b7f]:5701 [foxtrot] [4.0.2] Initializing cluster partition table arrangement...
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:47,613]  [hz.foxtrot-fac2f46c5b7f-1595410784519.cached.thread-3] [TableMapStore]: Load all keys called
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:47,927]  [hz.foxtrot-fac2f46c5b7f-1595410784519.cached.thread-3] [TableMapStore]: Loaded value count: 0
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,446]  [main] [Reflections]: Reflections took 130 ms to scan 1 urls, producing 86 keys and 237 values 
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,447]  [main] [AnalyticsLoader]: Registered action: com.flipkart.foxtrot.core.querystore.actions.TrendAction
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,447]  [main] [AnalyticsLoader]: Registered action: com.flipkart.foxtrot.core.querystore.actions.FilterAction
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,447]  [main] [AnalyticsLoader]: Registered action: com.flipkart.foxtrot.core.querystore.actions.MultiTimeQueryAction
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,447]  [main] [AnalyticsLoader]: Registered action: com.flipkart.foxtrot.core.querystore.actions.DistinctAction
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,447]  [main] [AnalyticsLoader]: Registered action: com.flipkart.foxtrot.core.querystore.actions.MultiQueryAction
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,447]  [main] [AnalyticsLoader]: Registered action: com.flipkart.foxtrot.core.querystore.actions.HistogramAction
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,447]  [main] [AnalyticsLoader]: Registered action: com.flipkart.foxtrot.core.querystore.actions.StatsAction
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,447]  [main] [AnalyticsLoader]: Registered action: com.flipkart.foxtrot.core.querystore.actions.CountAction
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,447]  [main] [AnalyticsLoader]: Registered action: com.flipkart.foxtrot.core.querystore.actions.StatsTrendAction
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,448]  [main] [AnalyticsLoader]: Registered action: com.flipkart.foxtrot.core.querystore.actions.GroupAction
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,448]  [main] [DataDeletionManager]: Starting Deletion Manager
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,448]  [main] [DataDeletionManager]: Scheduling data deletion Job
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,448]  [main] [DataDeletionManager]: Scheduled data deletion Job
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,448]  [main] [DataDeletionManager]: Started Deletion Manager
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,449]  [main] [BaseJobManager]: Starting CardinalityConfigJob Manager
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,449]  [main] [BaseJobManager]: Scheduling CardinalityConfigJob Job
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,452]  [main] [BaseJobManager]: Scheduled CardinalityConfigJob Job
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,454]  [main] [BaseJobManager]: Starting ESIndexOptimizer Manager
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,454]  [main] [BaseJobManager]: Scheduling ESIndexOptimizer Job
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,454]  [main] [BaseJobManager]: Scheduled ESIndexOptimizer Job
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,455]  [main] [BaseJobManager]: Starting ConsoleHistory Manager
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,455]  [main] [BaseJobManager]: Scheduling ConsoleHistory Job
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,455]  [main] [BaseJobManager]: Scheduled ConsoleHistory Job
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,456]  [main] [BaseJobManager]: Starting ExpiredSessionCleaner Manager
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,456]  [main] [BaseJobManager]: Scheduling ExpiredSessionCleaner Job
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,456]  [main] [BaseJobManager]: Scheduled ExpiredSessionCleaner Job
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:48,704]  [main] [JerseyProviderInstaller]: providers = 
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     Exception mappers
+[32mfoxtrot_server    |[0m         JWTAuthenticationFailure (com.flipkart.foxtrot.server.providers.exception.AuthenticationExceptionHandler)
+[32mfoxtrot_server    |[0m         FoxtrotException (com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper)
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     Dynamic features
+[32mfoxtrot_server    |[0m         (com.flipkart.foxtrot.server.auth.filter.JwtAuthDynamicFeature)
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     Message body writers
+[32mfoxtrot_server    |[0m         FlatRepresentation (com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider)
+[32mfoxtrot_server    |[0m         Map        (com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider)
+[32mfoxtrot_server    |[0m         FlatRepresentation (com.flipkart.foxtrot.server.providers.FlatResponseTextProvider)
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:49,090]  [main] [DropwizardResourceConfig]: The following paths were found for the configured resources:
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     GET     /foxtrot/google/callback (com.flipkart.foxtrot.server.resources.GoogleAuth)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/google/login (com.flipkart.foxtrot.server.resources.GoogleAuth)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/swagger (io.federecio.dropwizard.swagger.SwaggerResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/swagger.{type:json|yaml} (io.swagger.jaxrs.listing.ApiListingResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/analytics (com.flipkart.foxtrot.server.resources.AnalyticsResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/analytics/async (com.flipkart.foxtrot.server.resources.AnalyticsResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/analytics/download (com.flipkart.foxtrot.server.resources.AnalyticsResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/analytics/validate (com.flipkart.foxtrot.server.resources.AnalyticsResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/async (com.flipkart.foxtrot.server.resources.AsyncResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/async/{action}/{id} (com.flipkart.foxtrot.server.resources.AsyncResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/auth/tokens/{tokenId} (com.flipkart.foxtrot.server.resources.Auth)
+[32mfoxtrot_server    |[0m     DELETE  /foxtrot/v1/auth/tokens/{userId} (com.flipkart.foxtrot.server.resources.Auth)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/auth/tokens/{userId} (com.flipkart.foxtrot.server.resources.Auth)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/auth/users (com.flipkart.foxtrot.server.resources.Auth)
+[32mfoxtrot_server    |[0m     DELETE  /foxtrot/v1/auth/users/{userId} (com.flipkart.foxtrot.server.resources.Auth)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/auth/users/{userId} (com.flipkart.foxtrot.server.resources.Auth)
+[32mfoxtrot_server    |[0m     PUT     /foxtrot/v1/auth/users/{userId}/roles/grant/{role} (com.flipkart.foxtrot.server.resources.Auth)
+[32mfoxtrot_server    |[0m     PUT     /foxtrot/v1/auth/users/{userId}/roles/revoke/{role} (com.flipkart.foxtrot.server.resources.Auth)
+[32mfoxtrot_server    |[0m     PUT     /foxtrot/v1/auth/users/{userId}/tables/access/grant/{table} (com.flipkart.foxtrot.server.resources.Auth)
+[32mfoxtrot_server    |[0m     PUT     /foxtrot/v1/auth/users/{userId}/tables/access/revoke/{table} (com.flipkart.foxtrot.server.resources.Auth)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/cache/update/cardinality (com.flipkart.foxtrot.server.resources.CacheUpdateResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/cluster/hazelcast/members (com.flipkart.foxtrot.server.resources.ClusterInfoResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/cluster/members (com.flipkart.foxtrot.server.resources.ClusterInfoResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/clusterhealth (com.flipkart.foxtrot.server.resources.ClusterHealthResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/clusterhealth/indicesstats (com.flipkart.foxtrot.server.resources.ClusterHealthResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/clusterhealth/nodestats (com.flipkart.foxtrot.server.resources.ClusterHealthResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/consoles (com.flipkart.foxtrot.server.resources.ConsoleResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/consoles (com.flipkart.foxtrot.server.resources.ConsoleResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/consoles/{id} (com.flipkart.foxtrot.server.resources.ConsoleResource)
+[32mfoxtrot_server    |[0m     DELETE  /foxtrot/v1/consoles/{id}/delete (com.flipkart.foxtrot.server.resources.ConsoleResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/document/{table} (com.flipkart.foxtrot.server.resources.DocumentResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/document/{table} (com.flipkart.foxtrot.server.resources.DocumentResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/document/{table}/bulk (com.flipkart.foxtrot.server.resources.DocumentResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/document/{table}/{id} (com.flipkart.foxtrot.server.resources.DocumentResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/fql (com.flipkart.foxtrot.server.resources.FqlResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/fql/download (com.flipkart.foxtrot.server.resources.FqlResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/fql/get (com.flipkart.foxtrot.server.resources.FqlResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/fql/save (com.flipkart.foxtrot.server.resources.FqlResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/hbase/regions/{table}/{threshSizeInGB}/list (com.flipkart.foxtrot.server.resources.HbaseRegionsMergeResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/hbase/regions/{table}/{threshSizeInGB}/merge/{number} (com.flipkart.foxtrot.server.resources.HbaseRegionsMergeResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/tables (com.flipkart.foxtrot.server.resources.TableManagerResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/tables (com.flipkart.foxtrot.server.resources.TableManagerResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/tables/fields (com.flipkart.foxtrot.server.resources.TableFieldMappingResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/tables/{name} (com.flipkart.foxtrot.server.resources.TableManagerResource)
+[32mfoxtrot_server    |[0m     PUT     /foxtrot/v1/tables/{name} (com.flipkart.foxtrot.server.resources.TableManagerResource)
+[32mfoxtrot_server    |[0m     DELETE  /foxtrot/v1/tables/{name}/delete (com.flipkart.foxtrot.server.resources.TableManagerResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/tables/{name}/fields (com.flipkart.foxtrot.server.resources.TableFieldMappingResource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v1/tables/{name}/fields/update (com.flipkart.foxtrot.server.resources.TableFieldMappingResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v1/util/config (com.flipkart.foxtrot.server.resources.UtilResource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v2/consoles (com.flipkart.foxtrot.server.resources.ConsoleV2Resource)
+[32mfoxtrot_server    |[0m     POST    /foxtrot/v2/consoles (com.flipkart.foxtrot.server.resources.ConsoleV2Resource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v2/consoles/{id} (com.flipkart.foxtrot.server.resources.ConsoleV2Resource)
+[32mfoxtrot_server    |[0m     DELETE  /foxtrot/v2/consoles/{id}/delete (com.flipkart.foxtrot.server.resources.ConsoleV2Resource)
+[32mfoxtrot_server    |[0m     DELETE  /foxtrot/v2/consoles/{id}/old/delete (com.flipkart.foxtrot.server.resources.ConsoleV2Resource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v2/consoles/{id}/old/get (com.flipkart.foxtrot.server.resources.ConsoleV2Resource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v2/consoles/{id}/old/set/current (com.flipkart.foxtrot.server.resources.ConsoleV2Resource)
+[32mfoxtrot_server    |[0m     GET     /foxtrot/v2/consoles/{name}/old (com.flipkart.foxtrot.server.resources.ConsoleV2Resource)
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m WARN  [2020-07-22 09:39:49,095]  [main] [Errors]: The following warnings have been detected: WARNING: A resource, Resource{"/v1/escluster", 0 child resources, 0 resource methods, 0 sub-resource locator, 0 method handler classes, 0 method handler instances}, with path "/v1/escluster" is empty. It has no resource (or sub resource) methods neither sub resource locators defined.
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:49,096]  [main] [ContextHandler]: Started i.d.j.MutableServletContextHandler@6db18ce7{Application context,/,null,AVAILABLE}
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:49,099]  [main] [AdminEnvironment]: tasks = 
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     POST    /tasks/OorTask (io.dropwizard.oor.tasks.OorTask)
+[32mfoxtrot_server    |[0m     POST    /tasks/log-level (io.dropwizard.servlets.tasks.LogConfigurationTask)
+[32mfoxtrot_server    |[0m     POST    /tasks/gc (io.dropwizard.servlets.tasks.GarbageCollectionTask)
+[32mfoxtrot_server    |[0m     POST    /tasks/BirTask (io.dropwizard.oor.tasks.BirTask)
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:49,103]  [main] [ContextHandler]: Started i.d.j.MutableServletContextHandler@42c32195{Admin context,/,null,AVAILABLE}
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:49,110]  [main] [AbstractConnector]: Started application@7b2c82c{HTTP/1.1,[http/1.1]}{0.0.0.0:17000}
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:49,118]  [main] [AbstractConnector]: Started admin@30fa6986{HTTP/1.1,[http/1.1]}{0.0.0.0:17001}
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:49,118]  [main] [Server]: Started @11390ms
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:49,127]  [main] [DiagnosticReporter]: Startup stats = 
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     GUICEY started in 1.584 s
+[32mfoxtrot_server    |[0m     │   
+[32mfoxtrot_server    |[0m     ├── [20%] CLASSPATH scanned in 310.8 ms
+[32mfoxtrot_server    |[0m     │   ├── scanned 309 classes
+[32mfoxtrot_server    |[0m     │   └── recognized 38 classes (12% of scanned)
+[32mfoxtrot_server    |[0m     │   
+[32mfoxtrot_server    |[0m     ├── [0.32%] BUNDLES processed in 5.771 ms
+[32mfoxtrot_server    |[0m     │   └── 3 processed
+[32mfoxtrot_server    |[0m     │   
+[32mfoxtrot_server    |[0m     ├── [77%] INJECTOR created in 1.223 s
+[32mfoxtrot_server    |[0m     │   ├── installers prepared in 4.723 ms
+[32mfoxtrot_server    |[0m     │   │   
+[32mfoxtrot_server    |[0m     │   ├── extensions recognized in 9.870 ms
+[32mfoxtrot_server    |[0m     │   │   ├── using 12 installers
+[32mfoxtrot_server    |[0m     │   │   └── from 309 classes
+[32mfoxtrot_server    |[0m     │   │   
+[32mfoxtrot_server    |[0m     │   └── 38 extensions installed in 5.604 ms
+[32mfoxtrot_server    |[0m     │   
+[32mfoxtrot_server    |[0m     ├── [0.25%] HK2 bridged in 4.429 ms
+[32mfoxtrot_server    |[0m     │   ├── using 2 jersey installers
+[32mfoxtrot_server    |[0m     │   └── 22 jersey extensions installed in 3.666 ms
+[32mfoxtrot_server    |[0m     │   
+[32mfoxtrot_server    |[0m     └── [2.7%] remaining 42 ms
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:49,130]  [main] [DiagnosticReporter]: Options = 
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     Guicey                    (r.v.dropwizard.guice.GuiceyOptions)
+[32mfoxtrot_server    |[0m         ScanPackages                   = [com.flipkart.foxtrot]         *CUSTOM
+[32mfoxtrot_server    |[0m         SearchCommands                 = false                          
+[32mfoxtrot_server    |[0m         UseCoreInstallers              = true                           
+[32mfoxtrot_server    |[0m         ConfigureFromDropwizardBundles = false                          
+[32mfoxtrot_server    |[0m         BindConfigurationInterfaces    = false                          
+[32mfoxtrot_server    |[0m         BindConfigurationByPath        = true                           
+[32mfoxtrot_server    |[0m         InjectorStage                  = PRODUCTION                     *CUSTOM
+[32mfoxtrot_server    |[0m         GuiceFilterRegistration        = [REQUEST]                      
+[32mfoxtrot_server    |[0m         UseHkBridge                    = false                          
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     Installers                (r.v.d.g.m.i.InstallersOptions)
+[32mfoxtrot_server    |[0m         JerseyExtensionsManagedByGuice = true                           
+[32mfoxtrot_server    |[0m         ForceSingletonForJerseyExtensions = true                           
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:49,135]  [main] [DiagnosticReporter]: Configuration diagnostic info = 
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     BUNDLES = 
+[32mfoxtrot_server    |[0m         WebInstallersBundle          (r.v.d.g.m.installer)      
+[32mfoxtrot_server    |[0m         DiagnosticBundle             (r.v.d.g.m.c.debug)        
+[32mfoxtrot_server    |[0m         CoreInstallersBundle         (r.v.d.g.m.installer)      
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     INSTALLERS and EXTENSIONS in processing order = 
+[32mfoxtrot_server    |[0m         managed              (r.v.d.g.m.i.feature.ManagedInstaller) 
+[32mfoxtrot_server    |[0m             HbaseTableConnection         (c.f.f.c.d.impl.hbase)     *SCAN
+[32mfoxtrot_server    |[0m             ElasticsearchConnection      (c.f.f.c.q.impl)           *SCAN
+[32mfoxtrot_server    |[0m             HazelcastConnection          (c.f.f.c.q.impl)           *SCAN
+[32mfoxtrot_server    |[0m             DistributedTableMetadataManager (c.f.f.c.table.impl)       *SCAN
+[32mfoxtrot_server    |[0m             AnalyticsLoader              (c.f.f.c.q.a.spi)          *SCAN
+[32mfoxtrot_server    |[0m             DataDeletionManager          (c.f.f.core.common)        *SCAN
+[32mfoxtrot_server    |[0m             ClusterManager               (c.f.f.server.cluster)     *SCAN
+[32mfoxtrot_server    |[0m             CardinalityCalculationManager (c.f.f.c.cardinality)      *SCAN
+[32mfoxtrot_server    |[0m             EventBusInitializer          (c.f.f.c.internalevents)   *SCAN
+[32mfoxtrot_server    |[0m             EsIndexOptimizationManager   (c.f.f.c.j.optimization)   *SCAN
+[32mfoxtrot_server    |[0m             ConsoleHistoryManager        (c.f.f.s.j.consolehistory) *SCAN
+[32mfoxtrot_server    |[0m             DistributedSessionDataStore  (c.f.f.s.a.sessionstore)   *SCAN
+[32mfoxtrot_server    |[0m             ExpiredSessionsCleaner       (c.f.f.s.j.sessioncleanup) *SCAN
+[32mfoxtrot_server    |[0m         jerseyprovider       (r.v.d.g.m.i.f.j.p.JerseyProviderInstaller) 
+[32mfoxtrot_server    |[0m             JwtAuthDynamicFeature        (c.f.f.s.auth.filter)      *SCAN
+[32mfoxtrot_server    |[0m             FlatResponseCsvProvider      (c.f.f.s.providers)        *SCAN
+[32mfoxtrot_server    |[0m             FlatResponseErrorTextProvider (c.f.f.s.providers)        *SCAN
+[32mfoxtrot_server    |[0m             AuthenticationExceptionHandler (c.f.f.s.p.exception)      *SCAN
+[32mfoxtrot_server    |[0m             FoxtrotExceptionMapper       (c.f.f.s.p.exception)      *SCAN
+[32mfoxtrot_server    |[0m             FlatResponseTextProvider     (c.f.f.s.providers)        *SCAN
+[32mfoxtrot_server    |[0m         resource             (r.v.d.g.m.i.f.j.ResourceInstaller)    
+[32mfoxtrot_server    |[0m             UtilResource                 (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             Auth                         (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             DocumentResource             (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             CacheUpdateResource          (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             ClusterInfoResource          (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             AsyncResource                (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             HbaseRegionsMergeResource    (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             TableFieldMappingResource    (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             ESClusterResource            (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             ConsoleV2Resource            (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             GoogleAuth                   (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             FqlResource                  (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             TableManagerResource         (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             ConsoleResource              (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             ClusterHealthResource        (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m             AnalyticsResource            (c.f.f.s.resources)        *SCAN
+[32mfoxtrot_server    |[0m         healthcheck          (r.v.d.g.m.i.f.h.HealthCheckInstaller) 
+[32mfoxtrot_server    |[0m             HazelcastHealthCheck         (c.f.f.s.healthcheck)      *SCAN
+[32mfoxtrot_server    |[0m             HBaseHealthCheck             (c.f.f.s.healthcheck)      *SCAN
+[32mfoxtrot_server    |[0m         webfilter            (r.v.d.g.m.i.f.web.WebFilterInstaller) 
+[32mfoxtrot_server    |[0m             UserAuthenticationFilter     (c.f.f.s.auth.filter)      *SCAN
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     GUICE MODULES = 
+[32mfoxtrot_server    |[0m         FoxtrotModule                (c.f.f.server.di)          
+[32mfoxtrot_server    |[0m         DiagnosticModule             (r.v.d.g.m.c.d.DiagnosticBundle) 
+[32mfoxtrot_server    |[0m         GuiceBootstrapModule         (r.v.d.guice.module)       
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m INFO  [2020-07-22 09:39:49,156]  [main] [DiagnosticReporter]: Configuration context tree = 
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m     APPLICATION
+[32mfoxtrot_server    |[0m     ├── module     FoxtrotModule                (c.f.f.server.di)          
+[32mfoxtrot_server    |[0m     ├── module     GuiceBootstrapModule         (r.v.d.guice.module)       
+[32mfoxtrot_server    |[0m     │   
+[32mfoxtrot_server    |[0m     ├── WebInstallersBundle          (r.v.d.g.m.installer)      
+[32mfoxtrot_server    |[0m     │   └── installer  WebFilterInstaller           (r.v.d.g.m.i.f.web)        
+[32mfoxtrot_server    |[0m     │   
+[32mfoxtrot_server    |[0m     ├── DiagnosticBundle             (r.v.d.g.m.c.debug)        
+[32mfoxtrot_server    |[0m     │   └── module     DiagnosticModule             (r.v.d.g.m.c.d.DiagnosticBundle) 
+[32mfoxtrot_server    |[0m     │   
+[32mfoxtrot_server    |[0m     ├── CoreInstallersBundle         (r.v.d.g.m.installer)      
+[32mfoxtrot_server    |[0m     │   ├── installer  ManagedInstaller             (r.v.d.g.m.i.feature)      
+[32mfoxtrot_server    |[0m     │   ├── installer  JerseyProviderInstaller      (r.v.d.g.m.i.f.j.provider) 
+[32mfoxtrot_server    |[0m     │   ├── installer  ResourceInstaller            (r.v.d.g.m.i.f.jersey)     
+[32mfoxtrot_server    |[0m     │   └── installer  HealthCheckInstaller         (r.v.d.g.m.i.f.health)     
+[32mfoxtrot_server    |[0m     │   
+[32mfoxtrot_server    |[0m     └── CLASSPATH SCAN
+[32mfoxtrot_server    |[0m         ├── extension  UserAuthenticationFilter     (c.f.f.s.auth.filter)      
+[32mfoxtrot_server    |[0m         ├── extension  JwtAuthDynamicFeature        (c.f.f.s.auth.filter)      
+[32mfoxtrot_server    |[0m         ├── extension  DistributedSessionDataStore  (c.f.f.s.a.sessionstore)   
+[32mfoxtrot_server    |[0m         ├── extension  HazelcastHealthCheck         (c.f.f.s.healthcheck)      
+[32mfoxtrot_server    |[0m         ├── extension  HBaseHealthCheck             (c.f.f.s.healthcheck)      
+[32mfoxtrot_server    |[0m         ├── extension  UtilResource                 (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  Auth                         (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  DocumentResource             (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  CacheUpdateResource          (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  ClusterInfoResource          (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  AsyncResource                (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  HbaseRegionsMergeResource    (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  TableFieldMappingResource    (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  ESClusterResource            (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  ConsoleV2Resource            (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  GoogleAuth                   (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  FqlResource                  (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  TableManagerResource         (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  ConsoleResource              (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  ClusterHealthResource        (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  AnalyticsResource            (c.f.f.s.resources)        
+[32mfoxtrot_server    |[0m         ├── extension  ConsoleHistoryManager        (c.f.f.s.j.consolehistory) 
+[32mfoxtrot_server    |[0m         ├── extension  ExpiredSessionsCleaner       (c.f.f.s.j.sessioncleanup) 
+[32mfoxtrot_server    |[0m         ├── extension  FlatResponseCsvProvider      (c.f.f.s.providers)        
+[32mfoxtrot_server    |[0m         ├── extension  FlatResponseErrorTextProvider (c.f.f.s.providers)        
+[32mfoxtrot_server    |[0m         ├── extension  AuthenticationExceptionHandler (c.f.f.s.p.exception)      
+[32mfoxtrot_server    |[0m         ├── extension  FoxtrotExceptionMapper       (c.f.f.s.p.exception)      
+[32mfoxtrot_server    |[0m         ├── extension  FlatResponseTextProvider     (c.f.f.s.providers)        
+[32mfoxtrot_server    |[0m         ├── extension  ClusterManager               (c.f.f.server.cluster)     
+[32mfoxtrot_server    |[0m         ├── extension  HbaseTableConnection         (c.f.f.c.d.impl.hbase)     
+[32mfoxtrot_server    |[0m         ├── extension  CardinalityCalculationManager (c.f.f.c.cardinality)      
+[32mfoxtrot_server    |[0m         ├── extension  AnalyticsLoader              (c.f.f.c.q.a.spi)          
+[32mfoxtrot_server    |[0m         ├── extension  ElasticsearchConnection      (c.f.f.c.q.impl)           
+[32mfoxtrot_server    |[0m         ├── extension  HazelcastConnection          (c.f.f.c.q.impl)           
+[32mfoxtrot_server    |[0m         ├── extension  EventBusInitializer          (c.f.f.c.internalevents)   
+[32mfoxtrot_server    |[0m         ├── extension  EsIndexOptimizationManager   (c.f.f.c.j.optimization)   
+[32mfoxtrot_server    |[0m         ├── extension  DistributedTableMetadataManager (c.f.f.c.table.impl)       
+[32mfoxtrot_server    |[0m         └── extension  DataDeletionManager          (c.f.f.core.common)        
+[32mfoxtrot_server    |[0m 
+[32mfoxtrot_server    |[0m 172.18.0.1 - - [22/Jul/2020:09:39:49 +0000] "GET /foxtrot/v1/clusterhealth HTTP/1.1" 200 3223 "http://localhost:17000/cluster/index.htm" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0" 114
+[32mfoxtrot_server    |[0m 172.18.0.1 - - [22/Jul/2020:09:39:49 +0000] "GET /foxtrot/v1/clusterhealth/nodestats HTTP/1.1" 200 6879 "http://localhost:17000/cluster/index.htm" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0" 114
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:38,102 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Got user-level KeeperException when processing sessionid:0x17375e441fa0000 type:create cxid:0x4ef zxid:0x21040 txntype:-1 reqpath:n/a Error Path:/hbase/namespace/default Error:KeeperErrorCode = NodeExists for /hbase/namespace/default
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:38,112 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Got user-level KeeperException when processing sessionid:0x17375e441fa0000 type:create cxid:0x4f2 zxid:0x21042 txntype:-1 reqpath:n/a Error Path:/hbase/namespace/hbase Error:KeeperErrorCode = NodeExists for /hbase/namespace/hbase
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:38,113 INFO  [hbase:41229.activeMasterManager] master.HMaster: Master has completed initialization
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:38,115 INFO  [hbase:41229.activeMasterManager] quotas.MasterQuotaManager: Quota support disabled
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:38,115 INFO  [hbase:41229.activeMasterManager] zookeeper.ZooKeeperWatcher: not a secure deployment, proceeding
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:42,046 INFO  [HBase-Metrics2-1] impl.MetricsSystemImpl: Stopping HBase metrics system...
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:42,049 INFO  [HBase-Metrics2-1] impl.MetricsSystemImpl: HBase metrics system stopped.
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:42,549 INFO  [HBase-Metrics2-1] impl.MetricsConfig: loaded properties from hadoop-metrics2-hbase.properties
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:42,550 INFO  [HBase-Metrics2-1] impl.MetricsSystemImpl: Scheduled snapshot period at 10 second(s).
+[33mhbase_1           |[0m 2020-07-22 09:39:42,550 INFO  [HBase-Metrics2-1] impl.MetricsSystemImpl: HBase metrics system started
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:45,165 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxnFactory: Accepted socket connection from /172.18.0.4:53410
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:45,172 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.ZooKeeperServer: Client attempting to establish new session at /172.18.0.4:53410
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:45,174 INFO  [SyncThread:0] server.ZooKeeperServer: Established session 0x17375e441fa0007 with negotiated timeout 40000 for client /172.18.0.4:53410
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:45,607 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxnFactory: Accepted socket connection from /172.18.0.4:53412
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:45,626 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.ZooKeeperServer: Client attempting to establish new session at /172.18.0.4:53412
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:45,628 INFO  [SyncThread:0] server.ZooKeeperServer: Established session 0x17375e441fa0008 with negotiated timeout 40000 for client /172.18.0.4:53412
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:48,505 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxnFactory: Accepted socket connection from /172.18.0.4:53424
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:48,509 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.ZooKeeperServer: Client attempting to establish new session at /172.18.0.4:53424
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:48,510 INFO  [SyncThread:0] server.ZooKeeperServer: Established session 0x17375e441fa0009 with negotiated timeout 40000 for client /172.18.0.4:53424
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:48,650 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Processed session termination for sessionid: 0x17375e441fa0009
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:48,651 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxn: Closed socket connection for client /172.18.0.4:53424 which had sessionid 0x17375e441fa0009
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:53,693 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.NIOServerCnxnFactory: Accepted socket connection from /172.18.0.4:53434
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:53,694 INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181] server.ZooKeeperServer: Client attempting to establish new session at /172.18.0.4:53434
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:53,696 INFO  [SyncThread:0] server.ZooKeeperServer: Established session 0x17375e441fa000a with negotiated timeout 40000 for client /172.18.0.4:53434
+[33mhbase_1           |[0m hbase stderr | 2020-07-22 09:39:53,700 INFO  [ProcessThread(sid:0 cport:-1):] server.PrepRequestProcessor: Processed session termination for sessionid: 0x17375e441fa000a
+[32mfoxtrot_server    |[0m 172.18.0.1 - - [22/Jul/2020:09:39:57 +0000] "GET /foxtrot/v1/clusterhealth HTTP/1.1" 200 3223 "http://localhost:17000/cluster/index.htm" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0" 13
+[36melasticsearch     |[0m [2020-07-22T09:39:58,244][WARN ][o.e.c.r.a.DiskThresholdMonitor] [5q9Ine5] high disk watermark [90%] exceeded on [5q9Ine5JToGzVTBOdMThhw][5q9Ine5][/usr/share/elasticsearch/data/nodes/0] free: 2.4gb[8.5%], shards will be relocated away from this node
+[36melasticsearch     |[0m [2020-07-22T09:39:58,245][INFO ][o.e.c.r.a.DiskThresholdMonitor] [5q9Ine5] rerouting shards: [high disk watermark exceeded on one or more nodes]
+[32mfoxtrot_server    |[0m 172.18.0.1 - - [22/Jul/2020:09:39:59 +0000] "GET /foxtrot/v1/clusterhealth/nodestats HTTP/1.1" 200 6881 "http://localhost:17000/cluster/index.htm" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0" 35

@@ -2,16 +2,12 @@ package com.flipkart.foxtrot.server.auth.filter;
 
 import com.flipkart.foxtrot.server.auth.AuthConfig;
 import com.flipkart.foxtrot.server.auth.UserPrincipal;
-import com.flipkart.foxtrot.server.auth.sessionstore.SessionDataStore;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.jose4j.jwt.consumer.InvalidJwtException;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtContext;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
@@ -36,23 +32,16 @@ import java.util.Set;
 @Slf4j
 public class UserAuthenticationFilter implements Filter {
     private static final Set<String> WHITELISTED_PATTERNS = ImmutableSet.<String>builder()
-            .add("/foxtrot/google")
+            .add("/foxtrot/oauth")
             .add("^/foxtrot/auth.*")
         .build();
     private final AuthConfig authConfig;
-    private final Provider<SessionDataStore> sessionDataStore;
-    private final JwtConsumer consumer;
-    private final Provider<Authenticator<JwtContext, UserPrincipal>> authenticator;
+    private final Provider<Authenticator<String, UserPrincipal>> authenticator;
 
     @Inject
     public UserAuthenticationFilter(
-            AuthConfig authConfig,
-            Provider<SessionDataStore> sessionDataStore,
-            JwtConsumer consumer,
-            Provider<Authenticator<JwtContext, UserPrincipal>> authenticator) {
+            AuthConfig authConfig, Provider<Authenticator<String, UserPrincipal>> authenticator) {
         this.authConfig = authConfig;
-        this.sessionDataStore = sessionDataStore;
-        this.consumer = consumer;
         this.authenticator = authenticator;
     }
 
@@ -77,25 +66,24 @@ public class UserAuthenticationFilter implements Filter {
             return;
         }
         val jwt = getTokenFromCookieOrHeader(httpRequest).orElse(null);
-        if(null != jwt) {
+        if(!Strings.isNullOrEmpty(jwt)) {
             try {
-                final JwtContext context = consumer.process(jwt);
                 val principal = authenticator.get()
-                        .authenticate(context).orElse(null);
+                        .authenticate(jwt).orElse(null);
                 if(null != principal) {
                     SessionUser.put(principal);
                     chain.doFilter(request, response);
                     return;
                 }
             }
-            catch (InvalidJwtException | AuthenticationException e) {
+            catch (AuthenticationException e) {
                 log.error("Jwt validation failure: ", e);
             }
         }
         val referrer = httpRequest.getHeader(org.apache.http.HttpHeaders.REFERER);
         val source = Strings.isNullOrEmpty(referrer) ? requestURI : referrer;
         httpResponse.addCookie(new Cookie("redirection", source));
-        httpResponse.sendRedirect("/foxtrot/google/login");
+        httpResponse.sendRedirect("/foxtrot/oauth/login");
     }
 
     @Override

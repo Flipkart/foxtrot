@@ -82,8 +82,13 @@ auth:
     sessionDuration: 15d
 
   provider:
-    type: OAUTH_GOOGLE
-    clientId: ${GOOGLE_CLIENT_ID}
-    clientSecret: ${GOOGLE_CLIENT_SECRET}
-    server: ${GOOGLE_CALLBACK_HOST_PORT}
-    secureEndpoint: ${GOOGLE_SECURE_ENDPOINT}
+#    type: OAUTH_GOOGLE
+#    clientId: ${GOOGLE_CLIENT_ID}
+#    clientSecret: ${GOOGLE_CLIENT_SECRET}
+#    server: ${GOOGLE_CALLBACK_HOST_PORT}
+#    secureEndpoint: ${GOOGLE_SECURE_ENDPOINT}
+    type: OAUTH_IDMAN
+    idmanEndpoint: https://ssidman.loca.lt
+    clientId: FOXTROT
+    clientSecret: 8f4bcf45-2909-42e0-9bba-f46351bb0e6d
+    serverEndpoint: "http://localhost:17000"

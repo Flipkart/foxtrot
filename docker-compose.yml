@@ -15,20 +15,20 @@ services:
     command: elasticsearch -Ehttp.cors.enabled=true
     volumes:
           - /elasticsearch/data
-    ports:
-     - "9200:9200"
-     - "9300:9300"
+#    ports:
+#     - "9200:9200"
+#     - "9300:9300"
 
   hbase:
     image: hyness/hbase-rest-standalone
     hostname: hbase
-    ports:
-     - "2181:2181"
-     - "8080:8080"
-     - "16000:16000"
-     - "16010:16010"
-     - "16020:16020"
-     - "16030:16030"
+#    ports:
+#     - "2181:2181"
+#     - "8080:8080"
+#     - "16000:16000"
+#     - "16010:16010"
+#     - "16020:16020"
+#     - "16030:16030"
     volumes:
      - /data/hbase
      - /data/zookeeper
@@ -57,7 +57,7 @@ services:
      - HBASE_ZOOKEEPER_QUORUM=hbase
      - HBASE_ZOOKEEPER_CLIENT_PORT=2181
      - HAZELCAST_CLUSTER_NAME=foxtrot
-     - AUTH_ENABLED=false
+     - AUTH_ENABLED=true
      - GOOGLE_CALLBACK_HOST_PORT=localhost:17000
      - GOOGLE_CLIENT_ID=dummy
      - GOOGLE_CLIENT_SECRET=dummy

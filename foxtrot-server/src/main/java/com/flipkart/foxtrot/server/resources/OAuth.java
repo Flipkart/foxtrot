@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.server.auth.AuthConfig;
+import com.flipkart.foxtrot.server.auth.authprovider.IdType;
 import com.flipkart.foxtrot.server.auth.sessionstore.SessionDataStore;
 import com.flipkart.foxtrot.server.auth.authprovider.AuthProvider;
 import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProvider;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.http.HttpHeaders;
 
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
@@ -21,16 +23,16 @@ import java.util.UUID;
 /**
  *
  */
-@Path("/google")
+@Path("/oauth")
 @Slf4j
-public class GoogleAuth {
+public class OAuth {
 
     private final AuthConfig authConfig;
     private final Provider<AuthProvider> authProvider;
     private final Provider<SessionDataStore> sessionDataStore;
 
     @Inject
-    public GoogleAuth(
+    public OAuth(
             AuthConfig authConfig,
             Provider<AuthProvider> authProvider,
             Provider<SessionDataStore> sessionDataStore) {
@@ -46,7 +48,7 @@ public class GoogleAuth {
         final String sessionId = UUID.randomUUID().toString();
         final String redirectionURL = authProvider.get()
                 .redirectionURL(sessionId);
-        log.debug("Redirection uri: {}", redirectionURL);
+        log.info("Redirection uri: {}", redirectionURL);
         final String cookieReferrerUrl = null == cookieReferrer ? null : cookieReferrer.getValue();
         val source = Strings.isNullOrEmpty(cookieReferrerUrl) ?  referrer : cookieReferrerUrl;
         log.debug("Call source: {} Referrer: {} Redirection: {}", source, referrer, cookieReferrerUrl);
@@ -62,7 +64,7 @@ public class GoogleAuth {
                                 sessionId,
                                 GoogleAuthProvider.CALLBACK_PATH,
                                 null,
-                                NewCookie.DEFAULT_VERSION,
+                                Cookie.DEFAULT_VERSION,
                                 null,
                                 NewCookie.DEFAULT_MAX_AGE,
                                 null,
@@ -89,7 +91,7 @@ public class GoogleAuth {
                 .login(authCode, sessionId)
                 .orElse(null);
         if (null == token) {
-            return Response.seeOther(URI.create("/foxtrot/login/google")).build();
+            return Response.seeOther(URI.create("/foxtrot/oauth/login")).build();
         }
         val existingReferrer = sessionDataStore.get()
                 .get(token.getId())
@@ -103,7 +105,9 @@ public class GoogleAuth {
         log.debug("Will be redirecting to: {}. Existing: {}", finalRedirect, existingReferrer);
         return Response.seeOther(URI.create(finalRedirect))
                 .cookie(new NewCookie("token",
-                                      AuthUtils.createJWT(token, authConfig.getJwt()),
+                                      token.getIdType().equals(IdType.SESSION_ID)
+                                        ? AuthUtils.createJWT(token, authConfig.getJwt())
+                                        : token.getId(),
                                       "/",
                                       null,
                                       Cookie.DEFAULT_VERSION,
@@ -113,6 +117,15 @@ public class GoogleAuth {
                                       false,
                                       true),
                         new NewCookie(cookieState, null, 0, false))
+                .build();
+    }
+
+    @GET
+    @Path("/logout")
+    @PermitAll
+    public Response logout(@CookieParam("token") final Cookie token) {
+        return Response.seeOther(URI.create("/"))
+                    .cookie(new NewCookie(token, null, 0, false))
                 .build();
     }
 }

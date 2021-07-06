@@ -37,8 +37,7 @@ import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.auth.*;
 import com.flipkart.foxtrot.server.auth.authprovider.AuthProvider;
-import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProvider;
-import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProviderConfig;
+import com.flipkart.foxtrot.server.auth.authprovider.ConfiguredAuthProviderFactory;
 import com.flipkart.foxtrot.server.auth.sessionstore.DistributedSessionDataStore;
 import com.flipkart.foxtrot.server.auth.sessionstore.SessionDataStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
@@ -53,6 +52,7 @@ import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.google.common.cache.CacheBuilderSpec;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
+import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import io.dropwizard.auth.Authenticator;
@@ -62,12 +62,12 @@ import io.dropwizard.auth.CachingAuthorizer;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
+import lombok.val;
 import org.apache.hadoop.conf.Configuration;
 import org.jose4j.jwa.AlgorithmConstraints;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
-import org.jose4j.jwt.consumer.JwtContext;
 import org.jose4j.keys.HmacKey;
 
 import javax.inject.Singleton;
@@ -112,8 +112,6 @@ public class FoxtrotModule extends AbstractModule {
         bind(new TypeLiteral<List<HealthCheck>>() {}).toProvider(HealthcheckListProvider.class);
         bind(AuthStore.class)
                 .to(ESAuthStore.class);
-        bind(AuthProvider.class)
-                .to(GoogleAuthProvider.class);
         bind(SessionDataStore.class)
                 .to(DistributedSessionDataStore.class);
     }
@@ -261,10 +259,34 @@ public class FoxtrotModule extends AbstractModule {
         return serverConfiguration.getAuth();
     }
 
-    @Provides
+/*    @Provides
     @Singleton
     public GoogleAuthProviderConfig googleAuthProviderConfig(FoxtrotServerConfiguration configuration) {
         return (GoogleAuthProviderConfig)configuration.getAuth().getProvider();
+    }*/
+
+    @Provides
+    @Singleton
+    public AuthProvider authProvider(
+            FoxtrotServerConfiguration configuration,
+            Environment environment,
+            Injector injector) {
+        val authType = configuration.getAuth().getProvider().getType();
+        AuthStore authStore = null;
+        switch (authType) {
+
+            case OAUTH_GOOGLE:
+                authStore = injector.getInstance(ESAuthStore.class);
+                break;
+            case OAUTH_IDMAN:
+                authStore = injector.getInstance(IdmanAuthStore.class);
+                break;
+            default: {
+                throw new IllegalArgumentException("Mode " + authType.name() + " not supported");
+            }
+        }
+        return new ConfiguredAuthProviderFactory(configuration.getAuth())
+                .build(environment.getObjectMapper(), authStore);
     }
 
     @Provides
@@ -288,7 +310,7 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public Authenticator<JwtContext, UserPrincipal> authenticator(
+    public Authenticator<String, UserPrincipal> authenticator(
             final Environment environment,
             final TokenAuthenticator authenticator,
             final AuthConfig authConfig) {

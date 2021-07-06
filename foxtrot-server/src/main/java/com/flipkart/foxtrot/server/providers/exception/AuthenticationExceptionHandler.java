@@ -20,6 +20,6 @@ public class AuthenticationExceptionHandler implements ExceptionMapper<JWTAuthen
     @Override
     public Response toResponse(JWTAuthenticationFailure exception) {
         log.error("Authentication failure: {}", exception.getMessage());
-        return Response.seeOther(URI.create("/foxtrot/google/login")).build();
+        return Response.seeOther(URI.create("/foxtrot/oauth/login")).build();
     }
 }

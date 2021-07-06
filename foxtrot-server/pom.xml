@@ -97,6 +97,17 @@
             <version>1.23.0</version>
         </dependency>
         <dependency>
+            <groupId>io.appform.idman</groupId>
+            <artifactId>idman-model</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
             <version>3.11.7</version>

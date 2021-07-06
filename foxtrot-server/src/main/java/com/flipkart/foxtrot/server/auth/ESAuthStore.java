@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.auth.User;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.server.auth.authprovider.IdType;
 import io.dropwizard.util.Duration;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -112,7 +113,7 @@ public class ESAuthStore implements AuthStore {
         try {
             val saveStatus = connection.getClient()
                     .index(new IndexRequest(TOKENS_INDEX)
-                                   .source(mapper.writeValueAsString(new Token(tokenId, tokenType, userId, expiry)),
+                                   .source(mapper.writeValueAsString(new Token(tokenId, IdType.SESSION_ID, tokenType, userId, expiry)),
                                            XContentType.JSON)
                                    .id(tokenId)
                                    .type(TOKEN_TYPE)
