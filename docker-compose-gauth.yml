@@ -15,20 +15,10 @@ services:
     command: elasticsearch -Ehttp.cors.enabled=true
     volumes:
           - /elasticsearch/data
-#    ports:
-#     - "9200:9200"
-#     - "9300:9300"
 
   hbase:
     image: hyness/hbase-rest-standalone
     hostname: hbase
-#    ports:
-#     - "2181:2181"
-#     - "8080:8080"
-#     - "16000:16000"
-#     - "16010:16010"
-#     - "16020:16020"
-#     - "16030:16030"
     volumes:
      - /data/hbase
      - /data/zookeeper
@@ -57,6 +47,13 @@ services:
      - HBASE_ZOOKEEPER_QUORUM=hbase
      - HBASE_ZOOKEEPER_CLIENT_PORT=2181
      - HAZELCAST_CLUSTER_NAME=foxtrot
+     - GOOGLE_CALLBACK_HOST_PORT=localhost:17000
+     - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+     - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+     - GOOGLE_SECURE_ENDPOINT=false
      - DISCOVERY_TYPE=foxtrot_simple
      - SWAGGER_SCHEME="http"
+     - PRIVATE_KEY="6/Qh1eLvF7cGJEgH1wIMYErIpi0d8Kqt5wHKw/o5iFbhfziKiux03HfFihO2+f5FKpsjk1D7UmgdAWQsY966WkyAsyo22m4g+C+rNCwMUD/UM2qop7JZBDEkgWpwK8jpxOTpYUnaNsiBaBsadoZCQ+Ns/d8RrS7QPAW+1PETbdFfo+fPW0/Sm8RUmMKkc9jJ6bhuSpFH3q/bWoyPZnj7geYQQIkgmQv9jXaszw=="
      - STARTUP_DELAY=15
+     - CONFIG_PATH=/config/docker-gauth.yml
+

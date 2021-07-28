@@ -109,7 +109,8 @@ public class FoxtrotModule extends AbstractModule {
                 .to(StrSubstitutorEmailBodyBuilder.class);
         bind(TableManager.class)
                 .to(FoxtrotTableManager.class);
-        bind(new TypeLiteral<List<HealthCheck>>() {}).toProvider(HealthcheckListProvider.class);
+        bind(new TypeLiteral<List<HealthCheck>>() {
+        }).toProvider(HealthcheckListProvider.class);
         bind(AuthStore.class)
                 .to(ESAuthStore.class);
         bind(SessionDataStore.class)
@@ -130,7 +131,7 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public TranslatorConfig getTranslatorConfig(FoxtrotServerConfiguration configuration){
+    public TranslatorConfig getTranslatorConfig(FoxtrotServerConfiguration configuration) {
         return configuration.getTranslatorConfig();
     }
 
@@ -144,16 +145,16 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public CardinalityConfig cardinalityConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getCardinality()
-                ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
-                : configuration.getCardinality();
+               ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
+               : configuration.getCardinality();
     }
 
     @Provides
     @Singleton
     public EsIndexOptimizationConfig esIndexOptimizationConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getEsIndexOptimizationConfig()
-                ? new EsIndexOptimizationConfig()
-                : configuration.getEsIndexOptimizationConfig();
+               ? new EsIndexOptimizationConfig()
+               : configuration.getEsIndexOptimizationConfig();
     }
 
     @Provides
@@ -166,16 +167,16 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ConsoleHistoryConfig consoleHistoryConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getConsoleHistoryConfig()
-                ? new ConsoleHistoryConfig()
-                : configuration.getConsoleHistoryConfig();
+               ? new ConsoleHistoryConfig()
+               : configuration.getConsoleHistoryConfig();
     }
 
     @Provides
     @Singleton
     public SessionCleanupConfig sessionCleanupConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getSessionCleanupConfig()
-                ? new SessionCleanupConfig()
-                : configuration.getSessionCleanupConfig();
+               ? new SessionCleanupConfig()
+               : configuration.getSessionCleanupConfig();
     }
 
     @Provides
@@ -212,7 +213,9 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public List<ActionExecutionObserver> actionExecutionObservers(CacheManager cacheManager, InternalEventBus eventBus) {
+    public List<ActionExecutionObserver> actionExecutionObservers(
+            CacheManager cacheManager,
+            InternalEventBus eventBus) {
         return ImmutableList.<ActionExecutionObserver>builder()
                 .add(new MetricRecorder())
                 .add(new ResponseCacheUpdater(cacheManager))
@@ -269,12 +272,15 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public AuthProvider authProvider(
             FoxtrotServerConfiguration configuration,
+            AuthConfig authConfig,
             Environment environment,
             Injector injector) {
-        val authType = configuration.getAuth().getProvider().getType();
+        val authType = authConfig.getProvider().getType();
         AuthStore authStore = null;
         switch (authType) {
-
+            case NONE: {
+                break;
+            }
             case OAUTH_GOOGLE:
                 authStore = injector.getInstance(ESAuthStore.class);
                 break;
@@ -335,7 +341,8 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
         return Objects.nonNull(configuration.getElasticsearchTuningConfig())
-                ? configuration.getElasticsearchTuningConfig() : new ElasticsearchTuningConfig();
+               ? configuration.getElasticsearchTuningConfig()
+               : new ElasticsearchTuningConfig();
     }
 
 }

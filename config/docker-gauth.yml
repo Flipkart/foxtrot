@@ -74,3 +74,16 @@ sessionCleanupConfig:
   interval: 86400
   initialDelay: 10
 
+auth:
+  enabled: true
+  jwt:
+    issuerId: foxtrot-server
+    privateKey: ${PRIVATE_KEY}
+    sessionDuration: 15d
+
+  provider:
+   type: OAUTH_GOOGLE
+   clientId: ${GOOGLE_CLIENT_ID}
+   clientSecret: ${GOOGLE_CLIENT_SECRET}
+   server: ${GOOGLE_CALLBACK_HOST_PORT}
+   secureEndpoint: ${GOOGLE_SECURE_ENDPOINT}

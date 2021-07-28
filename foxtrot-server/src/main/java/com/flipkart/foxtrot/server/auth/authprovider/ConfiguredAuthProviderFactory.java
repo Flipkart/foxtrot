@@ -3,10 +3,7 @@ package com.flipkart.foxtrot.server.auth.authprovider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.server.auth.AuthConfig;
 import com.flipkart.foxtrot.server.auth.AuthStore;
-import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProvider;
-import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProviderConfig;
-import com.flipkart.foxtrot.server.auth.authprovider.impl.IdmanAuthProvider;
-import com.flipkart.foxtrot.server.auth.authprovider.impl.IdmanAuthProviderConfig;
+import com.flipkart.foxtrot.server.auth.authprovider.impl.*;
 
 /**
  *
@@ -30,6 +27,11 @@ public class ConfiguredAuthProviderFactory implements AuthProviderFactory {
                     @Override
                     public AuthProvider visit(IdmanAuthProviderConfig idmanAuthProviderConfig) {
                         return new IdmanAuthProvider(idmanAuthProviderConfig, mapper);
+                    }
+
+                    @Override
+                    public AuthProvider visit(NoneAuthProviderConfig noneAuthProviderConfig) {
+                        return new NoneAuthProvider();
                     }
                 });
     }
