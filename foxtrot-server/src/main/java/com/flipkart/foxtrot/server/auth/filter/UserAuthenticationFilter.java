@@ -75,10 +75,16 @@ public class UserAuthenticationFilter implements Filter {
                     chain.doFilter(request, response);
                     return;
                 }
+                else {
+                    log.info("No principal ");
+                }
             }
             catch (AuthenticationException e) {
                 log.error("Jwt validation failure: ", e);
             }
+        }
+        else {
+            log.debug("No token in request");
         }
         val referrer = httpRequest.getHeader(org.apache.http.HttpHeaders.REFERER);
         val source = Strings.isNullOrEmpty(referrer) ? requestURI : referrer;

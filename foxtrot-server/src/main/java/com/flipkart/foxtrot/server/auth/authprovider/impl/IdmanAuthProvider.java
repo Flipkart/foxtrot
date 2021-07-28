@@ -7,6 +7,7 @@ import com.flipkart.foxtrot.server.auth.*;
 import com.flipkart.foxtrot.server.auth.authprovider.AuthProvider;
 import com.flipkart.foxtrot.server.auth.authprovider.AuthType;
 import com.flipkart.foxtrot.server.auth.authprovider.IdType;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import io.appform.idman.model.IdmanUser;
 import io.appform.idman.model.TokenInfo;
@@ -65,7 +66,7 @@ public class IdmanAuthProvider implements AuthProvider {
     @Override
     @SneakyThrows
     public Optional<Token> login(String authCode, String sessionId) {
-        return callIdmanServer("authorization_code", authCode,
+        return remoteTokenCall("authorization_code", authCode,
                                ti -> {
                                    val idmanUser = ti.getUser();
                                    val expiry = Date.from(Instant.now().plusSeconds(ti.getExpiry()));
@@ -80,14 +81,9 @@ public class IdmanAuthProvider implements AuthProvider {
     @Override
     @SneakyThrows
     public Optional<AuthenticatedInfo> authenticate(AuthInfo authInfo) {
-        return refreshToken(authInfo.accept(TokenAuthInfo::getToken));
-    }
-
-    @SneakyThrows
-    private Optional<AuthenticatedInfo> refreshToken(String token) {
-        return callIdmanServer(
+        return remoteTokenCall(
                 "refresh_token",
-                token,
+                authInfo.accept(TokenAuthInfo::getToken),
                 ti -> {
                     val idmanUser = ti.getUser();
                     val expiry = Date.from(Instant.now().plusSeconds(ti.getExpiry()));
@@ -105,6 +101,16 @@ public class IdmanAuthProvider implements AuthProvider {
                                         new Date());
                     return Optional.of(new AuthenticatedInfo(t, user));
                 });
+    }
+
+    @Override
+    @SneakyThrows
+    public boolean logout(String sessionId) {
+        if(Strings.isNullOrEmpty(sessionId)) {
+            log.warn("Empty token send for logout");
+            return true;
+        }
+        return remoteTokenRevokeCall(sessionId);
     }
 
     private Set<FoxtrotRole> mapToFoxtrotRoles(final IdmanUser idmanUser) {
@@ -127,15 +133,14 @@ public class IdmanAuthProvider implements AuthProvider {
         return user.getRole().equals("FOXTROT_ADMIN");
     }
 
-    private <T> Optional<T> callIdmanServer(
+    private <T> Optional<T> remoteTokenCall(
             String callMode,
             String param,
             Function<TokenInfo, Optional<T>> handler) throws URISyntaxException, IOException {
         val post = new HttpPost(new URIBuilder(config.getIdmanEndpoint())
                                         .setPath("/apis/oauth2/token")
                                         .build());
-        val fromBuilder = ImmutableList.<NameValuePair>builder();
-        val form = fromBuilder
+        val form = ImmutableList.<NameValuePair>builder()
                 .add(new BasicNameValuePair(callMode.equals("authorization_code")
                                             ? "code"
                                             : "refresh_token", param))
@@ -151,6 +156,21 @@ public class IdmanAuthProvider implements AuthProvider {
             }
             val ti = mapper.readValue(EntityUtils.toByteArray(response.getEntity()), TokenInfo.class);
             return handler.apply(ti);
+        }
+    }
+
+    private <T> boolean remoteTokenRevokeCall(String token) throws URISyntaxException, IOException {
+        val post = new HttpPost(new URIBuilder(config.getIdmanEndpoint())
+                                        .setPath("/apis/oauth2/revoke")
+                                        .build());
+        val params = ImmutableList.<NameValuePair>builder()
+                .add(new BasicNameValuePair("client_id", config.getClientId()))
+                .add(new BasicNameValuePair("client_secret", config.getClientSecret()))
+                .add(new BasicNameValuePair("token", token))
+                .build();
+        post.setEntity(new UrlEncodedFormEntity(params));
+        try (val response = client.execute(post)) {
+            return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
         }
     }
 

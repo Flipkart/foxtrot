@@ -79,6 +79,8 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
         logger.info("Creating hbase table");
         HBaseUtil.createTable(configuration.getHbase(), configuration.getHbase()
                 .getTableName());
+
+        logger.info("Initialization complete");
     }
 
     private void createMetaIndex(final ElasticsearchConnection connection, final String indexName, int replicaCount) {

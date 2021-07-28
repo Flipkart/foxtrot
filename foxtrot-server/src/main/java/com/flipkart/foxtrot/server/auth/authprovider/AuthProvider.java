@@ -22,4 +22,6 @@ public interface AuthProvider {
     Optional<Token> login(String authCode, String sessionId);
 
     Optional<AuthenticatedInfo> authenticate(AuthInfo authInfo);
+
+    boolean logout(String sessionId);
 }

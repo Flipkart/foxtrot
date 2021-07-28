@@ -202,6 +202,11 @@ public class GoogleAuthProvider implements AuthProvider {
     }
 
     @Override
+    public boolean logout(String sessionId) {
+        return credentialsStorage.deleteToken(sessionId);
+    }
+
+    @Override
     public boolean isPreregistrationRequired() {
         return false;
     }
