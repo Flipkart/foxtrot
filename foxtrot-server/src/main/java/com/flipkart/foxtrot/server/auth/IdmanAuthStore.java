@@ -23,13 +23,13 @@ public class IdmanAuthStore implements AuthStore {
     }
 
     @Override
-    public boolean deleteUser(String id) {
+    public boolean deleteUser(String userId) {
         return false;
     }
 
     @Override
     public boolean updateUser(
-            String id, UnaryOperator<User> mutator) {
+            String userId, UnaryOperator<User> mutator) {
         return false;
     }
 

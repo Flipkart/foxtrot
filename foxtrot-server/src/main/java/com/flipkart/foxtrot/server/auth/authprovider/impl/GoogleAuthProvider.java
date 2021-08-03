@@ -70,15 +70,13 @@ public class GoogleAuthProvider implements AuthProvider {
                 case HTTP: {
                     Preconditions.checkArgument(!Strings.isNullOrEmpty(googleAuthConfig.getProxyHost()));
                     proxy = new Proxy(Proxy.Type.HTTP,
-                                      new InetSocketAddress(googleAuthConfig.getProxyHost(),
-                                                            googleAuthConfig.getProxyPort()));
+                                      proxyAddress(googleAuthConfig));
                     break;
                 }
                 case SOCKS:
                     Preconditions.checkArgument(!Strings.isNullOrEmpty(googleAuthConfig.getProxyHost()));
-                    proxy = new Proxy(Proxy.Type.HTTP,
-                                      new InetSocketAddress(googleAuthConfig.getProxyHost(),
-                                                            googleAuthConfig.getProxyPort()));
+                    proxy = new Proxy(Proxy.Type.SOCKS,
+                                      proxyAddress(googleAuthConfig));
                     break;
             }
         }
@@ -228,4 +226,10 @@ public class GoogleAuthProvider implements AuthProvider {
                 .build();
 
     }
+
+    private InetSocketAddress proxyAddress(GoogleAuthProviderConfig googleAuthConfig) {
+        return new InetSocketAddress(googleAuthConfig.getProxyHost(),
+                                     googleAuthConfig.getProxyPort());
+    }
+
 }

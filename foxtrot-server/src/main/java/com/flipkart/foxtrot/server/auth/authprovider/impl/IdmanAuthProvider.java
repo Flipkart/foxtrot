@@ -119,7 +119,7 @@ public class IdmanAuthProvider implements AuthProvider {
                 return EnumSet.allOf(FoxtrotRole.class);
             }
             case "FOXTROT_HUMAN_USER": {
-                return EnumSet.of(FoxtrotRole.CONSOLE, FoxtrotRole.QUERY, FoxtrotRole.INGEST);
+                return EnumSet.of(FoxtrotRole.CONSOLE, FoxtrotRole.QUERY);
             }
             case "FOXTROT_SYSTEM_USER": {
                 return EnumSet.of(FoxtrotRole.QUERY, FoxtrotRole.INGEST);

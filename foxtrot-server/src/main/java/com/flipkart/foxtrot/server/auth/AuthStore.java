@@ -20,9 +20,9 @@ public interface AuthStore {
 
     Optional<User> getUser(final String userId);
 
-    boolean deleteUser(final String id);
+    boolean deleteUser(final String userId);
 
-    boolean updateUser(final String id, UnaryOperator<User> mutator);
+    boolean updateUser(final String userId, UnaryOperator<User> mutator);
 
     default boolean grantRole(final String userId, final FoxtrotRole role) {
         return updateUser(userId, user -> {

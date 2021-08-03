@@ -72,14 +72,14 @@ public class ESAuthStore implements AuthStore {
 
     @SneakyThrows
     @Override
-    public boolean deleteUser(String id) {
+    public boolean deleteUser(String userId) {
         boolean status = connection.getClient()
-                .delete(new DeleteRequest(USERS_INDEX, USER_TYPE, id)
+                .delete(new DeleteRequest(USERS_INDEX, USER_TYPE, userId)
                                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
                 .status() == RestStatus.OK;
         if (status) {
-            val count = deleteTokensForUser(id);
-            log.debug("User {} deleted and {} existing tokens deleted with that.", id, count);
+            val count = deleteTokensForUser(userId);
+            log.debug("User {} deleted and {} existing tokens deleted with that.", userId, count);
         }
         return status;
     }
@@ -87,8 +87,8 @@ public class ESAuthStore implements AuthStore {
     @Override
     @SneakyThrows
     public boolean updateUser(
-            String id, UnaryOperator<User> mutator) {
-        val user = getUser(id).orElse(null);
+            String userId, UnaryOperator<User> mutator) {
+        val user = getUser(userId).orElse(null);
         if (null == user) {
             return false;
         }
