@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.enums.CountPrecision;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.stats.Stat;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -27,6 +28,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -41,7 +43,12 @@ public class GroupRequest extends ActionRequest {
     @NotEmpty
     private String table;
 
+    // Kept for backward compatibility
     private String uniqueCountOn;
+
+    private String aggregationField;
+
+    private Stat aggregationType;
 
     @NotNull
     @NotEmpty
@@ -53,46 +60,29 @@ public class GroupRequest extends ActionRequest {
         super(Opcodes.GROUP);
     }
 
-    public GroupRequest(List<Filter> filters, String table, String uniqueCountOn, List<String> nesting) {
+    public GroupRequest(List<Filter> filters, String table, String uniqueCountOn,
+                        String aggregationField, Stat aggregationType,
+                        List<String> nesting, CountPrecision precision) {
         super(Opcodes.GROUP, filters);
         this.table = table;
         this.uniqueCountOn = uniqueCountOn;
+        this.aggregationField = aggregationField;
+        this.aggregationType = aggregationType;
         this.nesting = nesting;
+        this.precision = precision;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
         return visitor.visit(this);
     }
 
-    public String getTable() {
-        return table;
-    }
-
-    public void setTable(String table) {
-        this.table = table;
-    }
-
-    public String getUniqueCountOn() {
-        return uniqueCountOn;
-    }
-
-    public void setUniqueCountOn(String uniqueCountOn) {
-        this.uniqueCountOn = uniqueCountOn;
-    }
-
-    public List<String> getNesting() {
-        return nesting;
-    }
-
-    public void setNesting(List<String> nesting) {
-        this.nesting = nesting;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this).appendSuper(super.toString())
                 .append("table", table)
+                .append("aggregationType", aggregationType)
                 .append("uniqueCountOn", uniqueCountOn)
+                .append("aggregationField", aggregationField)
                 .append("nesting", nesting)
                 .toString();
     }
