@@ -26,14 +26,13 @@ import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
-import com.flipkart.foxtrot.server.auth.AuthConfig;
 import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
+import com.flipkart.foxtrot.server.auth.AuthConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import io.dropwizard.Configuration;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -94,18 +93,16 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     private String swaggerScheme;
 
-    @Builder.Default
     private TranslatorConfig translatorConfig = new TranslatorConfig();
 
     @Valid
-    @Builder.Default
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
 
     private ClusterRerouteConfig clusterRerouteConfig;
 
     @Valid
     @NotNull
-    private AuthConfig auth;
+    private AuthConfig auth = new AuthConfig();
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();

@@ -1,8 +1,8 @@
 package com.flipkart.foxtrot.server.auth.authprovider;
 
+import com.flipkart.foxtrot.server.auth.AuthInfo;
+import com.flipkart.foxtrot.server.auth.AuthenticatedInfo;
 import com.flipkart.foxtrot.server.auth.Token;
-import lombok.Builder;
-import lombok.Data;
 
 import java.util.Optional;
 
@@ -10,14 +10,6 @@ import java.util.Optional;
  *
  */
 public interface AuthProvider {
-
-
-    @Data
-    @Builder
-    public class AuthInfo {
-        private final String ip;
-        private final String email;
-    }
 
     AuthType type();
 
@@ -28,4 +20,8 @@ public interface AuthProvider {
     }
 
     Optional<Token> login(String authCode, String sessionId);
+
+    Optional<AuthenticatedInfo> authenticate(AuthInfo authInfo);
+
+    boolean logout(String sessionId);
 }

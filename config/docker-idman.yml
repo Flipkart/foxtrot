@@ -27,7 +27,7 @@ cluster:
   discovery:
     type: ${DISCOVERY_TYPE}
     disableMulticast: true
-    members: ["${HOSTNAME}:5701"]
+    members: ["localhost:5701"]
 
 cacheConfig:
   maxIdleSeconds: 15
@@ -74,3 +74,16 @@ sessionCleanupConfig:
   interval: 86400
   initialDelay: 10
 
+auth:
+  enabled: true
+  jwt:
+    issuerId: foxtrot-server
+    privateKey: ${PRIVATE_KEY}
+    sessionDuration: 15d
+
+  provider:
+    type: OAUTH_IDMAN
+    idmanEndpoint: ${IDMAN_ENDPOINT}
+    clientId: FOXTROT
+    clientSecret: 8f4bcf45-2909-42e0-9bba-f46351bb0e6d
+    serverEndpoint: "http://localhost:17000"

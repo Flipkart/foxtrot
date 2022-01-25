@@ -16,11 +16,11 @@ import javax.validation.constraints.NotNull;
 public class JwtConfig {
     @NotNull
     @NotEmpty
-    private String privateKey;
+    private String privateKey = "useless_default_key";
 
     @NotNull
     @NotEmpty
-    private String issuerId;
+    private String issuerId = "foxtrot";
 
     @NotEmpty
     @NotNull

@@ -17,6 +17,7 @@
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.google.common.base.Strings;
+import lombok.experimental.UtilityClass;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -33,15 +34,14 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
-public abstract class HBaseUtil {
+@UtilityClass
+public class HBaseUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(HBaseUtil.class);
 
-    private HBaseUtil() {
-    }
-
     public static void createTable(final HbaseConfig hbaseConfig, final String tableName) throws IOException {
-        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
+        final TableName name = TableName.valueOf(tableName);
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(name);
         HColumnDescriptor columnDescriptor = new HColumnDescriptor("d");
         columnDescriptor.setCompressionType(Compression.Algorithm.GZ);
         hTableDescriptor.addFamily(columnDescriptor);

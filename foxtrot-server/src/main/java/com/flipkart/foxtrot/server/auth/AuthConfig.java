@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.server.auth;
 
 import com.flipkart.foxtrot.server.auth.authprovider.AuthProviderConfig;
+import com.flipkart.foxtrot.server.auth.authprovider.impl.NoneAuthProviderConfig;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -19,5 +20,5 @@ public class AuthConfig {
 
     @NotNull
     @Valid
-    public AuthProviderConfig provider;
+    public AuthProviderConfig provider = new NoneAuthProviderConfig();
 }
