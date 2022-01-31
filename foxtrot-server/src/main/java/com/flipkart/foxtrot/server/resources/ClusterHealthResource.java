@@ -19,10 +19,13 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.table.TableManager;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -40,12 +43,21 @@ import java.util.concurrent.ExecutionException;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/clusterhealth")
 @Singleton
+@Order(20)
 public class ClusterHealthResource {
+
     private final QueryStore queryStore;
+    private final TableManager tableManager;
+    private final TableMetadataManager tableMetadataManager;
 
     @Inject
-    public ClusterHealthResource(QueryStore queryStore) {
+    public ClusterHealthResource(
+            QueryStore queryStore,
+            TableManager tableManager,
+            TableMetadataManager tableMetadataManager) {
         this.queryStore = queryStore;
+        this.tableManager = tableManager;
+        this.tableMetadataManager = tableMetadataManager;
     }
 
 

@@ -660,10 +660,12 @@ function getTables() { // get table list
     contentType: "application/json",
     context: this,
     success: function(tables) {
-      for (var i = tables.length - 1; i >= 0; i--) {
-        tableNameList.push(tables[i].name)
+      if(tableNameList.length == 0) {
+        for (var i = tables.length - 1; i >= 0; i--) {
+          tableNameList.push(tables[i].name)
+        }
+        renderTemplateFilters();
       }
-      renderTemplateFilters();
     }});
 }
 
@@ -890,9 +892,7 @@ $(document).ready(function () {
               deleteConsole();
           }
       });
-      $("#listConsole").change(function () {
-          loadParticularConsoleList();
-      });
+
       $("#addDashboardConfirm").click(function () {
           createDashboard();
       });
@@ -921,11 +921,7 @@ $(document).ready(function () {
               globalFilters = true;
               showFilters();
           } else {
-              globalFilters = false;
-              hideFilters();
-              resetPeriodDropdown();
-              resetGloblaDateFilter();
-              refereshTiles();
+              globalFilterResetDetails();
           }
       });
 
@@ -1126,20 +1122,13 @@ $(document).ready(function () {
       /**
        * Initialize global date filter
        */
-      $("#myModal .modal-header h4").html("Select Your Date");
+      $("#myModal .modal-header h4").html("Select End Date");
       $("#myModal .modal-body").html('<div style="overflow:hidden;"><div class="form-group"><div class="row"><div class="col-md-8"><div id="datetimepicker12"></div></div></div></div><div id="global-date-picker-info-text"><p><span class="glyphicon glyphicon-info-sign"></span>Graph would operate between (time selected in date picker - x), where x is the value in mins/hours/days of the individual widget</p> <ul><li>If time selected in date picker is 1 pm and the widget has time range of 15 mins, widget would show data from (1pm -15 mins)</li> <li>If time selected in date picker is 1 pm and the global filters has time range of 15 mins, all widgets would show data from (1pm -15 mins)</li></ul></p></div>');
       $('#datetimepicker12').datetimepicker({
           inline: true,
           sideBySide: true,
           format: 'DD/MM/YYYY, hh:mm:ss a'
       });
-
-      function resetGloblaDateFilter() {
-          isGlobalDateFilter = false;
-          globalDateFilterValue = "";
-          $("#selected-global-date span").text('');
-          $("#selected-global-date").hide();
-      }
 
       $(".close-global-date-filter").click(function () {
           $("#myModal").modal("hide");

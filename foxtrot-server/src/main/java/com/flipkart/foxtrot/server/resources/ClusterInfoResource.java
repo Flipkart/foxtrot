@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.cluster.ClusterMember;
+import com.hazelcast.core.Member;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -38,4 +39,12 @@ public class ClusterInfoResource {
         return Collections.singletonMap("members", clusterManager.getMembers());
     }
 
+
+    @GET
+    @Path("/hazelcast/members")
+    @Timed
+    @ApiOperation("Get Hazelcast cluster members")
+    public Map<String, Collection<Member>> hazelcastMembers() {
+        return Collections.singletonMap("members", clusterManager.getHazelcastMembers());
+    }
 }

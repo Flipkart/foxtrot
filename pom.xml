@@ -164,6 +164,7 @@
         <profile>
             <id>local</id>
             <properties>
+                <project.version>6.3.1-7</project.version>
             </properties>
         </profile>
     </profiles>

@@ -26,6 +26,7 @@ import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
@@ -65,26 +66,32 @@ public class FoxtrotServerConfiguration extends Configuration {
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
     @Valid
     private ConsoleHistoryConfig consoleHistoryConfig;
+    @Valid
     private EmailConfig emailConfig;
+    @Valid
     private CacheConfig cacheConfig;
 
+    @Valid
     private RangerConfiguration rangerConfiguration;
 
+    @Valid
     private SegregationConfiguration segregationConfiguration;
 
     @NotNull
     private boolean restrictAccess;
 
-    private GandalfConfiguration gandalfConfiguration;
-
+    @Valid
     private ElasticsearchTuningConfig elasticsearchTuningConfig;
 
+    @Valid
     @Builder.Default
     private TranslatorConfig translatorConfig = new TranslatorConfig();
 
     @Valid
     @Builder.Default
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
+
+    private ClusterRerouteConfig clusterRerouteConfig;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
@@ -94,7 +101,7 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.emailConfig = new EmailConfig();
         this.segregationConfiguration = new SegregationConfiguration();
         this.restrictAccess = true;
-        this.elasticsearchTuningConfig = new ElasticsearchTuningConfig();
+        this.clusterRerouteConfig = new ClusterRerouteConfig();
     }
 
 }
