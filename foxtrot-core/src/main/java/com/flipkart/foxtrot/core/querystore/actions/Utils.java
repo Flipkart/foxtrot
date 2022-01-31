@@ -8,6 +8,7 @@ import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.Stat;
+import com.flipkart.foxtrot.common.stats.Stat.StatVisitor;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -44,14 +45,14 @@ public class Utils {
     private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
     private static final double DEFAULT_COMPRESSION = 100.0;
     private static final int PRECISION_THRESHOLD = 500;
-    private static final String COUNT = "count";
-    private static final String AVG = "avg";
-    private static final String SUM = "sum";
-    private static final String MIN = "min";
-    private static final String MAX = "max";
-    private static final String SUM_OF_SQUARES = "sum_of_squares";
-    private static final String VARIANCE = "variance";
-    private static final String STD_DEVIATION = "std_deviation";
+    public static final String COUNT = "count";
+    public static final String AVG = "avg";
+    public static final String SUM = "sum";
+    public static final String MIN = "min";
+    public static final String MAX = "max";
+    public static final String SUM_OF_SQUARES = "sum_of_squares";
+    public static final String VARIANCE = "variance";
+    public static final String STD_DEVIATION = "std_deviation";
     private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES
             = EnumSet.of(FieldType.INTEGER, FieldType.LONG, FieldType.FLOAT, FieldType.DOUBLE);
 
@@ -355,9 +356,54 @@ public class Utils {
     }
 
     public static boolean hasTemporalFilters(List<Filter> filters) {
-        if(null == filters) {
+        if (null == filters) {
             return false;
         }
         return filters.stream().anyMatch(Filter::isFilterTemporal);
+    }
+
+    public static String statsString(Stat aggregationType) {
+        return aggregationType
+                .visit(new StatVisitor<String>() {
+                    @Override
+                    public String visitCount() {
+                        return Utils.COUNT;
+                    }
+
+                    @Override
+                    public String visitMin() {
+                        return Utils.MIN;
+                    }
+
+                    @Override
+                    public String visitMax() {
+                        return Utils.MAX;
+                    }
+
+                    @Override
+                    public String visitAvg() {
+                        return Utils.AVG;
+                    }
+
+                    @Override
+                    public String visitSum() {
+                        return Utils.SUM;
+                    }
+
+                    @Override
+                    public String visitSumOfSquares() {
+                        return Utils.SUM_OF_SQUARES;
+                    }
+
+                    @Override
+                    public String visitVariance() {
+                        return Utils.VARIANCE;
+                    }
+
+                    @Override
+                    public String visitStdDeviation() {
+                        return Utils.STD_DEVIATION;
+                    }
+                });
     }
 }
