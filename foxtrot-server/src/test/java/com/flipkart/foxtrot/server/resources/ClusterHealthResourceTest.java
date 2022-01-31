@@ -22,7 +22,7 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.server.ResourceTestUtils;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -30,37 +30,29 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by swapnil on 25/01/16.
  */
 public class ClusterHealthResourceTest extends FoxtrotResourceTest {
 
-    private final FoxtrotTableManager tableManager;
+    private FoxtrotTableManager tableManager;
+
     @Rule
     public ResourceTestRule resources;
 
     public ClusterHealthResourceTest() throws Exception {
         super();
-        tableManager = mock(FoxtrotTableManager.class);
-        when(tableManager.getAll()).thenReturn(Collections.singletonList(TestUtils.TEST_TABLE));
-
-        resources = ResourceTestRule.builder()
-                .addResource(new ClusterHealthResource(getQueryStore(), tableManager, getTableMetadataManager()))
-                .addProvider(new FoxtrotExceptionMapper(getMapper()))
-                .setMapper(getMapper())
+        resources = ResourceTestUtils.testResourceBuilder(getMapper())
+                .addResource(new ClusterHealthResource(getQueryStore()))
                 .build();
     }
 
     @Test
     public void testClusterHealthApi() {
-        JsonNode response = resources.client()
+        JsonNode response = resources
                 .target("/v1/clusterhealth")
                 .request()
                 .get(JsonNode.class);
@@ -70,7 +62,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testNodeStats() throws FoxtrotException {
-        JsonNode response = resources.client()
+        JsonNode response = resources
                 .target("/v1/clusterhealth/nodestats")
                 .request()
                 .get(JsonNode.class);
@@ -95,7 +87,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
         documents.add(document2);
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
-        JsonNode response = resources.client()
+        JsonNode response = resources
                 .target("/v1/clusterhealth/indicesstats")
                 .request()
                 .get(JsonNode.class);

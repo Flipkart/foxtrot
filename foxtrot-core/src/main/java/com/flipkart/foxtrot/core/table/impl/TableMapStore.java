@@ -23,8 +23,8 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.hazelcast.core.MapStore;
-import com.hazelcast.core.MapStoreFactory;
+import com.hazelcast.map.MapStore;
+import com.hazelcast.map.MapStoreFactory;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.*;
@@ -252,3 +252,4 @@ public class TableMapStore implements MapStore<String, Table>, Serializable {
         }
     }
 }
+

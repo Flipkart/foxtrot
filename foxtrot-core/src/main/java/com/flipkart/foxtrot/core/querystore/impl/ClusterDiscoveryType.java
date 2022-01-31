@@ -19,5 +19,6 @@ public enum ClusterDiscoveryType {
     FOXTROT_SIMPLE,
     FOXTROT_MARATHON,
     FOXTROT_AWS,
+    FOXTROT_AWS_ECS,
     FOXTROT_KUBERNETES
 }

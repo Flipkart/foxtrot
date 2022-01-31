@@ -15,20 +15,20 @@ services:
     command: elasticsearch -Ehttp.cors.enabled=true
     volumes:
           - /elasticsearch/data
-    ports:
-     - "9200:9200"
-     - "9300:9300"
+#    ports:
+#     - "9200:9200"
+#     - "9300:9300"
 
   hbase:
     image: hyness/hbase-rest-standalone
     hostname: hbase
-    ports:
-     - "2181:2181"
-     - "8080:8080"
-     - "16000:16000"
-     - "16010:16010"
-     - "16020:16020"
-     - "16030:16030"
+#    ports:
+#     - "2181:2181"
+#     - "8080:8080"
+#     - "16000:16000"
+#     - "16010:16010"
+#     - "16020:16020"
+#     - "16030:16030"
     volumes:
      - /data/hbase
      - /data/zookeeper
@@ -46,6 +46,7 @@ services:
     volumes:
      - /var/log/foxtrot-server
     environment:
+     - INIT_SLEEP=15
      - HOST=localhost
      - ELASTICSEARCH_HOST=elasticsearch
      - ELASTICSEARCH_PORT=9300
@@ -58,3 +59,5 @@ services:
      - HBASE_ZOOKEEPER_CLIENT_PORT=2181
      - HAZELCAST_CLUSTER_NAME=foxtrot
      - DISCOVERY_TYPE=foxtrot_simple
+     - SWAGGER_SCHEME="http"
+     - STARTUP_DELAY=15

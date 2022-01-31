@@ -17,6 +17,7 @@
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.google.common.base.Strings;
+import lombok.experimental.UtilityClass;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -33,42 +34,29 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
-public abstract class HBaseUtil {
+@UtilityClass
+public class HBaseUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(HBaseUtil.class);
 
-    private HBaseUtil() {
-    }
-
     public static void createTable(final HbaseConfig hbaseConfig, final String tableName) throws IOException {
-        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
+        final TableName name = TableName.valueOf(tableName);
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(name);
         HColumnDescriptor columnDescriptor = new HColumnDescriptor("d");
         columnDescriptor.setCompressionType(Compression.Algorithm.GZ);
         hTableDescriptor.addFamily(columnDescriptor);
         Configuration configuration = HBaseUtil.create(hbaseConfig);
-        Connection connection = ConnectionFactory.createConnection(configuration);
-        Admin hBaseAdmin = null;
-        try {
-            hBaseAdmin = connection.getAdmin();
-            hBaseAdmin.createTable(hTableDescriptor);
-        }
-        catch (Exception e) {
-            logger.error("Could not create table: " + tableName, e);
-        }
-        finally {
-            try {
-                if (hBaseAdmin != null) {
-                    hBaseAdmin.close();
+        try(Connection connection = ConnectionFactory.createConnection(configuration)) {
+            try (Admin admin = connection.getAdmin()) {
+                if (admin.tableExists(TableName.valueOf(tableName))) {
+                    logger.info("Table {} already exists. Nothing to do.", tableName);
+                    return;
                 }
+                logger.info("Creating table: {}", tableName);
+                admin.createTable(hTableDescriptor);
             }
             catch (Exception e) {
-                logger.error("Error closing hbase admin", e);
-            }
-            try {
-                connection.close();
-            }
-            catch (Exception e) {
-                logger.error("Error closing hbase connection", e);
+                logger.error("Could not create table: " + tableName, e);
             }
         }
     }
@@ -123,35 +111,4 @@ public abstract class HBaseUtil {
         return fileName != null && !fileName.trim()
                 .isEmpty() && new File(fileName).exists();
     }
-
-/*    public static void createTable(final HbaseConfig hbaseConfig, final String tableName) throws IOException {
-        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
-        HColumnDescriptor columnDescriptor = new HColumnDescriptor("d");
-        columnDescriptor.setCompressionType(Compression.Algorithm.GZ);
-        hTableDescriptor.addFamily(columnDescriptor);
-        Configuration configuration = HBaseUtil.create(hbaseConfig);
-        Connection connection = ConnectionFactory.createConnection(configuration);
-        Admin hBaseAdmin = null;
-        try {
-            hBaseAdmin = connection.getAdmin();
-            if(!hBaseAdmin.tableExists(TableName.valueOf(tableName))) {
-                hBaseAdmin.createTable(hTableDescriptor);
-            }
-        } catch (Exception e) {
-            logger.error("Could not create table: " + tableName, e);
-        } finally {
-            try {
-                if(hBaseAdmin != null) {
-                    hBaseAdmin.close();
-                }
-            } catch (Exception e) {
-                logger.error("Error closing hbase admin", e);
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-                logger.error("Error closing hbase connection", e);
-            }
-        }
-    }*/
 }

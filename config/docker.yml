@@ -6,6 +6,8 @@ server:
     - type: http
       port: 17001
 
+swaggerScheme: ${SWAGGER_SCHEME}
+
 elasticsearch:
   hosts:
   - ${ELASTICSEARCH_HOST}
@@ -25,7 +27,7 @@ cluster:
   discovery:
     type: ${DISCOVERY_TYPE}
     disableMulticast: true
-    members: ["localhost:5701"]
+    members: ["${HOSTNAME}:5701"]
 
 cacheConfig:
   maxIdleSeconds: 15
@@ -63,6 +65,11 @@ esIndexOptimizationConfig:
   initialDelay: 6
 
 consoleHistoryConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10
+
+sessionCleanupConfig:
   active: true
   interval: 86400
   initialDelay: 10

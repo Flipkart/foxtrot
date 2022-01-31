@@ -28,7 +28,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import io.dropwizard.util.Duration;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -121,7 +121,7 @@ public class HistogramAction extends Action<HistogramRequest> {
 
     @Override
     public ActionResponse execute(HistogramRequest parameter) {
-        SearchRequest query = getRequestBuilder(parameter);
+        SearchRequest query = getRequestBuilder(parameter, Collections.emptyList());
         try {
             SearchResponse response = getConnection()
                     .getClient()
@@ -134,13 +134,13 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(HistogramRequest parameter) {
+    public SearchRequest getRequestBuilder(HistogramRequest parameter, List<Filter> extraFilters) {
         return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                 .indicesOptions(Utils.indicesOptions())
                 .source(new SearchSourceBuilder()
                                 .size(QUERY_SIZE)
                                 .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
-                                .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
+                                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
                                 .aggregation(buildAggregation(parameter)));
     }
 

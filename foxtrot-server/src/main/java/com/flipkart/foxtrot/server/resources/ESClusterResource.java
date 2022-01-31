@@ -31,10 +31,10 @@ public class ESClusterResource {
         this.clusterRerouteManager = clusterRerouteManager;
     }
 
-    @GET
+    /*@GET
     @Path("/reallocate")
     @ApiOperation("reallocate shards")
     public void reallocate() {
         clusterRerouteManager.reallocate();
-    }
+    }*/
 }
