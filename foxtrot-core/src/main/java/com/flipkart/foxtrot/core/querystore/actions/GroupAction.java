@@ -43,24 +43,27 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggregationBuilder;
 import org.joda.time.Interval;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -171,33 +174,27 @@ public class GroupAction extends Action<GroupRequest> {
 
     @Override
     public ActionResponse execute(GroupRequest parameter) {
-        SearchRequestBuilder query = getRequestBuilder(parameter);
+        SearchRequest query = getRequestBuilder(parameter, Collections.emptyList());
         try {
-            SearchResponse response = query.execute()
-                    .actionGet(getGetQueryTimeout());
+            SearchResponse response = getConnection()
+                    .getClient()
+                    .search(query, RequestOptions.DEFAULT);
             return getResponse(response, parameter);
         }
-        catch (ElasticsearchException e) {
+        catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(GroupRequest parameter) {
-        SearchRequestBuilder query;
-        try {
-            query = getConnection().getClient()
-                    .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                    .setIndicesOptions(Utils.indicesOptions());
-            AbstractAggregationBuilder aggregation = buildAggregation(parameter);
-            query.setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                    .setSize(QUERY_SIZE)
-                    .addAggregation(aggregation);
-        }
-        catch (Exception e) {
-            throw FoxtrotExceptions.queryCreationException(parameter, e);
-        }
-        return query;
+    public SearchRequest getRequestBuilder(GroupRequest parameter, List<Filter> extraFilters) {
+        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                .indicesOptions(Utils.indicesOptions())
+                .source(new SearchSourceBuilder()
+                       .size(QUERY_SIZE)
+                       .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
+                        .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
+                       .aggregation(buildAggregation(parameter)));
     }
 
     @Override

@@ -1,11 +1,9 @@
 package com.flipkart.foxtrot.sql.constants;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public class FqlFunctionType {
-
-    private FqlFunctionType(){
-        throw new IllegalStateException("Utility Class");
-    }
-
     public static final String TREND = "trend";
     public static final String STATSTREND = "statstrend";
     public static final String STATS = "stats";

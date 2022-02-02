@@ -1,18 +1,23 @@
 package com.flipkart.foxtrot.core.reroute;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Date;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
+import lombok.val;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.util.EntityUtils;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.action.admin.cluster.reroute.ClusterRerouteRequest;
 import org.elasticsearch.action.admin.cluster.reroute.ClusterRerouteResponse;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
 import org.elasticsearch.cluster.routing.allocation.command.MoveAllocationCommand;
 import org.elasticsearch.index.shard.ShardId;
 import org.joda.time.DateTime;
@@ -32,14 +37,21 @@ public class ClusterRerouteManager {
 
     private final ElasticsearchConnection connection;
     private final ClusterRerouteConfig clusterRerouteConfig;
+    private final ObjectMapper mapper;
 
     @Inject
-    public ClusterRerouteManager(ElasticsearchConnection connection, ClusterRerouteConfig clusterRerouteConfig) {
+    public ClusterRerouteManager(
+            ElasticsearchConnection connection,
+            ClusterRerouteConfig clusterRerouteConfig,
+            ObjectMapper mapper) {
         this.connection = connection;
         this.clusterRerouteConfig = clusterRerouteConfig;
+        this.mapper = mapper;
     }
 
-    public void reallocate() {
+    //TODO This needs fixing to correspond to changed response from java high level client
+
+    /*public void reallocate() {
         Map<String, NodeInfo> nodeIdVsNodeInfoMap = new HashMap<>();
         BiMap<String, String> nodeNameVsNodeId = HashBiMap.create();
         this.createNodeInfoMap(nodeIdVsNodeInfoMap);
@@ -69,14 +81,17 @@ public class ClusterRerouteManager {
                                                                                 shardId.getId(),
                                                                                 fromNode,
                                                                                 toNode);
-        ClusterRerouteRequest clusterRerouteRequest = new ClusterRerouteRequest();
+        val clusterRerouteRequest = new ClusterRerouteRequest();
         clusterRerouteRequest.add(moveAllocationCommand);
         try {
-            ClusterRerouteResponse clusterRerouteResponse = connection.getClient()
-                    .admin()
-                    .cluster()
-                    .reroute(clusterRerouteRequest)
-                    .actionGet();
+            val request = new Request("POST", "/cluster/reroute");
+            request.setEntity(new StringEntity(mapper.writeValueAsString(clusterRerouteRequest)));
+            val response = connection.getClient()
+                    .getLowLevelClient()
+                    .performRequest(request);
+
+            val clusterRerouteResponse = mapper.readValue(EntityUtils.toString(response.getEntity()),
+                                                          ClusterRerouteResponse.class);
             log.info(String.format("Reallocating Shard. From Node: %s To Node: %s", fromNode, toNode));
             Thread.sleep((new Date(DateTime.now()).getHourOfDay() + 1) * 4000L);
             return clusterRerouteResponse.isAcknowledged();
@@ -90,16 +105,16 @@ public class ClusterRerouteManager {
         }
     }
 
-    private void createNodeInfoMap(
-            Map<String, NodeInfo> nodeIdVsNodeInfoMap) {
+    @SneakyThrows
+    private void createNodeInfoMap(Map<String, NodeInfo> nodeIdVsNodeInfoMap) {
         nodeIdVsNodeInfoMap.clear();
-        IndicesStatsRequest indicesStatsRequest = new IndicesStatsRequest();
-        indicesStatsRequest.all();
-        IndicesStatsResponse indicesStatsResponse = connection.getClient()
-                .admin()
-                .indices()
-                .stats(indicesStatsRequest)
-                .actionGet();
+        val request = new Request("GET", "/_stats");
+        Response response = connection.getClient()
+                .getLowLevelClient()
+                .performRequest(request);
+
+        val indicesStatsResponse = mapper.readValue(EntityUtils.toString(response.getEntity()),
+                                                    IndicesStatsResponse.class);
         Arrays.stream(indicesStatsResponse.getShards())
                 .forEach(shardStats -> {
                     if (shardStats.getShardRouting()
@@ -130,16 +145,16 @@ public class ClusterRerouteManager {
                 });
     }
 
+    @SneakyThrows
     private void createNodeNameVsNodeIdMap(
             BiMap<String, String> nodeNameVsNodeId) {
         nodeNameVsNodeId.clear();
-        NodesInfoRequest nodesInfoRequest = new NodesInfoRequest();
-        nodesInfoRequest.all();
-        NodesInfoResponse nodesInfoResponse = connection.getClient()
-                .admin()
-                .cluster()
-                .nodesInfo(nodesInfoRequest)
-                .actionGet();
+        val request = new Request("GET", "/_stats");
+        val response = connection.getClient()
+                .getLowLevelClient()
+                .performRequest(request);
+        val nodesInfoResponse = mapper.readValue(EntityUtils.toString(response.getEntity()),
+                                                    NodesInfoResponse.class);
         nodesInfoResponse.getNodes()
                 .forEach(nodeInfo -> nodeNameVsNodeId.put(nodeInfo.getNode()
                                                                   .getName(), nodeInfo.getNode()
@@ -155,7 +170,8 @@ public class ClusterRerouteManager {
         return totalShards;
     }
 
-    private Deque<String> getVacantNodeId(int avgShardsPerNode,
+    private Deque<String> getVacantNodeId(
+            int avgShardsPerNode,
             Map<String, NodeInfo> nodeIdVsNodeInfoMap) {
         Deque<String> vacantNodeIds = new ArrayDeque<>();
         for (Map.Entry<String, NodeInfo> nodeIdVsNodeInfo : nodeIdVsNodeInfoMap.entrySet()) {
@@ -167,6 +183,6 @@ public class ClusterRerouteManager {
             }
         }
         return vacantNodeIds;
-    }
+    }*/
 
 }

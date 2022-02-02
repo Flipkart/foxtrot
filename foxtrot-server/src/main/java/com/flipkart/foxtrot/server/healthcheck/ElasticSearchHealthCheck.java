@@ -17,7 +17,9 @@ package com.flipkart.foxtrot.server.healthcheck;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.client.RequestOptions;
 
 /**
  * Created by rishabh.goyal on 15/05/14.
@@ -33,11 +35,8 @@ public class ElasticSearchHealthCheck extends HealthCheck {
     @Override
     protected HealthCheck.Result check() throws Exception {
         ClusterHealthResponse response = elasticsearchConnection.getClient()
-                .admin()
                 .cluster()
-                .prepareHealth()
-                .execute()
-                .actionGet();
+                .health(new ClusterHealthRequest(), RequestOptions.DEFAULT);
         return (response.getStatus()
                         .name()
                         .equalsIgnoreCase("GREEN") || response.getStatus()

@@ -15,10 +15,12 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import com.google.common.base.Strings;
+import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.instance.GroupProperty;
+import com.hazelcast.spi.properties.ClusterProperty;
 import com.marathon.hazelcast.servicediscovery.MarathonDiscoveryStrategyFactory;
 import io.dropwizard.lifecycle.Managed;
 import org.slf4j.Logger;
@@ -48,21 +50,21 @@ public class HazelcastConnection implements Managed {
     @Inject
     public HazelcastConnection(ClusterConfig clusterConfig) throws UnknownHostException {
         Config hzConfig = new Config();
-        hzConfig.getGroupConfig()
-                .setName(clusterConfig.getName());
+        hzConfig.setClusterName(clusterConfig.getName());
         switch (clusterConfig.getDiscovery()
                 .getType()) {
             case FOXTROT_SIMPLE:
                 final String hostName = InetAddress.getLocalHost()
                         .getCanonicalHostName();
                 hzConfig.setInstanceName(String.format("foxtrot-%s-%d", hostName, System.currentTimeMillis()));
-                SimpleClusterDiscoveryConfig simpleClusterDiscoveryConfig = (SimpleClusterDiscoveryConfig)clusterConfig.getDiscovery();
-                if(simpleClusterDiscoveryConfig.isDisableMulticast()) {
+                SimpleClusterDiscoveryConfig simpleClusterDiscoveryConfig = (SimpleClusterDiscoveryConfig) clusterConfig
+                        .getDiscovery();
+                if (simpleClusterDiscoveryConfig.isDisableMulticast()) {
                     hzConfig.getNetworkConfig()
                             .getJoin()
                             .getMulticastConfig()
                             .setEnabled(false);
-                    for(String member : simpleClusterDiscoveryConfig.getMembers()) {
+                    for (String member : simpleClusterDiscoveryConfig.getMembers()) {
                         hzConfig.getNetworkConfig()
                                 .getJoin()
                                 .getTcpIpConfig()
@@ -76,18 +78,16 @@ public class HazelcastConnection implements Managed {
                 break;
             case FOXTROT_MARATHON:
                 MarathonClusterDiscoveryConfig marathonClusterDiscoveryConfig =
-                        (MarathonClusterDiscoveryConfig)clusterConfig.getDiscovery();
+                        (MarathonClusterDiscoveryConfig) clusterConfig.getDiscovery();
                 String appId = marathonClusterDiscoveryConfig.getApp()
                         .replace("/", "")
                         .trim();
-                hzConfig.getGroupConfig()
-                        .setName("foxtrot");
-                hzConfig.getGroupConfig()
-                        .setPassword("foxtrot");
-                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED, "true");
-                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED, "true");
-                hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "true");
-                hzConfig.setProperty(GroupProperty.SOCKET_BIND_ANY, "true");
+                hzConfig.setClusterName("foxtrot");
+                hzConfig.setProperty("hazelcast.application.validation.token", "foxtrot");
+                hzConfig.setProperty(ClientProperty.DISCOVERY_SPI_ENABLED.getName(), "true");
+                hzConfig.setProperty(ClientProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED.getName(), "true");
+                hzConfig.setProperty(ClusterProperty.SOCKET_CLIENT_BIND_ANY.getName(), "true");
+                hzConfig.setProperty(ClusterProperty.SOCKET_BIND_ANY.getName(), "true");
 
                 NetworkConfig networkConfig = hzConfig.getNetworkConfig();
                 networkConfig.setPublicAddress(System.getenv("HOST") + ":" + System.getenv("PORT_5701"));
@@ -106,8 +106,8 @@ public class HazelcastConnection implements Managed {
                 discoveryStrategyConfig.addProperty("port-index", marathonClusterDiscoveryConfig.getPortIndex());
                 discoveryConfig.addDiscoveryStrategyConfig(discoveryStrategyConfig);
                 break;
-            case FOXTROT_AWS:
-                AwsClusterDiscoveryConfig awsClusterDiscoveryConfig = (AwsClusterDiscoveryConfig)clusterConfig.getDiscovery();
+            case FOXTROT_AWS: {
+                AwsClusterDiscoveryConfig ec2Config = (AwsClusterDiscoveryConfig) clusterConfig.getDiscovery();
                 NetworkConfig hazelcastConfigNetworkConfig = hzConfig.getNetworkConfig();
                 JoinConfig hazelcastConfigNetworkConfigJoin = hazelcastConfigNetworkConfig.getJoin();
                 hazelcastConfigNetworkConfigJoin.getTcpIpConfig()
@@ -115,18 +115,92 @@ public class HazelcastConnection implements Managed {
                 hazelcastConfigNetworkConfigJoin.getMulticastConfig()
                         .setEnabled(false);
                 AwsConfig awsConfig = new AwsConfig();
-                awsConfig.setAccessKey(awsClusterDiscoveryConfig.getAccessKey());
-                awsConfig.setConnectionTimeoutSeconds(awsClusterDiscoveryConfig.getConnectionTimeoutSeconds());
-                awsConfig.setHostHeader(awsClusterDiscoveryConfig.getHostHeader());
-                awsConfig.setIamRole(awsClusterDiscoveryConfig.getIamRole());
-                awsConfig.setRegion(awsClusterDiscoveryConfig.getRegion());
-                awsConfig.setSecurityGroupName(awsClusterDiscoveryConfig.getSecurityGroupName());
-                awsConfig.setSecretKey(awsClusterDiscoveryConfig.getSecretKey());
-                awsConfig.setTagKey(awsClusterDiscoveryConfig.getTagKey());
-                awsConfig.setTagValue(awsClusterDiscoveryConfig.getTagValue());
+
+                if(!Strings.isNullOrEmpty(ec2Config.getServiceName())) {
+                    awsConfig.setProperty("service-name", ec2Config.getServiceName());
+                }
+                if(!Strings.isNullOrEmpty(ec2Config.getAccessKey())) {
+                    awsConfig.setProperty("access-key", ec2Config.getAccessKey());
+                }
+                if(!Strings.isNullOrEmpty(ec2Config.getSecretKey())) {
+                    awsConfig.setProperty("secret-key", ec2Config.getSecretKey());
+                }
+                if(!Strings.isNullOrEmpty(ec2Config.getIamRole())) {
+                    awsConfig.setProperty("iam-role", ec2Config.getIamRole());
+                }
+                if(!Strings.isNullOrEmpty(ec2Config.getRegion())) {
+                    awsConfig.setProperty("region", ec2Config.getRegion());
+                }
+                if(!Strings.isNullOrEmpty(ec2Config.getHostHeader())) {
+                    awsConfig.setProperty("host-header", ec2Config.getHostHeader());
+                }
+                if(!Strings.isNullOrEmpty(ec2Config.getSecurityGroupName())) {
+                    awsConfig.setProperty("security-group-name", ec2Config.getSecurityGroupName());
+                }
+                if(ec2Config.getOpTimeoutSeconds() > 0) {
+                    awsConfig.setProperty("connection-timeout-seconds",
+                                          Integer.toString(ec2Config.getOpTimeoutSeconds()));
+                    awsConfig.setProperty("read-timeout-seconds",
+                                          Integer.toString(ec2Config.getOpTimeoutSeconds()));
+                }
+                if(ec2Config.isExternalClient()) {
+                    awsConfig.setProperty("use-public-ip", Boolean.TRUE.toString());
+                }
                 hazelcastConfigNetworkConfigJoin.setAwsConfig(awsConfig);
                 hazelcastConfigNetworkConfigJoin.getAwsConfig()
                         .setEnabled(true);
+                break;
+            }
+            case FOXTROT_AWS_ECS:
+                AwsECSDiscoveryConfig ecsConfig = (AwsECSDiscoveryConfig) clusterConfig.getDiscovery();
+                NetworkConfig hazelcastConfigNetworkConfig = hzConfig.getNetworkConfig();
+//                JoinConfig hazelcastConfigNetworkConfigJoin = hazelcastConfigNetworkConfig.getJoin();
+                hazelcastConfigNetworkConfig.getJoin()
+                        .getMulticastConfig()
+                        .setEnabled(false);
+
+                hazelcastConfigNetworkConfig.getInterfaces()
+                        .setEnabled(true)
+                        .addInterface(ecsConfig.getNetwork());
+
+                AwsConfig awsConfig = new AwsConfig();
+                awsConfig.setEnabled(true);
+                if(!Strings.isNullOrEmpty(ecsConfig.getAccessKey())) {
+                    awsConfig.setProperty("access-key", ecsConfig.getAccessKey());
+                }
+                if(!Strings.isNullOrEmpty(ecsConfig.getSecretKey())) {
+                    awsConfig.setProperty("secret-key", ecsConfig.getSecretKey());
+                }
+                if(!Strings.isNullOrEmpty(ecsConfig.getRegion())) {
+                    awsConfig.setProperty("region", ecsConfig.getRegion());
+                }
+                if(!Strings.isNullOrEmpty(ecsConfig.getCluster())) {
+                    awsConfig.setProperty("cluster", ecsConfig.getCluster());
+                }
+                if(!Strings.isNullOrEmpty(ecsConfig.getFamily())) {
+                    awsConfig.setProperty("family", ecsConfig.getFamily());
+                }
+                if(!Strings.isNullOrEmpty(ecsConfig.getServiceName())) {
+                    awsConfig.setProperty("service-name", ecsConfig.getServiceName());
+                }
+                if(!Strings.isNullOrEmpty(ecsConfig.getHostHeader())) {
+                    awsConfig.setProperty("host-header", ecsConfig.getHostHeader());
+                }
+                if(ecsConfig.getOpTimeoutSeconds() > 0) {
+                    awsConfig.setProperty("connection-timeout-seconds",
+                                          Integer.toString(ecsConfig.getOpTimeoutSeconds()));
+                    awsConfig.setProperty("read-timeout-seconds",
+                                          Integer.toString(ecsConfig.getOpTimeoutSeconds()));
+                }
+                if(ecsConfig.isExternalClient()) {
+                    awsConfig.setProperty("use-public-ip", Boolean.TRUE.toString());
+                }
+                break;
+            case FOXTROT_KUBERNETES:
+                logger.info("Using Kubernetes");
+                JoinConfig kbConfig = hzConfig.getNetworkConfig().getJoin();
+                kbConfig.getMulticastConfig().setEnabled(false);
+                kbConfig.getKubernetesConfig().setEnabled(true);
                 break;
             default:
                 logger.warn("Invalid discovery config");

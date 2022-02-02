@@ -11,7 +11,7 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-7</version>
+    <version>6.8.8-1</version>
 
     <scm>
         <connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
@@ -58,7 +58,6 @@
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
         <lombok.version>1.16.16</lombok.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
-        <project.version>6.3.1-7</project.version>
         <es.container.version>1.0.4</es.container.version>
         <guava.version>24.1.1-jre</guava.version>
         <sonar.sources>src/main</sonar.sources>
@@ -68,6 +67,7 @@
         <sonar.jacoco.reportPaths>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPaths>
         <sonar.language>java</sonar.language>
         <sonar.exclusions>**com/flipkart/foxtrot/common/**/*</sonar.exclusions>
+        <hazelcast.version>4.0.5</hazelcast.version>
     </properties>
 
     <modules>
@@ -101,6 +101,12 @@
             <id>bintray</id>
             <name>bintray</name>
             <url>https://jcenter.bintray.com</url>
+        </repository>
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
         </repository>
     </repositories>
 
@@ -162,12 +168,6 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>local</id>
-            <properties>
-                <project.version>6.3.1-7</project.version>
-            </properties>
-        </profile>
     </profiles>
 
     <dependencyManagement>
@@ -187,8 +187,24 @@
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.10</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.smoketurner</groupId>
@@ -294,6 +310,7 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <compilerArgument>-parameters</compilerArgument>
                 </configuration>
             </plugin>
             <plugin>

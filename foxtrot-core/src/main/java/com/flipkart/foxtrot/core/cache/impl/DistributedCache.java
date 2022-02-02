@@ -21,7 +21,7 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.util.Constants;
-import com.hazelcast.core.IMap;
+import com.hazelcast.map.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

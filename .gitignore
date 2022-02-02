@@ -38,3 +38,5 @@
 .DS_Store
 target/*
 config/test.yml
+gauth-creds-env.sh
+idman-creds-env.sh
