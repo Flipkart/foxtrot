@@ -8,8 +8,8 @@ server:
 
 elasticsearch:
   hosts:
-  - stg-es201.phonepe.nb6
-  cluster: stg-es67xx
+  - localhost
+  cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
   connectionType: HTTP
@@ -18,10 +18,10 @@ elasticsearch:
 hbase:
   secure : false
   tableName: foxtrot
-  hbaseZookeeperQuorum: stg-hdp201.phonepe.nb6:2181
+  hbaseZookeeperQuorum: localhost:2181
   hbaseZookeeperClientPort: 2181
   seggregatedTablePrefix: foxtrot-
-  hbaseZookeeperZnodeParent: /hbase-unsecure
+  hbaseZookeeperZnodeParent: /hbase-test
 
 cluster:
   name: foxtrot
@@ -48,6 +48,7 @@ cardinality:
 elasticsearchTuningConfig:
   precisionThreshold: 500
   aggregationSize: 10000
+  scrollSize: 100
   scrollTimeInSeconds: 120
   documentsLimitAllowed: 10000
 
