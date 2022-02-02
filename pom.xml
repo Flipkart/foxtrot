@@ -59,7 +59,7 @@
         <lombok.version>1.16.16</lombok.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <es.container.version>1.0.4</es.container.version>
-        <guava.version>24.1.1-jre</guava.version>
+        <guava.version>29.0-jre</guava.version>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
