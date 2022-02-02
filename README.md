@@ -31,11 +31,11 @@ Check the [Wiki](https://github.com/Flipkart/foxtrot/wiki/Introduction) for deta
 
 Version
 ----
-6.3.1-9
+6.8.8-1
 
 Docker
 ------
-Docker can be found on [DockerHub](https://hub.docker.com/layers/santanusinha/foxtrot/6.3.1-9/images/sha256-01cb327eb0353d31874681ee9ece4df8993b2152dfd3fa7279a31e3d7e32ee7e?context=explore)
+Docker can be found on [DockerHub](https://hub.docker.com/layers/santanusinha/foxtrot/6.8.8-1/images/sha256-01cb327eb0353d31874681ee9ece4df8993b2152dfd3fa7279a31e3d7e32ee7e?context=explore)
 
 Docker can be customised using environment variables. Refer [here](https://github.com/Flipkart/foxtrot/blob/simple_auth/config/docker.yml) for the variables that need to be passed.
 

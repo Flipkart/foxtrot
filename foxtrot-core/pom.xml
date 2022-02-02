@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.flipkart.foxtrot</groupId>
         <artifactId>foxtrot</artifactId>
-        <version>6.3.1-9</version>
+        <version>6.8.8-1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,9 +34,9 @@
             <version>3.3.1</version>
         </dependency>
         <dependency>
-            <groupId>com.sematext.hbase.ds</groupId>
+            <groupId>io.appform.hbase.ds</groupId>
             <artifactId>hbase-ds</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>0.0.3</version>
         </dependency>
         <!-- Hazelcast Marathon discovery SPI -->
         <dependency>
