@@ -1,7 +1,7 @@
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 
-import com.sematext.hbase.ds.AbstractRowKeyDistributor;
+import io.appform.hbase.ds.AbstractRowKeyDistributor;
 
 public class IdentityKeyDistributor extends AbstractRowKeyDistributor {
 

@@ -17,17 +17,17 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.flipkart.foxtrot.server.utils.response.FoxtrotIndicesStatsResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.SneakyThrows;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -35,7 +35,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 /**
  * Created by swapnil on 20/01/16.
@@ -45,28 +44,21 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/clusterhealth")
 @Singleton
+@PermitAll
 @Order(20)
 public class ClusterHealthResource {
 
     private final QueryStore queryStore;
-    private final TableManager tableManager;
-    private final TableMetadataManager tableMetadataManager;
 
     @Inject
-    public ClusterHealthResource(
-            QueryStore queryStore,
-            TableManager tableManager,
-            TableMetadataManager tableMetadataManager) {
+    public ClusterHealthResource(QueryStore queryStore) {
         this.queryStore = queryStore;
-        this.tableManager = tableManager;
-        this.tableMetadataManager = tableMetadataManager;
     }
-
 
     @GET
     @Timed
     @ApiOperation("getHealth")
-    public ClusterHealthResponse getHealth() throws ExecutionException, InterruptedException {
+    public ClusterHealthResponse getHealth() {
         return queryStore.getClusterHealth();
     }
 
@@ -74,7 +66,7 @@ public class ClusterHealthResource {
     @Timed
     @Path("/nodestats")
     @ApiOperation("getNodeStat")
-    public NodesStatsResponse getNodeStat() throws ExecutionException, InterruptedException {
+    public JsonNode getNodeStat() {
         return queryStore.getNodeStats();
     }
 
@@ -82,17 +74,8 @@ public class ClusterHealthResource {
     @Timed
     @Path("indicesstats")
     @ApiOperation("getIndicesStat")
-    public FoxtrotIndicesStatsResponse getIndicesStat() throws ExecutionException, InterruptedException {
-        return FoxtrotIndicesStatsResponse.builder()
-                .indicesStatsResponse(queryStore.getIndicesStats())
-                .tableColumnCount(tableManager.getAll().stream()
-                                          .map(table -> tableMetadataManager.getFieldMappings(table.getName(),
-                                                                                              false,
-                                                                                              false))
-                                          .collect(Collectors.toMap(TableFieldMapping::getTable,
-                                                                    tableFieldMapping -> tableFieldMapping.getMappings()
-                                                                            .size()))
-                                 )
-                .build();
+    @SneakyThrows
+    public JsonNode getIndicesStat() {
+        return queryStore.getIndicesStats();
     }
 }

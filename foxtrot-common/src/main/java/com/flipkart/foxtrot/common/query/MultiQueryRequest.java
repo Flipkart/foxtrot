@@ -15,14 +15,11 @@ package com.flipkart.foxtrot.common.query;
  * limitations under the License.
  */
 
-import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
-import lombok.Data;
-import org.junit.Assert;
-
 import java.util.Map;
+import lombok.Data;
 
 /***
  Created by nitish.goyal on 22/08/18
@@ -38,7 +35,6 @@ public class MultiQueryRequest extends ActionRequest {
 
     public MultiQueryRequest(Map<String, ActionRequest> requests) {
         super(Opcodes.MULTI_QUERY);
-        Assert.assertTrue(CollectionUtils.isNotEmpty(requests));
         this.requests = requests;
     }
 

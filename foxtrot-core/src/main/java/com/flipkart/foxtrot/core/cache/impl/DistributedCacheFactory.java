@@ -20,10 +20,7 @@ import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheFactory;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.hazelcast.config.EvictionPolicy;
-import com.hazelcast.config.InMemoryFormat;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.MaxSizeConfig;
+import com.hazelcast.config.*;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -60,7 +57,10 @@ public class DistributedCacheFactory implements CacheFactory {
         MapConfig mapConfig = new MapConfig(CACHE_NAME_PREFIX + "*");
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         mapConfig.setBackupCount(0);
-        mapConfig.setEvictionPolicy(EvictionPolicy.LRU);
+        final EvictionConfig evictionConfig = mapConfig.getEvictionConfig();
+        evictionConfig.setEvictionPolicy(EvictionPolicy.LRU);
+        evictionConfig.setSize(cacheConfig.getSize() == 0 ? DEFAULT_SIZE : cacheConfig.getSize());
+        evictionConfig.setMaxSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
 
         if(cacheConfig.getMaxIdleSeconds() == 0) {
             mapConfig.setMaxIdleSeconds(DEFAULT_MAX_IDLE_SECONDS);
@@ -74,14 +74,6 @@ public class DistributedCacheFactory implements CacheFactory {
             mapConfig.setTimeToLiveSeconds(cacheConfig.getTimeToLiveSeconds());
         }
 
-        MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
-        maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE);
-        if(cacheConfig.getSize() == 0) {
-            maxSizeConfig.setSize(DEFAULT_SIZE);
-        } else {
-            maxSizeConfig.setSize(cacheConfig.getSize());
-        }
-        mapConfig.setMaxSizeConfig(maxSizeConfig);
         return mapConfig;
     }
 }

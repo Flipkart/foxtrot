@@ -16,14 +16,18 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
+@NoArgsConstructor
 public abstract class ClusterDiscoveryConfig {
 
     @NotNull
-    private final ClusterDiscoveryType type;
+    @Builder.Default
+    private ClusterDiscoveryType type = ClusterDiscoveryType.FOXTROT_SIMPLE;
 
     protected ClusterDiscoveryConfig(final ClusterDiscoveryType type) {
         this.type = type;
