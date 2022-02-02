@@ -17,6 +17,7 @@ import org.elasticsearch.action.admin.cluster.reroute.ClusterRerouteRequest;
 import org.elasticsearch.action.admin.cluster.reroute.ClusterRerouteResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
 import org.elasticsearch.cluster.routing.allocation.command.MoveAllocationCommand;
 import org.elasticsearch.index.shard.ShardId;
 import org.joda.time.DateTime;
@@ -48,7 +49,9 @@ public class ClusterRerouteManager {
         this.mapper = mapper;
     }
 
-    public void reallocate() {
+    //TODO This needs fixing to correspond to changed response from java high level client
+
+    /*public void reallocate() {
         Map<String, NodeInfo> nodeIdVsNodeInfoMap = new HashMap<>();
         BiMap<String, String> nodeNameVsNodeId = HashBiMap.create();
         this.createNodeInfoMap(nodeIdVsNodeInfoMap);
@@ -106,9 +109,10 @@ public class ClusterRerouteManager {
     private void createNodeInfoMap(Map<String, NodeInfo> nodeIdVsNodeInfoMap) {
         nodeIdVsNodeInfoMap.clear();
         val request = new Request("GET", "/_stats");
-        val response = connection.getClient()
+        Response response = connection.getClient()
                 .getLowLevelClient()
                 .performRequest(request);
+
         val indicesStatsResponse = mapper.readValue(EntityUtils.toString(response.getEntity()),
                                                     IndicesStatsResponse.class);
         Arrays.stream(indicesStatsResponse.getShards())
@@ -179,6 +183,6 @@ public class ClusterRerouteManager {
             }
         }
         return vacantNodeIds;
-    }
+    }*/
 
 }
