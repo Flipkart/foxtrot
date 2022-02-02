@@ -15,15 +15,14 @@
  */
 package com.flipkart.foxtrot.core.querystore;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -50,11 +49,11 @@ public interface QueryStore {
 
     void cleanup(final Set<String> tables);
 
-    ClusterHealthResponse getClusterHealth() throws ExecutionException, InterruptedException;
+    ClusterHealthResponse getClusterHealth();
 
-    NodesStatsResponse getNodeStats() throws ExecutionException, InterruptedException;
+    JsonNode getNodeStats();
 
-    IndicesStatsResponse getIndicesStats() throws ExecutionException, InterruptedException;
+    JsonNode getIndicesStats() throws IOException;
 
     TableFieldMapping getFieldMappings(String table);
 }

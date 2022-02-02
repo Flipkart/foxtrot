@@ -9,8 +9,8 @@ import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.foxtrot.flipkart.translator.utils.Constants;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import com.sematext.hbase.ds.AbstractRowKeyDistributor;
-import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
+import io.appform.hbase.ds.AbstractRowKeyDistributor;
+import io.appform.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import javax.inject.Inject;
