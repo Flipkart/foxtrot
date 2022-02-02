@@ -7,6 +7,8 @@ import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -24,11 +26,8 @@ public class DistinctActionTest extends ActionTest {
         List<Document> documents = TestUtils.getDistinctDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
-                .admin()
                 .indices()
-                .prepareRefresh("*")
-                .execute()
-                .actionGet();
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
     }
 
 

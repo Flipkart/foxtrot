@@ -35,25 +35,45 @@ import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
+import com.flipkart.foxtrot.server.auth.*;
+import com.flipkart.foxtrot.server.auth.authprovider.AuthProvider;
+import com.flipkart.foxtrot.server.auth.authprovider.ConfiguredAuthProviderFactory;
+import com.flipkart.foxtrot.server.auth.sessionstore.DistributedSessionDataStore;
+import com.flipkart.foxtrot.server.auth.sessionstore.SessionDataStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
+import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
+import com.google.common.cache.CacheBuilderSpec;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
+import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
+import io.dropwizard.auth.Authenticator;
+import io.dropwizard.auth.Authorizer;
+import io.dropwizard.auth.CachingAuthenticator;
+import io.dropwizard.auth.CachingAuthorizer;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
+import lombok.val;
 import org.apache.hadoop.conf.Configuration;
+import org.jose4j.jwa.AlgorithmConstraints;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.jose4j.keys.HmacKey;
 
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -91,6 +111,10 @@ public class FoxtrotModule extends AbstractModule {
                 .to(FoxtrotTableManager.class);
         bind(new TypeLiteral<List<HealthCheck>>() {
         }).toProvider(HealthcheckListProvider.class);
+        bind(AuthStore.class)
+                .to(ESAuthStore.class);
+        bind(SessionDataStore.class)
+                .to(DistributedSessionDataStore.class);
     }
 
     @Provides
@@ -107,7 +131,7 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public TranslatorConfig getTranslatorConfig(FoxtrotServerConfiguration configuration){
+    public TranslatorConfig getTranslatorConfig(FoxtrotServerConfiguration configuration) {
         return configuration.getTranslatorConfig();
     }
 
@@ -121,16 +145,16 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public CardinalityConfig cardinalityConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getCardinality()
-                ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
-                : configuration.getCardinality();
+               ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
+               : configuration.getCardinality();
     }
 
     @Provides
     @Singleton
     public EsIndexOptimizationConfig esIndexOptimizationConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getEsIndexOptimizationConfig()
-                ? new EsIndexOptimizationConfig()
-                : configuration.getEsIndexOptimizationConfig();
+               ? new EsIndexOptimizationConfig()
+               : configuration.getEsIndexOptimizationConfig();
     }
 
     @Provides
@@ -143,8 +167,16 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ConsoleHistoryConfig consoleHistoryConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getConsoleHistoryConfig()
-                ? new ConsoleHistoryConfig()
-                : configuration.getConsoleHistoryConfig();
+               ? new ConsoleHistoryConfig()
+               : configuration.getConsoleHistoryConfig();
+    }
+
+    @Provides
+    @Singleton
+    public SessionCleanupConfig sessionCleanupConfig(FoxtrotServerConfiguration configuration) {
+        return null == configuration.getSessionCleanupConfig()
+               ? new SessionCleanupConfig()
+               : configuration.getSessionCleanupConfig();
     }
 
     @Provides
@@ -181,7 +213,9 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public List<ActionExecutionObserver> actionExecutionObservers(CacheManager cacheManager, InternalEventBus eventBus) {
+    public List<ActionExecutionObserver> actionExecutionObservers(
+            CacheManager cacheManager,
+            InternalEventBus eventBus) {
         return ImmutableList.<ActionExecutionObserver>builder()
                 .add(new MetricRecorder())
                 .add(new ResponseCacheUpdater(cacheManager))
@@ -224,9 +258,91 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
+    public AuthConfig authConfig(FoxtrotServerConfiguration serverConfiguration) {
+        return serverConfiguration.getAuth();
+    }
+
+/*    @Provides
+    @Singleton
+    public GoogleAuthProviderConfig googleAuthProviderConfig(FoxtrotServerConfiguration configuration) {
+        return (GoogleAuthProviderConfig)configuration.getAuth().getProvider();
+    }*/
+
+    @Provides
+    @Singleton
+    public AuthProvider authProvider(
+            FoxtrotServerConfiguration configuration,
+            AuthConfig authConfig,
+            Environment environment,
+            Injector injector) {
+        val authType = authConfig.getProvider().getType();
+        AuthStore authStore = null;
+        switch (authType) {
+            case NONE: {
+                break;
+            }
+            case OAUTH_GOOGLE:
+                authStore = injector.getInstance(ESAuthStore.class);
+                break;
+            case OAUTH_IDMAN:
+                authStore = injector.getInstance(IdmanAuthStore.class);
+                break;
+            default: {
+                throw new IllegalArgumentException("Mode " + authType.name() + " not supported");
+            }
+        }
+        return new ConfiguredAuthProviderFactory(configuration.getAuth())
+                .build(environment.getObjectMapper(), authStore);
+    }
+
+    @Provides
+    @Singleton
+    public JwtConsumer provideJwtConsumer(AuthConfig config) {
+        final JwtConfig jwtConfig = config.getJwt();
+        final byte[] secretKey = jwtConfig.getPrivateKey().getBytes(StandardCharsets.UTF_8);
+        return new JwtConsumerBuilder()
+                .setRequireIssuedAt()
+                .setRequireSubject()
+                .setExpectedIssuer(jwtConfig.getIssuerId())
+                .setVerificationKey(new HmacKey(secretKey))
+                .setJwsAlgorithmConstraints(new AlgorithmConstraints(
+                        AlgorithmConstraints.ConstraintType.WHITELIST,
+                        AlgorithmIdentifiers.HMAC_SHA512))
+                .setExpectedAudience(Arrays.stream(TokenType.values())
+                                             .map(TokenType::name)
+                                             .toArray(String[]::new))
+                .build();
+    }
+
+    @Provides
+    @Singleton
+    public Authenticator<String, UserPrincipal> authenticator(
+            final Environment environment,
+            final TokenAuthenticator authenticator,
+            final AuthConfig authConfig) {
+        return new CachingAuthenticator<>(
+                environment.metrics(),
+                authenticator,
+                CacheBuilderSpec.parse(authConfig.getJwt().getAuthCachePolicy()));
+    }
+
+    @Provides
+    @Singleton
+    public Authorizer<UserPrincipal> authorizer(
+            final Environment environment,
+            final RoleAuthorizer authorizer,
+            final AuthConfig authConfig) {
+        return new CachingAuthorizer<>(environment.metrics(),
+                                       authorizer,
+                                       CacheBuilderSpec.parse(authConfig.getJwt().getAuthCachePolicy()));
+    }
+
+    @Provides
+    @Singleton
     public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
         return Objects.nonNull(configuration.getElasticsearchTuningConfig())
-                ? configuration.getElasticsearchTuningConfig() : new ElasticsearchTuningConfig();
+               ? configuration.getElasticsearchTuningConfig()
+               : new ElasticsearchTuningConfig();
     }
 
 }

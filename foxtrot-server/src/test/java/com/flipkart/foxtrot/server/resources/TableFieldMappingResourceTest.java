@@ -20,11 +20,8 @@ import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.server.ResourceTestUtils;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import java.util.concurrent.TimeUnit;
-import org.awaitility.Awaitility;
-import org.awaitility.Durations;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -37,6 +34,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
@@ -57,10 +55,8 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         super();
         tableManager = mock(FoxtrotTableManager.class);
         when(tableManager.getAll()).thenReturn(Collections.singletonList(TestUtils.TEST_TABLE));
-        resources = ResourceTestRule.builder()
+        resources = ResourceTestUtils.testResourceBuilder(getMapper())
                 .addResource(new TableFieldMappingResource(tableManager, getTableMetadataManager()))
-                .setMapper(getMapper())
-                .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .build();
     }
 
@@ -121,7 +117,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                              .build());
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
-        String response = resources.client()
+        String response = resources
                 .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .get(String.class);
@@ -135,7 +131,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
     @Test
     public void testGetInvalidTable() throws Exception {
         try {
-            resources.client()
+            resources
                     .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing"))
                     .request()
                     .head();
@@ -148,7 +144,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
     @Test
     public void testGetTableWithNoDocument() throws Exception {
         TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<>());
-        TableFieldMapping response = resources.client()
+        TableFieldMapping response = resources
                 .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .get(TableFieldMapping.class);
@@ -164,7 +160,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
         await().pollDelay(500, TimeUnit.MILLISECONDS).until(() -> true);
 
-        Map<String, TableFieldMapping> response = resources.client()
+        Map<String, TableFieldMapping> response = resources
                 .target("/v1/tables/fields")
                 .request()
                 .get(new GenericType<Map<String, TableFieldMapping>>() {

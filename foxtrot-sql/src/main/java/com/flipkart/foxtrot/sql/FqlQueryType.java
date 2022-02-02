@@ -10,5 +10,9 @@ public enum FqlQueryType {
     DESC,
     SHOWTABLES,
     COUNT,
+    SUM,
+    MAX,
+    MIN,
+    AVG,
     DISTINCT
 }

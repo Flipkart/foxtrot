@@ -16,104 +16,50 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import javax.validation.constraints.Min;
 
 /**
- * @author phaneesh
+ * AWS EC2 based cluster configuration.
+ * See: https://github.com/hazelcast/hazelcast-aws#ecsfargate-configuration
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class AwsClusterDiscoveryConfig extends ClusterDiscoveryConfig {
+    @JsonProperty
+    private String serviceName;
 
     @JsonProperty
     private String accessKey;
+
     @JsonProperty
     private String secretKey;
-    @JsonProperty
-    private String region = "us-east-1";
-    @JsonProperty
-    private String securityGroupName;
-    @JsonProperty
-    private String tagKey;
-    @JsonProperty
-    private String tagValue;
-    @JsonProperty
-    private String hostHeader = "ec2.amazonaws.com";
+
     @JsonProperty
     private String iamRole;
+
     @JsonProperty
-    private int connectionTimeoutSeconds = 5;
+    private String region;
+
+    @JsonProperty
+    private String hostHeader;
+
+    @JsonProperty
+    private String securityGroupName;
+
+    @JsonProperty
+    @Min(0)
+    private int opTimeoutSeconds;
+
+    @JsonProperty
+    private boolean isExternalClient;
 
     public AwsClusterDiscoveryConfig() {
         super(ClusterDiscoveryType.FOXTROT_AWS);
     }
 
-    public String getAccessKey() {
-        return accessKey;
-    }
-
-    public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
-    }
-
-    public String getSecretKey() {
-        return secretKey;
-    }
-
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    public String getSecurityGroupName() {
-        return securityGroupName;
-    }
-
-    public void setSecurityGroupName(String securityGroupName) {
-        this.securityGroupName = securityGroupName;
-    }
-
-    public String getTagKey() {
-        return tagKey;
-    }
-
-    public void setTagKey(String tagKey) {
-        this.tagKey = tagKey;
-    }
-
-    public String getTagValue() {
-        return tagValue;
-    }
-
-    public void setTagValue(String tagValue) {
-        this.tagValue = tagValue;
-    }
-
-    public String getHostHeader() {
-        return hostHeader;
-    }
-
-    public void setHostHeader(String hostHeader) {
-        this.hostHeader = hostHeader;
-    }
-
-    public String getIamRole() {
-        return iamRole;
-    }
-
-    public void setIamRole(String iamRole) {
-        this.iamRole = iamRole;
-    }
-
-    public int getConnectionTimeoutSeconds() {
-        return connectionTimeoutSeconds;
-    }
-
-    public void setConnectionTimeoutSeconds(int connectionTimeoutSeconds) {
-        this.connectionTimeoutSeconds = connectionTimeoutSeconds;
-    }
 }

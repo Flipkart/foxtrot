@@ -18,12 +18,14 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.foxtrot.flipkart.translator.TableTranslator;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -59,6 +61,7 @@ public class DocumentResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
+    @RolesAllowed(FoxtrotRole.Value.INGEST)
     @ApiOperation("Save Document")
     public Response saveDocument(@PathParam("table") String table, @Valid final Document document) {
         String tableName = tableTranslator.getTable(table, document);
@@ -76,6 +79,7 @@ public class DocumentResource {
     @Path("/bulk")
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
+    @RolesAllowed(FoxtrotRole.Value.INGEST)
     @ApiOperation("Save list of documents")
     public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = getTableVsDocuments(table, documents);
@@ -89,6 +93,7 @@ public class DocumentResource {
     @GET
     @Path("/{id}")
     @Timed
+    @RolesAllowed(FoxtrotRole.Value.QUERY)
     @ApiOperation("Get Document")
     public Response getDocument(@PathParam("table") final String table, @PathParam("id") @NotNull final String id) {
         return Response.ok(queryStore.get(table, id))
@@ -97,6 +102,7 @@ public class DocumentResource {
 
     @GET
     @Timed
+    @RolesAllowed(FoxtrotRole.Value.QUERY)
     @ApiOperation("Get Documents")
     public Response getDocuments(@PathParam("table") final String table, @QueryParam("id") @NotNull final List<String> ids) {
         return Response.ok(queryStore.getAll(table, ids))
