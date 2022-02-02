@@ -5,8 +5,10 @@ import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.Stat;
+import com.flipkart.foxtrot.common.stats.Stat.StatVisitor;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -19,16 +21,16 @@ import org.elasticsearch.search.aggregations.*;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
+import org.elasticsearch.search.aggregations.metrics.avg.ParsedAvg;
 import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.max.InternalMax;
-import org.elasticsearch.search.aggregations.metrics.min.InternalMin;
+import org.elasticsearch.search.aggregations.metrics.max.ParsedMax;
+import org.elasticsearch.search.aggregations.metrics.min.ParsedMin;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.elasticsearch.search.aggregations.metrics.stats.InternalStats;
-import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
-import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
-import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
+import org.elasticsearch.search.aggregations.metrics.stats.ParsedStats;
+import org.elasticsearch.search.aggregations.metrics.stats.extended.ParsedExtendedStats;
+import org.elasticsearch.search.aggregations.metrics.sum.ParsedSum;
+import org.elasticsearch.search.aggregations.metrics.valuecount.ParsedValueCount;
 import org.joda.time.DateTimeZone;
 
 import java.util.*;
@@ -43,14 +45,14 @@ public class Utils {
     private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
     private static final double DEFAULT_COMPRESSION = 100.0;
     private static final int PRECISION_THRESHOLD = 500;
-    private static final String COUNT = "count";
-    private static final String AVG = "avg";
-    private static final String SUM = "sum";
-    private static final String MIN = "min";
-    private static final String MAX = "max";
-    private static final String SUM_OF_SQUARES = "sum_of_squares";
-    private static final String VARIANCE = "variance";
-    private static final String STD_DEVIATION = "std_deviation";
+    public static final String COUNT = "count";
+    public static final String AVG = "avg";
+    public static final String SUM = "sum";
+    public static final String MIN = "min";
+    public static final String MAX = "max";
+    public static final String SUM_OF_SQUARES = "sum_of_squares";
+    public static final String VARIANCE = "variance";
+    public static final String STD_DEVIATION = "std_deviation";
     private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES
             = EnumSet.of(FieldType.INTEGER, FieldType.LONG, FieldType.FLOAT, FieldType.DOUBLE);
 
@@ -253,7 +255,7 @@ public class Utils {
         return IndicesOptions.lenientExpandOpen();
     }
 
-    public static Map<String, Number> createStatsResponse(InternalExtendedStats extendedStats) {
+    public static Map<String, Number> createStatsResponse(ParsedExtendedStats extendedStats) {
         Map<String, Number> stats = Maps.newHashMap();
         stats.put(AVG, extendedStats.getAvg());
         stats.put(SUM, extendedStats.getSum());
@@ -266,7 +268,7 @@ public class Utils {
         return stats;
     }
 
-    public static Map<String, Number> createStatsResponse(InternalStats internalStats) {
+    public static Map<String, Number> createStatsResponse(ParsedStats internalStats) {
         Map<String, Number> stats = Maps.newHashMap();
         stats.put(AVG, internalStats.getAvg());
         stats.put(SUM, internalStats.getSum());
@@ -276,23 +278,23 @@ public class Utils {
         return stats;
     }
 
-    public static Map<String, Number> createStatResponse(InternalMax statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedMax statAggregation) {
         return ImmutableMap.of(MAX, statAggregation.getValue());
     }
 
-    public static Map<String, Number> createStatResponse(InternalMin statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedMin statAggregation) {
         return ImmutableMap.of(MIN, statAggregation.getValue());
     }
 
-    public static Map<String, Number> createStatResponse(InternalAvg statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedAvg statAggregation) {
         return ImmutableMap.of(AVG, statAggregation.getValue());
     }
 
-    public static Map<String, Number> createStatResponse(InternalSum statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedSum statAggregation) {
         return ImmutableMap.of(SUM, statAggregation.getValue());
     }
 
-    public static Map<String, Number> createStatResponse(InternalValueCount statAggregation) {
+    public static Map<String, Number> createStatResponse(ParsedValueCount statAggregation) {
         return ImmutableMap.of(COUNT, statAggregation.getValue());
     }
 
@@ -318,26 +320,26 @@ public class Utils {
     }
 
     public static Map<String, Number> toStats(Aggregation statAggregation) {
-        if (statAggregation instanceof InternalExtendedStats) {
-            return Utils.createStatsResponse((InternalExtendedStats) statAggregation);
+        if (statAggregation instanceof ParsedExtendedStats) {
+            return Utils.createStatsResponse((ParsedExtendedStats) statAggregation);
         }
-        else if (statAggregation instanceof InternalStats) {
-            return Utils.createStatsResponse((InternalStats) statAggregation);
+        else if (statAggregation instanceof ParsedStats) {
+            return Utils.createStatsResponse((ParsedStats) statAggregation);
         }
-        else if (statAggregation instanceof InternalMax) {
-            return Utils.createStatResponse((InternalMax) statAggregation);
+        else if (statAggregation instanceof ParsedMax) {
+            return Utils.createStatResponse((ParsedMax) statAggregation);
         }
-        else if (statAggregation instanceof InternalMin) {
-            return Utils.createStatResponse((InternalMin) statAggregation);
+        else if (statAggregation instanceof ParsedMin) {
+            return Utils.createStatResponse((ParsedMin) statAggregation);
         }
-        else if (statAggregation instanceof InternalAvg) {
-            return Utils.createStatResponse((InternalAvg) statAggregation);
+        else if (statAggregation instanceof ParsedAvg) {
+            return Utils.createStatResponse((ParsedAvg) statAggregation);
         }
-        else if (statAggregation instanceof InternalSum) {
-            return Utils.createStatResponse((InternalSum) statAggregation);
+        else if (statAggregation instanceof ParsedSum) {
+            return Utils.createStatResponse((ParsedSum) statAggregation);
         }
-        else if (statAggregation instanceof InternalValueCount) {
-            return Utils.createStatResponse((InternalValueCount) statAggregation);
+        else if (statAggregation instanceof ParsedValueCount) {
+            return Utils.createStatResponse((ParsedValueCount) statAggregation);
         }
         return new HashMap<>();
     }
@@ -353,4 +355,55 @@ public class Utils {
         return null != fieldMetadata && NUMERIC_FIELD_TYPES.contains(fieldMetadata.getType());
     }
 
+    public static boolean hasTemporalFilters(List<Filter> filters) {
+        if (null == filters) {
+            return false;
+        }
+        return filters.stream().anyMatch(Filter::isFilterTemporal);
+    }
+
+    public static String statsString(Stat aggregationType) {
+        return aggregationType
+                .visit(new StatVisitor<String>() {
+                    @Override
+                    public String visitCount() {
+                        return Utils.COUNT;
+                    }
+
+                    @Override
+                    public String visitMin() {
+                        return Utils.MIN;
+                    }
+
+                    @Override
+                    public String visitMax() {
+                        return Utils.MAX;
+                    }
+
+                    @Override
+                    public String visitAvg() {
+                        return Utils.AVG;
+                    }
+
+                    @Override
+                    public String visitSum() {
+                        return Utils.SUM;
+                    }
+
+                    @Override
+                    public String visitSumOfSquares() {
+                        return Utils.SUM_OF_SQUARES;
+                    }
+
+                    @Override
+                    public String visitVariance() {
+                        return Utils.VARIANCE;
+                    }
+
+                    @Override
+                    public String visitStdDeviation() {
+                        return Utils.STD_DEVIATION;
+                    }
+                });
+    }
 }

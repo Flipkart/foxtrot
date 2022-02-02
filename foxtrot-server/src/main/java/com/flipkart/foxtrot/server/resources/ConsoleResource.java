@@ -15,11 +15,13 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.server.console.Console;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
@@ -31,6 +33,7 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/consoles")
 @Singleton
+@RolesAllowed({FoxtrotRole.Value.QUERY, FoxtrotRole.Value.CONSOLE})
 public class ConsoleResource {
 
     private ConsolePersistence consolePersistence;
@@ -41,6 +44,7 @@ public class ConsoleResource {
     }
 
     @POST
+    @RolesAllowed(FoxtrotRole.Value.CONSOLE)
     @ApiOperation("Save Console")
     public Console save(Console console) {
         consolePersistence.save(console);
@@ -56,6 +60,7 @@ public class ConsoleResource {
 
     @DELETE
     @Path("/{id}/delete")
+    @RolesAllowed(FoxtrotRole.Value.CONSOLE)
     @ApiOperation("Delete Console - via id")
     public void delete(@PathParam("id") final String id) {
         consolePersistence.delete(id);

@@ -16,10 +16,13 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -31,19 +34,24 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/util")
 @Singleton
-public class UtilResource {
-    private final FoxtrotServerConfiguration configuration;
+@PermitAll public class UtilResource {
+    private final ElasticsearchConfig elasticsearch;
+    private final ObjectMapper mapper;
 
     @Inject
-    public UtilResource(FoxtrotServerConfiguration configuration) {
-        this.configuration = configuration;
+    public UtilResource(ElasticsearchConfig elasticsearch, ObjectMapper mapper) {
+        this.elasticsearch = elasticsearch;
+        this.mapper = mapper;
     }
 
     @GET
     @Path("/config")
     @Timed
     @ApiOperation("Get config")
-    public FoxtrotServerConfiguration configuration() {
-        return configuration;
+    public JsonNode configuration() {
+        return mapper.createObjectNode()
+                .set("elasticsearch", mapper.createObjectNode()
+                        .put("tableNamePrefix", elasticsearch.getTableNamePrefix())
+                        .set("hosts", mapper.valueToTree(elasticsearch.getHosts())));
     }
 }
