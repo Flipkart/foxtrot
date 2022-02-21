@@ -31,14 +31,14 @@ public class FlatResponseCsvProvider implements MessageBodyWriter<FlatRepresenta
     @Override
     public void writeTo(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
                         MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
-        if(null == response) {
+        if (null == response) {
             entityStream.write("No records found matching the specified criterion".getBytes());
             return;
         }
         StringWriter dataBuffer = new StringWriter();
         FlatToCsvConverter.convert(response, dataBuffer);
         entityStream.write(dataBuffer.toString()
-                                   .getBytes());
+                .getBytes());
     }
 
 

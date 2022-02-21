@@ -34,8 +34,8 @@ class EmailBuilder implements InternalSystemEventVisitor<Email> {
         switch (exception.getCode()) {
             case CARDINALITY_OVERFLOW: {
                 return richEmailBuilder.build(templateIdFromEvent(queryProcessingError),
-                                                                          Collections.emptyList(),
-                                                                          exception.toMap());
+                        Collections.emptyList(),
+                        exception.toMap());
             }
             default:
                 break;

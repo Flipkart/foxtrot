@@ -77,8 +77,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             connection.getClient()
                     .index(new IndexRequest(INDEX, TYPE, console.getId())
-                    .source(ElasticsearchQueryUtils.toMap(mapper, console))
-                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
+                            .source(ElasticsearchQueryUtils.toMap(mapper, console))
+                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
             logger.info("Saved Console : {}", console);
         } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "console save failed", e);
@@ -105,14 +105,13 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             response = connection.getClient()
                     .search(new SearchRequest(INDEX)
-                        .types(TYPE)
-                        .source(new SearchSourceBuilder()
-                                        .query(boolQuery().must(matchAllQuery()))
-                                .sort(fieldSort("name").order(SortOrder.DESC)))
-                        .scroll(new TimeValue(60000)),
+                                    .types(TYPE)
+                                    .source(new SearchSourceBuilder()
+                                            .query(boolQuery().must(matchAllQuery()))
+                                            .sort(fieldSort("name").order(SortOrder.DESC)))
+                                    .scroll(new TimeValue(60000)),
                             RequestOptions.DEFAULT);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ConsolePersistenceException("", "console listing failed", e);
         }
         try {
@@ -120,8 +119,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             while (true) {
                 response = connection.getClient()
                         .scroll(new SearchScrollRequest(response.getScrollId())
-                            .scroll(new TimeValue(60000)),
-                        RequestOptions.DEFAULT);
+                                        .scroll(new TimeValue(60000)),
+                                RequestOptions.DEFAULT);
                 SearchHits hits = response.getHits();
                 for (SearchHit hit : hits) {
                     results.add(mapper.readValue(hit.getSourceAsString(), Console.class));
@@ -142,10 +141,10 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             connection.getClient()
                     .delete(new DeleteRequest()
-                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
-                        .index(INDEX)
-                        .type(TYPE)
-                        .id(id), RequestOptions.DEFAULT);
+                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
+                            .index(INDEX)
+                            .type(TYPE)
+                            .id(id), RequestOptions.DEFAULT);
             logger.info("Deleted Console : {}", id);
         } catch (Exception e) {
             throw new ConsolePersistenceException(id, "console deletion_failed", e);
@@ -158,11 +157,11 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             connection.getClient()
                     .index(new IndexRequest(INDEX_V2)
-                        .type(TYPE)
-                        .id(console.getId())
-                        .source(mapper.writeValueAsBytes(console), XContentType.JSON)
-                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
-                        RequestOptions.DEFAULT);
+                                    .type(TYPE)
+                                    .id(console.getId())
+                                    .source(mapper.writeValueAsBytes(console), XContentType.JSON)
+                                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
+                            RequestOptions.DEFAULT);
             logger.info("Saved Console : {}", console);
         } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "console save failed", e);
@@ -187,13 +186,13 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     public List<ConsoleV2> getV2() {
         try {
             SearchResponse response = connection.getClient()
-                .search(new SearchRequest(INDEX_V2)
-                    .types(TYPE)
-                    .source(new SearchSourceBuilder()
+                    .search(new SearchRequest(INDEX_V2)
+                            .types(TYPE)
+                            .source(new SearchSourceBuilder()
                                     .query(boolQuery().must(matchAllQuery()))
                                     .size(SCROLL_SIZE)
                                     .sort(fieldSort("name.keyword").order(SortOrder.DESC).unmappedType("keyword")))
-                    .scroll(new TimeValue(SCROLL_TIMEOUT)), RequestOptions.DEFAULT);
+                            .scroll(new TimeValue(SCROLL_TIMEOUT)), RequestOptions.DEFAULT);
             List<ConsoleV2> results = new ArrayList<>();
             while (true) {
                 SearchHits hits = response.getHits();
@@ -207,7 +206,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
 
                 response = connection.getClient()
                         .scroll(new SearchScrollRequest(response.getScrollId())
-                            .scroll(new TimeValue(SCROLL_TIMEOUT)), RequestOptions.DEFAULT);
+                                .scroll(new TimeValue(SCROLL_TIMEOUT)), RequestOptions.DEFAULT);
             }
             return results;
         } catch (Exception e) {
@@ -220,13 +219,13 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             SearchHits searchHits = connection.getClient()
                     .search(new SearchRequest(INDEX_HISTORY)
-                        .searchType(SearchType.QUERY_THEN_FETCH)
-                        .source(new SearchSourceBuilder()
-                            .query(QueryBuilders.termQuery("name.keyword", name))
-                            .sort(SortBuilders.fieldSort(sortBy).order(SortOrder.DESC))
-                            .from(0)
-                            .size(10)),
-                        RequestOptions.DEFAULT)
+                                    .searchType(SearchType.QUERY_THEN_FETCH)
+                                    .source(new SearchSourceBuilder()
+                                            .query(QueryBuilders.termQuery("name.keyword", name))
+                                            .sort(SortBuilders.fieldSort(sortBy).order(SortOrder.DESC))
+                                            .from(0)
+                                            .size(10)),
+                            RequestOptions.DEFAULT)
                     .getHits();
             List<ConsoleV2> results = new ArrayList<>();
             for (SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
@@ -309,7 +308,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             connection.getClient()
                     .delete(new DeleteRequest(INDEX_V2, TYPE, id)
-                                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
+                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
             logger.info("Deleted Console : {}", id);
         } catch (Exception e) {
             throw new ConsolePersistenceException(id, "console deletion_failed", e);
@@ -321,7 +320,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             connection.getClient()
                     .delete(new DeleteRequest(INDEX_HISTORY, TYPE, id)
-                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
+                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
             logger.info("Deleted Old Console : {}", id);
         } catch (Exception e) {
             throw new ConsolePersistenceException(id, "old console deletion_failed", e);
@@ -335,9 +334,9 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             connection.getClient()
                     .index(new IndexRequest(INDEX_HISTORY, TYPE, id)
-                        .source(mapper.writeValueAsBytes(console), XContentType.JSON)
-                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
-                        RequestOptions.DEFAULT);
+                                    .source(mapper.writeValueAsBytes(console), XContentType.JSON)
+                                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
+                            RequestOptions.DEFAULT);
             logger.info("Saved Old Console : {}", console);
         } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "old console save failed", e);

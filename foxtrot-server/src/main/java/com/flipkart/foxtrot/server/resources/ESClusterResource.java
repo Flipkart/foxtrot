@@ -2,13 +2,14 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.core.reroute.ClusterRerouteManager;
 import io.swagger.annotations.Api;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /***
  Created by mudit.g on Sep, 2019

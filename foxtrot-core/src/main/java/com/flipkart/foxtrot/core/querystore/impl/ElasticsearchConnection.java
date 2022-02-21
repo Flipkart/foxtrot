@@ -55,22 +55,22 @@ public class ElasticsearchConnection implements Managed {
         final int defaultPort = config.getConnectionType() == ElasticsearchConfig.ConnectionType.HTTP ? 80 : 443;
         int port = config.getPort() == 0 ? defaultPort : config.getPort();
         val hosts = config.getHosts()
-            .stream()
-            .map(host -> {
-                final String scheme = config.getConnectionType() == ElasticsearchConfig.ConnectionType.HTTP
-                                      ? "http"
-                                      : "https";
-                return new HttpHost(host, port, scheme);
-            })
-            .toArray(HttpHost[]::new);
-       client = new RestHighLevelClient(RestClient.builder(hosts));
+                .stream()
+                .map(host -> {
+                    final String scheme = config.getConnectionType() == ElasticsearchConfig.ConnectionType.HTTP
+                            ? "http"
+                            : "https";
+                    return new HttpHost(host, port, scheme);
+                })
+                .toArray(HttpHost[]::new);
+        client = new RestHighLevelClient(RestClient.builder(hosts));
         logger.info("Started ElasticSearch Client");
     }
 
     @Override
     public void stop() throws Exception {
         logger.info("Stopping ElasticSearch client");
-        if(client != null) {
+        if (client != null) {
             client.close();
         }
         client = null;

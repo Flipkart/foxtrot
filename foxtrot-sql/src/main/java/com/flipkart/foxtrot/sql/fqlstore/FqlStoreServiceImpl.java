@@ -46,11 +46,11 @@ public class FqlStoreServiceImpl implements FqlStoreService {
     @Override
     public void save(FqlStore fqlStore) {
         fqlStore.setId(UUID.randomUUID()
-                               .toString());
+                .toString());
         try {
             elasticsearchConnection.getClient()
                     .index(new IndexRequest(FQL_STORE_INDEX, DOCUMENT_TYPE_NAME, fqlStore.getId())
-                        .source(objectMapper.writeValueAsBytes(fqlStore), XContentType.JSON), RequestOptions.DEFAULT);
+                            .source(objectMapper.writeValueAsBytes(fqlStore), XContentType.JSON), RequestOptions.DEFAULT);
             logger.info("Saved FQL Query : {}", fqlStore.getQuery());
         } catch (Exception e) {
             throw new FqlPersistenceException("Couldn't save FQL query: " + fqlStore.getQuery() + " Error Message: " + e.getMessage(), e);
@@ -64,15 +64,15 @@ public class FqlStoreServiceImpl implements FqlStoreService {
         try {
             searchHits = elasticsearchConnection.getClient()
                     .search(new SearchRequest(FQL_STORE_INDEX)
-                        .types(DOCUMENT_TYPE_NAME)
-                        .searchType(SearchType.QUERY_THEN_FETCH)
-                        .source(new SearchSourceBuilder()
-                               .query(QueryBuilders.prefixQuery(TITLE_FIELD, fqlGetRequest.getTitle().toLowerCase()))
-                                .from(fqlGetRequest.getFrom())
-                                .size(fqlGetRequest.getSize())),
+                                    .types(DOCUMENT_TYPE_NAME)
+                                    .searchType(SearchType.QUERY_THEN_FETCH)
+                                    .source(new SearchSourceBuilder()
+                                            .query(QueryBuilders.prefixQuery(TITLE_FIELD, fqlGetRequest.getTitle().toLowerCase()))
+                                            .from(fqlGetRequest.getFrom())
+                                            .size(fqlGetRequest.getSize())),
                             RequestOptions.DEFAULT)
                     .getHits();
-            for(SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
+            for (SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
                 fqlStoreList.add(objectMapper.readValue(searchHit.getSourceAsString(), FqlStore.class));
             }
         } catch (Exception e) {

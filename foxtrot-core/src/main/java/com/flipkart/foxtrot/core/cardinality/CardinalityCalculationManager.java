@@ -59,7 +59,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
         executor.executeWithLock(() -> {
             try {
                 int maxTimeToRunJob = MAX_TIME_TO_RUN_JOB;
-                if(cardinalityConfig.getMaxTimeToRunJobInMinutes() != 0) {
+                if (cardinalityConfig.getMaxTimeToRunJobInMinutes() != 0) {
                     maxTimeToRunJob = cardinalityConfig.getMaxTimeToRunJobInMinutes();
                 }
                 Instant start = Instant.now();
@@ -67,14 +67,14 @@ public class CardinalityCalculationManager extends BaseJobManager {
                         .stream()
                         .map(Table::getName)
                         .collect(Collectors.toSet());
-                for(String table : tables) {
-                    if(!tableMetadataManager.cardinalityCacheContains(table)) {
+                for (String table : tables) {
+                    if (!tableMetadataManager.cardinalityCacheContains(table)) {
                         tableMetadataManager.getFieldMappings(table, true, true);
                         LOGGER.info("Cardinality calculated for table: {}", table);
                     }
                     Instant now = Instant.now();
                     Duration timeElapsed = Duration.between(start, now);
-                    if(timeElapsed.compareTo(Duration.ofMinutes(maxTimeToRunJob)) > 0) {
+                    if (timeElapsed.compareTo(Duration.ofMinutes(maxTimeToRunJob)) > 0) {
                         break;
                     }
                 }

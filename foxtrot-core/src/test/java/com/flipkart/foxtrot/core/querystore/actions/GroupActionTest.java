@@ -15,10 +15,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doReturn;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
@@ -34,14 +30,15 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.Maps;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -331,11 +328,11 @@ public class GroupActionTest extends ActionTest {
         response.put("android", new HashMap<String, Object>() {{
             put("1", 48.0);
             put("2", 99.0);
-            put("3",87.0);
+            put("3", 87.0);
         }});
         response.put("ios", new HashMap<String, Object>() {{
             put("1", 24.0);
-            put("2",56.0);
+            put("2", 56.0);
         }});
 
         GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
@@ -399,9 +396,9 @@ public class GroupActionTest extends ActionTest {
 
         Map<String, Object> response = Maps.newHashMap();
         response.put("android", new HashMap<String, Object>() {{
-            put("1",72.0);
+            put("1", 72.0);
             put("2", 253.0);
-            put("3",161.0);
+            put("3", 161.0);
         }});
         response.put("ios", new HashMap<String, Object>() {{
             put("1", 24.0);
@@ -433,7 +430,7 @@ public class GroupActionTest extends ActionTest {
         Map<String, Object> response = Maps.newHashMap();
         response.put("android", new HashMap<String, Object>() {{
             put("1", 2L);
-            put("2",3L);
+            put("2", 3L);
             put("3", 2L);
         }});
         response.put("ios", new HashMap<String, Object>() {{

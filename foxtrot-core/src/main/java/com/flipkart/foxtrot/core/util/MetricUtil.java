@@ -1,8 +1,8 @@
 package com.flipkart.foxtrot.core.util;
 
 import com.codahale.metrics.MetricRegistry;
-
 import com.codahale.metrics.jmx.JmxReporter;
+
 import java.util.concurrent.TimeUnit;
 
 /**

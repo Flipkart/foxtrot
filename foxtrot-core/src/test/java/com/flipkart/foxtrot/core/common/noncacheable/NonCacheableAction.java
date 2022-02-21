@@ -32,7 +32,7 @@ import java.util.List;
  */
 @VisibleForTesting
 @AnalyticsProvider(opcode = "no-cache-test", request = NonCacheableActionRequest.class, response = NonCacheableActionResponse.class,
-                   cacheable = false)
+        cacheable = false)
 public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
     public NonCacheableAction(NonCacheableActionRequest parameter, AnalyticsLoader analyticsLoader) {

@@ -35,7 +35,7 @@ public class DistributedSessionDataStore implements SessionDataStore, Managed {
 
     @Override
     public void put(String sessionId, Object data) {
-        if(Strings.isNullOrEmpty(sessionId) || null == data) {
+        if (Strings.isNullOrEmpty(sessionId) || null == data) {
             return;
         }
         store.put(sessionId, data);
@@ -43,7 +43,7 @@ public class DistributedSessionDataStore implements SessionDataStore, Managed {
 
     @Override
     public Optional<Object> get(String sessionId) {
-        if(Strings.isNullOrEmpty(sessionId)) {
+        if (Strings.isNullOrEmpty(sessionId)) {
             return Optional.empty();
         }
         return Optional.ofNullable(store.get(sessionId));
@@ -51,7 +51,7 @@ public class DistributedSessionDataStore implements SessionDataStore, Managed {
 
     @Override
     public void delete(String sessionId) {
-        if(Strings.isNullOrEmpty(sessionId)) {
+        if (Strings.isNullOrEmpty(sessionId)) {
             return;
         }
         store.delete(sessionId);

@@ -38,10 +38,9 @@ import java.util.UUID;
  */
 public class ClusterHealthResourceTest extends FoxtrotResourceTest {
 
-    private FoxtrotTableManager tableManager;
-
     @Rule
     public ResourceTestRule resources;
+    private FoxtrotTableManager tableManager;
 
     public ClusterHealthResourceTest() throws Exception {
         super();

@@ -82,7 +82,7 @@ public class DistributedCacheTest {
 
         GroupResponse actualResponse = GroupResponse.class.cast(distributedCache.get("DUMMY_KEY_PUT"));
         assertEquals(GroupResponse.class.cast(expectedResponse)
-                             .getResult(), actualResponse.getResult());
+                .getResult(), actualResponse.getResult());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class DistributedCacheTest {
         verify(mapper, times(1)).writeValueAsString(any());
         assertNull(returnResponse);
         assertNull(hazelcastInstance.getMap("TEST")
-                           .get("DUMMY_KEY_PUT"));
+                .get("DUMMY_KEY_PUT"));
     }
 
     @Test

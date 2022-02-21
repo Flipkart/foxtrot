@@ -84,8 +84,7 @@ public class QueryExecutor {
             evaluationResponse = ActionEvaluationResponse.failure(
                     action, request, e, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw e;
-        }
-        finally {
+        } finally {
             notifyObserverPostExec(evaluationResponse);
         }
     }
@@ -95,7 +94,7 @@ public class QueryExecutor {
         final String cacheKey = action.cacheKey();
         final AsyncDataToken dataToken = new AsyncDataToken(request.getOpcode(), cacheKey);
         final ActionResponse response = readCachedData(analyticsLoader.getCacheManager(), request, action);
-        if(null != response) {
+        if (null != response) {
             // If data exists in the cache nothing to do.. just return
             return dataToken;
         }
@@ -111,14 +110,14 @@ public class QueryExecutor {
     public <T extends ActionRequest> Action<T> resolve(T request) {
         Action<T> action;
         action = analyticsLoader.getAction(request);
-        if(null == action) {
+        if (null == action) {
             throw FoxtrotExceptions.createUnresolvableActionException(request);
         }
         return action;
     }
 
     private void notifyObserverPreExec(final ActionRequest request) {
-        if(null == executionObservers) {
+        if (null == executionObservers) {
             return;
         }
         executionObservers
@@ -126,7 +125,7 @@ public class QueryExecutor {
     }
 
     private void notifyObserverPostExec(final ActionEvaluationResponse evaluationResponse) {
-        if(null == executionObservers) {
+        if (null == executionObservers) {
             return;
         }
         executionObservers
@@ -142,8 +141,7 @@ public class QueryExecutor {
             if (cache.has(cacheKey)) {
                 log.info("Cache hit for key: {}", cacheKey);
                 return cache.get(cacheKey);
-            }
-            else {
+            } else {
                 log.info("Cache miss for key: {}", cacheKey);
             }
         }

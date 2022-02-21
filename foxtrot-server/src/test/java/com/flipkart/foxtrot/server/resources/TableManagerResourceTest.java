@@ -110,7 +110,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
     public void testSaveBackendError() throws Exception {
         Table table = Table.builder()
                 .name(UUID.randomUUID()
-                              .toString())
+                        .toString())
                 .ttl(30)
                 .build();
         Entity<Table> tableEntity = Entity.json(table);

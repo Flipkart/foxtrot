@@ -11,7 +11,8 @@ import java.util.List;
  */
 public class FoxtrotExceptions {
 
-    private FoxtrotExceptions() {}
+    private FoxtrotExceptions() {
+    }
 
     public static TableInitializationException createTableInitializationException(Table table, String message) {
         return new TableInitializationException(table.getName(), message);

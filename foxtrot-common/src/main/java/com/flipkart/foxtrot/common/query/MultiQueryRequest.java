@@ -18,8 +18,9 @@ package com.flipkart.foxtrot.common.query;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
-import java.util.Map;
 import lombok.Data;
+
+import java.util.Map;
 
 /***
  Created by nitish.goyal on 22/08/18

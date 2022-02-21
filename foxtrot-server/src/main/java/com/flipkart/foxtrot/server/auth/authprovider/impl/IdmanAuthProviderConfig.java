@@ -17,13 +17,13 @@ import org.hibernate.validator.constraints.NotEmpty;
 @ToString(callSuper = true)
 public class IdmanAuthProviderConfig extends AuthProviderConfig {
     @NotEmpty
+    public String serverEndpoint;
+    @NotEmpty
     private String idmanEndpoint;
     @NotEmpty
     private String clientId;
     @NotEmpty
     private String clientSecret;
-    @NotEmpty
-    public String serverEndpoint;
 
     public IdmanAuthProviderConfig() {
         super(AuthType.OAUTH_IDMAN);

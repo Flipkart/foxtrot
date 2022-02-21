@@ -70,13 +70,13 @@ public class GoogleAuthProvider implements AuthProvider {
                 case HTTP: {
                     Preconditions.checkArgument(!Strings.isNullOrEmpty(googleAuthConfig.getProxyHost()));
                     proxy = new Proxy(Proxy.Type.HTTP,
-                                      proxyAddress(googleAuthConfig));
+                            proxyAddress(googleAuthConfig));
                     break;
                 }
                 case SOCKS:
                     Preconditions.checkArgument(!Strings.isNullOrEmpty(googleAuthConfig.getProxyHost()));
                     proxy = new Proxy(Proxy.Type.SOCKS,
-                                      proxyAddress(googleAuthConfig));
+                            proxyAddress(googleAuthConfig));
                     break;
             }
         }
@@ -90,8 +90,8 @@ public class GoogleAuthProvider implements AuthProvider {
                 ImmutableSet.of("https://www.googleapis.com/auth/userinfo.email"))
                 .build();
         this.redirectionUrl = (googleAuthConfig.isSecureEndpoint()
-                               ? "https"
-                               : "http")
+                ? "https"
+                : "http")
                 + "://"
                 + googleAuthConfig.getServer()
                 + CALLBACK_PATH;
@@ -114,8 +114,8 @@ public class GoogleAuthProvider implements AuthProvider {
 //                .setRedirectUri("http://localhost:8080/auth/google")
                 .build();
         return !Strings.isNullOrEmpty(googleAuthConfig.getLoginDomain())
-               ? (url + "&hd=" + googleAuthConfig.getLoginDomain())
-               : url;
+                ? (url + "&hd=" + googleAuthConfig.getLoginDomain())
+                : url;
     }
 
     @Override
@@ -139,8 +139,7 @@ public class GoogleAuthProvider implements AuthProvider {
             final String jsonIdentity = request.execute().parseAsString();
             log.debug("Identity: {}", jsonIdentity);
             email = mapper.readTree(jsonIdentity).get("email").asText();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.error("Error logging in using google:", e);
             return Optional.empty();
         }
@@ -152,9 +151,9 @@ public class GoogleAuthProvider implements AuthProvider {
         }
         final Duration sessionDuration = AuthUtils.sessionDuration(authConfig);
         return credentialsStorage.provisionToken(user.getId(),
-                                                 sessionId,
-                                                 TokenType.DYNAMIC,
-                                                 new Date(new Date().getTime() + sessionDuration.toMilliseconds()));
+                sessionId,
+                TokenType.DYNAMIC,
+                new Date(new Date().getTime() + sessionDuration.toMilliseconds()));
     }
 
     @Override
@@ -163,8 +162,7 @@ public class GoogleAuthProvider implements AuthProvider {
         final JwtContext jwtContext;
         try {
             jwtContext = consumer.process(jwt);
-        }
-        catch (InvalidJwtException e) {
+        } catch (InvalidJwtException e) {
             log.error("Jwt validation failure: ", e);
             return Optional.empty();
         }
@@ -174,8 +172,7 @@ public class GoogleAuthProvider implements AuthProvider {
             val claims = jwtContext.getJwtClaims();
             userId = claims.getSubject();
             tokenId = claims.getJwtId();
-        }
-        catch (MalformedClaimException e) {
+        } catch (MalformedClaimException e) {
             log.error(String.format("exception in claim extraction %s", e.getMessage()), e);
             return Optional.empty();
         }
@@ -221,15 +218,15 @@ public class GoogleAuthProvider implements AuthProvider {
                         AlgorithmConstraints.ConstraintType.WHITELIST,
                         AlgorithmIdentifiers.HMAC_SHA512))
                 .setExpectedAudience(Arrays.stream(TokenType.values())
-                                             .map(TokenType::name)
-                                             .toArray(String[]::new))
+                        .map(TokenType::name)
+                        .toArray(String[]::new))
                 .build();
 
     }
 
     private InetSocketAddress proxyAddress(GoogleAuthProviderConfig googleAuthConfig) {
         return new InetSocketAddress(googleAuthConfig.getProxyHost(),
-                                     googleAuthConfig.getProxyPort());
+                googleAuthConfig.getProxyPort());
     }
 
 }

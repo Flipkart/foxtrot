@@ -20,7 +20,10 @@ import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheFactory;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.hazelcast.config.*;
+import com.hazelcast.config.EvictionConfig;
+import com.hazelcast.config.EvictionPolicy;
+import com.hazelcast.config.InMemoryFormat;
+import com.hazelcast.config.MapConfig;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -62,13 +65,13 @@ public class DistributedCacheFactory implements CacheFactory {
         evictionConfig.setSize(cacheConfig.getSize() == 0 ? DEFAULT_SIZE : cacheConfig.getSize());
         evictionConfig.setMaxSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
 
-        if(cacheConfig.getMaxIdleSeconds() == 0) {
+        if (cacheConfig.getMaxIdleSeconds() == 0) {
             mapConfig.setMaxIdleSeconds(DEFAULT_MAX_IDLE_SECONDS);
         } else {
             mapConfig.setMaxIdleSeconds(cacheConfig.getMaxIdleSeconds());
         }
 
-        if(cacheConfig.getTimeToLiveSeconds() == 0) {
+        if (cacheConfig.getTimeToLiveSeconds() == 0) {
             mapConfig.setTimeToLiveSeconds(DEFAULT_TIME_TO_LIVE_SECONDS);
         } else {
             mapConfig.setTimeToLiveSeconds(cacheConfig.getTimeToLiveSeconds());

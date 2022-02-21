@@ -93,10 +93,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final String CARDINALITY_FIELD_MAP = "cardinalitytablefieldmap";
     private static final String CARDINALITY = "cardinality";
     private static final int PRECISION_THRESHOLD = 100;
-    private static final int TIME_TO_LIVE_CACHE = (int)TimeUnit.MINUTES.toSeconds(15);
-    private static final int TIME_TO_LIVE_TABLE_CACHE = (int)TimeUnit.DAYS.toSeconds(30);
-    private static final int TIME_TO_LIVE_CARDINALITY_CACHE = (int)TimeUnit.DAYS.toSeconds(7);
-    private static final int TIME_TO_NEAR_CACHE = (int)TimeUnit.MINUTES.toSeconds(15);
+    private static final int TIME_TO_LIVE_CACHE = (int) TimeUnit.MINUTES.toSeconds(15);
+    private static final int TIME_TO_LIVE_TABLE_CACHE = (int) TimeUnit.DAYS.toSeconds(30);
+    private static final int TIME_TO_LIVE_CARDINALITY_CACHE = (int) TimeUnit.DAYS.toSeconds(7);
+    private static final int TIME_TO_NEAR_CACHE = (int) TimeUnit.MINUTES.toSeconds(15);
     private final HazelcastConnection hazelcastConnection;
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper mapper;
@@ -127,14 +127,14 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             l.get(l.size() - 1)
                     .put(e.getKey(), e.getValue());
         }, (l1, l2) -> {
-            if(l1.isEmpty()) {
+            if (l1.isEmpty()) {
                 return l2;
             }
-            if(l2.isEmpty()) {
+            if (l2.isEmpty()) {
                 return l1;
             }
-            if(l1.get(l1.size() - 1)
-                       .size() < limit) {
+            if (l1.get(l1.size() - 1)
+                    .size() < limit) {
                 Map<K, V> map = l1.get(l1.size() - 1);
                 ListIterator<Map<K, V>> mapsIte = l2.listIterator(l2.size());
                 processMap(limit, map, mapsIte);
@@ -145,21 +145,21 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     private static <K, V> void processMap(int limit, Map<K, V> map, ListIterator<Map<K, V>> mapsIte) {
-        while(mapsIte.hasPrevious() && map.size() < limit) {
+        while (mapsIte.hasPrevious() && map.size() < limit) {
             Iterator<Entry<K, V>> ite = mapsIte.previous()
                     .entrySet()
                     .iterator();
 
             processNestedMap(limit, map, ite);
 
-            if(!ite.hasNext()) {
+            if (!ite.hasNext()) {
                 mapsIte.remove();
             }
         }
     }
 
     private static <K, V> void processNestedMap(int limit, Map<K, V> map, Iterator<Entry<K, V>> ite) {
-        while(ite.hasNext() && map.size() < limit) {
+        while (ite.hasNext() && map.size() < limit) {
             Entry<K, V> entry = ite.next();
             map.put(entry.getKey(), entry.getValue());
             ite.remove();
@@ -167,8 +167,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     private static <K, V> void addEmptyMap(int limit, List<Map<K, V>> l) {
-        if(l.isEmpty() || l.get(l.size() - 1)
-                                  .size() == limit) {
+        if (l.isEmpty() || l.get(l.size() - 1)
+                .size() == limit) {
             l.add(new HashMap<>());
         }
     }
@@ -240,7 +240,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     @Override
     public Table get(String tableName) {
         logger.debug("Getting Table : {}", tableName);
-        if(tableDataStore.containsKey(tableName)) {
+        if (tableDataStore.containsKey(tableName)) {
             return tableDataStore.get(tableName);
         }
         return null;
@@ -249,7 +249,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     @Override
     @SneakyThrows
     public List<Table> get() {
-        if(0 == tableDataStore.size()) { //HACK::Check https://github.com/hazelcast/hazelcast/issues/1404
+        if (0 == tableDataStore.size()) { //HACK::Check https://github.com/hazelcast/hazelcast/issues/1404
             return Collections.emptyList();
         }
         ArrayList<Table> tables = Lists.newArrayList(tableDataStore.values());
@@ -264,20 +264,20 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             String tableName, boolean withCardinality, boolean calculateCardinality, long timestamp) {
         final String table = ElasticsearchUtils.getValidTableName(tableName);
 
-        if(!tableDataStore.containsKey(table)) {
+        if (!tableDataStore.containsKey(table)) {
             throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
         }
-        if(fieldDataCardinalityCache.size() == 0) {
+        if (fieldDataCardinalityCache.size() == 0) {
             initializeCardinalityCache();
         }
         TableFieldMapping tableFieldMapping;
-        if(fieldDataCache.containsKey(table) && !withCardinality) {
+        if (fieldDataCache.containsKey(table) && !withCardinality) {
             tableFieldMapping = fieldDataCache.get(table);
-        } else if(fieldDataCardinalityCache.containsKey(table) && withCardinality && !calculateCardinality) {
+        } else if (fieldDataCardinalityCache.containsKey(table) && withCardinality && !calculateCardinality) {
             tableFieldMapping = fieldDataCardinalityCache.get(table);
         } else {
             tableFieldMapping = getTableFieldMapping(table);
-            if(calculateCardinality) {
+            if (calculateCardinality) {
                 estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
                 fieldDataCardinalityCache.put(table, tableFieldMapping);
                 saveCardinalityCache(table, tableFieldMapping);
@@ -288,13 +288,13 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         return TableFieldMapping.builder()
                 .table(table)
                 .mappings(tableFieldMapping.getMappings()
-                                  .stream()
-                                  .map(x -> FieldMetadata.builder()
-                                          .field(x.getField())
-                                          .type(x.getType())
-                                          .estimationData(withCardinality ? x.getEstimationData() : null)
-                                          .build())
-                                  .collect(Collectors.toSet()))
+                        .stream()
+                        .map(x -> FieldMetadata.builder()
+                                .field(x.getField())
+                                .type(x.getType())
+                                .estimationData(withCardinality ? x.getEstimationData() : null)
+                                .build())
+                        .collect(Collectors.toSet()))
                 .build();
     }
 
@@ -307,13 +307,12 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             mappingsResponse = elasticsearchConnection.getClient()
                     .indices()
                     .getMapping(new GetMappingsRequest().indices(indices), RequestOptions.DEFAULT);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new TableMapStoreException("Error bulk saving meta: ", e);
         }
 
         Set<String> indicesName = Sets.newHashSet();
-        for(ObjectCursor<String> index : mappingsResponse.getMappings()
+        for (ObjectCursor<String> index : mappingsResponse.getMappings()
                 .keys()) {
             indicesName.add(index.value);
         }
@@ -346,7 +345,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     public void updateEstimationData(final String table, long timestamp) {
-        if(!tableDataStore.containsKey(table)) {
+        if (!tableDataStore.containsKey(table)) {
             throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
         }
         final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isEnabled(), false, timestamp);
@@ -354,7 +353,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     private void estimateCardinality(final String table, final Collection<FieldMetadata> fields, long time) {
-        if(CollectionUtils.isNullOrEmpty(fields)) {
+        if (CollectionUtils.isNullOrEmpty(fields)) {
             logger.warn("No fields.. Nothing to query");
             return;
         }
@@ -373,7 +372,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                                                                Map<String, FieldMetadata> fields) {
         Map<String, EstimationData> estimationDataMap = Maps.newHashMap();
         int subListSize;
-        if(cardinalityConfig == null || cardinalityConfig.getSubListSize() == 0) {
+        if (cardinalityConfig == null || cardinalityConfig.getSubListSize() == 0) {
             subListSize = ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE;
         } else {
             subListSize = cardinalityConfig.getSubListSize();
@@ -383,7 +382,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .stream()
                 .collect(mapSize(subListSize));
 
-        for(Map<String, FieldMetadata> innerMap : listOfMaps) {
+        for (Map<String, FieldMetadata> innerMap : listOfMaps) {
             MultiSearchRequest multiQuery = new MultiSearchRequest();
             innerMap.values()
                     .forEach(fieldMetadata -> {
@@ -391,8 +390,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                         SearchRequest query = new SearchRequest(index)
                                 .indicesOptions(Utils.indicesOptions())
                                 .source(new SearchSourceBuilder()
-                                       .size(0)
-                                       .query(QueryBuilders.existsQuery(field)));
+                                        .size(0)
+                                        .query(QueryBuilders.existsQuery(field)));
                         switch (fieldMetadata.getType()) {
                             case STRING:
                                 evaluateStringAggregation(table, field, fieldMetadata.getType(), query);
@@ -416,15 +415,14 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             try {
                 try {
                     multiResponse = client.msearch(multiQuery, RequestOptions.DEFAULT);
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     logger.error("Error", e);
                 }
             } finally {
                 logger.info("Cardinality query on table {} for {} fields took {} ms", table, fields.size(),
-                            stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                        stopwatch.elapsed(TimeUnit.MILLISECONDS));
             }
-            if(null != multiResponse) {
+            if (null != multiResponse) {
                 handleFirstPhaseMultiSearchResponse(multiResponse, table, fields, estimationDataMap);
             }
         }
@@ -433,9 +431,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     private void handleFirstPhaseMultiSearchResponse(MultiSearchResponse multiResponse, String table, Map<String, FieldMetadata> fields,
                                                      Map<String, EstimationData> estimationDataMap) {
-        for(MultiSearchResponse.Item item : multiResponse.getResponses()) {
+        for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
             SearchResponse response = validateAndGetSearchResponse(item, table);
-            if(null == response) {
+            if (null == response) {
                 continue;
             }
             final long hits = response.getHits()
@@ -443,10 +441,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             Map<String, Aggregation> output = response.getAggregations().asMap();
             output.forEach((key, value) -> {
                 FieldMetadata fieldMetadata = fields.get(key);
-                if(fieldMetadata == null) {
+                if (fieldMetadata == null) {
                     fieldMetadata = fields.get(key.replace("_", ""));
                 }
-                if(fieldMetadata == null) {
+                if (fieldMetadata == null) {
                     return;
                 }
                 switch (fieldMetadata.getType()) {
@@ -461,7 +459,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                         break;
                     case BOOLEAN:
                         evaluateBooleanEstimation(key, estimationDataMap);
-                    break;
+                        break;
                     case DATE:
                     case OBJECT:
                     case TEXT:
@@ -475,8 +473,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, type, CARDINALITY);
         query.source()
                 .aggregation(AggregationBuilders.cardinality(field)
-                .field(field)
-                .precisionThreshold(PRECISION_THRESHOLD));
+                        .field(field)
+                        .precisionThreshold(PRECISION_THRESHOLD));
     }
 
     private void evaluateDoubleAggregation(String table, String field, FieldType type, SearchRequest query) {
@@ -485,17 +483,17 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         );
         query.source()
                 .aggregation(AggregationBuilders.percentiles(field)
-                .field(field)
-                .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
+                        .field(field)
+                        .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
         query.source()
                 .aggregation(AggregationBuilders.cardinality("_" + field)
-                .field(field)
-                .precisionThreshold(PRECISION_THRESHOLD));
+                        .field(field)
+                        .precisionThreshold(PRECISION_THRESHOLD));
     }
 
     private void evaluateStringEstimation(Aggregation value, String table, String key, FieldType type,
                                           Map<String, EstimationData> estimationDataMap, long hits) {
-        Cardinality cardinality = (Cardinality)value;
+        Cardinality cardinality = (Cardinality) value;
         logger.info("table:{} field:{} type:{} aggregationType:{} value:{} ", table, key, type,
                 CARDINALITY, cardinality.getValue()
         );
@@ -507,10 +505,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     private void evaluateDoubleEstimation(Aggregation value, String table, String key, FieldType type,
                                           Map<String, EstimationData> estimationDataMap, long hits) {
-        if(value instanceof Percentiles) {
-            Percentiles percentiles = (Percentiles)value;
+        if (value instanceof Percentiles) {
+            Percentiles percentiles = (Percentiles) value;
             double[] values = new double[10];
-            for(int i = 10; i <= 100; i += 10) {
+            for (int i = 10; i <= 100; i += 10) {
                 final Double percentile = percentiles.percentile(i);
                 values[(i / 10) - 1] = percentile.isNaN() ? 0 : percentile;
             }
@@ -521,7 +519,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     .values(values)
                     .count(hits)
                     .build());
-        } else if(value instanceof Cardinality) {
+        } else if (value instanceof Cardinality) {
             Cardinality cardinality = (Cardinality) value;
             logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, type,
                     CARDINALITY, cardinality.getValue()
@@ -550,7 +548,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .map(EstimationData::getCount)
                 .max(Comparator.naturalOrder())
                 .orElse(0L);
-        if(maxDocuments == 0) {
+        if (maxDocuments == 0) {
             return estimationData;
         }
 
@@ -568,23 +566,23 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
             @Override
             public Void visit(CardinalityEstimationData cardinalityEstimationData) {
-                if(cardinalityEstimationData.getCount() > 0 && cardinalityEstimationData.getCardinality() > 0) {
-                    int countToCardinalityRatio = (int)(cardinalityEstimationData.getCount() / cardinalityEstimationData.getCardinality());
-                    int documentToCountRatio = (int)(maxDocuments / cardinalityEstimationData.getCount());
-                    if(cardinalityEstimationData.getCardinality() <= 100 || (countToCardinalityRatio > 100 && documentToCountRatio < 100 &&
-                                                                             cardinalityEstimationData.getCardinality() <= 5000)) {
+                if (cardinalityEstimationData.getCount() > 0 && cardinalityEstimationData.getCardinality() > 0) {
+                    int countToCardinalityRatio = (int) (cardinalityEstimationData.getCount() / cardinalityEstimationData.getCardinality());
+                    int documentToCountRatio = (int) (maxDocuments / cardinalityEstimationData.getCount());
+                    if (cardinalityEstimationData.getCardinality() <= 100 || (countToCardinalityRatio > 100 && documentToCountRatio < 100 &&
+                            cardinalityEstimationData.getCardinality() <= 5000)) {
                         logger.info("field:{} maxCount:{} countToCardinalityRatio:{} documentToCountRatio:{}", key, maxDocuments,
-                                    countToCardinalityRatio, documentToCountRatio
-                                   );
+                                countToCardinalityRatio, documentToCountRatio
+                        );
                         multiQuery.add(
                                 new SearchRequest(index)
-                                   .indicesOptions(Utils.indicesOptions())
-                                   .source(new SearchSourceBuilder()
-                                                   .query(QueryBuilders.existsQuery(key))
-                                                   .aggregation(AggregationBuilders.terms(key)
-                                                                        .field(key)
-                                                                        .size(ElasticsearchQueryUtils.QUERY_SIZE))
-                                                   .size(0)));
+                                        .indicesOptions(Utils.indicesOptions())
+                                        .source(new SearchSourceBuilder()
+                                                .query(QueryBuilders.existsQuery(key))
+                                                .aggregation(AggregationBuilders.terms(key)
+                                                        .field(key)
+                                                        .size(ElasticsearchQueryUtils.QUERY_SIZE))
+                                                .size(0)));
                     }
                 }
                 return null;
@@ -602,11 +600,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         try {
             multiResponse = client
                     .msearch(multiQuery, RequestOptions.DEFAULT);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             logger.error("Error occurred", e);
         }
-        if(null != multiResponse) {
+        if (null != multiResponse) {
             handleSecondPhaseMultiSearchResponse(multiResponse, table, estimationDataMap);
         }
         return estimationDataMap;
@@ -614,16 +611,16 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     private void handleSecondPhaseMultiSearchResponse(MultiSearchResponse multiResponse, String table,
                                                       Map<String, EstimationData> estimationDataMap) {
-        for(MultiSearchResponse.Item item : multiResponse.getResponses()) {
+        for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
             SearchResponse response = validateAndGetSearchResponse(item, table);
-            if(null == response) {
+            if (null == response) {
                 continue;
             }
             final long hits = response.getHits()
                     .getTotalHits();
             Map<String, Aggregation> output = response.getAggregations().asMap();
             output.forEach((key, value) -> {
-                Terms terms = (Terms)output.get(key);
+                Terms terms = (Terms) output.get(key);
                 estimationDataMap.put(key, TermHistogramEstimationData.builder()
                         .count(hits)
                         .termCounts(terms.getBuckets()
@@ -635,12 +632,12 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     private SearchResponse validateAndGetSearchResponse(MultiSearchResponse.Item item, String table) {
-        if(item.isFailure()) {
+        if (item.isFailure()) {
             logger.info("FailureInDeducingCardinality table:{} failureMessage:{}", table, item.getFailureMessage());
             return null;
         }
         SearchResponse response = item.getResponse();
-        if(null == response.getAggregations()) {
+        if (null == response.getAggregations()) {
             return null;
         }
         return response;
@@ -654,7 +651,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     @Override
     public void delete(String tableName) {
         logger.info("Deleting Table : {}", tableName);
-        if(tableDataStore.containsKey(tableName)) {
+        if (tableDataStore.containsKey(tableName)) {
             tableDataStore.delete(tableName);
         }
         logger.info("Deleted Table : {}", tableName);
@@ -680,7 +677,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             elasticsearchConnection.getClient()
                     .index(new IndexRequest(CARDINALITY_CACHE_INDEX, ElasticsearchUtils.DOCUMENT_TYPE_NAME, table)
                             .timeout(new TimeValue(2, TimeUnit.SECONDS))
-                        .source(mapper.writeValueAsBytes(tableFieldMapping), XContentType.JSON), RequestOptions.DEFAULT);
+                            .source(mapper.writeValueAsBytes(tableFieldMapping), XContentType.JSON), RequestOptions.DEFAULT);
         } catch (Exception e) {
             logger.error("Error in saving cardinality cache: " + e.getMessage(), e);
         }
@@ -695,9 +692,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                             .types(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                             .indicesOptions(Utils.indicesOptions())
                             .source(new SearchSourceBuilder()
-                                   .size(maxSize)), RequestOptions.DEFAULT);
-            for(SearchHit hit : com.collections.CollectionUtils.nullAndEmptySafeValueList(response.getHits()
-                                                                                                  .getHits())) {
+                                    .size(maxSize)), RequestOptions.DEFAULT);
+            for (SearchHit hit : com.collections.CollectionUtils.nullAndEmptySafeValueList(response.getHits()
+                    .getHits())) {
                 tableFieldMappings.add(mapper.readValue(hit.getSourceAsString(), TableFieldMapping.class));
             }
             return tableFieldMappings;
@@ -710,7 +707,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     @Override
     public void initializeCardinalityCache() {
         List<TableFieldMapping> tableFieldMappings = getAllCardinalityCache();
-        for(TableFieldMapping tableFieldMapping : com.collections.CollectionUtils.nullSafeList(tableFieldMappings)) {
+        for (TableFieldMapping tableFieldMapping : com.collections.CollectionUtils.nullSafeList(tableFieldMappings)) {
             fieldDataCardinalityCache.put(tableFieldMapping.getTable(), tableFieldMapping);
         }
     }
@@ -721,11 +718,11 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
         @Override
         public int compare(FieldMetadata o1, FieldMetadata o2) {
-            if(o1 == null && o2 == null) {
+            if (o1 == null && o2 == null) {
                 return 0;
-            } else if(o1 == null) {
+            } else if (o1 == null) {
                 return -1;
-            } else if(o2 == null) {
+            } else if (o2 == null) {
                 return 1;
             } else {
                 return o1.getField()

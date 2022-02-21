@@ -16,31 +16,31 @@ public class CountPrecisionThresholdVisitorAdapter extends ActionRequestVisitorA
     @Override
     public Integer visit(CountRequest request) {
         return Objects.isNull(request.getPrecision())
-               ? defaultValue
-               : request.getPrecision().getPrecisionThreshold();
+                ? defaultValue
+                : request.getPrecision().getPrecisionThreshold();
     }
 
     @Override
     public Integer visit(GroupRequest request) {
         return Objects.isNull(request.getPrecision())
-               ? defaultValue
-               : request.getPrecision().getPrecisionThreshold();
+                ? defaultValue
+                : request.getPrecision().getPrecisionThreshold();
     }
 
 
     @Override
     public Integer visit(HistogramRequest request) {
         return Objects.isNull(request.getPrecision())
-               ? defaultValue
-               : request.getPrecision().getPrecisionThreshold();
+                ? defaultValue
+                : request.getPrecision().getPrecisionThreshold();
     }
 
 
     @Override
     public Integer visit(TrendRequest request) {
         return Objects.isNull(request.getPrecision())
-               ? defaultValue
-               : request.getPrecision().getPrecisionThreshold();
+                ? defaultValue
+                : request.getPrecision().getPrecisionThreshold();
     }
 
 }

@@ -127,8 +127,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                     .getClient()
                     .search(query);
             return getResponse(response, parameter);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -138,10 +137,10 @@ public class HistogramAction extends Action<HistogramRequest> {
         return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                 .indicesOptions(Utils.indicesOptions())
                 .source(new SearchSourceBuilder()
-                                .size(QUERY_SIZE)
-                                .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
-                                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
-                                .aggregation(buildAggregation(parameter)));
+                        .size(QUERY_SIZE)
+                        .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
+                        .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
+                        .aggregation(buildAggregation(parameter)));
     }
 
     @Override
@@ -166,9 +165,8 @@ public class HistogramAction extends Action<HistogramRequest> {
                 Cardinality cardinality = bucket.getAggregations()
                         .get(key);
                 counts.add(new HistogramResponse.Count(((DateTime) bucket.getKey()).getMillis(),
-                                                       cardinality.getValue()));
-            }
-            else {
+                        cardinality.getValue()));
+            } else {
                 counts.add(new HistogramResponse.Count(((DateTime) bucket.getKey()).getMillis(), bucket.getDocCount()));
             }
         }
@@ -178,7 +176,7 @@ public class HistogramAction extends Action<HistogramRequest> {
     private AbstractAggregationBuilder buildAggregation(HistogramRequest parameter) {
         DateHistogramInterval interval = Utils.getHistogramInterval(getParameter().getPeriod());
         DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(getParameter().getField(),
-                                                                                               interval);
+                interval);
         if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
             histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(
                     getParameter().getUniqueCountOn(), parameter.accept(new CountPrecisionThresholdVisitorAdapter(
