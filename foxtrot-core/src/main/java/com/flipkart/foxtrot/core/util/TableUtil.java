@@ -26,9 +26,9 @@ public class TableUtil {
     }
 
     public static String getTableName(final HbaseConfig hbaseConfig, final Table table) {
-        if(table.isSeggregatedBackend()) {
+        if (table.isSeggregatedBackend()) {
             final String tablePrefix = hbaseConfig.getSeggregatedTablePrefix();
-            if(!Strings.isNullOrEmpty(tablePrefix)) {
+            if (!Strings.isNullOrEmpty(tablePrefix)) {
                 return String.format("%s%s", tablePrefix, table.getName());
             } else {
                 return table.getName();

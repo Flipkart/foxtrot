@@ -62,13 +62,13 @@ public class DistributedCacheFactory implements CacheFactory {
         evictionConfig.setSize(cacheConfig.getSize() == 0 ? DEFAULT_SIZE : cacheConfig.getSize());
         evictionConfig.setMaxSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
 
-        if(cacheConfig.getMaxIdleSeconds() == 0) {
+        if (cacheConfig.getMaxIdleSeconds() == 0) {
             mapConfig.setMaxIdleSeconds(DEFAULT_MAX_IDLE_SECONDS);
         } else {
             mapConfig.setMaxIdleSeconds(cacheConfig.getMaxIdleSeconds());
         }
 
-        if(cacheConfig.getTimeToLiveSeconds() == 0) {
+        if (cacheConfig.getTimeToLiveSeconds() == 0) {
             mapConfig.setTimeToLiveSeconds(DEFAULT_TIME_TO_LIVE_SECONDS);
         } else {
             mapConfig.setTimeToLiveSeconds(cacheConfig.getTimeToLiveSeconds());

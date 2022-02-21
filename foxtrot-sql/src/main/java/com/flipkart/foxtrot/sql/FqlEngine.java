@@ -73,8 +73,8 @@ public class FqlEngine {
         public void visit(FqlDescribeTable fqlDescribeTable) {
             TableFieldMapping fieldMetaData = queryStore.getFieldMappings(fqlDescribeTable.getTableName());
             result = FlatteningUtils.genericMultiRowParse(mapper.valueToTree(fieldMetaData.getMappings()),
-                                                          Lists.newArrayList("field", "type"), "field"
-                                                         );
+                    Lists.newArrayList("field", "type"), "field"
+            );
         }
 
         @Override

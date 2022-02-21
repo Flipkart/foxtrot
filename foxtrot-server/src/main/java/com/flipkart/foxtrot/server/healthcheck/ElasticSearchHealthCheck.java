@@ -38,9 +38,9 @@ public class ElasticSearchHealthCheck extends HealthCheck {
                 .cluster()
                 .health(new ClusterHealthRequest(), RequestOptions.DEFAULT);
         return (response.getStatus()
-                        .name()
-                        .equalsIgnoreCase("GREEN") || response.getStatus()
-                        .name()
-                        .equalsIgnoreCase("YELLOW")) ? HealthCheck.Result.healthy() : HealthCheck.Result.unhealthy("Cluster unhealthy");
+                .name()
+                .equalsIgnoreCase("GREEN") || response.getStatus()
+                .name()
+                .equalsIgnoreCase("YELLOW")) ? HealthCheck.Result.healthy() : HealthCheck.Result.unhealthy("Cluster unhealthy");
     }
 }

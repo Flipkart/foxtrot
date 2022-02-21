@@ -34,7 +34,8 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/util")
 @Singleton
-@PermitAll public class UtilResource {
+@PermitAll
+public class UtilResource {
     private final ElasticsearchConfig elasticsearch;
     private final ObjectMapper mapper;
 

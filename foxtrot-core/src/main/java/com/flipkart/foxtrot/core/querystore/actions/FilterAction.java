@@ -66,7 +66,7 @@ public class FilterAction extends Action<Query> {
     @Override
     public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
-        if(null == getParameter().getSort()) {
+        if (null == getParameter().getSort()) {
             ResultSort resultSort = new ResultSort();
             resultSort.setField("_timestamp");
             resultSort.setOrder(ResultSort.Order.desc);
@@ -83,8 +83,8 @@ public class FilterAction extends Action<Query> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         Query query = getParameter();
-        if(null != query.getFilters()) {
-            for(Filter filter : query.getFilters()) {
+        if (null != query.getFilters()) {
+            for (Filter filter : query.getFilters()) {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
@@ -97,27 +97,27 @@ public class FilterAction extends Action<Query> {
     @Override
     public void validateImpl(Query parameter) {
         List<String> validationErrors = new ArrayList<>();
-        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
-        if(parameter.getSort() == null) {
+        if (parameter.getSort() == null) {
             validationErrors.add("sort order needs to be specified");
         }
 
-        if(parameter.getFrom() < 0) {
+        if (parameter.getFrom() < 0) {
             validationErrors.add("from must be non-negative integer");
         }
 
-        if(parameter.getLimit() <= 0) {
+        if (parameter.getLimit() <= 0) {
             validationErrors.add("limit must be positive integer");
         }
 
-        if (parameter.getLimit() > elasticsearchTuningConfig.getDocumentsLimitAllowed()){
+        if (parameter.getLimit() > elasticsearchTuningConfig.getDocumentsLimitAllowed()) {
             validationErrors.add(String.format("Limit more than %s is not supported",
-                                               elasticsearchTuningConfig.getDocumentsLimitAllowed()));
+                    elasticsearchTuningConfig.getDocumentsLimitAllowed()));
         }
 
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -155,7 +155,7 @@ public class FilterAction extends Action<Query> {
         return QueryResponse
                 .builder()
                 .documents(getQueryStore()
-                                   .getAll(parameter.getTable(), ids, true))
+                        .getAll(parameter.getTable(), ids, true))
                 .totalHits(searchHits.getTotalHits())
                 .build();
     }
@@ -173,12 +173,12 @@ public class FilterAction extends Action<Query> {
                 .types(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                 .searchType(SearchType.QUERY_THEN_FETCH)
                 .source(new SearchSourceBuilder()
-                                .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
-                                .size(parameter.getLimit())
-                                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
-                                .sort(Utils.storedFieldName(parameter.getSort().getField()),
-                                      ResultSort.Order.desc == parameter.getSort().getOrder()
-                                      ? SortOrder.DESC : SortOrder.ASC));
+                        .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
+                        .size(parameter.getLimit())
+                        .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
+                        .sort(Utils.storedFieldName(parameter.getSort().getField()),
+                                ResultSort.Order.desc == parameter.getSort().getOrder()
+                                        ? SortOrder.DESC : SortOrder.ASC));
     }
 
     private ActionResponse executeScrollRequest(Query parameter, List<Filter> extraFilters) {
@@ -191,14 +191,13 @@ public class FilterAction extends Action<Query> {
                 SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollId);
                 scrollRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
                 SearchResponse searchScrollResponse = getConnection().getClient().scroll(scrollRequest,
-                                                                                         RequestOptions.DEFAULT);
+                        RequestOptions.DEFAULT);
                 scrollId = searchScrollResponse.getScrollId();
                 SearchHits hits = searchScrollResponse.getHits();
                 for (SearchHit searchHit : hits) {
                     ids.add(searchHit.getId());
                 }
-            }
-            else {
+            } else {
                 SearchRequest searchRequest = getScrollRequestBuilder(parameter, extraFilters);
                 SearchResponse searchResponse = getConnection()
                         .getClient()
@@ -211,8 +210,7 @@ public class FilterAction extends Action<Query> {
                 scrollId = searchResponse.getScrollId();
             }
             return getResponse(parameter, totalHits, ids, scrollId);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -229,7 +227,7 @@ public class FilterAction extends Action<Query> {
         return QueryResponse
                 .builder()
                 .documents(getQueryStore()
-                                   .getAll(parameter.getTable(), ids, true))
+                        .getAll(parameter.getTable(), ids, true))
                 .totalHits(totalHits)
                 .scrollId(scrollId)
                 .moreDataAvailable(StringUtils.isNotEmpty(scrollId) ? true : false)
@@ -244,8 +242,7 @@ public class FilterAction extends Action<Query> {
                     .getClient()
                     .search(search);
             return getResponse(response, parameter);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }

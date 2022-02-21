@@ -22,7 +22,7 @@ public class JwtAuthDynamicFeature extends AuthDynamicFeature {
             Authorizer<UserPrincipal> authorizer,
             Environment environment) {
         super(new UserAuthorizationFilter(authConfig, authorizer));
-        if(null != environment) {
+        if (null != environment) {
             environment.jersey().register(new AuthValueFactoryProvider.Binder<>(UserPrincipal.class));
             environment.jersey().register(RolesAllowedDynamicFeature.class);
         }

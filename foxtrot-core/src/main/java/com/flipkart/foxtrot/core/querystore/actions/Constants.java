@@ -25,12 +25,14 @@ import java.util.Map;
 public class Constants {
 
     public static final Map<String, String> rawKeyVersionToSuffixMap = ImmutableMap.<String, String>builder().put("2.0",
-                                                                                                                  "__RAW_KEY_VERSION_2__"
-                                                                                                                 )
+            "__RAW_KEY_VERSION_2__"
+    )
             .build();
     public static final String FIELD_REPLACEMENT_REGEX = "[^a-zA-Z0-9\\-_]";
     public static final String FIELD_REPLACEMENT_VALUE = "_";
     public static final String SEPARATOR = "_--&--_";
     public static final String CACHE_NAME_PREFIX = "cache-for-";
-    private Constants() {}
+
+    private Constants() {
+    }
 }

@@ -51,15 +51,15 @@ public class DistributedCache implements Cache {
     public ActionResponse put(String key, ActionResponse data) {
         try {
             final String serializedData = mapper.writeValueAsString(data);
-            if(serializedData != null) {
+            if (serializedData != null) {
                 // Only cache if size is less that 256 KB
-                if(serializedData.length() <= Constants.CACHE_VALUE_SIZE_IN_KB) {
+                if (serializedData.length() <= Constants.CACHE_VALUE_SIZE_IN_KB) {
                     distributedMap.put(key, mapper.writeValueAsString(data));
                 } else {
                     String responsePart = serializedData.substring(0, 1024);
                     logger.error("Size of response is too big for cache. Skipping it. Response Part : {}",
-                                 responsePart
-                                );
+                            responsePart
+                    );
                 }
             }
         } catch (JsonProcessingException e) {
@@ -70,11 +70,11 @@ public class DistributedCache implements Cache {
 
     @Override
     public ActionResponse get(String key) {
-        if(null == key) {
+        if (null == key) {
             return null; //Hazelcast map throws NPE if key is null
         }
         String data = distributedMap.get(key);
-        if(null != data) {
+        if (null != data) {
             try {
                 return mapper.readValue(data, ActionResponse.class);
             } catch (IOException e) {

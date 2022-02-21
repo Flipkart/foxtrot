@@ -23,7 +23,8 @@ import org.joda.time.DateTime;
  ***/
 public class Utils {
 
-    private Utils() {}
+    private Utils() {
+    }
 
     public static Date getDate(long timestamp) {
         DateTime dateTime = new DateTime(timestamp);

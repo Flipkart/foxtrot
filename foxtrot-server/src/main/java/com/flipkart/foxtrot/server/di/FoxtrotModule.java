@@ -145,16 +145,16 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public CardinalityConfig cardinalityConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getCardinality()
-               ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
-               : configuration.getCardinality();
+                ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
+                : configuration.getCardinality();
     }
 
     @Provides
     @Singleton
     public EsIndexOptimizationConfig esIndexOptimizationConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getEsIndexOptimizationConfig()
-               ? new EsIndexOptimizationConfig()
-               : configuration.getEsIndexOptimizationConfig();
+                ? new EsIndexOptimizationConfig()
+                : configuration.getEsIndexOptimizationConfig();
     }
 
     @Provides
@@ -167,16 +167,16 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ConsoleHistoryConfig consoleHistoryConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getConsoleHistoryConfig()
-               ? new ConsoleHistoryConfig()
-               : configuration.getConsoleHistoryConfig();
+                ? new ConsoleHistoryConfig()
+                : configuration.getConsoleHistoryConfig();
     }
 
     @Provides
     @Singleton
     public SessionCleanupConfig sessionCleanupConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getSessionCleanupConfig()
-               ? new SessionCleanupConfig()
-               : configuration.getSessionCleanupConfig();
+                ? new SessionCleanupConfig()
+                : configuration.getSessionCleanupConfig();
     }
 
     @Provides
@@ -309,8 +309,8 @@ public class FoxtrotModule extends AbstractModule {
                         AlgorithmConstraints.ConstraintType.WHITELIST,
                         AlgorithmIdentifiers.HMAC_SHA512))
                 .setExpectedAudience(Arrays.stream(TokenType.values())
-                                             .map(TokenType::name)
-                                             .toArray(String[]::new))
+                        .map(TokenType::name)
+                        .toArray(String[]::new))
                 .build();
     }
 
@@ -333,16 +333,16 @@ public class FoxtrotModule extends AbstractModule {
             final RoleAuthorizer authorizer,
             final AuthConfig authConfig) {
         return new CachingAuthorizer<>(environment.metrics(),
-                                       authorizer,
-                                       CacheBuilderSpec.parse(authConfig.getJwt().getAuthCachePolicy()));
+                authorizer,
+                CacheBuilderSpec.parse(authConfig.getJwt().getAuthCachePolicy()));
     }
 
     @Provides
     @Singleton
     public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
         return Objects.nonNull(configuration.getElasticsearchTuningConfig())
-               ? configuration.getElasticsearchTuningConfig()
-               : new ElasticsearchTuningConfig();
+                ? configuration.getElasticsearchTuningConfig()
+                : new ElasticsearchTuningConfig();
     }
 
 }

@@ -11,24 +11,25 @@ import java.util.Map;
 
 public class FlatToCsvConverter {
 
-    private FlatToCsvConverter() {}
+    private FlatToCsvConverter() {
+    }
 
     public static void convert(final FlatRepresentation representation, Writer writer) throws IOException {
         CSVWriter data = new CSVWriter(writer);
         List<FieldHeader> headers = representation.getHeaders();
         String[] headerNames = new String[headers.size()];
         int i = 0;
-        for(FieldHeader fieldHeader : headers) {
+        for (FieldHeader fieldHeader : headers) {
             headerNames[i++] = fieldHeader.getName();
         }
         data.writeNext(headerNames);
 
         List<Map<String, Object>> rows = representation.getRows();
-        for(Map<String, Object> row : rows) {
+        for (Map<String, Object> row : rows) {
             String[] rowData = new String[headers.size()];
             i = 0;
-            for(FieldHeader fieldHeader : headers) {
-                if(row.containsKey(fieldHeader.getName())) {
+            for (FieldHeader fieldHeader : headers) {
+                if (row.containsKey(fieldHeader.getName())) {
                     rowData[i++] = row.get(fieldHeader.getName())
                             .toString()
                             .replaceAll("\"", "")

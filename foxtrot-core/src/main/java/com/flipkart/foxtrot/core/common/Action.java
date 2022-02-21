@@ -83,14 +83,12 @@ public abstract class Action<P extends ActionRequest> {
     public ActionValidationResponse validate() {
         try {
             preProcessRequest();
-        }
-        catch (MalformedQueryException e) {
+        } catch (MalformedQueryException e) {
             return ActionValidationResponse.builder()
                     .processedRequest(parameter)
                     .validationErrors(e.getReasons())
                     .build();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ActionValidationResponse.builder()
                     .processedRequest(parameter)
                     .validationErrors(Collections.singletonList(e.getMessage()))
@@ -184,8 +182,7 @@ public abstract class Action<P extends ActionRequest> {
     protected String requestString() {
         try {
             return objectMapper.writeValueAsString(parameter);
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             logger.error("Error serializing request: ", e);
             return "";
         }
@@ -201,8 +198,7 @@ public abstract class Action<P extends ActionRequest> {
         }
         if (null == filters) {
             filters = Lists.newArrayList();
-        }
-        else {
+        } else {
             filters = Lists.newArrayList(filters);
         }
         filters.add(getDefaultTimeSpan());

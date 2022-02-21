@@ -42,9 +42,6 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
  */
 public class Utils {
 
-    private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
-    private static final double DEFAULT_COMPRESSION = 100.0;
-    private static final int PRECISION_THRESHOLD = 500;
     public static final String COUNT = "count";
     public static final String AVG = "avg";
     public static final String SUM = "sum";
@@ -53,6 +50,9 @@ public class Utils {
     public static final String SUM_OF_SQUARES = "sum_of_squares";
     public static final String VARIANCE = "variance";
     public static final String STD_DEVIATION = "std_deviation";
+    private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
+    private static final double DEFAULT_COMPRESSION = 100.0;
+    private static final int PRECISION_THRESHOLD = 500;
     private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES
             = EnumSet.of(FieldType.INTEGER, FieldType.LONG, FieldType.FLOAT, FieldType.DOUBLE);
 
@@ -71,8 +71,7 @@ public class Utils {
                 termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
-            }
-            else {
+            } else {
                 TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
@@ -171,10 +170,10 @@ public class Utils {
             String field, Collection<Double> inputPercentiles,
             double compression) {
         double[] percentiles = inputPercentiles != null
-                               ? inputPercentiles.stream()
-                                       .mapToDouble(x -> x)
-                                       .toArray()
-                               : DEFAULT_PERCENTILES;
+                ? inputPercentiles.stream()
+                .mapToDouble(x -> x)
+                .toArray()
+                : DEFAULT_PERCENTILES;
         if (compression == 0.0) {
             compression = DEFAULT_COMPRESSION;
         }
@@ -308,37 +307,31 @@ public class Utils {
 
     public static double ensurePositive(long number) {
         return number <= 0.0
-               ? 0.0
-               : number;
+                ? 0.0
+                : number;
     }
 
 
     public static double ensureOne(long number) {
         return number <= 0
-               ? 1
-               : number;
+                ? 1
+                : number;
     }
 
     public static Map<String, Number> toStats(Aggregation statAggregation) {
         if (statAggregation instanceof ParsedExtendedStats) {
             return Utils.createStatsResponse((ParsedExtendedStats) statAggregation);
-        }
-        else if (statAggregation instanceof ParsedStats) {
+        } else if (statAggregation instanceof ParsedStats) {
             return Utils.createStatsResponse((ParsedStats) statAggregation);
-        }
-        else if (statAggregation instanceof ParsedMax) {
+        } else if (statAggregation instanceof ParsedMax) {
             return Utils.createStatResponse((ParsedMax) statAggregation);
-        }
-        else if (statAggregation instanceof ParsedMin) {
+        } else if (statAggregation instanceof ParsedMin) {
             return Utils.createStatResponse((ParsedMin) statAggregation);
-        }
-        else if (statAggregation instanceof ParsedAvg) {
+        } else if (statAggregation instanceof ParsedAvg) {
             return Utils.createStatResponse((ParsedAvg) statAggregation);
-        }
-        else if (statAggregation instanceof ParsedSum) {
+        } else if (statAggregation instanceof ParsedSum) {
             return Utils.createStatResponse((ParsedSum) statAggregation);
-        }
-        else if (statAggregation instanceof ParsedValueCount) {
+        } else if (statAggregation instanceof ParsedValueCount) {
             return Utils.createStatResponse((ParsedValueCount) statAggregation);
         }
         return new HashMap<>();

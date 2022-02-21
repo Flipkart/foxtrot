@@ -69,10 +69,9 @@ public class LastFilter extends Filter {
         result = 31 * result + getField().hashCode();
         if (!getField().equals("_timestamp")) {
             result = result * 21 + (getCurrentTime() == 0
-                                    ? 43
-                                    : Long.valueOf(getCurrentTime()).hashCode());
-        }
-        else {
+                    ? 43
+                    : Long.valueOf(getCurrentTime()).hashCode());
+        } else {
             result = result * 21 + Long.valueOf(getCurrentTime() / (long) 30000).hashCode();
         }
         result = result * 13 + getRoundingMode().name().hashCode();
@@ -84,8 +83,7 @@ public class LastFilter extends Filter {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        }
-        else if (!(o instanceof LastFilter)) {
+        } else if (!(o instanceof LastFilter)) {
             return false;
         }
 

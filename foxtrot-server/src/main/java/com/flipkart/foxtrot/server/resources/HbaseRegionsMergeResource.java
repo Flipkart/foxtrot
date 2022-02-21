@@ -41,7 +41,7 @@ public class HbaseRegionsMergeResource {
     @Timed
     @ApiOperation("Get all Hbase regions which can be merged")
     public Map<String, List<List<HRegionData>>> listMergableRegions(@PathParam("table") final String tableName,
-                                                                     @PathParam("threshSizeInGB") @Min(0) final double threshSizeInGB) {
+                                                                    @PathParam("threshSizeInGB") @Min(0) final double threshSizeInGB) {
         return Collections.singletonMap("regions", hbaseRegions.getMergeableRegions(TableName.valueOf(tableName), threshSizeInGB));
     }
 

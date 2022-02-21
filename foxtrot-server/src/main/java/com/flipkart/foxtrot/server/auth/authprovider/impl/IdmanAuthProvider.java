@@ -67,15 +67,15 @@ public class IdmanAuthProvider implements AuthProvider {
     @SneakyThrows
     public Optional<Token> login(String authCode, String sessionId) {
         return remoteTokenCall("authorization_code", authCode,
-                               ti -> {
-                                   val idmanUser = ti.getUser();
-                                   val expiry = Date.from(Instant.now().plusSeconds(ti.getExpiry()));
-                                   return Optional.of(new Token(ti.getAccessToken(),
-                                                                IdType.ACCESS_TOKEN,
-                                                                TokenType.DYNAMIC,
-                                                                idmanUser.getUser().getId(),
-                                                                expiry));
-                               });
+                ti -> {
+                    val idmanUser = ti.getUser();
+                    val expiry = Date.from(Instant.now().plusSeconds(ti.getExpiry()));
+                    return Optional.of(new Token(ti.getAccessToken(),
+                            IdType.ACCESS_TOKEN,
+                            TokenType.DYNAMIC,
+                            idmanUser.getUser().getId(),
+                            expiry));
+                });
     }
 
     @Override
@@ -89,16 +89,16 @@ public class IdmanAuthProvider implements AuthProvider {
                     val expiry = Date.from(Instant.now().plusSeconds(ti.getExpiry()));
                     val remoteUser = idmanUser.getUser();
                     val t = new Token(ti.getAccessToken(),
-                                      IdType.ACCESS_TOKEN,
-                                      TokenType.DYNAMIC,
-                                      remoteUser.getId(),
-                                      expiry);
+                            IdType.ACCESS_TOKEN,
+                            TokenType.DYNAMIC,
+                            remoteUser.getId(),
+                            expiry);
                     val user = new User(remoteUser.getId(),
-                                        mapToFoxtrotRoles(idmanUser),
-                                        Collections.emptySet(),
-                                        isSystemUser(idmanUser),
-                                        new Date(),
-                                        new Date());
+                            mapToFoxtrotRoles(idmanUser),
+                            Collections.emptySet(),
+                            isSystemUser(idmanUser),
+                            new Date(),
+                            new Date());
                     return Optional.of(new AuthenticatedInfo(t, user));
                 });
     }
@@ -106,7 +106,7 @@ public class IdmanAuthProvider implements AuthProvider {
     @Override
     @SneakyThrows
     public boolean logout(String sessionId) {
-        if(Strings.isNullOrEmpty(sessionId)) {
+        if (Strings.isNullOrEmpty(sessionId)) {
             log.warn("Empty token send for logout");
             return true;
         }
@@ -138,12 +138,12 @@ public class IdmanAuthProvider implements AuthProvider {
             String param,
             Function<TokenInfo, Optional<T>> handler) throws URISyntaxException, IOException {
         val post = new HttpPost(new URIBuilder(config.getIdmanEndpoint())
-                                        .setPath("/apis/oauth2/token")
-                                        .build());
+                .setPath("/apis/oauth2/token")
+                .build());
         val form = ImmutableList.<NameValuePair>builder()
                 .add(new BasicNameValuePair(callMode.equals("authorization_code")
-                                            ? "code"
-                                            : "refresh_token", param))
+                        ? "code"
+                        : "refresh_token", param))
                 .add(new BasicNameValuePair("client_id", config.getClientId()))
                 .add(new BasicNameValuePair("client_secret", config.getClientSecret()))
                 .add(new BasicNameValuePair("grant_type", callMode))
@@ -161,8 +161,8 @@ public class IdmanAuthProvider implements AuthProvider {
 
     private <T> boolean remoteTokenRevokeCall(String token) throws URISyntaxException, IOException {
         val post = new HttpPost(new URIBuilder(config.getIdmanEndpoint())
-                                        .setPath("/apis/oauth2/revoke")
-                                        .build());
+                .setPath("/apis/oauth2/revoke")
+                .build());
         val params = ImmutableList.<NameValuePair>builder()
                 .add(new BasicNameValuePair("client_id", config.getClientId()))
                 .add(new BasicNameValuePair("client_secret", config.getClientSecret()))

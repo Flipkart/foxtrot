@@ -63,34 +63,33 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                 val candidateIndices = Arrays.stream(indexes)
                         .filter(index -> {
                             String table = ElasticsearchUtils.getTableNameFromIndex(index);
-                            if(Strings.isNullOrEmpty(table)) {
+                            if (Strings.isNullOrEmpty(table)) {
                                 return false;
                             }
                             String currentIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis());
                             String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
-                            if(index.equals(currentIndex) || index.equals(nextDayIndex)) {
+                            if (index.equals(currentIndex) || index.equals(nextDayIndex)) {
                                 return false;
                             }
                             return true;
                         })
                         .collect(Collectors.toSet());
                 List<List<String>> batchOfIndicesToOptimize = CollectionUtils.partition(candidateIndices, BATCH_SIZE);
-                for(List<String> indices : batchOfIndicesToOptimize) {
+                for (List<String> indices : batchOfIndicesToOptimize) {
                     Stopwatch stopwatch = Stopwatch.createStarted();
                     elasticsearchConnection.getClient()
                             .indices()
                             .forcemerge(new ForceMergeRequest(indices.toArray(new String[0]))
-                            .maxNumSegments(SEGMENTS_TO_OPTIMIZE_TO)
-                            .flush(true)
-                            .onlyExpungeDeletes(false), RequestOptions.DEFAULT);
+                                    .maxNumSegments(SEGMENTS_TO_OPTIMIZE_TO)
+                                    .flush(true)
+                                    .onlyExpungeDeletes(false), RequestOptions.DEFAULT);
                     LOGGER.info("No of indexes optimized : {}", indices.size());
                     MetricUtil.getInstance()
                             .registerActionSuccess("indexesOptimized", CollectionUtils.mkString(indices, ","),
-                                                   stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                                                  );
+                                    stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                            );
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 LOGGER.error("Error getting index list", e);
             }
         }, new LockConfiguration(esIndexOptimizationConfig.getJobName(), lockAtMostUntil));

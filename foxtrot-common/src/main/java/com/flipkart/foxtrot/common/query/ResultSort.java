@@ -58,14 +58,14 @@ public class ResultSort implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o)
+        if (this == o)
             return true;
-        if(o == null || getClass() != o.getClass())
+        if (o == null || getClass() != o.getClass())
             return false;
 
-        ResultSort that = (ResultSort)o;
+        ResultSort that = (ResultSort) o;
 
-        if(!field.equals(that.field))
+        if (!field.equals(that.field))
             return false;
         return order == that.order;
     }

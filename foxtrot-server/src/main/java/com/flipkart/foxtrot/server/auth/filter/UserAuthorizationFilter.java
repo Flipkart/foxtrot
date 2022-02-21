@@ -31,12 +31,12 @@ public class UserAuthorizationFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(final ContainerRequestContext requestContext) throws IOException {
-        if(!authConfig.isEnabled()) {
+        if (!authConfig.isEnabled()) {
             updateContext(requestContext, UserPrincipal.DEFAULT);
             return;
         }
         UserPrincipal principal = SessionUser.take();
-        if(null != principal) {
+        if (null != principal) {
             updateContext(requestContext, principal);
             return;
         }
