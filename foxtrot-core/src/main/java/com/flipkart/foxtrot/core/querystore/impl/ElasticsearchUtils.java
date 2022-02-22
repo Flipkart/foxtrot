@@ -75,8 +75,7 @@ public class ElasticsearchUtils {
     public static void setTableNamePrefix(ElasticsearchConfig config) {
         if (StringUtils.isNotEmpty(config.getTableNamePrefix())) {
             tableNamePrefix = config.getTableNamePrefix();
-        }
-        else {
+        } else {
             tableNamePrefix = "foxtrot";
         }
     }
@@ -122,10 +121,10 @@ public class ElasticsearchUtils {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String datePostfix = FORMATTER.print(timestamp);
         return String.format("%s-%s-%s-%s",
-                             getTableNamePrefix(),
-                             table,
-                             ElasticsearchUtils.TABLENAME_POSTFIX,
-                             datePostfix);
+                getTableNamePrefix(),
+                table,
+                ElasticsearchUtils.TABLENAME_POSTFIX,
+                datePostfix);
     }
 
     public static PutIndexTemplateRequest getClusterTemplateMapping() {
@@ -133,8 +132,7 @@ public class ElasticsearchUtils {
             return new PutIndexTemplateRequest().name("template_foxtrot_mappings")
                     .patterns(Lists.newArrayList(String.format("%s-*", getTableNamePrefix())))
                     .mapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             logger.error("TEMPLATE_CREATION_FAILED", ex);
             return null;
         }
@@ -255,8 +253,7 @@ public class ElasticsearchUtils {
         try {
             client.indices()
                     .putTemplate(templateRequest, RequestOptions.DEFAULT);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             logger.error("Error occurred: ", e);
         }
     }
@@ -299,8 +296,7 @@ public class ElasticsearchUtils {
             String tempIndex = currentIndex.substring(currentIndex.indexOf(getTableNamePrefix()) + getTableNamePrefix().length() + 1);
             int position = tempIndex.lastIndexOf(String.format("-%s", TABLENAME_POSTFIX));
             return tempIndex.substring(0, position);
-        }
-        else {
+        } else {
             return null;
         }
     }

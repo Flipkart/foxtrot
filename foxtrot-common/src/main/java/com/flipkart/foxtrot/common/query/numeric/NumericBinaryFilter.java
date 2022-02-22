@@ -56,7 +56,7 @@ public abstract class NumericBinaryFilter extends Filter {
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if(value == null) {
+        if (value == null) {
             validationErrors.add("filter value cannot be null");
         }
         return validationErrors;

@@ -45,11 +45,6 @@ import static org.mockito.Mockito.when;
  */
 public abstract class ActionTest {
 
-    static {
-        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(Level.WARN);
-    }
-
     private static HazelcastInstance hazelcastInstance;
     @Getter
     private static ElasticsearchConnection elasticsearchConnection;
@@ -63,6 +58,11 @@ public abstract class ActionTest {
     private static DistributedTableMetadataManager tableMetadataManager;
     @Getter
     private static CacheManager cacheManager;
+
+    static {
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.WARN);
+    }
 
     @BeforeClass
     public static void setupClass() throws Exception {
@@ -84,11 +84,11 @@ public abstract class ActionTest {
         tableMetadataManager.start();
 
         tableMetadataManager.save(Table.builder()
-                                          .name(TestUtils.TEST_TABLE_NAME)
-                                          .ttl(30)
-                                          .build());
+                .name(TestUtils.TEST_TABLE_NAME)
+                .ttl(30)
+                .build());
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
-                                                                                         TextNodeRemoverConfiguration.builder().build()));
+                TextNodeRemoverConfiguration.builder().build()));
         DataStore dataStore = TestUtils.getDataStore();
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));

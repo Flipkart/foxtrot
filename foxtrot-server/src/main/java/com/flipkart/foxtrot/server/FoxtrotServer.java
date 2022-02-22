@@ -69,23 +69,23 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 swaggerBundleConfiguration.setResourcePackage("com.flipkart.foxtrot.server.resources");
                 swaggerBundleConfiguration.setUriPrefix("/foxtrot");
                 swaggerBundleConfiguration.setDescription("A store abstraction and analytics system for real-time event data.");
-                if(!Strings.isNullOrEmpty(configuration.getSwaggerHost())) {
+                if (!Strings.isNullOrEmpty(configuration.getSwaggerHost())) {
                     swaggerBundleConfiguration.setHost(configuration.getSwaggerHost());
                 }
-                if(!Strings.isNullOrEmpty(configuration.getSwaggerScheme())) {
-                    swaggerBundleConfiguration.setSchemes(new String[] {configuration.getSwaggerScheme()});
+                if (!Strings.isNullOrEmpty(configuration.getSwaggerScheme())) {
+                    swaggerBundleConfiguration.setSchemes(new String[]{configuration.getSwaggerScheme()});
                 }
                 return swaggerBundleConfiguration;
             }
         });
 
         bootstrap.addBundle(GuiceBundle.<FoxtrotServerConfiguration>builder()
-                                    .enableAutoConfig("com.flipkart.foxtrot")
-                                    .modules(
-                                            new FoxtrotModule())
-                                    .useWebInstallers()
-                                    .printDiagnosticInfo()
-                                    .build(Stage.PRODUCTION));
+                .enableAutoConfig("com.flipkart.foxtrot")
+                .modules(
+                        new FoxtrotModule())
+                .useWebInstallers()
+                .printDiagnosticInfo()
+                .build(Stage.PRODUCTION));
         bootstrap.addCommand(new InitializerCommand());
         configureObjectMapper(bootstrap.getObjectMapper());
     }
@@ -109,7 +109,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
-        ((AbstractServerFactory)configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
+        ((AbstractServerFactory) configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
 
         MetricUtil.setup(environment.metrics());
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());

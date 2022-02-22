@@ -47,12 +47,12 @@ public class MultiTimeQueryActionTest extends ActionTest {
         MultiTimeQueryRequest multiTimeQueryRequest = new MultiTimeQueryRequest(1, duration, query);
         ActionResponse actionResponse = getQueryExecutor().execute(multiTimeQueryRequest);
         MultiTimeQueryResponse multiTimeQueryResponse = null;
-        if(actionResponse instanceof MultiTimeQueryResponse) {
-            multiTimeQueryResponse = (MultiTimeQueryResponse)actionResponse;
+        if (actionResponse instanceof MultiTimeQueryResponse) {
+            multiTimeQueryResponse = (MultiTimeQueryResponse) actionResponse;
         }
         assertNotNull(multiTimeQueryResponse);
 
-        QueryResponse queryResponse = (QueryResponse)multiTimeQueryResponse.getResponses()
+        QueryResponse queryResponse = (QueryResponse) multiTimeQueryResponse.getResponses()
                 .get("1397658117000");
 
         assertEquals(9, queryResponse.getTotalHits());
@@ -93,16 +93,16 @@ public class MultiTimeQueryActionTest extends ActionTest {
 
         MultiTimeQueryResponse multiTimeQueryResponse = MultiTimeQueryResponse.class.cast(
                 getQueryExecutor().execute(multiTimeQueryRequest));
-        for(String key : multiTimeQueryResponse.getResponses()
+        for (String key : multiTimeQueryResponse.getResponses()
                 .keySet()) {
-            compare(documents, ((QueryResponse)multiTimeQueryResponse.getResponses()
+            compare(documents, ((QueryResponse) multiTimeQueryResponse.getResponses()
                     .get(key)).getDocuments());
         }
     }
 
     public void compare(List<Document> expectedDocuments, List<Document> actualDocuments) {
         assertEquals(expectedDocuments.size(), actualDocuments.size());
-        for(int i = 0; i < expectedDocuments.size(); i++) {
+        for (int i = 0; i < expectedDocuments.size(); i++) {
             Document expected = expectedDocuments.get(i);
             Document actual = actualDocuments.get(i);
             assertNotNull(expected);

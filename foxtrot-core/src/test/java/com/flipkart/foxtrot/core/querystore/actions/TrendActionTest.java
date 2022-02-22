@@ -188,9 +188,9 @@ public class TrendActionTest extends ActionTest {
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("android"));
+                .get("android"));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("ios"));
+                .get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -224,9 +224,9 @@ public class TrendActionTest extends ActionTest {
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("android"));
+                .get("android"));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("ios"));
+                .get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -260,9 +260,9 @@ public class TrendActionTest extends ActionTest {
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("android"));
+                .get("android"));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("ios"));
+                .get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -291,7 +291,7 @@ public class TrendActionTest extends ActionTest {
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         filterNonZeroCounts(actualResponse.getTrends()
-                                    .get("android"));
+                .get("android"));
         assertEquals(expectedResponse, actualResponse);
     }
 

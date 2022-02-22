@@ -58,31 +58,30 @@ import static org.mockito.Mockito.*;
 @Slf4j
 public abstract class FoxtrotResourceTest {
 
-    protected final  HealthCheckRegistry healthChecks = mock(HealthCheckRegistry.class);
-    protected final  JerseyEnvironment jerseyEnvironment = mock(JerseyEnvironment.class);
-    protected final  LifecycleEnvironment lifecycleEnvironment = new LifecycleEnvironment();
-    protected final  Environment environment = mock(Environment.class);
-    protected final  Bootstrap<FoxtrotServerConfiguration> bootstrap = mock(Bootstrap.class);
-    protected final  ObjectMapper objectMapper = Jackson.newObjectMapper();
-    private final  ObjectMapper mapper;
-    private final  HazelcastInstance hazelcastInstance;
-    private final  ElasticsearchConnection elasticsearchConnection;
-    private final  TableMetadataManager tableMetadataManager;
-    private final  CardinalityConfig cardinalityConfig;
-    private final  List<IndexerEventMutator> mutators;
-    private final  CacheManager cacheManager;
+    static {
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.WARN);
+    }
+
+    protected final HealthCheckRegistry healthChecks = mock(HealthCheckRegistry.class);
+    protected final JerseyEnvironment jerseyEnvironment = mock(JerseyEnvironment.class);
+    protected final LifecycleEnvironment lifecycleEnvironment = new LifecycleEnvironment();
+    protected final Environment environment = mock(Environment.class);
+    protected final Bootstrap<FoxtrotServerConfiguration> bootstrap = mock(Bootstrap.class);
+    protected final ObjectMapper objectMapper = Jackson.newObjectMapper();
+    private final ObjectMapper mapper;
+    private final HazelcastInstance hazelcastInstance;
+    private final ElasticsearchConnection elasticsearchConnection;
+    private final TableMetadataManager tableMetadataManager;
+    private final CardinalityConfig cardinalityConfig;
+    private final List<IndexerEventMutator> mutators;
+    private final CacheManager cacheManager;
     private AnalyticsLoader analyticsLoader;
     private QueryExecutor queryExecutor;
     private QueryStore queryStore;
     private DataStore dataStore;
 
-
-     static {
-         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-         root.setLevel(Level.WARN);
-     }
-
-    protected  FoxtrotResourceTest() {
+    protected FoxtrotResourceTest() {
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
         when(environment.jersey()).thenReturn(jerseyEnvironment);
         when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
@@ -112,8 +111,7 @@ public abstract class FoxtrotResourceTest {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
         try {
             elasticsearchConnection = ElasticsearchTestUtils.getConnection();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
@@ -132,14 +130,13 @@ public abstract class FoxtrotResourceTest {
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         try {
             tableMetadataManager.start();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
         tableMetadataManager.save(Table.builder()
-                                          .name(TestUtils.TEST_TABLE_NAME)
-                                          .ttl(7)
-                                          .build());
+                .name(TestUtils.TEST_TABLE_NAME)
+                .ttl(7)
+                .build());
 
         mutators = Lists.newArrayList(
                 new LargeTextNodeRemover(mapper, TextNodeRemoverConfiguration.builder().build()));
@@ -159,15 +156,15 @@ public abstract class FoxtrotResourceTest {
         queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.emptyList());
     }
 
-    protected  TableMetadataManager getTableMetadataManager() {
+    protected TableMetadataManager getTableMetadataManager() {
         return tableMetadataManager;
     }
 
-    protected  ElasticsearchConnection getElasticsearchConnection() {
+    protected ElasticsearchConnection getElasticsearchConnection() {
         return elasticsearchConnection;
     }
 
-    protected  HazelcastInstance getHazelcastInstance() {
+    protected HazelcastInstance getHazelcastInstance() {
         return hazelcastInstance;
     }
 
@@ -175,11 +172,11 @@ public abstract class FoxtrotResourceTest {
         return queryExecutor;
     }
 
-    protected  ObjectMapper getMapper() {
+    protected ObjectMapper getMapper() {
         return mapper;
     }
 
-    protected  CacheManager getCacheManager() {
+    protected CacheManager getCacheManager() {
         return cacheManager;
     }
 

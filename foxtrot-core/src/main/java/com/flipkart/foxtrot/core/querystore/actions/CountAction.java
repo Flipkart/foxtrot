@@ -73,12 +73,12 @@ public class CountAction extends Action<CountRequest> {
         }
 
         filterHashKey += 31 * (request.isDistinct()
-                               ? "TRUE".hashCode()
-                               : "FALSE".hashCode());
+                ? "TRUE".hashCode()
+                : "FALSE".hashCode());
         filterHashKey += 31 * (request.getField() != null
-                               ? request.getField()
-                                       .hashCode()
-                               : "COLUMN".hashCode());
+                ? request.getField()
+                .hashCode()
+                : "COLUMN".hashCode());
         return String.format("count-%s-%d", request.getTable(), filterHashKey);
     }
 
@@ -105,8 +105,7 @@ public class CountAction extends Action<CountRequest> {
                     .getClient()
                     .search(request, RequestOptions.DEFAULT);
             return getResponse(response, parameter);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
 
         }
@@ -117,28 +116,25 @@ public class CountAction extends Action<CountRequest> {
         if (parameter.isDistinct()) {
             try {
                 return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                                .indicesOptions(Utils.indicesOptions())
-                                .source(new SearchSourceBuilder()
-                                    .size(QUERY_SIZE)
-                                    .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
-                                    .aggregation(Utils.buildCardinalityAggregation(parameter.getField(),
-                                                                          parameter.accept(new CountPrecisionThresholdVisitorAdapter(
-                                                                                  elasticsearchTuningConfig.getPrecisionThreshold())))))
-                                ;
-            }
-            catch (Exception e) {
+                        .indicesOptions(Utils.indicesOptions())
+                        .source(new SearchSourceBuilder()
+                                .size(QUERY_SIZE)
+                                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
+                                .aggregation(Utils.buildCardinalityAggregation(parameter.getField(),
+                                        parameter.accept(new CountPrecisionThresholdVisitorAdapter(
+                                                elasticsearchTuningConfig.getPrecisionThreshold())))))
+                        ;
+            } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
-        }
-        else {
+        } else {
             try {
                 return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .indicesOptions(Utils.indicesOptions())
                         .source(new SearchSourceBuilder()
-                               .size(QUERY_SIZE)
-                               .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters)));
-            }
-            catch (Exception e) {
+                                .size(QUERY_SIZE)
+                                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters)));
+            } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
         }
@@ -151,14 +147,12 @@ public class CountAction extends Action<CountRequest> {
             Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
             if (cardinality == null) {
                 return new CountResponse(0);
-            }
-            else {
+            } else {
                 return new CountResponse(cardinality.getValue());
             }
-        }
-        else {
+        } else {
             return new CountResponse(((SearchResponse) response).getHits()
-                                             .getTotalHits());
+                    .getTotalHits());
         }
 
     }

@@ -22,11 +22,11 @@ public class TableTranslator {
 
     @Inject
     public TableTranslator(SegregationConfiguration segregationConfiguration) {
-        if(segregationConfiguration != null) {
+        if (segregationConfiguration != null) {
             segregationConfiguration.getTableSegregationConfigs().forEach(tableSegregationConfig -> {
                 tableVsSegregationConfig.putIfAbsent(tableSegregationConfig.getOldTable(), tableSegregationConfig);
                 tableSegregationConfig.getNewTableVsEventTypes().forEach((newTable, eventTypes) -> {
-                    if(CollectionUtils.isNotEmpty(eventTypes)) {
+                    if (CollectionUtils.isNotEmpty(eventTypes)) {
                         eventTypes.forEach(s -> eventTypeVsNewTable.putIfAbsent(s, newTable));
                     }
                 });
@@ -36,10 +36,10 @@ public class TableTranslator {
     }
 
     public String getTable(String table, Document document) {
-        if(!isTransformableTable(table)) {
+        if (!isTransformableTable(table)) {
             return table;
         }
-        if(document.getData()
+        if (document.getData()
                 .has(EVENT_TYPE)) {
             String eventType = document.getData()
                     .get(EVENT_TYPE)

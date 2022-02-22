@@ -10,8 +10,9 @@ import ru.vyarus.dropwizard.guice.module.installer.feature.health.NamedHealthChe
 @Singleton
 public class HBaseHealthCheck extends NamedHealthCheck {
 
-    private Configuration configuration;
     private static final String HBASE_HEALTHCHECK = "hbaseHealthcheck";
+    private Configuration configuration;
+
     @Inject
     public HBaseHealthCheck(Configuration configuration) {
         this.configuration = configuration;

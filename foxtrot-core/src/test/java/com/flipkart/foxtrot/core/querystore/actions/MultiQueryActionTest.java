@@ -72,14 +72,14 @@ public class MultiQueryActionTest extends ActionTest {
         MultiQueryRequest multiQueryRequest = new MultiQueryRequest(requests);
         ActionResponse actionResponse = getQueryExecutor().execute(multiQueryRequest);
         MultiQueryResponse multiQueryResponse = null;
-        if(actionResponse instanceof MultiQueryResponse) {
-            multiQueryResponse = (MultiQueryResponse)actionResponse;
+        if (actionResponse instanceof MultiQueryResponse) {
+            multiQueryResponse = (MultiQueryResponse) actionResponse;
         }
         assertNotNull(multiQueryResponse);
 
-        QueryResponse queryResponse = (QueryResponse)multiQueryResponse.getResponses()
+        QueryResponse queryResponse = (QueryResponse) multiQueryResponse.getResponses()
                 .get("1");
-        CountResponse countResponse = (CountResponse)multiQueryResponse.getResponses()
+        CountResponse countResponse = (CountResponse) multiQueryResponse.getResponses()
                 .get("2");
 
         System.out.println(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(queryResponse));
@@ -109,14 +109,14 @@ public class MultiQueryActionTest extends ActionTest {
 
         ActionResponse actionResponse = getQueryExecutor().execute(multiQueryRequest);
         MultiQueryResponse multiQueryResponse = null;
-        if(actionResponse instanceof MultiQueryResponse) {
-            multiQueryResponse = (MultiQueryResponse)actionResponse;
+        if (actionResponse instanceof MultiQueryResponse) {
+            multiQueryResponse = (MultiQueryResponse) actionResponse;
         }
         assertNotNull(multiQueryResponse);
 
-        QueryResponse queryResponse = (QueryResponse)multiQueryResponse.getResponses()
+        QueryResponse queryResponse = (QueryResponse) multiQueryResponse.getResponses()
                 .get("1");
-        CountResponse countResponse = (CountResponse)multiQueryResponse.getResponses()
+        CountResponse countResponse = (CountResponse) multiQueryResponse.getResponses()
                 .get("2");
 
         assertEquals(2, queryResponse.getDocuments().size());
@@ -157,15 +157,15 @@ public class MultiQueryActionTest extends ActionTest {
         documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, getMapper()));
 
         MultiQueryResponse multiQueryResponse = MultiQueryResponse.class.cast(getQueryExecutor().execute(multiQueryRequest));
-        for(Map.Entry<String, ActionResponse> response : multiQueryResponse.getResponses()
+        for (Map.Entry<String, ActionResponse> response : multiQueryResponse.getResponses()
                 .entrySet()) {
-            compare(documents, ((QueryResponse)response.getValue()).getDocuments());
+            compare(documents, ((QueryResponse) response.getValue()).getDocuments());
         }
     }
 
     public void compare(List<Document> expectedDocuments, List<Document> actualDocuments) {
         assertEquals(expectedDocuments.size(), actualDocuments.size());
-        for(int i = 0; i < expectedDocuments.size(); i++) {
+        for (int i = 0; i < expectedDocuments.size(); i++) {
             Document expected = expectedDocuments.get(i);
             Document actual = actualDocuments.get(i);
             assertNotNull(expected);

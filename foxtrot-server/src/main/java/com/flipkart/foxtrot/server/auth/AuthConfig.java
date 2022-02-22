@@ -12,13 +12,11 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class AuthConfig {
-    private boolean enabled;
-
-    @NotNull
-    @Valid
-    private JwtConfig jwt = new JwtConfig();
-
     @NotNull
     @Valid
     public AuthProviderConfig provider = new NoneAuthProviderConfig();
+    private boolean enabled;
+    @NotNull
+    @Valid
+    private JwtConfig jwt = new JwtConfig();
 }

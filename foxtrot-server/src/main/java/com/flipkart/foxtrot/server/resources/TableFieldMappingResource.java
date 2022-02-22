@@ -71,12 +71,12 @@ public class TableFieldMappingResource {
                                  @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) {
         return Response.ok()
                 .entity(tableManager.getAll()
-                                .stream()
-                                .collect(Collectors.toMap(Table::getName,
-                                                          table -> tableMetadataManager.getFieldMappings(table.getName(), withCardinality,
-                                                                                                         calculateCardinality
-                                                                                                        )
-                                                         )))
+                        .stream()
+                        .collect(Collectors.toMap(Table::getName,
+                                table -> tableMetadataManager.getFieldMappings(table.getName(), withCardinality,
+                                        calculateCardinality
+                                )
+                        )))
                 .build();
     }
 

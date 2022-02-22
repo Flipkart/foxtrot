@@ -11,10 +11,10 @@ import java.util.Date;
 @Value
 public class Token {
     public static final Token DEFAULT = new Token("__DEFAULT_TOKEN__",
-                                                  IdType.SESSION_ID,
-                                                  TokenType.SYSTEM,
-                                                  "__DEFAULT__",
-                                                  null);
+            IdType.SESSION_ID,
+            TokenType.SYSTEM,
+            "__DEFAULT__",
+            null);
 
     String id;
     IdType idType;

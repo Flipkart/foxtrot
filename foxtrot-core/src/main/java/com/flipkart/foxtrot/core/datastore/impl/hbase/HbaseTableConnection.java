@@ -63,7 +63,7 @@ public class HbaseTableConnection implements Managed {
 
     public synchronized org.apache.hadoop.hbase.client.Table getTable(final Table table) {
         try {
-            if(hbaseConfig.isSecure() && UserGroupInformation.isSecurityEnabled()) {
+            if (hbaseConfig.isSecure() && UserGroupInformation.isSecurityEnabled()) {
                 UserGroupInformation.getCurrentUser()
                         .reloginFromKeytab();
             }

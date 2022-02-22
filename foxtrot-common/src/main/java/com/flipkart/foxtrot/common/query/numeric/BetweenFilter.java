@@ -70,11 +70,11 @@ public class BetweenFilter extends Filter {
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if(from == null) {
+        if (from == null) {
             validationErrors.add("from field cannot be null");
         }
 
-        if(to == null) {
+        if (to == null) {
             validationErrors.add("to field cannot be null");
         }
         return validationErrors;

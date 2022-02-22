@@ -63,16 +63,16 @@ public class ConsoleHistoryManager extends BaseJobManager {
             try {
                 SearchResponse searchResponse = connection.getClient()
                         .search(new SearchRequest(INDEX_V2)
-                            .types(TYPE)
-                            .searchType(SearchType.QUERY_THEN_FETCH)
-                            .source(new SearchSourceBuilder()
-                                            .aggregation(AggregationBuilders.terms("names")
+                                .types(TYPE)
+                                .searchType(SearchType.QUERY_THEN_FETCH)
+                                .source(new SearchSourceBuilder()
+                                        .aggregation(AggregationBuilders.terms("names")
                                                 .field("name.keyword")
                                                 .size(1000))), RequestOptions.DEFAULT);
 
                 Terms agg = searchResponse.getAggregations()
                         .get("names");
-                for(Terms.Bucket entry : agg.getBuckets()) {
+                for (Terms.Bucket entry : agg.getBuckets()) {
                     deleteOldData(entry.getKeyAsString());
                 }
             } catch (Exception e) {
@@ -87,16 +87,16 @@ public class ConsoleHistoryManager extends BaseJobManager {
         try {
             SearchHits searchHits = connection.getClient()
                     .search(new SearchRequest(INDEX_HISTORY)
-                        .types(TYPE)
-                        .searchType(SearchType.QUERY_THEN_FETCH)
-                        .source(new SearchSourceBuilder()
-                                    .query(QueryBuilders.termQuery("name.keyword", name))
-                                    .sort(SortBuilders.fieldSort(updatedAt).order(SortOrder.DESC))
-                                    .from(10)
-                                    .size(9000)),
-                        RequestOptions.DEFAULT)
+                                    .types(TYPE)
+                                    .searchType(SearchType.QUERY_THEN_FETCH)
+                                    .source(new SearchSourceBuilder()
+                                            .query(QueryBuilders.termQuery("name.keyword", name))
+                                            .sort(SortBuilders.fieldSort(updatedAt).order(SortOrder.DESC))
+                                            .from(10)
+                                            .size(9000)),
+                            RequestOptions.DEFAULT)
                     .getHits();
-            for(SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
+            for (SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
                 ConsoleV2 consoleV2 = mapper.readValue(searchHit.getSourceAsString(), ConsoleV2.class);
                 elasticsearchConsolePersistence.deleteOldVersion(consoleV2.getId());
             }

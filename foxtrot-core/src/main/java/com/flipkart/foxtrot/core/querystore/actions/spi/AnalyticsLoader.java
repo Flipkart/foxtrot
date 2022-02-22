@@ -95,8 +95,7 @@ public class AnalyticsLoader implements Managed {
                     Constructor<? extends Action> constructor = metadata.getAction()
                             .getConstructor(metadata.getRequest(), AnalyticsLoader.class);
                     return constructor.newInstance(r, this);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     throw FoxtrotExceptions.createActionResolutionException(request, e);
                 }
             }
@@ -130,7 +129,7 @@ public class AnalyticsLoader implements Managed {
                 throw new AnalyticsActionLoaderException("Invalid annotation on " + action.getCanonicalName());
             }
             register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()),
-                     analyticsProvider.opcode());
+                    analyticsProvider.opcode());
             types.add(new NamedType(analyticsProvider.request(), opcode));
             types.add(new NamedType(analyticsProvider.response(), opcode));
             logger.info("Registered action: {}", action.getCanonicalName());

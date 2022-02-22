@@ -22,7 +22,7 @@ public class EmailBuilderTest {
     @Test
     public void testCardinalityEmailBuild() throws JsonProcessingException {
         EmailBuilder emailBuilder = new EmailBuilder(new RichEmailBuilder(new StrSubstitutorEmailSubjectBuilder(),
-                                                                          new StrSubstitutorEmailBodyBuilder()));
+                new StrSubstitutorEmailBodyBuilder()));
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Lists.newArrayList("os", "deviceId"));
@@ -30,11 +30,11 @@ public class EmailBuilderTest {
         QueryProcessingError error = new QueryProcessingError(
                 groupRequest,
                 new CardinalityOverflowException(groupRequest,
-                                                 Jackson.newObjectMapper()
-                                                         .writeValueAsString(
-                                                                 groupRequest),
-                                                 "deviceId",
-                                                 0.75));
+                        Jackson.newObjectMapper()
+                                .writeValueAsString(
+                                        groupRequest),
+                        "deviceId",
+                        0.75));
         final Email email = emailBuilder.visit(error);
         Assert.assertEquals("Blocked query as it might have screwed up the cluster", email.getSubject());
         Assert.assertEquals(
