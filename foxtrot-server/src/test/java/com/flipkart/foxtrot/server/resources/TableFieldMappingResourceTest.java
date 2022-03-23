@@ -68,53 +68,53 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
         Set<FieldMetadata> mappings = new HashSet<>();
         mappings.add(FieldMetadata.builder()
-                             .field("time")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("time")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("word")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("word")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("data.data")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("data.data")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("header.hello")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("header.hello")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("head.hello")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("head.hello")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.dayOfWeek")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.dayOfWeek")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.minuteOfDay")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.minuteOfDay")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.monthOfYear")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.monthOfYear")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.hourOfDay")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.hourOfDay")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.year")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.year")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.dayOfMonth")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.dayOfMonth")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.minuteOfHour")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.minuteOfHour")
+                .type(FieldType.LONG)
+                .build());
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         String response = resources
@@ -125,7 +125,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         TableFieldMapping mapping = getMapper().readValue(response, TableFieldMapping.class);
         assertEquals(tableFieldMapping.getTable(), mapping.getTable());
         assertTrue(tableFieldMapping.getMappings()
-                           .equals(mapping.getMappings()));
+                .equals(mapping.getMappings()));
     }
 
     @Test

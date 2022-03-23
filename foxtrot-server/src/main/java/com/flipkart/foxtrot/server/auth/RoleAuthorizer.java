@@ -18,14 +18,14 @@ public class RoleAuthorizer implements Authorizer<UserPrincipal> {
         val user = userPrincipal.getUser();
         val foxtrotRole = FoxtrotRole.valueOf(role);
 
-        if(!user.getRoles().contains(foxtrotRole)) {
+        if (!user.getRoles().contains(foxtrotRole)) {
             log.warn("User {} is trying to access unauthorized role: {}", user.getId(), role);
             return false;
         }
         val token = userPrincipal.getToken();
-        if(!token.getTokenType().getAllowedRoles().contains(foxtrotRole)) {
+        if (!token.getTokenType().getAllowedRoles().contains(foxtrotRole)) {
             log.warn("User {} trying to access resource with role: {} with token of tye: {}",
-                     user.getId(), role, token.getTokenType().name());
+                    user.getId(), role, token.getTokenType().name());
             return false;
         }
         return true;

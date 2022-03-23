@@ -20,7 +20,7 @@ public class CacheManager {
     }
 
     public void create(String name) {
-        if(!cacheMap.containsKey(name)) {
+        if (!cacheMap.containsKey(name)) {
             cacheMap.put(name, cacheFactory.create(name));
         }
     }

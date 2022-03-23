@@ -164,7 +164,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                 .post(serviceUserEntity, AsyncDataToken.class);
         await().pollDelay(2000, TimeUnit.MILLISECONDS).until(() -> true);
         GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(response.getAction())
-                                                                        .get(response.getKey()));
+                .get(response.getKey()));
         assertEquals(expectedResponse, actualResponse.getResult());
     }
 
@@ -182,7 +182,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                 .post(serviceUserEntity, AsyncDataToken.class);
         await().pollDelay(2000, TimeUnit.MILLISECONDS).until(() -> true);
         GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(asyncDataToken.getAction())
-                                                                        .get(asyncDataToken.getKey()));
+                .get(asyncDataToken.getKey()));
         assertEquals(expectedResponse.getResult(), actualResponse.getResult());
     }
 }

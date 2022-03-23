@@ -117,7 +117,7 @@ public class ParseTest {
                 .contains("date.hourOfDay"));
         Assert.assertEquals("eventData.amount", groupRequest.getAggregationField());
         Assert.assertNotNull(groupRequest.getAggregationType());
-        Assert.assertEquals(groupRequest.getAggregationType(),Stat.SUM);
+        Assert.assertEquals(groupRequest.getAggregationType(), Stat.SUM);
 
     }
 
@@ -157,7 +157,7 @@ public class ParseTest {
         Assert.assertEquals("eventData.amount", groupRequest.getAggregationField());
         Assert.assertNotNull(groupRequest.getAggregationType());
         Assert.assertNull(groupRequest.getUniqueCountOn());
-        Assert.assertEquals(groupRequest.getAggregationType(),Stat.COUNT);
+        Assert.assertEquals(groupRequest.getAggregationType(), Stat.COUNT);
     }
 
     @Test
@@ -178,7 +178,7 @@ public class ParseTest {
         Assert.assertNotNull(groupRequest.getAggregationType());
 
         Assert.assertNull(groupRequest.getUniqueCountOn());
-        Assert.assertEquals(groupRequest.getAggregationType(),Stat.AVG);
+        Assert.assertEquals(groupRequest.getAggregationType(), Stat.AVG);
 
     }
 
@@ -199,7 +199,7 @@ public class ParseTest {
         Assert.assertEquals("eventData.amount", groupRequest.getAggregationField());
         Assert.assertNotNull(groupRequest.getAggregationType());
         Assert.assertNull(groupRequest.getUniqueCountOn());
-        Assert.assertEquals(groupRequest.getAggregationType(),Stat.MIN);
+        Assert.assertEquals(groupRequest.getAggregationType(), Stat.MIN);
 
     }
 
@@ -219,7 +219,7 @@ public class ParseTest {
                 .contains("date.hourOfDay"));
         Assert.assertNull(groupRequest.getUniqueCountOn());
         Assert.assertEquals("eventData.amount", groupRequest.getAggregationField());
-        Assert.assertEquals(groupRequest.getAggregationType(),Stat.MAX);
+        Assert.assertEquals(groupRequest.getAggregationType(), Stat.MAX);
 
     }
 }

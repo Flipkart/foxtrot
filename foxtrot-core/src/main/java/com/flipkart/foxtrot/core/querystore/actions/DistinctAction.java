@@ -85,8 +85,7 @@ public class DistinctAction extends Action<DistinctRequest> {
 
         if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
             validationErrors.add("At least one nesting parameter is required");
-        }
-        else {
+        } else {
             for (ResultSort resultSort : com.collections.CollectionUtils.nullSafeList(parameter.getNesting())) {
 
                 if (CollectionUtils.isNullOrEmpty(resultSort.getField())) {
@@ -108,8 +107,7 @@ public class DistinctAction extends Action<DistinctRequest> {
         SearchRequest query;
         try {
             query = getRequestBuilder(request, Collections.emptyList());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
 
@@ -119,8 +117,7 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .search(query);
 
             return getResponse(response, getParameter());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(request, e);
         }
     }
@@ -131,14 +128,13 @@ public class DistinctAction extends Action<DistinctRequest> {
             return new SearchRequest(ElasticsearchUtils.getIndices(request.getTable(), request))
                     .indicesOptions(Utils.indicesOptions())
                     .source(new SearchSourceBuilder()
-                                    .query(ElasticsearchQueryUtils.translateFilter(request, extraFilters))
-                                    .size(QUERY_SIZE)
-                                    .aggregation(Utils.buildTermsAggregation(
-                                            request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()))
-                                    .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS)));
+                            .query(ElasticsearchQueryUtils.translateFilter(request, extraFilters))
+                            .size(QUERY_SIZE)
+                            .aggregation(Utils.buildTermsAggregation(
+                                    request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()))
+                            .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS)));
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
     }
@@ -175,14 +171,13 @@ public class DistinctAction extends Action<DistinctRequest> {
             Aggregations aggregations) {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1)
-                                             ? fields.subList(1, fields.size())
-                                             : new ArrayList<>();
+                ? fields.subList(1, fields.size())
+                : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
                 responseList.add(getValueList(parentKey, String.valueOf(bucket.getKey())));
-            }
-            else {
+            } else {
                 flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())),
                         remainingFields,
                         responseList,
@@ -193,8 +188,8 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     private String getProperKey(String parentKey, String currentKey) {
         return parentKey == null
-               ? currentKey
-               : parentKey + Constants.SEPARATOR + currentKey;
+                ? currentKey
+                : parentKey + Constants.SEPARATOR + currentKey;
     }
 
     private List<String> getValueList(String parentKey, String currentKey) {

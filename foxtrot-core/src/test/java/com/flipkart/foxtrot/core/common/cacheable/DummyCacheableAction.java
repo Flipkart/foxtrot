@@ -32,7 +32,7 @@ import java.util.List;
  */
 @VisibleForTesting
 @AnalyticsProvider(opcode = "cache-hit-test", request = DummyCacheableActionRequest.class, response = DummyCacheableActionResponse.class,
-                   cacheable = false)
+        cacheable = false)
 public class DummyCacheableAction extends Action<DummyCacheableActionRequest> {
 
     public DummyCacheableAction(DummyCacheableActionRequest parameter, AnalyticsLoader analyticsLoader) {

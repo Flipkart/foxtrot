@@ -46,7 +46,7 @@ public class HBaseUtil {
         columnDescriptor.setCompressionType(Compression.Algorithm.GZ);
         hTableDescriptor.addFamily(columnDescriptor);
         Configuration configuration = HBaseUtil.create(hbaseConfig);
-        try(Connection connection = ConnectionFactory.createConnection(configuration)) {
+        try (Connection connection = ConnectionFactory.createConnection(configuration)) {
             try (Admin admin = connection.getAdmin()) {
                 if (admin.tableExists(TableName.valueOf(tableName))) {
                     logger.info("Table {} already exists. Nothing to do.", tableName);
@@ -54,8 +54,7 @@ public class HBaseUtil {
                 }
                 logger.info("Creating table: {}", tableName);
                 admin.createTable(hTableDescriptor);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("Could not create table: " + tableName, e);
             }
         }
@@ -64,27 +63,27 @@ public class HBaseUtil {
     public static Configuration create(final HbaseConfig hbaseConfig) throws IOException {
         Configuration configuration = HBaseConfiguration.create();
 
-        if(isValidFile(hbaseConfig.getCoreSite())) {
+        if (isValidFile(hbaseConfig.getCoreSite())) {
             configuration.addResource(new File(hbaseConfig.getCoreSite()).toURI()
-                                              .toURL());
+                    .toURL());
         }
 
-        if(isValidFile(hbaseConfig.getHdfsSite())) {
+        if (isValidFile(hbaseConfig.getHdfsSite())) {
             configuration.addResource(new File(hbaseConfig.getHdfsSite()).toURI()
-                                              .toURL());
+                    .toURL());
         }
 
-        if(isValidFile(hbaseConfig.getHbasePolicy())) {
+        if (isValidFile(hbaseConfig.getHbasePolicy())) {
             configuration.addResource(new File(hbaseConfig.getHbasePolicy()).toURI()
-                                              .toURL());
+                    .toURL());
         }
 
-        if(isValidFile(hbaseConfig.getHbaseSite())) {
+        if (isValidFile(hbaseConfig.getHbaseSite())) {
             configuration.addResource(new File(hbaseConfig.getHbaseSite()).toURI()
-                                              .toURL());
+                    .toURL());
         }
 
-        if(hbaseConfig.isSecure() && isValidFile(hbaseConfig.getKeytabFileName())) {
+        if (hbaseConfig.isSecure() && isValidFile(hbaseConfig.getKeytabFileName())) {
             configuration.set("hbase.master.kerberos.principal", hbaseConfig.getAuthString());
             configuration.set("hadoop.kerberos.kinit.command", hbaseConfig.getKinitPath());
             UserGroupInformation.setConfiguration(configuration);
@@ -93,15 +92,15 @@ public class HBaseUtil {
             logger.info("Logged into Hbase with User: {}", UserGroupInformation.getLoginUser());
         }
 
-        if(null != hbaseConfig.getHbaseZookeeperQuorum()) {
+        if (null != hbaseConfig.getHbaseZookeeperQuorum()) {
             configuration.set("hbase.zookeeper.quorum", hbaseConfig.getHbaseZookeeperQuorum());
         }
 
-        if(!Strings.isNullOrEmpty(hbaseConfig.getHbaseZookeeperZnodeParent())) {
+        if (!Strings.isNullOrEmpty(hbaseConfig.getHbaseZookeeperZnodeParent())) {
             configuration.set("zookeeper.znode.parent", hbaseConfig.getHbaseZookeeperZnodeParent());
         }
 
-        if(null != hbaseConfig.getHbaseZookeeperClientPort()) {
+        if (null != hbaseConfig.getHbaseZookeeperClientPort()) {
             configuration.setInt("hbase.zookeeper.property.clientPort", hbaseConfig.getHbaseZookeeperClientPort());
         }
         return configuration;

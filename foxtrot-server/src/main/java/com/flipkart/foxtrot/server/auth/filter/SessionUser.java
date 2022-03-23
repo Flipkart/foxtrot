@@ -14,10 +14,8 @@ import java.io.Serializable;
 @Builder
 public class SessionUser implements Serializable {
     private static final long serialVersionUID = -7917711435258380077L;
-
-    private final UserPrincipal user;
-
     private static ThreadLocal<UserPrincipal> currentUser = new ThreadLocal<>();
+    private final UserPrincipal user;
 
     public static void put(UserPrincipal user) {
         currentUser.set(user);

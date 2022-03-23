@@ -70,8 +70,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             }
         }
         return String.format("multquery-%d-%s",
-                             filterHashKey,
-                             processForSubQueries(parameter, (action, request) -> action.getRequestCacheKey()));
+                filterHashKey,
+                processForSubQueries(parameter, (action, request) -> action.getRequestCacheKey()));
     }
 
     @Override
@@ -86,7 +86,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             }
             return null;
         });
-        if(CollectionUtils.isNotEmpty(multiException.getErrors())) {
+        if (CollectionUtils.isNotEmpty(multiException.getErrors())) {
             throw multiException;
         }
 
@@ -94,12 +94,12 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     @Override
     public ActionResponse execute(MultiQueryRequest parameter) {
-        if(Utils.hasTemporalFilters(parameter.getFilters())) {
+        if (Utils.hasTemporalFilters(parameter.getFilters())) {
             val offendingRequests = parameter.getRequests().entrySet().stream()
                     .filter(entry -> Utils.hasTemporalFilters(entry.getValue().getFilters()))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
-            if(CollectionUtils.isNotEmpty(offendingRequests)) {
+            if (CollectionUtils.isNotEmpty(offendingRequests)) {
                 throw FoxtrotExceptions.createMalformedQueryException(
                         parameter,
                         Collections.singletonList(
@@ -123,23 +123,23 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
         MultiSearchRequest multiSearchRequest = new MultiSearchRequest();
         val filterBuilder = ImmutableList.<Filter>builder();
-        if(null != parameter.getFilters()) {
+        if (null != parameter.getFilters()) {
             filterBuilder.addAll(parameter.getFilters());
         }
-        if(null != extraFilters) {
+        if (null != extraFilters) {
             filterBuilder.addAll(extraFilters);
         }
-        val filters =  filterBuilder.build();
+        val filters = filterBuilder.build();
 
-        for(Map.Entry<String, ActionRequest> entry : parameter.getRequests()
+        for (Map.Entry<String, ActionRequest> entry : parameter.getRequests()
                 .entrySet()) {
             ActionRequest request = entry.getValue();
             Action<ActionRequest> action = analyticsLoader.getAction(request);
-            if(null == action) {
+            if (null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
             }
             org.elasticsearch.action.ActionRequest requestBuilder = action.getRequestBuilder(request, filters);
-            if(requestBuilder instanceof SearchRequest) {
+            if (requestBuilder instanceof SearchRequest) {
                 multiSearchRequest.add((SearchRequest) requestBuilder);
             }
         }
@@ -153,12 +153,12 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
         int queryCounter = 0;
         List<String> queryKeys = Lists.newArrayList();
         List<ActionRequest> requests = Lists.newArrayList();
-        for(Map.Entry<String, ActionRequest> entry : getParameter().getRequests()
+        for (Map.Entry<String, ActionRequest> entry : getParameter().getRequests()
                 .entrySet()) {
             queryKeys.add(entry.getKey());
             requests.add(entry.getValue());
         }
-        for(MultiSearchResponse.Item item : ((MultiSearchResponse)multiSearchResponse).getResponses()) {
+        for (MultiSearchResponse.Item item : ((MultiSearchResponse) multiSearchResponse).getResponses()) {
             Action action = null;
             ActionRequest request = requests.get(queryCounter);
             try {
@@ -166,7 +166,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             } catch (Exception e) {
                 log.error("Error occurred while executing multiQuery request : {}", e);
             }
-            if(null == action) {
+            if (null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
             }
             String key = queryKeys.get(queryCounter++);
@@ -177,12 +177,12 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     private void createActions(final MultiQueryRequest multiQueryRequest) {
-        if(Utils.hasTemporalFilters(multiQueryRequest.getFilters())) {
+        if (Utils.hasTemporalFilters(multiQueryRequest.getFilters())) {
             val offendingRequests = multiQueryRequest.getRequests().entrySet().stream()
                     .filter(entry -> Utils.hasTemporalFilters(entry.getValue().getFilters()))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
-            if(CollectionUtils.isNotEmpty(offendingRequests)) {
+            if (CollectionUtils.isNotEmpty(offendingRequests)) {
                 throw FoxtrotExceptions.createMalformedQueryException(
                         multiQueryRequest,
                         Collections.singletonList(
@@ -190,13 +190,12 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             }
         }
 
-        for(Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests().entrySet()) {
+        for (Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests().entrySet()) {
             ActionRequest request = entry.getValue();
             Action action;
             if (requestActionMap.get(request) != null) {
                 action = requestActionMap.get(request);
-            }
-            else {
+            } else {
                 action = analyticsLoader.getAction(request);
                 requestActionMap.put(request, action);
             }
@@ -210,13 +209,13 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     private String processForSubQueries(MultiQueryRequest multiQueryRequest, ActionInterface actionInterface) {
         List<String> results = Lists.newArrayList();
-        for(Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests().entrySet()) {
-            if(null == entry.getValue()) {
+        for (Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests().entrySet()) {
+            if (null == entry.getValue()) {
                 log.warn("Empty response for query: {}", entry.getKey());
                 continue;
             }
             String result = actionInterface.invoke(requestActionMap.get(entry.getValue()), entry.getValue());
-            if(!Strings.isNullOrEmpty(result)) {
+            if (!Strings.isNullOrEmpty(result)) {
                 results.add(result);
             }
         }

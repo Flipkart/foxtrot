@@ -11,19 +11,18 @@ import com.flipkart.foxtrot.core.util.MetricUtil;
 public class MetricRecorder implements ActionExecutionObserver {
     @Override
     public void postExecution(ActionEvaluationResponse response) {
-        if(null == response  || null == response.getExecutedAction()) {
+        if (null == response || null == response.getExecutedAction()) {
             return;
         }
         final ActionRequest request = response.getRequest();
         final String metricKey = response.getExecutedAction().getMetricKey();
-        if(null == response.getException()) {
+        if (null == response.getException()) {
             MetricUtil.getInstance()
                     .registerActionFailure(request.getOpcode(), metricKey, response.getElapsedTime());
         }
-        if(response.isCached()) {
+        if (response.isCached()) {
             MetricUtil.getInstance().registerActionCacheHit(request.getOpcode(), metricKey);
-        }
-        else {
+        } else {
             MetricUtil.getInstance().registerActionCacheMiss(request.getOpcode(), metricKey);
         }
         MetricUtil.getInstance()

@@ -100,7 +100,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
     @Test
     public void testSaveDocumentNullData() throws Exception {
         Document document = new Document(UUID.randomUUID()
-                                                 .toString(), System.currentTimeMillis(), null);
+                .toString(), System.currentTimeMillis(), null);
         Entity<Document> documentEntity = Entity.json(document);
         Response response = resources
                 .target("/v1/document/" + TestUtils.TEST_TABLE_NAME)
@@ -192,9 +192,9 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         List<Document> documents = new Vector<Document>();
         documents.add(null);
         documents.add(new Document(UUID.randomUUID()
-                                           .toString(), System.currentTimeMillis(), getMapper().getNodeFactory()
-                                           .objectNode()
-                                           .put("d", "d")));
+                .toString(), System.currentTimeMillis(), getMapper().getNodeFactory()
+                .objectNode()
+                .put("d", "d")));
         Entity<List<Document>> listEntity = Entity.json(documents);
         Response response = resources
                 .target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
@@ -221,7 +221,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
     public void testSaveDocumentsNullData() throws Exception {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(UUID.randomUUID()
-                                           .toString(), System.currentTimeMillis(), null));
+                .toString(), System.currentTimeMillis(), null));
         Entity<List<Document>> listEntity = Entity.json(documents);
         Response response = resources
                 .target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))

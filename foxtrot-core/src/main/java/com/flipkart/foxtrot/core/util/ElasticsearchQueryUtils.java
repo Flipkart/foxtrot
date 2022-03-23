@@ -46,9 +46,9 @@ public class ElasticsearchQueryUtils {
         val filters = (null == extraFilters || extraFilters.isEmpty())
                 ? request.getFilters()
                 : ImmutableList.<Filter>builder()
-                              .addAll(request.getFilters())
-                              .addAll(extraFilters)
-                              .build();
+                .addAll(request.getFilters())
+                .addAll(extraFilters)
+                .build();
         return new ElasticSearchQueryGenerator().genFilter(filters);
     }
 }

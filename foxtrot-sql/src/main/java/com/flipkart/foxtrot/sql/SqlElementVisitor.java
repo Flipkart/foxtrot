@@ -27,7 +27,7 @@ import net.sf.jsqlparser.statement.update.Update;
 
 public class SqlElementVisitor
         implements StatementVisitor, SelectVisitor, FromItemVisitor, ItemsListVisitor, ExpressionVisitor, SelectItemVisitor,
-                   ExtendedSqlStatementVisitor {
+        ExtendedSqlStatementVisitor {
     private void invalid(Object object) {
         throw new FqlParsingException("Unsupported construct: " + object.getClass()
                 .getSimpleName());

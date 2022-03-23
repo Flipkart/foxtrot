@@ -10,7 +10,7 @@ import lombok.Data;
  *
  */
 @Data
-public class QueryProcessingError implements InternalSystemEvent  {
+public class QueryProcessingError implements InternalSystemEvent {
     private final ActionRequest request;
     private final FoxtrotException exception;
 

@@ -40,10 +40,8 @@ import java.net.UnknownHostException;
 @Order(10)
 @Singleton
 public class HazelcastConnection implements Managed {
-    private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
-
     public static final String HEALTHCHECK_MAP = "healthCheck";
-
+    private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
     private HazelcastInstance hazelcast;
     private Config hazelcastConfig;
 
@@ -116,34 +114,34 @@ public class HazelcastConnection implements Managed {
                         .setEnabled(false);
                 AwsConfig awsConfig = new AwsConfig();
 
-                if(!Strings.isNullOrEmpty(ec2Config.getServiceName())) {
+                if (!Strings.isNullOrEmpty(ec2Config.getServiceName())) {
                     awsConfig.setProperty("service-name", ec2Config.getServiceName());
                 }
-                if(!Strings.isNullOrEmpty(ec2Config.getAccessKey())) {
+                if (!Strings.isNullOrEmpty(ec2Config.getAccessKey())) {
                     awsConfig.setProperty("access-key", ec2Config.getAccessKey());
                 }
-                if(!Strings.isNullOrEmpty(ec2Config.getSecretKey())) {
+                if (!Strings.isNullOrEmpty(ec2Config.getSecretKey())) {
                     awsConfig.setProperty("secret-key", ec2Config.getSecretKey());
                 }
-                if(!Strings.isNullOrEmpty(ec2Config.getIamRole())) {
+                if (!Strings.isNullOrEmpty(ec2Config.getIamRole())) {
                     awsConfig.setProperty("iam-role", ec2Config.getIamRole());
                 }
-                if(!Strings.isNullOrEmpty(ec2Config.getRegion())) {
+                if (!Strings.isNullOrEmpty(ec2Config.getRegion())) {
                     awsConfig.setProperty("region", ec2Config.getRegion());
                 }
-                if(!Strings.isNullOrEmpty(ec2Config.getHostHeader())) {
+                if (!Strings.isNullOrEmpty(ec2Config.getHostHeader())) {
                     awsConfig.setProperty("host-header", ec2Config.getHostHeader());
                 }
-                if(!Strings.isNullOrEmpty(ec2Config.getSecurityGroupName())) {
+                if (!Strings.isNullOrEmpty(ec2Config.getSecurityGroupName())) {
                     awsConfig.setProperty("security-group-name", ec2Config.getSecurityGroupName());
                 }
-                if(ec2Config.getOpTimeoutSeconds() > 0) {
+                if (ec2Config.getOpTimeoutSeconds() > 0) {
                     awsConfig.setProperty("connection-timeout-seconds",
-                                          Integer.toString(ec2Config.getOpTimeoutSeconds()));
+                            Integer.toString(ec2Config.getOpTimeoutSeconds()));
                     awsConfig.setProperty("read-timeout-seconds",
-                                          Integer.toString(ec2Config.getOpTimeoutSeconds()));
+                            Integer.toString(ec2Config.getOpTimeoutSeconds()));
                 }
-                if(ec2Config.isExternalClient()) {
+                if (ec2Config.isExternalClient()) {
                     awsConfig.setProperty("use-public-ip", Boolean.TRUE.toString());
                 }
                 hazelcastConfigNetworkConfigJoin.setAwsConfig(awsConfig);
@@ -165,34 +163,34 @@ public class HazelcastConnection implements Managed {
 
                 AwsConfig awsConfig = new AwsConfig();
                 awsConfig.setEnabled(true);
-                if(!Strings.isNullOrEmpty(ecsConfig.getAccessKey())) {
+                if (!Strings.isNullOrEmpty(ecsConfig.getAccessKey())) {
                     awsConfig.setProperty("access-key", ecsConfig.getAccessKey());
                 }
-                if(!Strings.isNullOrEmpty(ecsConfig.getSecretKey())) {
+                if (!Strings.isNullOrEmpty(ecsConfig.getSecretKey())) {
                     awsConfig.setProperty("secret-key", ecsConfig.getSecretKey());
                 }
-                if(!Strings.isNullOrEmpty(ecsConfig.getRegion())) {
+                if (!Strings.isNullOrEmpty(ecsConfig.getRegion())) {
                     awsConfig.setProperty("region", ecsConfig.getRegion());
                 }
-                if(!Strings.isNullOrEmpty(ecsConfig.getCluster())) {
+                if (!Strings.isNullOrEmpty(ecsConfig.getCluster())) {
                     awsConfig.setProperty("cluster", ecsConfig.getCluster());
                 }
-                if(!Strings.isNullOrEmpty(ecsConfig.getFamily())) {
+                if (!Strings.isNullOrEmpty(ecsConfig.getFamily())) {
                     awsConfig.setProperty("family", ecsConfig.getFamily());
                 }
-                if(!Strings.isNullOrEmpty(ecsConfig.getServiceName())) {
+                if (!Strings.isNullOrEmpty(ecsConfig.getServiceName())) {
                     awsConfig.setProperty("service-name", ecsConfig.getServiceName());
                 }
-                if(!Strings.isNullOrEmpty(ecsConfig.getHostHeader())) {
+                if (!Strings.isNullOrEmpty(ecsConfig.getHostHeader())) {
                     awsConfig.setProperty("host-header", ecsConfig.getHostHeader());
                 }
-                if(ecsConfig.getOpTimeoutSeconds() > 0) {
+                if (ecsConfig.getOpTimeoutSeconds() > 0) {
                     awsConfig.setProperty("connection-timeout-seconds",
-                                          Integer.toString(ecsConfig.getOpTimeoutSeconds()));
+                            Integer.toString(ecsConfig.getOpTimeoutSeconds()));
                     awsConfig.setProperty("read-timeout-seconds",
-                                          Integer.toString(ecsConfig.getOpTimeoutSeconds()));
+                            Integer.toString(ecsConfig.getOpTimeoutSeconds()));
                 }
-                if(ecsConfig.isExternalClient()) {
+                if (ecsConfig.isExternalClient()) {
                     awsConfig.setProperty("use-public-ip", Boolean.TRUE.toString());
                 }
                 break;

@@ -54,12 +54,12 @@ public class ClusterManager implements Managed {
         String hostname = Inet4Address.getLocalHost()
                 .getCanonicalHostName();
         //Auto detect marathon environment and query for host environment variable
-        if(!Strings.isNullOrEmpty(System.getenv("HOST")))
+        if (!Strings.isNullOrEmpty(System.getenv("HOST")))
             hostname = System.getenv("HOST");
         Preconditions.checkNotNull(hostname, "Could not retrieve hostname, cannot proceed");
         int port = ServerUtils.port(serverFactory);
         //Auto detect marathon environment and query for host environment variable
-        if(!Strings.isNullOrEmpty(System.getenv("PORT_" + port)))
+        if (!Strings.isNullOrEmpty(System.getenv("PORT_" + port)))
             port = Integer.parseInt(System.getenv("PORT_" + port));
         executor = Executors.newScheduledThreadPool(1);
         clusterMember = new ClusterMember(hostname, port);
@@ -98,17 +98,17 @@ public class ClusterManager implements Managed {
 
         @Override
         public void run() {
-            if(null == members) {
+            if (null == members) {
                 logger.error("Map not yet initialized.");
                 return;
             }
             try {
                 boolean isHealthy = true;
-                for(HealthCheck healthCheck : healthChecks) {
+                for (HealthCheck healthCheck : healthChecks) {
                     isHealthy &= healthCheck.execute()
                             .isHealthy();
                 }
-                if(isHealthy) {
+                if (isHealthy) {
                     members.put(clusterMember.toString(), clusterMember);
                     logger.debug("Service is healthy. Registering to map.");
                 }

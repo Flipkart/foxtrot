@@ -30,25 +30,11 @@ import java.util.List;
  */
 @NoArgsConstructor
 public class ElasticsearchConfig {
-    public ConnectionType getConnectionType() {
-        return connectionType;
-    }
-
-    public void setConnectionType(ConnectionType connectionType) {
-        this.connectionType = connectionType;
-    }
-
-    public enum ConnectionType {
-        HTTP,
-        HTTPS
-    }
-
     public static final long DEFAULT_TIMEOUT = 10000L;
     @Valid
     @NotNull
     @JsonProperty
     private List<String> hosts;
-
     @Valid
     @NotNull
     @JsonProperty
@@ -59,6 +45,14 @@ public class ElasticsearchConfig {
     @NotNull
     @Builder.Default
     private ConnectionType connectionType = ConnectionType.HTTP;
+
+    public ConnectionType getConnectionType() {
+        return connectionType;
+    }
+
+    public void setConnectionType(ConnectionType connectionType) {
+        this.connectionType = connectionType;
+    }
 
     public List<String> getHosts() {
         return hosts;
@@ -94,6 +88,11 @@ public class ElasticsearchConfig {
 
     public long getGetQueryTimeout() {
         return getQueryTimeout > 0 ? getQueryTimeout : DEFAULT_TIMEOUT;
+    }
+
+    public enum ConnectionType {
+        HTTP,
+        HTTPS
     }
 
 }

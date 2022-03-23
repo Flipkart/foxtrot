@@ -116,9 +116,9 @@ public class StatsActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setField("battery");
         request.setStats(EnumSet.allOf(Stat.class)
-                                 .stream()
-                                 .filter(x -> !x.isExtended())
-                                 .collect(Collectors.toSet()));
+                .stream()
+                .filter(x -> !x.isExtended())
+                .collect(Collectors.toSet()));
 
         StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
@@ -142,8 +142,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("count"));
+                .getStats()
+                .containsKey("count"));
     }
 
     @Test
@@ -160,8 +160,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("max"));
+                .getStats()
+                .containsKey("max"));
     }
 
     @Test
@@ -178,8 +178,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("min"));
+                .getStats()
+                .containsKey("min"));
     }
 
 
@@ -197,8 +197,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("avg"));
+                .getStats()
+                .containsKey("avg"));
     }
 
     @Test
@@ -212,8 +212,8 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("sum"));
+                .getStats()
+                .containsKey("sum"));
     }
 
     @Test
@@ -230,15 +230,15 @@ public class StatsActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsResponse statsResponse = (StatsResponse)getQueryExecutor().execute(request);
+        StatsResponse statsResponse = (StatsResponse) getQueryExecutor().execute(request);
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(1, statsResponse.getResult()
                 .getPercentiles()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getPercentiles()
-                           .containsKey(5d));
+                .getPercentiles()
+                .containsKey(5d));
     }
 
     @Test
@@ -253,7 +253,7 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse.getResult());
         assertEquals(3, statsResponse.getBuckets()
                 .size());
-        for(BucketResponse bucketResponse : statsResponse.getBuckets()) {
+        for (BucketResponse bucketResponse : statsResponse.getBuckets()) {
             assertNotNull(bucketResponse.getResult());
         }
     }
@@ -270,7 +270,7 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse.getResult());
         assertEquals(3, statsResponse.getBuckets()
                 .size());
-        for(BucketResponse bucketResponse : statsResponse.getBuckets()) {
+        for (BucketResponse bucketResponse : statsResponse.getBuckets()) {
             assertNull(bucketResponse.getResult());
             assertNotNull(bucketResponse.getBuckets());
         }

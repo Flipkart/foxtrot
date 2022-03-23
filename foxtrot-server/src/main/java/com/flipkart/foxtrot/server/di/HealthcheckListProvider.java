@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.server.healthcheck.HBaseHealthCheck;
 import com.flipkart.foxtrot.server.healthcheck.HazelcastHealthCheck;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+
 import java.util.Arrays;
 import java.util.List;
 

@@ -33,7 +33,7 @@ public class GroupActionCardinalityTest extends ActionTest {
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
         getTableMetadataManager().getFieldMappings(
                 TestUtils.TEST_TABLE_NAME, true, true, 1397658117000L);
-        ((ElasticsearchQueryStore)getQueryStore()).getCardinalityConfig()
+        ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
                 .setMaxCardinality(15000);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
@@ -46,9 +46,9 @@ public class GroupActionCardinalityTest extends ActionTest {
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("android"));
+                .containsKey("android"));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("ios"));
+                .containsKey("ios"));
     }
 
     @Test
@@ -60,9 +60,9 @@ public class GroupActionCardinalityTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
 
         Assert.assertTrue(response.getResult()
-                                  .containsKey("android"));
+                .containsKey("android"));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("ios"));
+                .containsKey("ios"));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class GroupActionCardinalityTest extends ActionTest {
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("0"));
+                .containsKey("0"));
 
     }
 
@@ -85,7 +85,7 @@ public class GroupActionCardinalityTest extends ActionTest {
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("0"));
+                .containsKey("0"));
 
     }
 }

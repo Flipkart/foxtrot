@@ -14,7 +14,7 @@ public class MetaStatementMatcherTest {
         ExtendedSqlStatement extendedSqlStatement = metaStatementMatcher.parse("desc europa");
         Assert.assertNotNull(extendedSqlStatement);
         Assert.assertTrue(extendedSqlStatement instanceof Describe);
-        Describe describe = (Describe)extendedSqlStatement;
+        Describe describe = (Describe) extendedSqlStatement;
         Assert.assertEquals("europa", describe.getTable()
                 .getName());
     }
@@ -24,7 +24,7 @@ public class MetaStatementMatcherTest {
         ExtendedSqlStatement extendedSqlStatement = metaStatementMatcher.parse("  \tDeSc   \tEuRopa");
         Assert.assertNotNull(extendedSqlStatement);
         Assert.assertTrue(extendedSqlStatement instanceof Describe);
-        Describe describe = (Describe)extendedSqlStatement;
+        Describe describe = (Describe) extendedSqlStatement;
         Assert.assertEquals("europa", describe.getTable()
                 .getName());
     }
