@@ -28,12 +28,11 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import io.dropwizard.jackson.Jackson;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
-import org.junit.BeforeClass;
-import io.dropwizard.jackson.Jackson;
 import org.junit.Assert;
-
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Collections;

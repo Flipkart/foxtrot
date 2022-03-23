@@ -7,8 +7,6 @@ import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.google.common.base.Strings;
 import io.dropwizard.util.Duration;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

@@ -1,14 +1,13 @@
 package com.flipkart.foxtrot.server.healthcheck;
 
-import static com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection.HEALTHCHECK_MAP;
-
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import ru.vyarus.dropwizard.guice.module.installer.feature.health.NamedHealthCheck;
 
 import java.util.UUID;
 
-import ru.vyarus.dropwizard.guice.module.installer.feature.health.NamedHealthCheck;
+import static com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection.HEALTHCHECK_MAP;
 
 @Singleton
 public class HazelcastHealthCheck extends NamedHealthCheck {
