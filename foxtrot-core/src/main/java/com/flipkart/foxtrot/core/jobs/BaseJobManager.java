@@ -26,7 +26,8 @@ public abstract class BaseJobManager implements Managed {
     private final ScheduledExecutorService scheduledExecutorService;
     private final HazelcastConnection hazelcastConnection;
 
-    public BaseJobManager(BaseJobConfig baseJobConfig, ScheduledExecutorService scheduledExecutorService,
+    public BaseJobManager(BaseJobConfig baseJobConfig,
+                          ScheduledExecutorService scheduledExecutorService,
                           HazelcastConnection hazelcastConnection) {
         this.baseJobConfig = baseJobConfig;
         this.scheduledExecutorService = scheduledExecutorService;
@@ -36,7 +37,7 @@ public abstract class BaseJobManager implements Managed {
     @Override
     public void start() {
         LOGGER.info("Starting {} Manager", baseJobConfig.getJobName());
-        if(!baseJobConfig.isActive()) {
+        if (!baseJobConfig.isActive()) {
             LOGGER.info("Config is not active. Hence, aborting the {} job", baseJobConfig.getJobName());
         }
         LOGGER.info("Scheduling {} Job", baseJobConfig.getJobName());
@@ -44,7 +45,7 @@ public abstract class BaseJobManager implements Managed {
         Calendar now = Calendar.getInstance();
         String timeZone = now.getTimeZone()
                 .getID();
-        if(StringUtils.isEmpty(timeZone)) {
+        if (StringUtils.isEmpty(timeZone)) {
             timeZone = TIME_ZONE;
         }
         ZoneId currentZone = ZoneId.of(timeZone);
@@ -52,8 +53,9 @@ public abstract class BaseJobManager implements Managed {
         ZonedDateTime timeToRunJob = zonedNow.withHour(baseJobConfig.getInitialDelay())
                 .withMinute(0)
                 .withSecond(0);
-        if(zonedNow.compareTo(timeToRunJob) > 0)
+        if (zonedNow.compareTo(timeToRunJob) > 0) {
             timeToRunJob = timeToRunJob.plusDays(1);
+        }
 
         Duration duration = Duration.between(zonedNow, timeToRunJob);
         long initialDelay = duration.getSeconds();
@@ -63,7 +65,7 @@ public abstract class BaseJobManager implements Managed {
                 LockingTaskExecutor executor = new DefaultLockingTaskExecutor(
                         new HazelcastLockProvider(hazelcastConnection.getHazelcast()));
                 int lockAtMost = LOCK_AT_MOST;
-                if(baseJobConfig.getLockAtMostInMinutes() != 0) {
+                if (baseJobConfig.getLockAtMostInMinutes() != 0) {
                     lockAtMost = baseJobConfig.getLockAtMostInMinutes();
                 }
                 Instant lockAtMostUntil = Instant.now()
@@ -82,6 +84,7 @@ public abstract class BaseJobManager implements Managed {
         LOGGER.info("Stopped {} Job Manager", baseJobConfig.getJobName());
     }
 
-    protected abstract void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil);
+    protected abstract void runImpl(LockingTaskExecutor executor,
+                                    Instant lockAtMostUntil);
 
 }

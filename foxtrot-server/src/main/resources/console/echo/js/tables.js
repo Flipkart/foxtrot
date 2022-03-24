@@ -15,9 +15,10 @@
  */
 var apiUrl = getHostUrl();
 
- function Table(name, ttl) {
+ function Table(name, ttl, customFieldMappings) {
   this.name = name;
   this.ttl = ttl;
+  this.customFieldMappings = customFieldMappings
 }
 
 function Tables() {
@@ -39,7 +40,7 @@ Tables.prototype.init = function(callback) {
       this.tables = [];
       for (var i = tables.length - 1; i >= 0; i--) {
         var table = tables[i];
-        this.tables.push(new Table(table.name, table.ttl));
+        this.tables.push(new Table(table.name, table.ttl, table.customFieldMappings));
       };
       this.selectedTable = this.tables[this.getSelectionIndex()];
       tableList = this.tables.tables;
@@ -95,6 +96,17 @@ Tables.prototype.loadTableMeta = function (table, callback) {
         this.metaLoadHandlers[i](this.tables);
       }
       callback();
+      var selectedConsole = $("#chart-type").val();
+  if(selectedConsole === "funnel") {
+  $("#funnel-field option").each(function(index, value)
+  {
+    
+    if (value.text === "eventType") {
+      $('#funnel-field').val(value.value);
+      $('#funnel-field').selectpicker('refresh');
+    }
+  });
+}
     }, this)
   });
 };

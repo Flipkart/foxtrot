@@ -18,17 +18,17 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -42,18 +42,14 @@ import static org.junit.Assert.assertTrue;
  */
 public class HistogramActionTest extends ActionTest {
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
+        super.setup();
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
-        getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
+        getQueryStore().saveAll(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
-    }
-
-    private void filterNonZeroCounts(HistogramResponse response) {
-        response.getCounts()
-                .removeIf(count -> count.getCount() == 0);
     }
 
     @Test
@@ -79,7 +75,12 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1398653100000L, 2));
         counts.add(new HistogramResponse.Count(1398658200000L, 1));
         assertTrue(response.getCounts()
-                           .equals(counts));
+                .equals(counts));
+    }
+
+    private void filterNonZeroCounts(HistogramResponse response) {
+        response.getCounts()
+                .removeIf(count -> count.getCount() == 0);
     }
 
     @Test
@@ -146,7 +147,6 @@ public class HistogramActionTest extends ActionTest {
         lessThanFilter.setValue(System.currentTimeMillis());
         histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
 
-
         HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
         filterNonZeroCounts(response);
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
@@ -155,7 +155,7 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397957400000L, 1));
         counts.add(new HistogramResponse.Count(1398655800000L, 1));
         assertTrue(response.getCounts()
-                           .equals(counts));
+                .equals(counts));
     }
 
     @Test
@@ -200,7 +200,6 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397586600000L, 4));
         counts.add(new HistogramResponse.Count(1397932200000L, 1));
         counts.add(new HistogramResponse.Count(1398623400000L, 1));
-        assertTrue(response.getCounts()
-                           .equals(counts));
+        assertEquals(response.getCounts(), counts);
     }
 }

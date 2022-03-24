@@ -14,6 +14,7 @@ import java.util.Arrays;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class PercentileEstimationData extends EstimationData {
+
     private static final long serialVersionUID = -4790803356348252020L;
 
     private double[] values;
@@ -24,7 +25,9 @@ public class PercentileEstimationData extends EstimationData {
     }
 
     @Builder
-    public PercentileEstimationData(double[] values, long count, long cardinality) {
+    public PercentileEstimationData(double[] values,
+                                    long count,
+                                    long cardinality) {
         super(EstimationDataType.PERCENTILE, count);
         this.values = values;
         this.cardinality = cardinality;

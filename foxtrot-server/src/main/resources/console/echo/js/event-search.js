@@ -3,6 +3,7 @@ var apiUrl = getHostUrl();
 var browseFilterRowArray = [];
 var currentFieldList = [];
 var tableFiledsArray = {};
+var tableInfos = {};
 var currentTable = "";
 var headerList = [];
 var rowList = [];
@@ -15,7 +16,8 @@ var offset = 0;
 var isLoadMoreClicked = false;
 var didScroll = false;
 var totalHits = 0;
-
+var mapView = false;
+var geoPoints = new Set();
 function getBrowseTables() {
   isLoggedIn();
   var select = $(".browse-table");
@@ -26,7 +28,7 @@ function getBrowseTables() {
     success: function (tables) {
       for (var i = tables.length - 1; i >= 0; i--) {
         tableNameList.push(tables[i].name);
-
+        tableInfos[tables[i].name] = tables[i];
       }
       $.each(tableNameList, function (key, value) {
         $(select).append($("<option></option>")
@@ -82,11 +84,20 @@ function setBetweenInput(el) {
   if (selectedType == "between") {
     $('#filter-between-input-' + rowId).prop("disabled", false);
     $("#browse-events-form").find("#filter-row-" + rowId).find(".between-element").show();
+    $("#browse-events-form").find("#filter-row-" + rowId).find(".filter-value-div").css("display", "block");
     $("#browse-events-form").find("#filter-row-" + rowId).find(".filter-value-div").removeClass('col-sm-6').addClass('col-sm-3');
     $("#browse-events-form").find("#filter-row-" + rowId).find(".browse-events-filter-value").addClass('browse-remove-top');
-  } else {
+  } 
+  else if(selectedType == "exists" || selectedType == "missing" ) {
     $('#filter-between-input-' + rowId).prop("disabled", true);
     $("#browse-events-form").find("#filter-row-" + rowId).find(".between-element").hide();
+    $("#browse-events-form").find("#filter-row-" + rowId).find(".filter-value-div").css("display", "none");
+    $("#browse-events-form").find("#filter-row-" + rowId).find(".browse-events-filter-value").removeClass('browse-remove-top');
+  }
+  else {
+    $('#filter-between-input-' + rowId).prop("disabled", true);
+    $("#browse-events-form").find("#filter-row-" + rowId).find(".between-element").hide();
+    $("#browse-events-form").find("#filter-row-" + rowId).find(".filter-value-div").css("display", "block");
     $("#browse-events-form").find("#filter-row-" + rowId).find(".filter-value-div").removeClass('col-sm-3').addClass('col-sm-6');
     $("#browse-events-form").find("#filter-row-" + rowId).find(".browse-events-filter-value").removeClass('browse-remove-top');
   }
@@ -95,13 +106,26 @@ function setBetweenInput(el) {
 
 $(".browse-table").change(function () {
   var tableId = this.value;
-  fetchFields(tableId);
+  $("#geopoint-field-select").empty();
+  $('#geopoint-field-select')
+  .append($("<option></option>")
+             .attr("value", "NA")
+             .text("No Geopoint found."));
+  fetchFields(tableId, () => {
+
+    var fields = tableInfos[currentTable]["customFieldMappings"]
+    geoPoints = new Set(Object.keys(fields).filter((field) => fields[field] == "GEOPOINT_MARKER" || fields[field] == "GEOPOINT"))
+    changedGeoPoints()
+  });
   currentTable = tableId;
+  
   clear();
 });
-
-function runQuery(isBrowse) {
-  isLoggedIn();
+$("#geopoint-field-select").change(function() {
+  loadScatterPlot();
+})
+function getRequest(isBrowse){
+isLoggedIn();
   var filters = [];
 
   if (isBrowse) {
@@ -115,6 +139,7 @@ function runQuery(isBrowse) {
     var filterColumn = $(el).find("select.filter-column").val();
     var filterType = $(el).find("select.filter-type").val();
     var filterValue = $(el).find(".browse-events-filter-value").val();
+    var filterTo = $(el).find(".browse-events-filter-between-value").val();
     var filterObject;
     if(filterType == "in" || filterType == "not_in") {
       filterValue = filterValue.split(',');
@@ -123,7 +148,26 @@ function runQuery(isBrowse) {
         , "values": filterValue
         , "field": currentFieldList[parseInt(filterColumn)].field
       }
-    } else {
+    }
+    else if( filterType == "exists" || filterType == "missing") {
+      filterValue = filterValue.split(',');
+      filterObject = {
+        "operator": filterType
+        , "field": currentFieldList[parseInt(filterColumn)].field
+      }
+    }
+
+    else if( filterType === "between" ) {
+      filterValue = filterValue.split(',');
+      filterObject = {
+        "operator": filterType
+        , "from": parseInt(filterValue)
+        , "to": parseInt(filterTo)
+        , "field": currentFieldList[parseInt(filterColumn)].field
+      }
+    }
+
+    else {
       filterObject = {
         "operator": filterType,
         "value": filterValue,
@@ -133,7 +177,7 @@ function runQuery(isBrowse) {
     filters.push(filterObject);
   }
   var filterSection = $("#browse-events-form");
-  if ((fromDate - toDate) > 1000) {
+  if ((toDate - fromDate) > 1000) {
     filters.push({
       field: "_timestamp",
       operator: "between",
@@ -158,8 +202,20 @@ function runQuery(isBrowse) {
     filters: filters,
     sort: sortObject,
     from: offset,
-    limit: 10
+    limit: 10,
+    sourceType: "ECHO_BROWSE_EVENTS",
+    requestTags: {},
+    extrapolationFlag: false,
   };
+  return request;
+}
+function runQuery(isBrowse) {
+
+if (isBrowse) {
+    offset = 0;
+    fetchedData = [];
+  }
+  var request = getRequest();
   showLoader();
   $.ajax({
     method: 'POST',
@@ -180,8 +236,10 @@ function runQuery(isBrowse) {
         var tmpData = fetchedData.documents;
         tmpData.push.apply(tmpData, resp.documents);
         fetchedData.documents = tmpData;
+        checkDataTypes(fetchedData);
         renderTable(fetchedData);
       } else {
+        checkDataTypes(resp);
         renderTable(resp);
         fetchedData = resp;
       }
@@ -241,7 +299,68 @@ function generateColumChooserList() {
     render_selections();
   });
 }
+function checkDataTypes(data) {
+  let geoFieldsSet = new Set();
+  data.documents.forEach(d => geoFieldsSet = Set.union(geoFieldsSet, checkForGeoObject(d.data, "")))
+  geoPoints = Set.union(geoPoints, geoFieldsSet);
+  changedGeoPoints();
+}
+function changedGeoPoints() {
+$("#geopoint-field-select").empty();
+geoPoints.forEach((geoPoint) => {
+      $('#geopoint-field-select')
+         .append($("<option></option>")
+                    .attr("value", geoPoint)
+                    .text(geoPoint));
+    });
+    if(geoPoints.size == 0) {
+      $('#geopoint-field-select')
+  .append($("<option></option>")
+             .attr("value", "NA")
+             .text("No Geopoint found."));
+    }
+}
+Set.union = function(s1, s2) {
+   if (!s1 instanceof Set || !s2 instanceof Set) {
+      console.log("The given objects are not of type Set");
+      return null;
+   }
+   let newSet = new Set();
+   s1.forEach(elem => newSet.add(elem));
+   s2.forEach(elem => newSet.add(elem));
+   return newSet;
+}
+function checkForGeoObject(root, key) {
+  if(root == null || root == undefined) {
+    return new Set();
+  }
+  let geoFields = new Set();
+  if(isGeoObject(root)) {
+    geoFields.add(key.substring(1));
 
+  }
+
+ if(typeof root == "object") {
+    Object.entries(root).forEach(([k, v]) => {
+      geoFields = Set.union(checkForGeoObject(root[k], key+"."+k), geoFields)
+    })
+ }
+ return geoFields;
+
+}
+
+function isGeoObject(start) {
+    if(start.lon != undefined && start.lat != undefined) {
+      return true;
+    }
+    if(start.lng != undefined && start.lat != undefined){
+      return true;
+    }
+    if(start.longitude != undefined && start.latitude != undefined) {
+      return true;
+    }
+    return false;
+}
 function renderTable(data) {
   if (!data.hasOwnProperty("documents") || data.documents.length == 0) {
     return;
@@ -290,6 +409,10 @@ function renderTable(data) {
         row.push("");
       }
     }
+    row.forEach((element ,index) => {
+                if(typeof(element) == 'boolean')
+                row[index] = element.toString();
+             });
     rows.push(row);
   }
   for (var j = 0; j < headers.length; j++) {
@@ -299,22 +422,18 @@ function renderTable(data) {
   rowList = rows;
 
   generateColumChooserList();
-
   var tableData = {
     headers: headers,
     data: rows
-  };
+  }
+
   parent.html(handlebars("#eventbrowser-template", tableData));
 
   $('.event-table').DataTable({
-    scrollX: true,
     scrollCollapse: true,
     paging: false,
     info: false,
     bFilter: false,
-    fixedColumns: {
-      leftColumns: 2
-    },
     ordering: false,
   });
 
@@ -329,6 +448,41 @@ $("#browse-events-run-query").click(function () {
   }
   runQuery(true);
 });
+
+$("#event-export-btn").click(function () {
+  if (!$("#browse-events-form").valid()) {
+    return;
+  }
+  var data = getRequest();
+  data.from =  0;
+  data.limit= offset+10;
+  console.log(data, 'data.')
+    $.ajax({
+      url: apiUrl + "/v1/analytics/download",
+      type: 'POST',
+      data: JSON.stringify(data),
+      dataType: 'text',
+
+      contentType: 'application/json',
+      context: this,
+      success: function(response) {
+        downloadTextAsCSV(response, 'browse-events.csv')
+      },
+      error: function(xhr, textStatus, error ) {
+        console.log("error.........",error,textStatus,xhr)
+      }
+  });
+});
+
+function downloadTextAsCSV(text, fileName) {
+  var link = document.createElement('a');
+  link.href = 'data:text/csv;charset=utf-8,' + encodeURI(text);
+  link.target = "_blank";
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 function generateOption(el, type) {
   var selectedColumn = $(el).val();
@@ -420,7 +574,97 @@ function fetchAuto() {
     didScroll = false;
   }
 }
+function chunk(str, n) {
+  var ret = [];
+  var i;
+  var len;
 
+  for(i = 0, len = str.length; i < len; i += n) {
+     ret.push(str.substr(i, n))
+  }
+
+  return ret
+};
+function loadScatterPlot() {
+  class MyLayer extends deck.ScatterplotLayer {
+    getShaders() {
+      const shaders = super.getShaders();
+      shaders.inject = {
+        'vs:DECKGL_FILTER_SIZE': `
+        if (!isVertexPicked(geometry.pickingColor)) {
+          size /= 1.2;
+        }`
+      };
+      return shaders;
+    }
+  }
+  var locationField = $("#geopoint-field-select :selected").val();
+  new deck.DeckGL({
+        getTooltip:  ({object}) => object && (chunk(JSON.stringify(object.data), 50).join("\n")  ),
+        container: $("#map-container")[0],
+        mapStyle: 'https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json',
+        initialViewState: {
+          longitude: 77.34375,
+          latitude: 12.65625,
+          zoom: 5
+        },
+        controller: true,
+        layers: [
+          new MyLayer({
+            id:"Scatter",
+            pickable: true,
+            opacity: 0.8,
+            stroked: true,
+            filled: true,
+            radiusScale: 30,
+            autoHighlight: true,
+            highlightColor: [0, 128, 255],
+            radiusMinPixels: 5,
+            radiusMaxPixels: 50,
+            lineWidthMinPixels: 1,
+            data: fetchedData.documents,
+            getPosition: d => {
+              var start=  d.data;
+              locationField.split(".").forEach(part => {
+                if(start == undefined) {
+                  return;
+                }
+                start =start[part]
+              });
+              if(start == undefined) {
+                return ;
+              }
+
+              if(start.lon != undefined && start.lat != undefined) {
+                return [start.lon, start.lat];
+              }
+              if(start.lng != undefined && start.lat != undefined){
+                return [start.lng, start.lat];
+              }
+              if(start.longitude != undefined && start.latitude != undefined) {
+                return [start.longitude, start.latitude];
+              }
+              console.log("Unrecognized location object", start);
+            },
+            getRadius: 1000,
+            getFillColor: d => [255, 140, 0],
+            getLineColor: d => [100, 100, 100]
+          })
+        ]
+      });
+}
+function toggleMapView(mapViewEnabled) {
+
+  if(mapViewEnabled) {
+    $(".event-display-container").hide()
+    $("#map-container").show()
+    loadScatterPlot();
+  }
+  else {
+    $(".event-display-container").show()
+    $("#map-container").hide();
+  }
+}
 // $('.container-full').scroll( function(){
 //   if($(this).scrollTop() + $(this).height() == $(this)[0].scrollHeight){
 //     didScroll = true;
@@ -428,6 +672,11 @@ function fetchAuto() {
 //       fetchAuto();
 //   }
 // });
+
+$("#customSwitch1").click(function() {
+  mapView = !mapView
+  toggleMapView(mapView)
+})
 
 
 function loadConsole() { // load console list api
@@ -440,4 +689,3 @@ if(isLoggedIn()) {
   getBrowseTables();
   loadConsole();
 }
-

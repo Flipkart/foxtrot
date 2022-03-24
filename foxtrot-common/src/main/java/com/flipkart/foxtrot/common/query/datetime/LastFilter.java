@@ -14,8 +14,8 @@ import lombok.ToString;
 import javax.validation.constraints.NotNull;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class LastFilter extends Filter {
 
     private long currentTime;
@@ -32,17 +32,28 @@ public class LastFilter extends Filter {
     }
 
     @Builder
-    public LastFilter(String field, long currentTime, Duration duration, RoundingMode roundingMode) {
+    public LastFilter(String field,
+                      long currentTime,
+                      Duration duration,
+                      RoundingMode roundingMode) {
         super(FilterOperator.last);
-        super.setField(Strings.isNullOrEmpty(field) ? "_timestamp" : field);
-        this.currentTime = currentTime == 0 ? System.currentTimeMillis() : currentTime;
+        super.setField(Strings.isNullOrEmpty(field)
+                ? "_timestamp"
+                : field);
+        this.currentTime = currentTime == 0
+                ? System.currentTimeMillis()
+                : currentTime;
         this.duration = duration;
-        this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
+        this.roundingMode = roundingMode == null
+                ? RoundingMode.NONE
+                : roundingMode;
     }
 
     public void setDuration(Duration duration) {
         this.duration = duration;
-        this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
+        this.roundingMode = roundingMode == null
+                ? RoundingMode.NONE
+                : roundingMode;
     }
 
     @Override
@@ -50,15 +61,15 @@ public class LastFilter extends Filter {
         return visitor.visit(this);
     }
 
-    @JsonIgnore
-    public TimeWindow getWindow() {
-        return WindowUtil.calculate(currentTime, duration, roundingMode);
-    }
-
     @Override
     @JsonIgnore
     public boolean isFilterTemporal() {
         return true;
+    }
+
+    @JsonIgnore
+    public TimeWindow getWindow() {
+        return WindowUtil.calculate(currentTime, duration, roundingMode);
     }
 
 }

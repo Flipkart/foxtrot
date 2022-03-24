@@ -12,23 +12,24 @@ import org.junit.Test;
 @Slf4j
 public class GuavaInternalEventBusTest {
 
+    @Test
+    public void testPubSub() {
+        InternalEventBus eventBus = new GuavaInternalEventBus();
+        eventBus.subscribe(event -> {
+            Assert.assertEquals("Hello", ((GenericEvent) event).getData());
+        });
+        eventBus.publish(new GenericEvent("Hello"));
+    }
+
     @Data
     private class GenericEvent implements InternalSystemEvent {
+
         private final String data;
 
         @Override
         public <T> T accept(InternalSystemEventVisitor<T> visitor) {
             return null;
         }
-    }
-
-    @Test
-    public void testPubSub() {
-        InternalEventBus eventBus = new GuavaInternalEventBus();
-        eventBus.subscribe(event -> {
-            Assert.assertEquals("Hello", ((GenericEvent)event).getData());
-        });
-        eventBus.publish(new GenericEvent("Hello"));
     }
 
 }

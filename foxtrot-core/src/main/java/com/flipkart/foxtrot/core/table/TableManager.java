@@ -11,7 +11,8 @@ public interface TableManager {
 
     void save(Table table);
 
-    void save(Table table, boolean forceCreateTable);
+    void save(Table table,
+              boolean forceCreateTable);
 
     Table get(String name);
 

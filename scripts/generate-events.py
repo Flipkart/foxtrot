@@ -8,17 +8,23 @@ import uuid
 
 # activityTemplate = [[ "Home"], ["Mini"]]
 # activityTemplate = [[ "Home"], ["Mini", "Sedan", "Prime"], ["RideNow", "RideLater"], ["Confirm", "Cancel"]]
-activityTemplate = [["Pay", "Request", "Split"], ["PhonePicked", "VpaPicked", "Cancelled"], ["Wallet", "Account"],
+activityTemplate = [["Pay", "Request", "Split"],
+                    ["PhonePicked", "VpaPicked", "Cancelled"],
+                    ["Wallet", "Account"],
                     ["Finished", "Error"]]
 
 categoryNames = ["Electronics", "Media", "Fashion"]
 cityNames = ["Kolkata", "Bangalore", "Delhi", "Chennai", "Mumbai"]
 
-eventNames = ['LOGIN', 'LOGIN', 'LOGIN', 'LOGIN', 'LOGIN', 'LOGIN', 'PAY', 'PAY', 'PAY', 'PAY', 'PAY', 'REQUEST',
+eventNames = ['LOGIN', 'LOGIN', 'LOGIN', 'LOGIN', 'LOGIN', 'LOGIN', 'PAY',
+              'PAY', 'PAY', 'PAY', 'PAY', 'REQUEST',
               'REQUEST', 'LOGOUT']
-os = [['android', 'ics'], ['android', 'jellybean'], ['android', 'lollypop'], ['android', 'lollypop'],
-      ['android', 'kitkat'], ['android', 'kitkat'], ['android', 'kitkat'], ['android', 'kitkat'], ['android', 'kitkat'],
-      ['android', 'marshmallow'], ['android', 'marshmallow'], ['android', 'marshmallow'], ['ios', '8'], ['ios', '9'],
+os = [['android', 'ics'], ['android', 'jellybean'], ['android', 'lollypop'],
+      ['android', 'lollypop'],
+      ['android', 'kitkat'], ['android', 'kitkat'], ['android', 'kitkat'],
+      ['android', 'kitkat'], ['android', 'kitkat'],
+      ['android', 'marshmallow'], ['android', 'marshmallow'],
+      ['android', 'marshmallow'], ['ios', '8'], ['ios', '9'],
       ['ios', '9'], ['ios', '9']]
 
 
@@ -44,16 +50,22 @@ def eventBatch(batchSize=100):
 
 
 def postBatch(args):
-    events = eventBatch()
-    headers = headers={'Content-type': 'application/json', 'Authorization' : 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJmb3h0cm90LXNlcnZlciIsImp0aSI6IjA5YzIwMmRhLTg2YjctNGMyZS1iMzA1LWZjNTBkNjliYTRlNSIsImlhdCI6MTU4NjI1NDE2NSwibmJmIjoxNTg2MjU0MDQ1LCJzdWIiOiJldmVudF9wdWJsaXNoZXIiLCJhdWQiOiJTVEFUSUMifQ.jGijnjI8TSXJ7F2OnwE-r5HuN_YRfvoG45umga-vVhI_Qeu83k17AtBbeGbaaTT8sPJDQFIktz4EGe7TWkLUvw'}
-    print(headers)
-    r = requests.post(url="http://" + args.server + "/foxtrot/v1/document/test/bulk", data=json.dumps(events), headers = headers)
-    print r
-    if r.status_code == requests.codes.created:
-        print "Sent batch"
-    else:
-        print "Error running query: " + str(r)
-        time.sleep(1)
+  events = eventBatch()
+  headers = headers = {'Content-type': 'application/json',
+                       'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJmb3h0cm90LXNlcnZlciIsImp0aSI6IjA5YzIwMmRhLTg2YjctNGMyZS1iMzA1LWZjNTBkNjliYTRlNSIsImlhdCI6MTU4NjI1NDE2NSwibmJmIjoxNTg2MjU0MDQ1LCJzdWIiOiJldmVudF9wdWJsaXNoZXIiLCJhdWQiOiJTVEFUSUMifQ.jGijnjI8TSXJ7F2OnwE-r5HuN_YRfvoG45umga-vVhI_Qeu83k17AtBbeGbaaTT8sPJDQFIktz4EGe7TWkLUvw'}
+  print(headers)
+  r = requests.post(
+      url="http://" + args.server + "/foxtrot/v1/document/test/bulk",
+      data=json.dumps(events), headers=headers)
+  print
+  r
+  if r.status_code == requests.codes.created:
+    print
+    "Sent batch"
+  else:
+    print
+    "Error running query: " + str(r)
+    time.sleep(1)
 
 
 # def createEvent():
@@ -90,7 +102,8 @@ def postBatch(args):
 #    opts,
 #
 
-parser = argparse.ArgumentParser(description='Send synthetic events to foxtrot for testing')
+parser = argparse.ArgumentParser(
+    description='Send synthetic events to foxtrot for testing')
 parser.add_argument('--count', type=int, metavar='N', action='store',
                     default=10,
                     help='the number of events to be sent (default: 10)')

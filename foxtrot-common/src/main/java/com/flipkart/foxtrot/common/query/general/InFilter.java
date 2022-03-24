@@ -16,11 +16,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
- * User: rishabh.goyal
- * Date: 02/09/14
- * Time: 11:46 AM
- * To change this template use File | Settings | File Templates.
+ * Created with IntelliJ IDEA. User: rishabh.goyal Date: 02/09/14 Time: 11:46 AM To change this template use File |
+ * Settings | File Templates.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -37,7 +34,8 @@ public class InFilter extends Filter {
     }
 
     @Builder
-    public InFilter(String field, List<Object> values) {
+    public InFilter(String field,
+                    List<Object> values) {
         super(FilterOperator.in, field);
         this.values = values;
     }
@@ -50,7 +48,7 @@ public class InFilter extends Filter {
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if(CollectionUtils.isNullOrEmpty(values)) {
+        if (CollectionUtils.isNullOrEmpty(values)) {
             validationErrors.add("at least one value needs to be provided for field");
         }
         return validationErrors;

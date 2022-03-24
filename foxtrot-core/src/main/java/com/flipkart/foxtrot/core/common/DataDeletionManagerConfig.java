@@ -1,48 +1,18 @@
 package com.flipkart.foxtrot.core.common;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.flipkart.foxtrot.core.jobs.BaseJobConfig;
 import lombok.NoArgsConstructor;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 /**
  * Created by rishabh.goyal on 11/07/14.
  */
 @NoArgsConstructor
-public class DataDeletionManagerConfig {
+public class DataDeletionManagerConfig extends BaseJobConfig {
 
-    @Min(3600)
-    private int interval;
+    private static final String JOB_NAME = "DataDeletionJob";
 
-    @Min(1)
-    @JsonProperty("initialdelay")
-    private int initialDelay;
-
-    @NotNull
-    private boolean active;
-
-    public int getInterval() {
-        return interval;
-    }
-
-    public void setInterval(int interval) {
-        this.interval = interval;
-    }
-
-    public int getInitialDelay() {
-        return initialDelay;
-    }
-
-    public void setInitialDelay(int initialDelay) {
-        this.initialDelay = initialDelay;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
+    @Override
+    public String getJobName() {
+        return JOB_NAME;
     }
 }

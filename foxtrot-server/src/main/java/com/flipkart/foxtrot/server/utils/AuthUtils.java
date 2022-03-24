@@ -30,7 +30,7 @@ public class AuthUtils {
         claims.setNotBeforeMinutesInThePast(2);
         claims.setSubject(token.getUserId());
         claims.setAudience(token.getTokenType().name());
-        if(null != token.getExpiry()) {
+        if (null != token.getExpiry()) {
             claims.setExpirationTime(NumericDate.fromMilliseconds(token.getExpiry().getTime()));
         }
         JsonWebSignature jws = new JsonWebSignature();

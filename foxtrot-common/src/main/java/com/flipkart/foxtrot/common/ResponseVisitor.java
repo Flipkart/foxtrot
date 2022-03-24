@@ -6,30 +6,29 @@ import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
-import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 
-public interface ResponseVisitor {
+public interface ResponseVisitor<T> {
 
-    void visit(GroupResponse groupResponse);
+    T visit(GroupResponse groupResponse);
 
-    void visit(HistogramResponse histogramResponse);
+    T visit(HistogramResponse histogramResponse);
 
-    void visit(QueryResponse queryResponse);
+    T visit(QueryResponse queryResponse);
 
-    void visit(StatsResponse statsResponse);
+    T visit(StatsResponse statsResponse);
 
-    void visit(StatsTrendResponse statsTrendResponse);
+    T visit(StatsTrendResponse statsTrendResponse);
 
-    void visit(TrendResponse trendResponse);
+    T visit(TrendResponse trendResponse);
 
-    void visit(CountResponse countResponse);
+    T visit(CountResponse countResponse);
 
-    void visit(DistinctResponse distinctResponse);
+    T visit(DistinctResponse distinctResponse);
 
-    void visit(MultiQueryResponse multiQueryResponse);
+    T visit(MultiQueryResponse multiQueryResponse);
 
-    void visit(MultiTimeQueryResponse multiTimeQueryResponse);
+    T visit(MultiTimeQueryResponse multiTimeQueryResponse);
 }

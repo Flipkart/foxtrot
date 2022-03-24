@@ -39,6 +39,28 @@ import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContain
 @Slf4j
 public class ElasticsearchTestUtils {
 
+    public static synchronized ElasticsearchConnection getConnection() throws Exception {
+        // To make sure we load class which will start the server.
+        ElasticsearchContainerHolder.containerLoaded = true;
+        ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(
+                ElasticsearchContainerHolder.getElasticsearchConfig());
+        elasticsearchConnection.start();
+
+        return elasticsearchConnection;
+    }
+
+    public static void cleanupIndices(final ElasticsearchConnection elasticsearchConnection) {
+        try {
+            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("_all");
+            final AcknowledgedResponse deleteIndexResponse = elasticsearchConnection.getClient()
+                    .indices()
+                    .delete(deleteIndexRequest, RequestOptions.DEFAULT);
+            log.info("Delete index response: {}", deleteIndexResponse);
+        } catch (Exception e) {
+            log.error("Index Cleanup failed", e);
+        }
+    }
+
     /**
      * Class to make sure we run the server only once.
      */
@@ -77,28 +99,6 @@ public class ElasticsearchTestUtils {
                 log.error("Error in initializing es test container , error :", e);
                 throw e;
             }
-        }
-    }
-
-    public static synchronized ElasticsearchConnection getConnection() throws Exception {
-        // To make sure we load class which will start the server.
-        ElasticsearchContainerHolder.containerLoaded = true;
-        ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(
-                ElasticsearchContainerHolder.getElasticsearchConfig());
-        elasticsearchConnection.start();
-
-        return elasticsearchConnection;
-    }
-
-    public static void cleanupIndices(final ElasticsearchConnection elasticsearchConnection) {
-        try {
-            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("_all");
-            final AcknowledgedResponse deleteIndexResponse = elasticsearchConnection.getClient()
-                    .indices()
-                    .delete(deleteIndexRequest, RequestOptions.DEFAULT);
-            log.info("Delete index response: {}", deleteIndexResponse);
-        } catch (Exception e) {
-            log.error("Index Cleanup failed", e);
         }
     }
 }

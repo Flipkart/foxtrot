@@ -18,16 +18,29 @@ package com.flipkart.foxtrot.common.util;
 import com.flipkart.foxtrot.common.Date;
 import org.joda.time.DateTime;
 
+import java.util.function.Function;
+import java.util.regex.Pattern;
+
 /***
  Created by nitish.goyal on 29/11/18
  ***/
 public class Utils {
 
-    private Utils() {}
+    private Utils() {
+    }
 
     public static Date getDate(long timestamp) {
         DateTime dateTime = new DateTime(timestamp);
         return new Date(dateTime);
     }
 
+    public static Function<String, Pattern> wildcardRegexPattern() {
+        return pattern -> Pattern.compile(pattern.replace("*", "(.*)"));
+    }
+
+    public static double convertToDecimalPlaces(double number,
+                                                int digitPrecision) {
+        return (double) Math.round(number * Math.pow(10.0, digitPrecision)) / Math.pow(10.0, digitPrecision);
+
+    }
 }

@@ -1,6 +1,6 @@
 package com.flipkart.foxtrot.sql;
 
-import com.flipkart.foxtrot.core.exception.FqlParsingException;
+import com.flipkart.foxtrot.common.exception.FqlParsingException;
 import com.flipkart.foxtrot.sql.extendedsql.ExtendedSqlStatementVisitor;
 import com.flipkart.foxtrot.sql.extendedsql.desc.Describe;
 import com.flipkart.foxtrot.sql.extendedsql.showtables.ShowTables;
@@ -25,17 +25,17 @@ import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
 
-public class SqlElementVisitor
-        implements StatementVisitor, SelectVisitor, FromItemVisitor, ItemsListVisitor, ExpressionVisitor, SelectItemVisitor,
-                   ExtendedSqlStatementVisitor {
-    private void invalid(Object object) {
-        throw new FqlParsingException("Unsupported construct: " + object.getClass()
-                .getSimpleName());
-    }
+public class SqlElementVisitor implements StatementVisitor, SelectVisitor, FromItemVisitor, ItemsListVisitor,
+        ExpressionVisitor, SelectItemVisitor, ExtendedSqlStatementVisitor {
 
     @Override
     public void visit(NullValue nullValue) {
         invalid(nullValue);
+    }
+
+    private void invalid(Object object) {
+        throw new FqlParsingException("Unsupported construct: " + object.getClass()
+                .getSimpleName());
     }
 
     @Override
@@ -274,16 +274,6 @@ public class SqlElementVisitor
     }
 
     @Override
-    public void visit(ExpressionList expressionList) {
-        //supported construct
-    }
-
-    @Override
-    public void visit(MultiExpressionList multiExprList) {
-        //supported construct
-    }
-
-    @Override
     public void visit(SubJoin subjoin) {
         //supported construct
     }
@@ -295,6 +285,16 @@ public class SqlElementVisitor
 
     @Override
     public void visit(ValuesList valuesList) {
+        //supported construct
+    }
+
+    @Override
+    public void visit(ExpressionList expressionList) {
+        //supported construct
+    }
+
+    @Override
+    public void visit(MultiExpressionList multiExprList) {
         //supported construct
     }
 

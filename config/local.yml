@@ -15,8 +15,15 @@ elasticsearch:
   connectionType: HTTP
   port: 9200
 
+serviceDiscovery:
+  namespace: local
+  environment: local
+  zookeeper: stg-appzkobserver001.phonepe.nb6:2181
+  publishedHost: 127.0.0.1
+  publishedPort: 8080
+
 hbase:
-  secure : false
+  secure: false
   tableName: foxtrot
   hbaseZookeeperQuorum: localhost:2181
   hbaseZookeeperClientPort: 2181
@@ -37,13 +44,42 @@ cacheConfig:
 logging:
   level: INFO
 
+restrictedTables:
+  - test
+
 cardinality:
   enabled: true
+  #  retryCount: 3
   batchSize: 10
   active: true
   interval: 86400
   initialDelay: 6
-  maxCardinality: 20000
+  maxCardinality: 20
+
+tableIndexMetadataJobConfig:
+  active: true
+  interval: 1800
+  initialDelay: 1
+  oldMetadataSyncDurationInDays: 14
+
+indexMetadataCleanupJobConfig:
+  active: true
+  interval: 86400
+  initialDelay: 2
+  retentionDays: 180
+  maxTimeToRunJobInMinutes: 60
+
+shardCountTuningJobConfig:
+  active: true
+  interval: 3600
+  initialDelay: 1
+  idealShardSizeInGBs: 20
+
+shardRebalanceJobConfig:
+  active: true
+  interval: 600
+  initialDelay: 1
+  shardCountThresholdPercentage: 30
 
 elasticsearchTuningConfig:
   precisionThreshold: 500
@@ -64,19 +100,89 @@ consoleHistoryConfig:
 deletionconfig:
   active: false
   interval: 86400
-  initialdelay: 60
+  initialDelay: 1
 
+emailConfig:
+  from: test@email.com
+  host: email.test.com
+  port: 25
+  user: test
+  password: test
+  url: /
 
-clusterRerouteConfig:
-  active: false
-  interval: 86400
-  initialDelay: 10
-  thresholdShardCountPercentage: 10
+restrictAccess: false
 
-sessionCleanupConfig:
-  active: true
-  interval: 86400
-  initialDelay: 10
+swagger:
+  resourcePackage: com.flipkart.foxtrot.server.resources
+  title: Foxtrot
+  description: A store abstraction and analytics http://siphon-ui.test system for real-time event data.
+  uriPrefix: "/foxtrot"
+
+distributedLockConfig:
+  locksConfig:
+    FUNNEL_APPROVAL:
+      lockExpiryTimeInMs: 2000
+
+funnelConfiguration:
+  querySize: 100
+  funnelIndex: foxtrot_funnel
+  funnelConsoleUrl: http://siphon-ui.test.com/#/
+  defaultVersionCodeFilter:
+    operator: greater_equal
+    field: eventData.versionCode
+    value: 400728
+  baseFunnelEventConfig:
+    eventType: APP_LOADED
+    category: General
+  funnelDropdownConfig:
+    eventTypes:
+      - APP_LOADED
+      - REFERRAL_RECEIVED
+      - FORCE_LOGOUT
+      - RESET_DEVICE_MAPPING
+      - USER_LOGOUT
+      - INSTALL_REFERRAL
+      - P2P_SEND_TRANSACTION_TAG_SELECTED
+      - P2P_SEND_TRANSACTION_CONTACT_CHANGE_INITIATED
+      - P2P_REQUEST_TRANSACTION_INITIATED
+      - P2P_REQUEST_CONTACT_SELECTED
+      - P2P_REQUEST_TRANSACTION_TAG_SELECTED
+      - P2P_REQUEST_TRANSACTION_CONTACT_CHANGE_INITIATED
+      - P2P_SPLIT_TRANSACTION_INITIATED
+      - P2P_SPLIT_CONTACT_SELECTED
+      - P2P_SPLIT_TRANSACTION_TAG_SELECTED
+      - P2P_SPLIT_TRANSACTION_CONTACT_CHANGE_INITIATED
+      - P2P_INIT
+      - MANAGE_REMINDER_INIT
+      - WALLET_TOPUP_INIT
+      - CHECK_BALANCE_INIT
+      - P2P_CONTACT_SELECTED
+    categories:
+      - P2PSendTransaction
+      - P2P_REQUEST_TRANSACTION
+      - P2P_Split_Transaction
+      - home
+      - RechargePayment
+      - DatacardPayment
+      - Notifications
+      - P2PPayToMoneyRequest
+      - CS
+      - Invite
+      - SendMoney
+      - ManageReminders
+      - WalletTopup
+      - CHECK_BALANCE
+      - P2P
+      - PAY
+    deviceAttributes:
+      - deviceId
+      - Model
+      - OS_Version
+      - Network_Provider
+      - Manufacturer
+      - Latitude
+      - Longitude
+      - OS
 
 auth:
   enabled: false
@@ -91,3 +197,14 @@ auth:
     clientSecret: ${GOOGLE_CLIENT_SECRET}
     server: ${GOOGLE_CALLBACK_HOST_PORT}
     secureEndpoint: false
+
+clusterRerouteConfig:
+  active: false
+  interval: 86400
+  initialDelay: 10
+  thresholdShardCountPercentage: 10
+
+sessionCleanupConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10

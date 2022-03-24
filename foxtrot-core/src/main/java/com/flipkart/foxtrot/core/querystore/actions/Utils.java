@@ -5,12 +5,12 @@ import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.stats.Stat.StatVisitor;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableMap;
@@ -42,9 +42,6 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
  */
 public class Utils {
 
-    private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
-    private static final double DEFAULT_COMPRESSION = 100.0;
-    private static final int PRECISION_THRESHOLD = 500;
     public static final String COUNT = "count";
     public static final String AVG = "avg";
     public static final String SUM = "sum";
@@ -53,15 +50,18 @@ public class Utils {
     public static final String SUM_OF_SQUARES = "sum_of_squares";
     public static final String VARIANCE = "variance";
     public static final String STD_DEVIATION = "std_deviation";
-    private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES
-            = EnumSet.of(FieldType.INTEGER, FieldType.LONG, FieldType.FLOAT, FieldType.DOUBLE);
+    public static final double DEFAULT_COMPRESSION = 100.0;
+    private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
+    private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES = EnumSet.of(FieldType.INTEGER, FieldType.LONG,
+            FieldType.FLOAT, FieldType.DOUBLE);
+    private static final int PRECISION_THRESHOLD = 500;
 
     private Utils() {
     }
 
-    public static TermsAggregationBuilder buildTermsAggregation(
-            List<ResultSort> fields,
-            Set<AggregationBuilder> subAggregations, int aggregationSize) {
+    public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields,
+                                                                Set<AggregationBuilder> subAggregations,
+                                                                int aggregationSize) {
         TermsAggregationBuilder rootBuilder = null;
         TermsAggregationBuilder termsBuilder = null;
         for (ResultSort nestingField : fields) {
@@ -71,9 +71,9 @@ public class Utils {
                 termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
-            }
-            else {
-                TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
+            } else {
+                TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(
+                        Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
                 termsBuilder.subAggregation(tempBuilder);
@@ -96,7 +96,20 @@ public class Utils {
         return rootBuilder;
     }
 
-    public static AbstractAggregationBuilder buildStatsAggregation(String field, Set<Stat> stats) {
+
+    public static String sanitizeFieldForAggregation(String field) {
+        return field.replaceAll(Constants.FIELD_REPLACEMENT_REGEX, Constants.FIELD_REPLACEMENT_VALUE);
+    }
+
+    public static String storedFieldName(String field) {
+        if ("_timestamp".equalsIgnoreCase(field)) {
+            return ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME;
+        }
+        return field;
+    }
+
+    public static AbstractAggregationBuilder buildStatsAggregation(String field,
+                                                                   Set<Stat> stats) {
         String metricKey = getExtendedStatsAggregationKey(field);
 
         boolean anyExtendedStat = stats == null || stats.stream()
@@ -161,20 +174,23 @@ public class Utils {
         });
     }
 
-    public static AbstractAggregationBuilder buildPercentileAggregation(
-            String field,
-            Collection<Double> inputPercentiles) {
+    public static String getExtendedStatsAggregationKey(String field) {
+        return sanitizeFieldForAggregation(field) + "_extended_stats";
+    }
+
+    public static AbstractAggregationBuilder buildPercentileAggregation(String field,
+                                                                        Collection<Double> inputPercentiles) {
         return buildPercentileAggregation(field, inputPercentiles, DEFAULT_COMPRESSION);
     }
 
-    public static AbstractAggregationBuilder buildPercentileAggregation(
-            String field, Collection<Double> inputPercentiles,
-            double compression) {
+    public static AbstractAggregationBuilder buildPercentileAggregation(String field,
+                                                                        Collection<Double> inputPercentiles,
+                                                                        double compression) {
         double[] percentiles = inputPercentiles != null
-                               ? inputPercentiles.stream()
-                                       .mapToDouble(x -> x)
-                                       .toArray()
-                               : DEFAULT_PERCENTILES;
+                ? inputPercentiles.stream()
+                .mapToDouble(x -> x)
+                .toArray()
+                : DEFAULT_PERCENTILES;
         if (compression == 0.0) {
             compression = DEFAULT_COMPRESSION;
         }
@@ -185,9 +201,12 @@ public class Utils {
                 .compression(compression);
     }
 
-    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(
-            String field,
-            DateHistogramInterval interval) {
+    public static String getPercentileAggregationKey(String field) {
+        return sanitizeFieldForAggregation(field) + "_percentile";
+    }
+
+    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(String field,
+                                                                                DateHistogramInterval interval) {
         String metricKey = getDateHistogramKey(field);
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(0)
@@ -196,7 +215,12 @@ public class Utils {
                 .dateHistogramInterval(interval);
     }
 
-    public static CardinalityAggregationBuilder buildCardinalityAggregation(String field, int precisionThreshold) {
+    public static String getDateHistogramKey(String field) {
+        return sanitizeFieldForAggregation(field) + "_date_histogram";
+    }
+
+    public static CardinalityAggregationBuilder buildCardinalityAggregation(String field,
+                                                                            int precisionThreshold) {
         if (0 == precisionThreshold) {
             precisionThreshold = PRECISION_THRESHOLD;
         }
@@ -204,17 +228,6 @@ public class Utils {
                 .precisionThreshold(precisionThreshold)
                 .field(storedFieldName(field));
 
-    }
-
-    public static String sanitizeFieldForAggregation(String field) {
-        return field.replaceAll(Constants.FIELD_REPLACEMENT_REGEX, Constants.FIELD_REPLACEMENT_VALUE);
-    }
-
-    public static String storedFieldName(String field) {
-        if ("_timestamp".equalsIgnoreCase(field)) {
-            return ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME;
-        }
-        return field;
     }
 
     public static DateHistogramInterval getHistogramInterval(Period period) {
@@ -237,18 +250,6 @@ public class Utils {
                 break;
         }
         return interval;
-    }
-
-    public static String getExtendedStatsAggregationKey(String field) {
-        return sanitizeFieldForAggregation(field) + "_extended_stats";
-    }
-
-    public static String getPercentileAggregationKey(String field) {
-        return sanitizeFieldForAggregation(field) + "_percentile";
-    }
-
-    public static String getDateHistogramKey(String field) {
-        return sanitizeFieldForAggregation(field) + "_date_histogram";
     }
 
     public static IndicesOptions indicesOptions() {
@@ -300,6 +301,9 @@ public class Utils {
 
     public static Map<Number, Number> createPercentilesResponse(Percentiles internalPercentiles) {
         Map<Number, Number> percentiles = Maps.newHashMap();
+        if (internalPercentiles == null) {
+            return percentiles;
+        }
         for (Percentile percentile : internalPercentiles) {
             percentiles.put(percentile.getPercent(), percentile.getValue());
         }
@@ -308,48 +312,44 @@ public class Utils {
 
     public static double ensurePositive(long number) {
         return number <= 0.0
-               ? 0.0
-               : number;
+                ? 0.0
+                : number;
     }
 
 
     public static double ensureOne(long number) {
         return number <= 0
-               ? 1
-               : number;
+                ? 1
+                : number;
     }
 
     public static Map<String, Number> toStats(Aggregation statAggregation) {
         if (statAggregation instanceof ParsedExtendedStats) {
             return Utils.createStatsResponse((ParsedExtendedStats) statAggregation);
-        }
-        else if (statAggregation instanceof ParsedStats) {
+        } else if (statAggregation instanceof ParsedStats) {
             return Utils.createStatsResponse((ParsedStats) statAggregation);
-        }
-        else if (statAggregation instanceof ParsedMax) {
+        } else if (statAggregation instanceof ParsedMax) {
             return Utils.createStatResponse((ParsedMax) statAggregation);
-        }
-        else if (statAggregation instanceof ParsedMin) {
+        } else if (statAggregation instanceof ParsedMin) {
             return Utils.createStatResponse((ParsedMin) statAggregation);
-        }
-        else if (statAggregation instanceof ParsedAvg) {
+        } else if (statAggregation instanceof ParsedAvg) {
             return Utils.createStatResponse((ParsedAvg) statAggregation);
-        }
-        else if (statAggregation instanceof ParsedSum) {
+        } else if (statAggregation instanceof ParsedSum) {
             return Utils.createStatResponse((ParsedSum) statAggregation);
-        }
-        else if (statAggregation instanceof ParsedValueCount) {
+        } else if (statAggregation instanceof ParsedValueCount) {
             return Utils.createStatResponse((ParsedValueCount) statAggregation);
         }
         return new HashMap<>();
     }
 
-
-    public static boolean isNumericField(TableMetadataManager tableMetadataManager, String table, String field) {
-        final TableFieldMapping fieldMappings = tableMetadataManager.getFieldMappings(table, false, false);
+    public static boolean isNumericField(TableMetadataManager tableMetadataManager,
+                                         String table,
+                                         String field) {
+        final TableFieldMapping fieldMappings = tableMetadataManager.getFieldMappings(table);
         final FieldMetadata fieldMetadata = fieldMappings.getMappings()
                 .stream()
-                .filter(mapping -> mapping.getField().equals(field))
+                .filter(mapping -> mapping.getField()
+                        .equals(field))
                 .findFirst()
                 .orElse(null);
         return null != fieldMetadata && NUMERIC_FIELD_TYPES.contains(fieldMetadata.getType());
@@ -359,51 +359,51 @@ public class Utils {
         if (null == filters) {
             return false;
         }
-        return filters.stream().anyMatch(Filter::isFilterTemporal);
+        return filters.stream()
+                .anyMatch(Filter::isFilterTemporal);
     }
 
     public static String statsString(Stat aggregationType) {
-        return aggregationType
-                .visit(new StatVisitor<String>() {
-                    @Override
-                    public String visitCount() {
-                        return Utils.COUNT;
-                    }
+        return aggregationType.visit(new StatVisitor<String>() {
+            @Override
+            public String visitCount() {
+                return Utils.COUNT;
+            }
 
-                    @Override
-                    public String visitMin() {
-                        return Utils.MIN;
-                    }
+            @Override
+            public String visitMin() {
+                return Utils.MIN;
+            }
 
-                    @Override
-                    public String visitMax() {
-                        return Utils.MAX;
-                    }
+            @Override
+            public String visitMax() {
+                return Utils.MAX;
+            }
 
-                    @Override
-                    public String visitAvg() {
-                        return Utils.AVG;
-                    }
+            @Override
+            public String visitAvg() {
+                return Utils.AVG;
+            }
 
-                    @Override
-                    public String visitSum() {
-                        return Utils.SUM;
-                    }
+            @Override
+            public String visitSum() {
+                return Utils.SUM;
+            }
 
-                    @Override
-                    public String visitSumOfSquares() {
-                        return Utils.SUM_OF_SQUARES;
-                    }
+            @Override
+            public String visitSumOfSquares() {
+                return Utils.SUM_OF_SQUARES;
+            }
 
-                    @Override
-                    public String visitVariance() {
-                        return Utils.VARIANCE;
-                    }
+            @Override
+            public String visitVariance() {
+                return Utils.VARIANCE;
+            }
 
-                    @Override
-                    public String visitStdDeviation() {
-                        return Utils.STD_DEVIATION;
-                    }
-                });
+            @Override
+            public String visitStdDeviation() {
+                return Utils.STD_DEVIATION;
+            }
+        });
     }
 }

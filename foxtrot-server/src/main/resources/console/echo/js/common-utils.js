@@ -56,8 +56,15 @@ function showAlert(message, className, autoDismiss) {
 
 function getParameterByName(name) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-        results = regex.exec(location.search);
+    var split= location.search.split("&tab=");
+    if(name == "console"){
+        var regex = new RegExp("[\\?&]" + name + "=([^#]*)"),
+            results = regex.exec(location.search.includes("&tab=") ? split[0]: location.search);
+    }
+    else {
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+    }
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 

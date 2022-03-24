@@ -8,8 +8,9 @@ import lombok.Data;
  ***/
 @Data
 public class FqlGetRequest {
-    private String title;
 
+    private String title;
+    private String userId;
     private int from = 0;
-    private int size = 10;
+    private int size = 20;
 }

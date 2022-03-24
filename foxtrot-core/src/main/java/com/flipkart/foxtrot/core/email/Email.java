@@ -11,6 +11,7 @@ import java.util.List;
 @Data
 @Builder
 public class Email {
+
     private final String subject;
     private final String content;
     private final List<String> recipients;

@@ -16,10 +16,10 @@
 package com.flipkart.foxtrot.core.common.cacheable;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.MalformedQueryException;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.annotations.VisibleForTesting;
@@ -32,10 +32,11 @@ import java.util.List;
  */
 @VisibleForTesting
 @AnalyticsProvider(opcode = "cache-hit-test", request = DummyCacheableActionRequest.class, response = DummyCacheableActionResponse.class,
-                   cacheable = false)
+        cacheable = false)
 public class DummyCacheableAction extends Action<DummyCacheableActionRequest> {
 
-    public DummyCacheableAction(DummyCacheableActionRequest parameter, AnalyticsLoader analyticsLoader) {
+    public DummyCacheableAction(DummyCacheableActionRequest parameter,
+                                AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
     }
 
@@ -60,13 +61,14 @@ public class DummyCacheableAction extends Action<DummyCacheableActionRequest> {
     }
 
     @Override
-    public ActionRequest getRequestBuilder(DummyCacheableActionRequest parameter, List<Filter> extraFilters) throws FoxtrotException {
+    public ActionRequest getRequestBuilder(DummyCacheableActionRequest parameter,
+                                           List<Filter> extraFilters) throws FoxtrotException {
         return null;
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DummyCacheableActionRequest parameter)
-            throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      DummyCacheableActionRequest parameter) throws FoxtrotException {
         return null;
     }
 

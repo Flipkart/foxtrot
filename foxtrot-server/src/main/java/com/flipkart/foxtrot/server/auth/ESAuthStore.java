@@ -75,7 +75,7 @@ public class ESAuthStore implements AuthStore {
     public boolean deleteUser(String userId) {
         boolean status = connection.getClient()
                 .delete(new DeleteRequest(USERS_INDEX, USER_TYPE, userId)
-                                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
+                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
                 .status() == RestStatus.OK;
         if (status) {
             val count = deleteTokensForUser(userId);
@@ -113,20 +113,19 @@ public class ESAuthStore implements AuthStore {
         try {
             val saveStatus = connection.getClient()
                     .index(new IndexRequest(TOKENS_INDEX)
-                                   .source(mapper.writeValueAsString(new Token(tokenId, IdType.SESSION_ID, tokenType, userId, expiry)),
-                                           XContentType.JSON)
-                                   .id(tokenId)
-                                   .type(TOKEN_TYPE)
-                                   .create(true)
-                                   .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
+                            .source(mapper.writeValueAsString(new Token(tokenId, IdType.SESSION_ID, tokenType, userId, expiry)),
+                                    XContentType.JSON)
+                            .id(tokenId)
+                            .type(TOKEN_TYPE)
+                            .create(true)
+                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
                     .status();
             if (saveStatus != RestStatus.CREATED) {
                 log.error("ES save status for token for user {} is: {}", userId, saveStatus);
                 return Optional.empty();
             }
             log.info("Token created for user: {}", userId);
-        }
-        catch (ElasticsearchException v) {
+        } catch (ElasticsearchException v) {
             log.warn("A valid token exists exists already.. for id: {}", userId);
             return getTokenForUser(userId);
         }
@@ -166,7 +165,7 @@ public class ESAuthStore implements AuthStore {
     public boolean deleteToken(String tokenId) {
         return connection.getClient()
                 .delete(new DeleteRequest(TOKENS_INDEX, TOKEN_TYPE, tokenId)
-                                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
+                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
                 .status() == RestStatus.OK;
     }
 
@@ -177,11 +176,11 @@ public class ESAuthStore implements AuthStore {
         Date oldestValidDate = new Date(date.getTime() - sessionDuration.toMilliseconds());
         val deletedCount = connection.getClient()
                 .deleteByQuery(new DeleteByQueryRequest(TOKENS_INDEX)
-                                       .setDocTypes(TOKEN_TYPE)
-                                       .setIndicesOptions(Utils.indicesOptions())
-                                       .setQuery(QueryBuilders.rangeQuery("expiry")
-                                                         .lt(oldestValidDate.getTime()))
-                                        .setRefresh(true), RequestOptions.DEFAULT)
+                        .setDocTypes(TOKEN_TYPE)
+                        .setIndicesOptions(Utils.indicesOptions())
+                        .setQuery(QueryBuilders.rangeQuery("expiry")
+                                .lt(oldestValidDate.getTime()))
+                        .setRefresh(true), RequestOptions.DEFAULT)
                 .getDeleted();
         log.info("Deleted {} expired tokens", deletedCount);
         return true;
@@ -192,12 +191,12 @@ public class ESAuthStore implements AuthStore {
     private RestStatus saveUser(User user, DocWriteRequest.OpType opType) {
         return connection.getClient()
                 .index(new IndexRequest(USERS_INDEX)
-                               .source(mapper.writeValueAsString(user), XContentType.JSON)
-                               .id(user.getId())
-                               .type(USER_TYPE)
-                               .opType(opType)
-                               .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
-                       RequestOptions.DEFAULT)
+                                .source(mapper.writeValueAsString(user), XContentType.JSON)
+                                .id(user.getId())
+                                .type(USER_TYPE)
+                                .opType(opType)
+                                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
+                        RequestOptions.DEFAULT)
                 .status();
     }
 
@@ -205,10 +204,10 @@ public class ESAuthStore implements AuthStore {
     public long deleteTokensForUser(String userId) {
         return connection.getClient()
                 .deleteByQuery(new DeleteByQueryRequest(TOKENS_INDEX)
-                                       .setDocTypes(TOKEN_TYPE)
-                                       .setQuery(QueryBuilders.termQuery("userId", userId))
-                                       .setRefresh(true),
-                               RequestOptions.DEFAULT)
+                                .setDocTypes(TOKEN_TYPE)
+                                .setQuery(QueryBuilders.termQuery("userId", userId))
+                                .setRefresh(true),
+                        RequestOptions.DEFAULT)
                 .getDeleted();
     }
 }

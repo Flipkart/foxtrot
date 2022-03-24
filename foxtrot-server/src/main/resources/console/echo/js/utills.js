@@ -186,13 +186,22 @@ function generateSunBurstDropDown(fields) { // generating all dropdowns
   }));   
   $(unique).append(option);
   $(unique).selectpicker('refresh');
+
+
+  $('#sunburst-aggregation-field').append($('<option>', {
+    value: ""
+    , text: "none"
+  }));   
+  $("#sunburst-aggregation-field").append(option);
+  $("#sunburst-aggregation-field").selectpicker('refresh');
+  
 }
 
 function getWidgetType() { // widget types
-  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio" || currentChartType == "sunburst" || currentChartType == "nonStackedLine") {
+  if (currentChartType == "line" || currentChartType == "geo_aggregation" || currentChartType == "chloropeth" || currentChartType == "s2grid" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio" || currentChartType == "sunburst" || currentChartType == "nonStackedLine") {
     return "full";
   }
-  else if (currentChartType == "radar" || currentChartType == "pie") {
+  else if (currentChartType == "radar" || currentChartType == "pie" || currentChartType == "funnel") {
     return "medium";
   }
   else if (currentChartType == "gauge" || currentChartType == "percentageGauge"  || currentChartType == "trend" || currentChartType == "count") {
@@ -219,7 +228,7 @@ function getFilters() { // returns filter values
         , "values": filterValue
         , "field": currentFieldList[parseInt(filterColumn)].field
       }
-    }else if(filterType == "exists") {
+    }else if(filterType == "exists" || filterType == "missing") {
       filterObject = {
         "operator": filterType
         , "field": currentFieldList[parseInt(filterColumn)].field
@@ -239,6 +248,9 @@ function getChartFormValues() { // get current widget form values
   switch (currentChartType) 
   {
       case "line": return getLineChartFormValues();
+      case "geo_aggregation": return getMapChartFormValues();
+      case "chloropeth": return getChloropethFormValues();
+      case "s2grid": return getS2gridFormValues();
       case "trend": return getTrendChartFormValues();
       case "stacked": return getstackedChartFormValues();
       case "radar": return getRadarChartFormValues();
@@ -252,6 +264,7 @@ function getChartFormValues() { // get current widget form values
       case "lineRatio": return getLineRatioChartFormValues();
       case "sunburst":  return getSunburstChartFormValues();
       case "nonStackedLine":  return getNonStackedLineFormValues();
+      case "funnel":return getFunnelChartFormValues();
       default: return {};
   }
 }
@@ -283,7 +296,7 @@ function setFilters(object) { // setter for filters
     }
 
     // hide value element if operator is exists
-    if(object[filter].operator == "exists") {
+    if(object[filter].operator == "exists" || object[filter].operator == "missing") {
       $(el).find(".filter-value").hide();
     } else {
       $(el).find(".filter-value").show();
@@ -300,37 +313,47 @@ function setFilters(object) { // setter for filters
     $(operatorDropdown).selectpicker('refresh');
   }
 }
+
 function reloadDropdowns() { // change dropdown values for all charts when table changes
   switch (currentChartType) {
     case "line":
       generateDropDown(currentFieldList, ["#uniqueKey"]);
       break;
+    case "geo_aggregation":
+      generateDropDown(currentFieldList, ["#geo_aggregation-uniquekey",'#geo_aggregation-aggregation-field', "#geo_aggregation-event-field"]);
+      break;
     case "trend":
       generateDropDown(currentFieldList, ["#stats-field"]);
       break;
     case "stacked":
-      generateDropDown(currentFieldList, ["#stacking-key", "#stacked-uniquekey", "#stacked-grouping-key"]);
+      generateDropDown(currentFieldList, ["#stacking-key", "#stacked-uniquekey", "#stacked-grouping-key" ,'#stacked-aggregation-field']);
       break;
     case "radar":
-      generateDropDown(currentFieldList, ["#radar-nesting"]);
+      generateDropDown(currentFieldList, ["#radar-nesting",'#radar-aggregation-field' ]);
       break;
     case "gauge":
-      generateDropDown(currentFieldList, ["#gauge-nesting"]);
+      generateDropDown(currentFieldList, ["#gauge-nesting",'#gauge-aggregation-field']);
       break;
     case "percentageGauge":
-      generateDropDown(currentFieldList, ["#percentage-gauge-nesting", "#percentage-gauge-uniquekey"]);
+      generateDropDown(currentFieldList, ["#percentage-gauge-nesting", "#percentage-gauge-uniquekey",'#percentage-gauge-aggregation-field']);
       break;
     case "stackedBar":
-      generateDropDown(currentFieldList, ["#stacked-bar-field", "#stacked-bar-uniquekey"]);
+      generateDropDown(currentFieldList, ["#stacked-bar-field", "#stacked-bar-uniquekey" ,'#stacked-bar-aggregation-field']);
       break;
     case "pie":
-      generateDropDown(currentFieldList, ["#eventtype-field", "#pie-uniquekey"]);
+      generateDropDown(currentFieldList, ["#eventtype-field", "#pie-uniquekey" ,'#pie-aggregation-field']);
       break;
     case "statsTrend":
       generateDropDown(currentFieldList, ["#stats-trend-field"]);
       break;
     case "bar":
-      generateDropDown(currentFieldList, ["#bar-event-field", "#bar-uniquekey"]);
+      generateDropDown(currentFieldList, ["#bar-event-field", "#bar-uniquekey",'#bar-aggregation-field']);
+      break;
+      case "chloropeth":
+      generateDropDown(currentFieldList, ["#chloropeth-event-field", "#chloropeth-uniquekey",'#chloropeth-aggregation-field']);
+      break;
+      case "s2grid":
+      generateDropDown(currentFieldList, ["#s2grid-event-field", "#s2grid-uniquekey",'#s2grid-aggregation-field']);
       break;
     case "count":
       generateDropDown(currentFieldList, ["#count-field"]);
@@ -344,6 +367,9 @@ function reloadDropdowns() { // change dropdown values for all charts when table
     case "nonStackedLine":
       generateDropDown(currentFieldList, ["#non-stacked-line-field", "#non-stacked-line-uniquekey"]);
       break;
+      case "funnel":
+        generateDropDown(currentFieldList, ["#funnel-field", "#funnel-uniquekey" ,'#funnel-aggregation-field']);
+        break;
   }
 }
 
@@ -355,6 +381,9 @@ function invokeClearChartForm() { // clear widget forms
       case "stacked": clearstackedChartForm(); break;
       case "radar": clearRadarChartForm(); break;
       case "gauge": clearGaugeChartForm(); break;
+      case "geo_aggregation": clearGeoAggregationChartForm(); break;
+      case "chloropeth": clearChloropethForm(); break;
+      case "s2grid": clearChloropethForm(); break;
       case "percentageGauge": clearPercentageGaugeChartForm(); break;
       case  "stackedBar": clearStackedBarChartForm(); break;
       case "pie": clearPieChartForm(); break;
@@ -364,6 +393,7 @@ function invokeClearChartForm() { // clear widget forms
       case "lineRatio": clearLineRatioChartForm(); break;
       case "sunburst":  clearSunburstChartForm(); break;
       case "nonStackedLine":  clearNonStackedLineChartForm(); break;
+      case "funnel":  clearfunnelChartForm(); break;
       default: return "";
   }
 }
@@ -530,6 +560,7 @@ function getWidgetSize(type) { // widget types
 
   switch (type) {
     case "line":
+    
     case "stacked":
     case "stackedBar":
     case "statsTrend":
@@ -540,6 +571,10 @@ function getWidgetSize(type) { // widget types
       return 12;
     case "radar":
     case "pie":
+    case "funnel":
+      case "geo_aggregation":
+      case "chloropeth":
+        case "s2grid":
       return 6;
     case "gauge":
     case "percentageGauge":
@@ -617,3 +652,152 @@ function drawStackedLinesLegend(d, element) { // pie legend
   sortingReference.sort( function( a, b ) { return b.value - a.value; } )
   element.html(handlebars("#stacked-lines-legend-template", {data: sortingReference}));
 }
+
+function getLogoutUrl() {
+  var hostname = window.location.hostname;
+   return "0";
+}
+
+/**
+ * submit logout form
+ */
+$("#logout-icon").click(function(){
+  var logoutUrl = getLogoutUrl();
+  if(logoutUrl != 0) { // prevent for local
+    $("#logout").submit();
+  }
+});
+
+$('#logout').attr('action', getLogoutUrl());
+
+
+
+function todayyesterdaydbyesterday(object){
+
+  // -------------- Starts added today yesterday and daybefore yesterday---------------
+
+  var filtertoday = "";
+  var timestamp = new Date().getTime();
+
+  var filterdate = new Date().getDate();
+  var filtermonth =new Date().getMonth();
+  var filteryear =new Date().getFullYear();
+  var timezeroToday = new Date(filteryear ,filtermonth ,filterdate).getTime();
+  var timezeroYesterday = new Date(filteryear ,filtermonth,  filterdate-1).getTime();
+  var timezeroBDYesterday = new Date(filteryear ,filtermonth,  filterdate-2).getTime();
+
+  var timeendYesterday = timezeroYesterday +86300000;         //86300000 is one day timestamp value 
+  var timeendBDYesterday = timezeroBDYesterday +86300000;    
+
+
+  if(globalFilters) {
+    filtertoday=getGlobalFilters();
+    // filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+  } else {
+    filtertoday=getPeriodSelect(object.id);
+    // filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+if (filtertoday=== "1t") {
+  filters.push({
+    field: "time",
+    operator: "between",
+    from:timezeroToday,
+    to:timestamp,
+  });
+}
+else if(filtertoday=== "2y"){
+  filters.push({
+    field: "time",
+    operator: "between",
+    from:timezeroYesterday,
+    to:timeendYesterday,
+  });
+}
+else if(filtertoday=== "3dby"){
+  filters.push({
+    field: "time",
+    operator: "between",
+    from:timezeroBDYesterday,
+    to:timeendBDYesterday,
+  });
+}
+else{
+  // filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, filtertoday))
+
+  if(globalFilters) {
+    // filtertoday=getGlobalFilters();
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+  } else {
+    // filtertoday=getPeriodSelect(object.id);
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+}
+
+ }
+
+//  -------- Starts Added today tomorrow day before yesterday for download and chart rendering -------------
+
+const todayTomorrow =  function(filters_arr, gf_obj,get_gf,get_ps,tv_fn,filter_obj ) {
+  var filtertoday = "";
+  var timestamp = new Date().getTime();
+
+  var filterdate = new Date().getDate();
+  var filtermonth =new Date().getMonth();
+  var filteryear =new Date().getFullYear();
+  var timezeroToday = new Date(filteryear ,filtermonth ,filterdate).getTime();
+  var timezeroYesterday = new Date(filteryear ,filtermonth,  filterdate-1).getTime();
+  var timezeroBDYesterday = new Date(filteryear ,filtermonth,  filterdate-2).getTime();
+
+  var timeendYesterday = timezeroYesterday +86400000;         //86400000 is one day timestamp value 24 hours
+  var timeendBDYesterday = timezeroBDYesterday +86400000;    
+
+
+  if(gf_obj) {
+    filtertoday=get_gf();
+    // filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+  } else {
+    filtertoday=get_ps(filter_obj.id);
+    // filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+if (filtertoday=== "1t") {
+  filters_arr.push({
+    field: "time",
+    operator: "between",
+    from:timezeroToday,
+    to:timestamp,
+  });
+}
+else if(filtertoday=== "2y"){
+  filters_arr.push({
+    field: "time",
+    operator: "between",
+    from:timezeroYesterday,
+    to:timeendYesterday,
+  });
+}
+else if(filtertoday=== "3dby"){
+  filters_arr.push({
+    field: "time",
+    operator: "between",
+    from:timezeroBDYesterday,
+    to:timeendBDYesterday,
+  });
+}
+else{
+  // filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, filtertoday))
+
+  if(gf_obj) {
+    // filtertoday=getGlobalFilters();
+    filters_arr.push(tv_fn(filter_obj.tileContext.period, filter_obj.tileContext.timeframe, get_gf()))
+  } else {
+    // filtertoday=getPeriodSelect(object.id);
+    filters_arr.push(tv_fn(filter_obj.tileContext.period, filter_obj.tileContext.timeframe, get_ps(filter_obj.id)))
+  }
+
+}
+
+}
+//  -------- Ends Added today tomorrow day before yesterday for download and chart rendering ----------------

@@ -52,6 +52,8 @@ var isViewingVersionConsole = false;
 var templateFilterArray = [];
 var templateFilterDetails = [];
 var isTemplateFilter = false;
+var totalLineEnabled= $('.non-stacked-total-line').is(':checked');
+var tableList = []
 
 function TablesView(id, tables) {
   this.id = id;
@@ -69,8 +71,19 @@ TablesView.prototype.load = function (tables) {
   select.change();
 };
 function clearModalfields() { // used when modal table changed
+  
   reloadDropdowns(currentChartType);
   removeFilters();
+  var selectedConsole = $("#chart-type").val();
+  if(selectedConsole === "funnel") {
+  $("#funnel-field option").each(function(index, value)
+  {
+    if (value.text === "eventType") {
+      $('#funnel-field').val(value.value);
+      $('#funnel-field').selectpicker('refresh');
+    }
+  });
+}
 }
 TablesView.prototype.registerTableSelectionChangeHandler = function (handler) {
   this.tableSelectionChangeHandler = handler;
@@ -88,12 +101,32 @@ TablesView.prototype.init = function () {
         }
         this.tables.loadTableMeta(table);
         this.tables.selectedTable = table;
+        tableList = this.tables;
         console.log("Table changed to: " + table.name);
-        //console.log(this);
+        var selectedConsole = $("#chart-type").val();
+      if(selectedConsole === "funnel") {
+        $("#funnel-field option").each(function(index, value)
+        {
+          if (value.text === "eventType") {
+            $('#funnel-field').val(value.value);
+            $('#funnel-field').selectpicker('refresh');
+          }
+        });
+      }
       }
     } else {
       currentFieldList = tableFiledsArray[table.name].mappings;
       reloadDropdowns();
+      var selectedConsole = $("#chart-type").val();
+      if(selectedConsole === "funnel") {
+        $("#funnel-field option").each(function(index, value)
+        {
+          if (value.text === "eventType") {
+            $('#funnel-field').val(value.value);
+            $('#funnel-field').selectpicker('refresh');
+          }
+        });
+      }
     }
   }, this));
   this.tables.init();
@@ -122,6 +155,7 @@ FoxTrot.prototype.addTile = function () {
 
   // check for basic form
   if(!$("#basic-form").valid()) {
+    console.log("basic form not valid")
     return;
   }
 
@@ -142,6 +176,7 @@ FoxTrot.prototype.addTile = function () {
   var widgetSize = "";
   var position = "";
   var description = $("#tile-description").val();
+  var totalLineEnabled= $('.non-stacked-total-line').is(':checked');
 
   isChild = (isChild == 'true');
   if ($("#tileTitle").val().length == 0 || !$("#tileTable").valid() || getWidgetType() == false) {
@@ -199,6 +234,7 @@ FoxTrot.prototype.addTile = function () {
     , "position": position
     , "widgetSize" : widgetSize
     , "description": description
+    , "totalLineEnabled":totalLineEnabled
   }
   context = $.extend({}, getChartFormValues(), context);
   var object = {
@@ -256,6 +292,17 @@ function clickedChartType(el) {
   }
   $(".vizualization-type").removeClass("vizualization-type-active");
   $(el).addClass("vizualization-type-active");
+  if( currentChartType === "funnel") {
+    const defaultTable = tableList.tables.filter((tableData) => tableData.name === 'consumer_app' )
+    tableList.loadTableMeta(defaultTable[0]);
+    $("#tileTable option").each(function(index, value)
+    {
+      if (value.text === "consumer_app") {
+        $('#tileTable').val(value.value);
+        $('#tileTable').selectpicker('refresh');
+      }
+    });
+  }
 }
 
 function saveConsole() { // Save console api
@@ -322,7 +369,7 @@ function saveConsole() { // Save console api
 
 // delete given console default/versioning
 function deleteConsoleAPI(url, sucessMsg, redirect) {
-  $.ajax({
+    $.ajax({
       url: url,
       type: 'DELETE',
       contentType: 'application/json',
@@ -342,7 +389,8 @@ function deleteConsole() { // Delete console api
   if(currentConsoleName !=  undefined) {
     var name =  currentConsoleName;
     var convertedName = convertName(name);
-    var url = apiUrl+("/v2/consoles/")+convertedName+("/delete");
+    var encodedConvertedName = encodeURIComponent(convertedName)
+    var url = apiUrl+("/v2/consoles/")+encodedConvertedName+("/delete");
     deleteConsoleAPI(url, "console deleted sucessfully", "index.htm")
   }else {
     showErrorAlert("Oops",'Add atleast one widget');
@@ -359,7 +407,8 @@ function deleteVersionConsole() { // Delete console api
   var versionId = getVerisonViewingId();
   if(versionId) {
     var msg = "Version is sucessfully deleted";
-    var url = apiUrl+("/v2/consoles/")+versionId+("/old/delete");
+    var encodedVersionId = encodeURIComponent(versionId)
+    var url = apiUrl+("/v2/consoles/")+encodedVersionId+("/old/delete");
     var name =  currentConsoleName;
     var convertedName = convertName(name);
     deleteConsoleAPI(url, msg, "index.htm?console="+convertedName);
@@ -387,8 +436,9 @@ function loadConsole() { // load console list api
 
 // load version api for given console
 function loadVersionConsoleById(consoleId) { // load console list api
+ var encodedConsoleId = encodeURIComponent(consoleId)
   $.ajax({
-    url: apiUrl+("/v2/consoles/")+consoleId+"/old/get",
+    url: apiUrl+("/v2/consoles/")+encodedConsoleId+"/old/get",
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
@@ -404,8 +454,9 @@ function loadVersionConsoleById(consoleId) { // load console list api
 
 // load version api for given console
 function loadVersionConsoleByName(consoleName) { // load console list api
+ var encodedConsoleName = encodeURIComponent(consoleName)
   $.ajax({
-    url: apiUrl+("/v2/consoles/")+consoleName+"/old",
+    url: apiUrl+("/v2/consoles/")+encodedConsoleName+"/old",
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
@@ -423,15 +474,16 @@ $(".version-list").change(function(e) {
   if(id) {
     loadVersionConsoleById(id);
   } else {
-    var consoleId = getParameterByName("console").replace('/','');
+    var consoleId = getParameterByName("console");
     window.location.assign("index.htm?console=" + consoleId);
   }
 });
 
 // set given console as default
 function setVersionDefault(consoleId) { // load console list api
+    var encodedConsoleId = encodeURIComponent(consoleId)
   $.ajax({
-    url: apiUrl+("/v2/consoles/")+consoleId+"/old/set/current",
+    url: apiUrl+("/v2/consoles/")+encodedConsoleId+"/old/set/current",
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
@@ -515,38 +567,40 @@ function clearPageSidebar() {
 }
 
 function preparePageRendering(res, selectedConsole) {
-  currentConsoleName = res.name;
-  clearContainer();
-  globalData = [];
-  globalData = res.sections;
-  generateTabBtnForConsole(res);
+      currentConsoleName = res ? res.name : "";
+      clearContainer();
+      globalData = [];
+      globalData = res ? res.sections : "";
+      generateTabBtnForConsole(res);
 
-  // check any tab name present in url
-  var tabName = getParameterByName("tab");
-  var tabIndex = 0;
-  if(tabName) {
-    var tabIndex = res.sections.findIndex(x => x.id == tabName);
-    renderTilesObject(res.sections[tabIndex].id);
-    tabIndex = tabIndex+1;
-  } else {
-    renderTilesObject(res.sections[0].id);
-    tabIndex = 1;
-  }
+      // check any tab name present in url
+      console.log('selectedConsole render', selectedConsole)
+      var tabName = getParameterByName("tab");
+      var tabIndex = 0;
+      if(tabName) {
+        var tabIndex = res.sections.findIndex(x => x.id == tabName);
+        renderTilesObject(res.sections[tabIndex].id);
+        tabIndex = tabIndex+1;
+      } else {
+        renderTilesObject(res.sections[0].id);
+        tabIndex = 1;
+      }
 
-  // make tab button active
-  $('.tab button:nth-child('+tabIndex+')').addClass('active');
+      // make tab button active
+      $('.tab button:nth-child('+tabIndex+')').addClass('active');
 
-  getTables();
+      getTables();
   clearPageSidebar();
-  generatePageList(res);
+      generatePageList(res);
   if(!isViewingVersionConsole) {
-    setTimeout(function() { setListConsole(selectedConsole); }, 2000);
+      setTimeout(function() { setListConsole(selectedConsole); }, 2000);
   }
 }
 
 function getConsoleById(selectedConsole) { // get particular console list
+var encodedSelectedConsole = encodeURIComponent(selectedConsole);
   $.ajax({
-    url: apiUrl+("/v2/consoles/" +selectedConsole),
+    url: apiUrl+("/v2/consoles/" +encodedSelectedConsole),
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
@@ -596,6 +650,42 @@ function clearContainer() { // clear page when switching tabs
   tileColumn = 1;
 }
 
+// get Saved Template Filter values 
+
+function getSavedTemplateFilter() { 
+      var selectedConsole = $("#listConsole").val();
+      var activeConsoleTab = $('.tab .active').attr('id');
+      var encodedSelectedConsole = encodeURIComponent(selectedConsole);
+        $.ajax({
+         url: apiUrl + '/v2/consoles/'+encodedSelectedConsole,
+         type: 'GET',
+         contentType: 'application/json',
+         context: this,
+         success: function (response) {
+          console.log('SuCCESS.........', response);
+          const gettemp =response;
+          gettemp.sections.map((section, index) => {
+           if (section.name == activeConsoleTab) {
+            if (section.hasOwnProperty('templateFilter')) {
+             $('#template-filter').show();
+            clearTemplateFilter();
+            templateFilterDetails=section["templateFilter"]["filters"]
+            $("#template-filter-form").find("#template-filter").val(section["templateFilter"]["table"]).change();
+            } else {
+             $('#template-filter').show();
+            }
+           }
+          });
+         },
+         error: function (xhr, textStatus, error) {
+          console.log('error.........', error, textStatus, xhr);
+          // $('#template-filter').show();
+         },
+        });
+    }
+
+
+
 function consoleTabs(evt, el) { // logic for tab switching
   var currentTab = el.id;
   var i, tabcontent, tablinks;
@@ -629,7 +719,7 @@ function consoleTabs(evt, el) { // logic for tab switching
   var appendQuery = currentTab.trim().toLowerCase().split(' ').join("_");
   if(url) {
     var fullUrl = window.location.href;
-    var newUrl = fullUrl.substr(0, fullUrl.indexOf('&'));
+    var newUrl = fullUrl.substr(0, fullUrl.indexOf('&tab='));
     window.history.pushState(null, "Echo", newUrl+"&tab="+appendQuery);
   } else {
     window.history.pushState(null, "Echo", window.location.href+"&tab="+appendQuery);
@@ -642,7 +732,21 @@ function consoleTabs(evt, el) { // logic for tab switching
   isNewRowCount = 0;
   smallWidgetCount = 0;
   firstWidgetType = "";
+
+  if(isTemplateFilter){
+  if(url != appendQuery){    // when template filter is selected and tab  changed it calls below function
+    clearTemplateFilter();
+    getSavedTemplateFilter();
+    chromebug();
+  }
 }
+}
+
+// chrome bug template filter is overlapping on widgets on tab switch 
+function chromebug() {
+  $("#template-filter").addClass("chromebug");
+  $("#template-filter").removeClass("chromebug",1000);
+};
 
 function renderTemplateFilters() {
   var option = "";
@@ -807,6 +911,11 @@ function showHidePageSettings() { // page setting modal
 
 $(document).ready(function () {
   if (isLoggedIn()) {
+    var fullUrl = window.location.href;
+  var splitUrl = fullUrl.split('=');
+  if( splitUrl[1] == "none" || splitUrl[1] == undefined) {
+    $("#template-filter").hide();
+  }
       var type = $("#widgetType").val();
       var foxtrot = new FoxTrot();
       $("#addWidgetConfirm").click($.proxy(foxtrot.addTile, foxtrot));
@@ -836,54 +945,101 @@ $(document).ready(function () {
           saveConsole();
       });
       $(".copy-page-submit").click(function (e) {
-
-          var currentViewingTab = getParameterByName("tab");
-
-          // validation
-          if ($(".copy-page-name").val().length == 0) {
-              $(".copy-pg-error").show();
-              return;
-          } else {
-              $(".copy-pg-error").hide();
-              var tabIndex = 0;
-
-              // figure out index
-              if (currentViewingTab.length > 0) {
-                  tabIndex = globalData.findIndex(x => x.id == currentViewingTab.trim().toLowerCase().split(' ').join("_"));
-              }
-
-              // loop and update the required details for new tab/page
-              var newName = $(".copy-page-name").val();
-              var tmpObject = JSON.parse(JSON.stringify(globalData[tabIndex]));
-              var converntedString = convertName(newName);
-              tmpObject["id"] = converntedString;
-              tmpObject["name"] = newName;
-              var tileListArray = tmpObject["tileList"];
-              var newTileData = {}
-              for (var i = 0; i < tileListArray.length; i++) {
-                  var newID = guid();
-                  var tmpTileData = tmpObject["tileData"][tileListArray[i]];
-                  if(tmpTileData != undefined) {
+        
+        var currentViewingTab = getParameterByName("tab");
+    
+        // validation
+        if ($(".copy-page-name").val().length == 0) {
+            $(".copy-pg-error").show();
+            return;
+        } else {
+            $(".copy-pg-error").hide();
+        }
+  
+        if ($(".listConsoleCopyTab").val() == "none") {
+            $(".copy-console-error").show();
+            return;
+        } else {
+            $(".copy-console-error").hide();
+            var tabIndex = 0;
+    
+            // figure out index
+            if (currentViewingTab.length > 0) {
+                tabIndex = globalData.findIndex(x => x.id == currentViewingTab.trim().toLowerCase().split(' ').join("_"));
+            }
+    
+            // loop and update the required details for new tab/page
+            var newName = $(".copy-page-name").val();
+            var tmpObject = JSON.parse(JSON.stringify(globalData[tabIndex]));
+            var converntedString = convertName(newName);
+            tmpObject["id"] = converntedString;
+            tmpObject["name"] = newName;
+            var tileListArray = tmpObject["tileList"];
+            var newTileData = {}
+            for (var i = 0; i < tileListArray.length; i++) {
+                var newID = guid();
+                var tmpTileData = tmpObject["tileData"][tileListArray[i]];
+                if (tmpTileData != undefined) {
                     newTileData[newID] = Object.values(tmpTileData);
                     tileListArray[i] = newID;
                     tmpTileData["id"] = newID;
                     tmpTileData["tileContext"]["tabName"] = newName;
                     newTileData[newID] = tmpTileData;
-                  }
-              }
+                }
+            }
+    
+            tmpObject.tileData = newTileData
+            var selectedCopyConsole = $(".listConsoleCopyTab").val();
+            var copyingConsoleDetails = consoleList.find(x => x.id === selectedCopyConsole);
+    
+            if (copyingConsoleDetails) {
+                var sections = copyingConsoleDetails.sections;
+                sections.push(tmpObject);
+    
+                var name = copyingConsoleDetails.name;
+                var copyingGlobalData = copyingConsoleDetails.sections;
+                for (var i = 0; i < copyingGlobalData.length; i++) { // remove unwanted objects used when adding widgets
+                    var secArray = copyingGlobalData[i].tileData;
+                    for (var key in secArray) {
+                        var deleteObject = secArray[key];
+                        delete deleteObject.tileContext.tableFields;
+                        delete deleteObject.tileContext.editTileId;
+                        delete deleteObject.tileContext.tableDropdownIndex;
+                    }
+                }
+                var convertedName = convertName(name);
+                var representation = {
+                    id: convertedName,
+                    name: name,
+                    sections: copyingGlobalData,
+                    "freshConsole": (isViewingVersionConsole == true ? false : true)
+                };
+    
+                $.ajax({
+                    url: apiUrl + ("/v2/consoles"),
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(representation),
+                    success: function (resp) {
+                        loadConsolesWithoutRefreshing(representation.id, {
+                            "isCopy": true,
+                            "tabName": converntedString
+                        })
+                        // window.location.href = window.location.origin+window.location.pathname+"?console="+representation.id+"&tab="+converntedString;
+                    },
+                    error: function () {
+                        var msg = "Could not copy console";
+                        showErrorAlert("Oops", msg);
+                        hideConsoleModal("save-dashboard");
+                    }
+                })
+            }
+            hideConsoleModal("copy-page");
+            $(".copy-page-name").val('');
+            $(".listConsoleCopyTab").val('none');
+        }
+    });
 
-              tmpObject.tileData = newTileData
-              globalData.push(tmpObject);
-              hideConsoleModal("copy-page");
-              generateNewPageList(sectionNumber + 1, newName);
-              generateSectionbtn(newName, false);
-
-              consoleTabs({}, {
-                  "id": newName
-              });
-              $(".copy-page-name").val('');
-          }
-      });
       $("#delete-dashboard-tab-btn").click(function () {
           currentConsoleName = $("#delete-dashboard-name").val();
           if (isViewingVersionConsole) {
@@ -919,6 +1075,7 @@ $(document).ready(function () {
       $(".filter-switch").change(function () {
           if (this.checked) {
               globalFilters = true;
+              refereshTiles();
               showFilters();
           } else {
               globalFilterResetDetails();
@@ -928,16 +1085,31 @@ $(document).ready(function () {
       $(".template-filter-switch").change(function () {
         if (this.checked) {
             isTemplateFilter = true;
-            showTemplateFilters();
+            // showTemplateFilters();
+            getSavedTemplateFilter();
         } else {
             isTemplateFilter = false;
+            clearTemplateFilter();
             hideTemplateFilters();
+            $('.template-filter').val('none');
+            $('.template-filter').selectpicker('refresh');
         }
-    });
+    }
+    );
 
-      
+$('#extrapolation-funnel-chart-label-id').click(function(){
+  const extrapolationTemp = $('#mark-extrapolation-funnel-chart').is(":checked");
+  console.log('extrapolation-wrapper-text', extrapolationTemp);
+  if (extrapolationTemp) {
+      $("#mark-extrapolation-funnel-chart").prop("checked", false).change();
+  }
+  else if(!extrapolationTemp) {
+    $("#mark-extrapolation-funnel-chart").prop("checked", true).change();
+  }
+  console.log('log', $('#mark-extrapolation-funnel-chart').is(":checked"))
+})
 
-      var consoleId = getParameterByName("console").replace('/', '');
+      var consoleId = getParameterByName("console");
       if (consoleId) {
           getConsoleById(consoleId);
           isNewConsole = false;
@@ -1145,5 +1317,16 @@ $(document).ready(function () {
           refereshTiles();
           $("#myModal").modal("hide");
       })
+      $('#mark-decimal-label-id').click(function(){
+        const extrapolationTemp = $('#mark-decimal').is(":checked");
+        if (extrapolationTemp) {
+            $("#mark-decimal").prop("checked", false).change();
+        }
+        else if(!extrapolationTemp) {
+          $("#mark-decimal").prop("checked", true).change();
+        }
+        console.log('log', $('#mark-decimal').is(":checked"))
+      })
+      
   }
 });

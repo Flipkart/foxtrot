@@ -1,6 +1,8 @@
 package com.flipkart.foxtrot.core.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
@@ -16,7 +18,7 @@ public class ConsoleQueryBlockedException extends FoxtrotException {
 
     public ConsoleQueryBlockedException(ActionRequest actionRequest) {
         super(ErrorCode.CONSOLE_QUERY_BLOCKED,
-              "Console Query blocked due to high load. Kindly run after sometime");
+                "Console Query blocked due to high load. Kindly run after sometime");
         this.actionRequest = actionRequest;
     }
 

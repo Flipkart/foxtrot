@@ -4,6 +4,7 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.enums.SourceType;
 import com.flipkart.foxtrot.common.query.Filter;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -38,15 +40,29 @@ public class StatsTrendRequest extends ActionRequest {
 
     private Set<AnalyticsRequestFlags> flags;
 
+    private String consoleId;
+
     public StatsTrendRequest() {
         super(Opcodes.STATS_TREND);
     }
 
     @Builder
-    public StatsTrendRequest(List<Filter> filters, String table, String field, Set<Stat> stats, List<String> nesting,
-                             List<Double> percentiles, Period period, String timestamp, double compression,
-                             Set<AnalyticsRequestFlags> flags) {
-        super(Opcodes.STATS_TREND, filters);
+    public StatsTrendRequest(List<Filter> filters,
+                             String table,
+                             String field,
+                             Set<Stat> stats,
+                             List<String> nesting,
+                             List<Double> percentiles,
+                             Period period,
+                             String timestamp,
+                             double compression,
+                             Set<AnalyticsRequestFlags> flags,
+                             String consoleId,
+                             boolean bypassCache,
+                             Map<String, String> requestTags,
+                             SourceType sourceType,
+                             boolean extrapolationFlag) {
+        super(Opcodes.STATS_TREND, filters, bypassCache, requestTags, sourceType, extrapolationFlag);
         this.table = table;
         this.field = field;
         this.nesting = nesting;
@@ -56,6 +72,7 @@ public class StatsTrendRequest extends ActionRequest {
         this.timestamp = timestamp;
         this.compression = compression;
         this.flags = flags;
+        this.consoleId = consoleId;
     }
 
 
@@ -74,6 +91,7 @@ public class StatsTrendRequest extends ActionRequest {
                 .append("period", period)
                 .append("timestamp", timestamp)
                 .append("compression", compression)
+                .append("consoleId", consoleId)
                 .toString();
     }
 }

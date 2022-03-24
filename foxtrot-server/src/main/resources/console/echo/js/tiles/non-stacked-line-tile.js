@@ -25,6 +25,7 @@ function NonStackedLineTile() {
     var multiSeries = $("#non-stacked-line-multiple-series-value").val();
   
     var ignoreDigits = $(".non-stacked-line-ignored-digits").val();
+    var totalLineEnabled =$('.non-stacked-total-line').is(':checked');
   
     if(uniqueKey == "none" || uniqueKey == "" || uniqueKey == null) {
       uniqueKey = null;
@@ -42,9 +43,9 @@ function NonStackedLineTile() {
       , "uniqueKey": uniqueKey
       , "stackedBarField": chartField
       , "ignoreDigits" : ignoreDigits
-      , "multiSeries": parseInt(multiSeries)};
+      , "multiSeries": parseInt(multiSeries)
+      , "totalLineEnabled":totalLineEnabled};
   }
-  
   function setNonStackedLineFormValues(object) {
     $("#non-stacked-line-time-unit").val(object.tileContext.period);
     $("#non-stacked-line-time-unit").selectpicker('refresh');
@@ -54,12 +55,23 @@ function NonStackedLineTile() {
     $("#non-stacked-line-uniquekey").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey)));
     $("#non-stacked-line-uniquekey").selectpicker('refresh');
     $(".non-stacked-line-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
-  
+    $("#non-stacked-total-line").val(object.tileContext.totalLineEnabled);
+    $("#non-stacked-total-line").selectpicker('refresh');
+    
     var parentElement = $("#"+currentChartType+"-chart-data");
     var multiSeries = parentElement.find("#non-stacked-line-multiple-series-value");
     var multiSeriesValue = (object.tileContext.multiSeries == undefined ? "" : object.tileContext.multiSeries)
     multiSeries.val(parseInt(multiSeriesValue));
     $(multiSeries).selectpicker('refresh');
+
+     // ------  start for checkbox set values -------
+     if(object.tileContext.totalLineEnabled===true || object.tileContext.totalLineEnabled=== undefined){
+      $("#non-stacked-total-line").prop("checked", true);
+    }
+     else{
+      $("#non-stacked-total-line").prop("unchecked", false);
+    }
+    // ------  End for checkbox set values -------
   }
   
   function clearNonStackedLineChartForm() {
@@ -70,11 +82,16 @@ function NonStackedLineTile() {
   NonStackedLineTile.prototype.getQuery = function (object) {
     this.object = object;
     var filters = [];
-    if(globalFilters) {
-      filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-    } else {
-      filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-    }
+// ------- Starts added today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
   
     if(object.tileContext.filters) {
       for (var i = 0; i < object.tileContext.filters.length; i++) {
@@ -86,14 +103,21 @@ function NonStackedLineTile() {
     if(templateFilters.length > 0) {
       filters = filters.concat(templateFilters);
     }
-    
+    var requestTags = {
+      "widget": this.object.title,
+      "consoleId": getCurrentConsoleId()
+    }
     var data = {
       "opcode": "multi_query"
+      ,"consoleId": getCurrentConsoleId()
       , "table": object.tileContext.table
       , "filters": filters
       , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
       , "field": object.tileContext.stackedBarField
       , period: periodFromWindow(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
+      ,"sourceType":"ECHO_DASHBOARD",
+      "requestTags": requestTags,
+      "extrapolationFlag": false
     }
   
     var multiQueryData = {};
@@ -113,7 +137,7 @@ function NonStackedLineTile() {
       , accepts: {
         json: 'application/json'
       }
-      , url: apiUrl + "/v1/analytics"
+      , url: apiUrl + "/v2/analytics"
       , contentType: "application/json"
       , data: JSON.stringify(multiQueryData)
       , success: $.proxy(this.getData, this)
@@ -282,12 +306,12 @@ function NonStackedLineTile() {
       }
       this.object.tileContext.uiFiltersList.push(trend);
     }
-  
     var multiTotal = [];
     if(!isMultiSeries) {
       var allValues = _.values(trendWiseData);
       var singleValue = allValues[0];
-      var allLength = allValues.length;
+      var allLength = allValues.length;      
+      var totalLineEnabled = this.object.tileContext.totalLineEnabled == undefined ? 'true' : this.object.tileContext.totalLineEnabled;
       for(var i = 0; i < singleValue.length; i++) {
         var total = allValues[0][i][1];
         for(var j = 1; j < allLength; j++) {
@@ -296,18 +320,20 @@ function NonStackedLineTile() {
         multiTotal.push([allValues[0][i][0],total])
         total = 0;
       }
-      d.splice(0, 0,{
-        data: multiTotal
-        , color: convertHex("#33CAFF", 100)
-        , label: "Total"
-        , fill: 0.3
-        , fillColor: "#A3A3A3"
-        , lines: {
-          show: true
-        },
-        points:{show: (multiTotal.length <= 50 ? true :false), radius : 3.5}
-        , shadowSize: 0 /*, curvedLines: {apply: true}*/
-      })
+      if(totalLineEnabled){      // if condition added to add/remove total line from the chart 
+        d.splice(0, 0,{
+          data: multiTotal
+          , color: convertHex("#33CAFF", 100)
+          , label: "Total"
+          , fill: 0.3
+          , fillColor: "#A3A3A3"
+          , lines: {
+            show: true
+          },
+          points:{show: (multiTotal.length <= 50 ? true :false), radius : 3.5}
+          , shadowSize: 0 /*, curvedLines: {apply: true}*/
+        })
+      }      
     } else {
       var finalArray = [];
       for(var response in multiTotalResponseArray) {
@@ -668,4 +694,79 @@ function NonStackedLineTile() {
       });
     }
   }
-  
+
+
+//  -------------------- STARTS added download widget 2--------------------
+
+
+
+  NonStackedLineTile.prototype.downloadWidget = function (object) {
+    this.object = object;
+    var filters = [];
+// ------- Starts added  download for today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
+
+    if(object.tileContext.filters) {
+      for (var i = 0; i < object.tileContext.filters.length; i++) {
+        filters.push(object.tileContext.filters[i]);
+      }
+    }
+
+    var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+    if(templateFilters.length > 0) {
+      filters = filters.concat(templateFilters);
+    }
+  var requestTags = {
+    "widget": this.object.title,
+    "consoleId": getCurrentConsoleId()
+  }
+    var data = {
+      "opcode": "multi_query"
+      , "table": object.tileContext.table
+      , "filters": filters
+      , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
+      , "field": object.tileContext.stackedBarField
+      , period: periodFromWindow(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
+      ,"sourceType":"ECHO_DASHBOARD"
+      ,"requestTags": requestTags
+      ,"extrapolationFlag": false
+    }
+
+    var multiQueryData = {};
+    var multiSeiresValue = object.tileContext.multiSeries;
+    if((multiSeiresValue != undefined) && (multiSeiresValue != "") && (multiSeiresValue > 1)) {
+      multiQueryData["requests"] = prepareMultiSeriesQueryObject(data, object, filters);
+      multiQueryData["opcode"] = "multi_query";
+    } else {
+      data["opcode"] = "trend";
+      multiQueryData = data;
+    }
+
+    var refObject = this.object;
+    $.ajax({
+      url: apiUrl + "/v2/analytics/download",
+      type: 'POST',
+      data: JSON.stringify(data),
+      dataType: 'text',
+
+      contentType: 'application/json',
+      context: this,
+      success: function(response) {
+        downloadTextAsCSV(response, 'NonStackedChart.csv')
+      },
+      error: function(xhr, textStatus, error ) {
+        console.log("error.........",error,textStatus,xhr)
+      }
+  });
+  }
+
+
+//  -------------------- Ends added download widget 2--------------------

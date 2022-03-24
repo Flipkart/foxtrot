@@ -2,11 +2,8 @@ package com.flipkart.foxtrot.core.email;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.nio.charset.StandardCharsets;
@@ -16,15 +13,12 @@ import java.util.Properties;
 /***
  Created by nitish.goyal on 06/10/18
  ***/
-@Singleton
+@Slf4j
 public class EmailClient {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmailClient.class);
 
     private final EmailConfig emailConfig;
     private final Session session;
 
-    @Inject
     public EmailClient(EmailConfig emailConfig) {
         this.emailConfig = emailConfig;
         Properties mailProps = new Properties();
@@ -38,49 +32,47 @@ public class EmailClient {
         this.session = Session.getDefaultInstance(mailProps);
     }
 
-    public boolean sendEmail(final Email email) {
-        if(Strings.isNullOrEmpty(emailConfig.getFrom())) {
-            LOGGER.warn("Mail config not set properly. No mail will be sent.");
-            return false;
+    public void sendEmail(final Email email) {
+        if (Strings.isNullOrEmpty(emailConfig.getFrom())) {
+            log.warn("Mail config not set properly. No mail will be sent.");
+            return;
         }
         try {
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(emailConfig.getFrom()));
             final List<String> recipients = recipients(email);
-            if(recipients.isEmpty()) {
-                return false;
+            if (recipients.isEmpty()) {
+                return;
             }
-            message.setRecipients(Message.RecipientType.TO,
-                                  InternetAddress.parse(String.join(",",recipients)));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(String.join(",", recipients)));
             message.setSubject(email.getSubject());
 
             InternetHeaders headers = new InternetHeaders();
             headers.addHeader("Content-type", "text/html; charset=UTF-8");
 
             final String content = email.getContent();
-            if(null != content) {
+            if (null != content) {
                 BodyPart messageBodyPart = new MimeBodyPart(headers, content.getBytes(StandardCharsets.UTF_8));
                 Multipart multipart = new MimeMultipart();
                 multipart.addBodyPart(messageBodyPart);
                 message.setContent(multipart);
             }
+            log.debug("Sending email with subject: {}, message: {}, to receipients : {} ", email.getSubject(),
+                    email.getContent(), email.getRecipients());
             Transport.send(message, emailConfig.getUser(), emailConfig.getPassword());
         } catch (Exception e) {
-            LOGGER.error("Error occurred while sending the email :%s", e);
-            return false;
+            log.error("Error occurred while sending the email :{}", email, e);
         }
-        return true;
-
     }
 
     private List<String> recipients(Email email) {
         final List<String> emailRecipients = email.getRecipients();
         final List<String> defaultRecipients = emailConfig.getEventNotificationEmails();
         final ImmutableList.Builder<String> recipientsBuilder = ImmutableList.builder();
-        if(null != email.getRecipients()) {
+        if (null != email.getRecipients()) {
             recipientsBuilder.addAll(emailRecipients);
         }
-        if(null != defaultRecipients) {
+        if (null != defaultRecipients) {
             recipientsBuilder.addAll(defaultRecipients);
         }
         return recipientsBuilder.build();

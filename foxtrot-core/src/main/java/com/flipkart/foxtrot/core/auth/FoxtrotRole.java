@@ -13,6 +13,8 @@ public enum FoxtrotRole {
     SYSADMIN(Value.SYSADMIN),
     ;
 
+    private final String value;
+
     FoxtrotRole(String value) {
         this.value = value;
     }
@@ -23,6 +25,4 @@ public enum FoxtrotRole {
         public static final String QUERY = "QUERY";
         public static final String SYSADMIN = "SYSADMIN";
     }
-
-    private final String value;
 }

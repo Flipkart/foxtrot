@@ -18,12 +18,12 @@ package com.flipkart.foxtrot.core.querystore.actions.spi;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.exception.AnalyticsActionLoaderException;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.cache.CacheManager;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidator;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.AnalyticsActionLoaderException;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -63,15 +63,20 @@ public class AnalyticsLoader implements Managed {
     private final DataStore dataStore;
     private final QueryStore queryStore;
     private final ElasticsearchConnection elasticsearchConnection;
-    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+    private final CardinalityValidator cardinalityValidator;
 
     @Inject
-    public AnalyticsLoader(
-            TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager,
-            ObjectMapper objectMapper, ElasticsearchTuningConfig elasticsearchTuningConfig) {
+    public AnalyticsLoader(TableMetadataManager tableMetadataManager,
+                           DataStore dataStore,
+                           QueryStore queryStore,
+                           ElasticsearchConnection elasticsearchConnection,
+                           CacheManager cacheManager,
+                           ObjectMapper objectMapper,
+                           ElasticsearchTuningConfig elasticsearchTuningConfig,
+                           CardinalityValidator cardinalityValidator) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
@@ -79,6 +84,7 @@ public class AnalyticsLoader implements Managed {
         this.cacheManager = cacheManager;
         this.objectMapper = objectMapper;
         this.elasticsearchTuningConfig = elasticsearchTuningConfig;
+        this.cardinalityValidator = cardinalityValidator;
     }
 
     @SuppressWarnings("unchecked")
@@ -95,8 +101,7 @@ public class AnalyticsLoader implements Managed {
                     Constructor<? extends Action> constructor = metadata.getAction()
                             .getConstructor(metadata.getRequest(), AnalyticsLoader.class);
                     return constructor.newInstance(r, this);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     throw FoxtrotExceptions.createActionResolutionException(request, e);
                 }
             }
@@ -104,8 +109,10 @@ public class AnalyticsLoader implements Managed {
         return null;
     }
 
-    public void register(ActionMetadata actionMetadata, String opcode) {
-        actions.put(actionMetadata.getRequest().getCanonicalName(), actionMetadata);
+    public void register(ActionMetadata actionMetadata,
+                         String opcode) {
+        actions.put(actionMetadata.getRequest()
+                .getCanonicalName(), actionMetadata);
         if (actionMetadata.isCacheable()) {
             registerCache(opcode);
         }
@@ -130,7 +137,7 @@ public class AnalyticsLoader implements Managed {
                 throw new AnalyticsActionLoaderException("Invalid annotation on " + action.getCanonicalName());
             }
             register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()),
-                     analyticsProvider.opcode());
+                    analyticsProvider.opcode());
             types.add(new NamedType(analyticsProvider.request(), opcode));
             types.add(new NamedType(analyticsProvider.response(), opcode));
             logger.info("Registered action: {}", action.getCanonicalName());

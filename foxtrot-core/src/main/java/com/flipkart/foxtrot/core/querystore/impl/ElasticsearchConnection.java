@@ -38,6 +38,7 @@ import javax.inject.Singleton;
 @Singleton
 @Order(5)
 public class ElasticsearchConnection implements Managed {
+
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConnection.class.getSimpleName());
     @Getter
     private final ElasticsearchConfig config;
@@ -52,25 +53,29 @@ public class ElasticsearchConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting ElasticSearch Client");
-        final int defaultPort = config.getConnectionType() == ElasticsearchConfig.ConnectionType.HTTP ? 80 : 443;
-        int port = config.getPort() == 0 ? defaultPort : config.getPort();
+        final int defaultPort = config.getConnectionType() == ElasticsearchConfig.ConnectionType.HTTP
+                ? 80
+                : 443;
+        int port = config.getPort() == null
+                ? defaultPort
+                : config.getPort();
         val hosts = config.getHosts()
-            .stream()
-            .map(host -> {
-                final String scheme = config.getConnectionType() == ElasticsearchConfig.ConnectionType.HTTP
-                                      ? "http"
-                                      : "https";
-                return new HttpHost(host, port, scheme);
-            })
-            .toArray(HttpHost[]::new);
-       client = new RestHighLevelClient(RestClient.builder(hosts));
+                .stream()
+                .map(host -> {
+                    final String scheme = config.getConnectionType() == ElasticsearchConfig.ConnectionType.HTTP
+                            ? "http"
+                            : "https";
+                    return new HttpHost(host, port, scheme);
+                })
+                .toArray(HttpHost[]::new);
+        client = new RestHighLevelClient(RestClient.builder(hosts));
         logger.info("Started ElasticSearch Client");
     }
 
     @Override
     public void stop() throws Exception {
         logger.info("Stopping ElasticSearch client");
-        if(client != null) {
+        if (client != null) {
             client.close();
         }
         client = null;
@@ -78,8 +83,7 @@ public class ElasticsearchConnection implements Managed {
 
     @SneakyThrows
     public void refresh(final String index) {
-        client
-                .indices()
+        client.indices()
                 .refresh(new RefreshRequest().indices(index));
     }
 }

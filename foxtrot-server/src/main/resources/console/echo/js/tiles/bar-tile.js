@@ -24,6 +24,18 @@ function getBarChartFormValues() {
   var uniqueKey = $("#bar-uniquekey").val();
   var ignoreDigits = $(".bar-ignored-digits").val();
   var selectedValue = $("#bar-selected-value").val();
+  var sortingbar =$('.bar-sorting-digits').is(':checked');
+  var aggregationType = $('#bar-aggregation-type').val();
+  var aggregationField = $('#bar-aggregation-field').val();
+
+  console.log("aggregationType...",aggregationType);
+  console.log("aggregationField...",aggregationField);
+  console.log("eventField...",eventField);
+
+
+  console.log("uniqueKey...",$("#bar-uniquekey").val());
+
+
   if (eventField == "none") {
     return [[], false];
   }
@@ -36,6 +48,17 @@ function getBarChartFormValues() {
     uniqueKey = currentFieldList[parseInt(uniqueKey)].field
   }
 
+
+  if(aggregationField == "none" || aggregationField == "" || aggregationField == null || aggregationField == "undefined") {
+    aggregationField = null;
+  } else {
+    aggregationField = currentFieldList[parseInt(aggregationField)].field
+  }
+
+  if(aggregationType == "none" || aggregationType == "" || aggregationType == "null" || aggregationType == "undefined") {
+    aggregationType = null;
+  } 
+
   return {
     "period": period
     , "timeframe": timeframe
@@ -43,6 +66,9 @@ function getBarChartFormValues() {
     , "uniqueKey": uniqueKey
     , "ignoreDigits" : ignoreDigits
     , "selectedValue": selectedValue
+    , "sortingbar":sortingbar
+    , "aggregationType":aggregationType
+    , "aggregationField":aggregationField
   };
 }
 
@@ -56,7 +82,20 @@ function setBarChartFormValues(object) {
   $("#bar-uniquekey").selectpicker('refresh');
   $(".bar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
   $("#bar-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
+  $('#bar-aggregation-field').val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.aggregationField)));
+  $('#bar-aggregation-field').selectpicker('refresh');
+  $('#bar-aggregation-Type').val();
+
+  // ------  start for checkbox set values -------
+  if(object.tileContext.sortingbar===true){
+    $("#bar-sorting-digits").prop("checked", true);
+  }
+  else{
+    $("#bar-sorting-digits").val((object.tileContext.sortingbar == undefined ? 'undefined' : object.tileContext.sortingbar));
+  }
 }
+  // ------  End for checkbox set values -------
+
 
 function clearBarChartForm() {
   $('.barForm')[0].reset();
@@ -66,11 +105,16 @@ function clearBarChartForm() {
 BarTile.prototype.getQuery = function (object) {
   this.object = object;
   var filters = [];
-  if(globalFilters) {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-  } else {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-  }
+ // -------------- Starts added today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// -------------- Ends added today yesterday and daybefore yesterday-----------------
 
   if(object.tileContext.filters) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
@@ -91,13 +135,28 @@ BarTile.prototype.getQuery = function (object) {
     filters = filters.concat(templateFilters);
   }
   
+  var listConsole = $("#listConsole").val()
+  //var widget = 
+  var requestTags = {
+    "widget": this.object.title,
+    "consoleId":getCurrentConsoleId()
+  }
+  console.log(" bar console.log", this.object, requestTags);
   var data = {
     "opcode": "group"
+    ,"consoleId": getCurrentConsoleId()
     , "table": object.tileContext.table
     , "filters": filters
     , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
     , "nesting": object.tileContext.nesting
+    // ,"aggregationField":object.tileContext.aggregationField && object.tileContext.aggregationField != "none" ? object.tileContext.aggregationField : null
+     ,"aggregationField":object.tileContext.aggregationField
+    ,"aggregationType":object.tileContext.aggregationType
+    ,"sourceType":"ECHO_DASHBOARD"
+    ,"requestTags": requestTags
+    ,"extrapolationFlag": false
   }
+  console.log("data....",data);
   var refObject = this.object;
   $.ajax({
     method: "post"
@@ -136,8 +195,34 @@ BarTile.prototype.getData = function (data) {
   for (var vehicle in sourceObject) {
       sortable.push([vehicle, sourceObject[vehicle]]);
   }
+
+  // ------  start for sorting the values-------
+   if (this.object.tileContext.hasOwnProperty('sortingbar')){
+    if(this.object.tileContext.sortingbar){
+       sortable= customSort(sortable); 
+    }
+    else{
+      sortable.sort(sortFunction);
+    }
+   }
+   else{
+    sortable.sort(sortFunction);
+   }
+
+  // ------  End for sorting the values-------
   
-  sortable.sort(sortFunction);
+
+
+
+  function customSort(arr) {
+    arr.sort(function(a,b) {
+          var descA = a[1];
+          var descB = b[1];
+          return ((descA > descB) ? -1 : ((descA > descB) ? 1 : 0));
+    });
+    
+    return arr;
+ }
   
   // sort by first index
   function sortFunction(a, b) {
@@ -151,7 +236,8 @@ BarTile.prototype.getData = function (data) {
 
   for (var i in sortable) {
     var property = sortable[i][0];
-    var value = sortable[i][1] / Math.pow(10, this.object.tileContext.ignoreDigits);
+    var valueWithoutRoundOff = sortable[i][1] / Math.pow(10, this.object.tileContext.ignoreDigits);
+    var value = valueWithoutRoundOff.toFixed(2);
     var visible = $.inArray( property, this.object.tileContext.uiFiltersSelectedList);
     if((visible == -1 ? true : false)) {
       var dataElement = {
@@ -187,7 +273,7 @@ BarTile.prototype.getData = function (data) {
   this.render(xAxisOptions, columns);
 }
 BarTile.prototype.render = function (xAxisOptions, columns) {
-
+  console.log(xAxisOptions, columns)
   if(columns.length == 0) {
     showFetchError(this.object, "data", null)
   }  else {
@@ -292,3 +378,79 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
     plot.draw();
   });
 }
+
+
+//  -------------------- Starts Added download widget 2 --------------------
+
+
+BarTile.prototype.downloadWidget = function (object) {
+  this.object = object;
+  var filters = [];
+  // -------------- Starts added today yesterday and daybefore yesterday---------------
+  todayTomorrow(
+    filters,
+    globalFilters,
+    getGlobalFilters,
+    getPeriodSelect,
+    timeValue,
+    object
+  );
+  // -------------- Ends added today yesterday and daybefore yesterday-----------------
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
+  }
+
+  if (object.tileContext.selectedValue) {
+    filters.push({
+      field: object.tileContext.nesting.toString(),
+      operator: "in",
+      values: object.tileContext.selectedValue.split(',')
+    });
+  }
+
+  var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+  if(templateFilters.length > 0) {
+    filters = filters.concat(templateFilters);
+  }
+
+  var requestTags = {
+      "widget": this.object.title,
+      "consoleId":getCurrentConsoleId()
+    }
+
+  var data = {
+    "opcode": "group"
+    ,"consoleId": getCurrentConsoleId()
+    , "table": object.tileContext.table
+    , "filters": filters
+    , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
+    , "nesting": object.tileContext.nesting
+    ,"sourceType":"ECHO_DASHBOARD"
+    ,"requestTags": requestTags
+    ,"extrapolationFlag": false
+  }
+  var refObject = this.object;
+  console.log(data, 'data.')
+  $.ajax({
+    url: apiUrl + "/v2/analytics/download",
+    type: 'POST',
+    data: JSON.stringify(data),
+    dataType: 'text',
+
+    contentType: 'application/json',
+    context: this,
+    success: function(response) {
+      downloadTextAsCSV(response, 'BarChart.csv')
+    },
+    error: function(xhr, textStatus, error ) {
+      console.log("error.........",error,textStatus,xhr)
+    }
+});
+}
+
+//  -------------------- Ends added download widget 2--------------------
+
+

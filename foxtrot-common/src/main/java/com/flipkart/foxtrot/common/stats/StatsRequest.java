@@ -1,8 +1,10 @@
 package com.flipkart.foxtrot.common.stats;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
+import com.flipkart.foxtrot.common.enums.SourceType;
 import com.flipkart.foxtrot.common.query.Filter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,6 +14,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -19,6 +22,7 @@ import java.util.Set;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StatsRequest extends ActionRequest {
 
     @NotNull
@@ -38,29 +42,48 @@ public class StatsRequest extends ActionRequest {
 
     private Set<AnalyticsRequestFlags> flags;
 
+    private String consoleId;
+
     public StatsRequest() {
         super(Opcodes.STATS);
     }
 
-    public StatsRequest(
-            List<Filter> filters,
-            String table,
-            String field,
-            List<Double> percentiles,
-            Set<Stat> stats,
-            List<String> nesting,
-            Set<AnalyticsRequestFlags> flags) {
-        super(Opcodes.STATS, filters);
+    public StatsRequest(List<Filter> filters,
+                        String table,
+                        String field,
+                        List<Double> percentiles,
+                        Set<Stat> stats,
+                        List<String> nesting,
+                        Set<AnalyticsRequestFlags> flags,
+                        String consoleId,
+                        boolean bypassCache,
+                        Map<String, String> requestTags,
+                        SourceType sourceType,
+                        boolean extrapolationFlag) {
+        super(Opcodes.STATS, filters, bypassCache, requestTags, sourceType, extrapolationFlag);
         this.table = table;
         this.field = field;
         this.percentiles = percentiles;
         this.stats = stats;
         this.nesting = nesting;
         this.flags = flags;
+        this.consoleId = consoleId;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).appendSuper(super.toString())
+                .append("table", table)
+                .append("field", field)
+                .append("stats", stats)
+                .append("percentiles", percentiles)
+                .append("nesting", nesting)
+                .append("consoleId", consoleId)
+                .toString();
     }
 
     public String getTable() {
@@ -101,16 +124,5 @@ public class StatsRequest extends ActionRequest {
 
     public void setStats(Set<Stat> stats) {
         this.stats = stats;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).appendSuper(super.toString())
-                .append("table", table)
-                .append("field", field)
-                .append("stats", stats)
-                .append("percentiles", percentiles)
-                .append("nesting", nesting)
-                .toString();
     }
 }

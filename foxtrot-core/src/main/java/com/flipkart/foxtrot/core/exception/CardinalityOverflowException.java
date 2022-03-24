@@ -1,6 +1,8 @@
 package com.flipkart.foxtrot.core.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
 
@@ -30,10 +32,10 @@ public class CardinalityOverflowException extends FoxtrotException {
     @Override
     public Map<String, Object> toMap() {
         return ImmutableMap.<String, Object>builder()
-            .put("field", this.field)
-            .put("probability", this.probability)
-            .put("request", this.actionRequest)
-            .put("requestStr", this.requestStr)
-            .build();
+                .put("field", this.field)
+                .put("probability", this.probability)
+                .put("request", this.actionRequest)
+                .put("requestStr", this.requestStr)
+                .build();
     }
 }

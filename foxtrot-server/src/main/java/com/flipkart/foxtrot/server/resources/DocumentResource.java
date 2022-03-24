@@ -18,14 +18,14 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.core.auth.FoxtrotRole;
+import com.flipkart.foxtrot.common.exception.BadRequestException;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.foxtrot.flipkart.translator.TableTranslator;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -34,14 +34,12 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.flipkart.foxtrot.common.exception.FoxtrotExceptions.ERROR_DELIMITER;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 15/03/14
- * Time: 10:55 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:55 PM
  */
 @Path("/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
@@ -53,7 +51,8 @@ public class DocumentResource {
     private final TableTranslator tableTranslator;
 
     @Inject
-    public DocumentResource(QueryStore queryStore, TableTranslator tableTranslator) {
+    public DocumentResource(QueryStore queryStore,
+                            TableTranslator tableTranslator) {
         this.queryStore = queryStore;
         this.tableTranslator = tableTranslator;
     }
@@ -61,14 +60,14 @@ public class DocumentResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
-    @RolesAllowed(FoxtrotRole.Value.INGEST)
     @ApiOperation("Save Document")
-    public Response saveDocument(@PathParam("table") String table, @Valid final Document document) {
+    public Response saveDocument(@PathParam("table") String table,
+                                 @Valid final Document document) {
         String tableName = tableTranslator.getTable(table, document);
-        if(tableName != null) {
+        if (tableName != null) {
             queryStore.save(tableName, document);
         }
-        if(tableName != null && !table.equals(tableName)) {
+        if (tableName != null && !table.equals(tableName)) {
             queryStore.save(table, document);
         }
         return Response.created(URI.create("/" + document.getId()))
@@ -79,13 +78,36 @@ public class DocumentResource {
     @Path("/bulk")
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
-    @RolesAllowed(FoxtrotRole.Value.INGEST)
     @ApiOperation("Save list of documents")
-    public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents) {
+    public Response saveDocuments(@PathParam("table") String table,
+                                  @Valid final List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = getTableVsDocuments(table, documents);
-        for(Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
-            queryStore.save(entry.getKey(), entry.getValue());
+
+        // Catch all StoreExecutionException and append error messages to a list
+        // keep track of any BadRequestException,
+        // throw it if it's thrown for any batch and if no StoreExecutionException was thrown
+        List<String> exceptionMessages = new ArrayList<>();
+        BadRequestException badRequestException = null;
+
+        for (Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
+            try {
+                queryStore.saveAll(entry.getKey(), entry.getValue());
+            } catch (BadRequestException e) {
+                badRequestException = e;
+            } catch (Exception e) {
+                exceptionMessages.add(Objects.nonNull(e.getCause())
+                        ? e.getCause()
+                        .getMessage()
+                        : e.getMessage());
+            }
         }
+        if (!exceptionMessages.isEmpty()) {
+            String exceptionMessage = String.join(ERROR_DELIMITER, exceptionMessages);
+            throw FoxtrotExceptions.createExecutionException(table, new RuntimeException(exceptionMessage));
+        } else if (Objects.nonNull(badRequestException)) {
+            throw badRequestException;
+        }
+
         return Response.created(URI.create("/" + table))
                 .build();
     }
@@ -93,30 +115,31 @@ public class DocumentResource {
     @GET
     @Path("/{id}")
     @Timed
-    @RolesAllowed(FoxtrotRole.Value.QUERY)
     @ApiOperation("Get Document")
-    public Response getDocument(@PathParam("table") final String table, @PathParam("id") @NotNull final String id) {
+    public Response getDocument(@PathParam("table") final String table,
+                                @PathParam("id") @NotNull final String id) {
         return Response.ok(queryStore.get(table, id))
                 .build();
     }
 
     @GET
     @Timed
-    @RolesAllowed(FoxtrotRole.Value.QUERY)
     @ApiOperation("Get Documents")
-    public Response getDocuments(@PathParam("table") final String table, @QueryParam("id") @NotNull final List<String> ids) {
+    public Response getDocuments(@PathParam("table") final String table,
+                                 @QueryParam("id") @NotNull final List<String> ids) {
         return Response.ok(queryStore.getAll(table, ids))
                 .build();
     }
 
 
-    private Map<String, List<Document>> getTableVsDocuments(String table, List<Document> documents) {
+    private Map<String, List<Document>> getTableVsDocuments(String table,
+                                                            List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = new HashMap<>();
-        if(tableTranslator.isTransformableTable(table)) {
-            for(Document document : CollectionUtils.nullSafeList(documents)) {
+        if (tableTranslator.isTransformableTable(table)) {
+            for (Document document : CollectionUtils.nullSafeList(documents)) {
                 String tableName = tableTranslator.getTable(table, document);
 
-                if(tableVsDocuments.containsKey(tableName)) {
+                if (tableVsDocuments.containsKey(tableName)) {
                     tableVsDocuments.get(tableName)
                             .add(document);
                 } else {
@@ -127,6 +150,7 @@ public class DocumentResource {
         } else {
             tableVsDocuments.put(table, documents);
         }
+
         return tableVsDocuments;
     }
 

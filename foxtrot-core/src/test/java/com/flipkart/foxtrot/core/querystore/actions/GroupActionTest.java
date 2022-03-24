@@ -15,12 +15,10 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doReturn;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -28,42 +26,40 @@ import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.ErrorCode;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.Maps;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
  */
 public class GroupActionTest extends ActionTest {
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
+        super.setup();
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
-        getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
+        getQueryStore().saveAll(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
-        getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
+        getTableMetadataManager().calculateCardinality(TestUtils.TEST_TABLE_NAME);
         ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
-                .setMaxCardinality(15000);
+                .setMaxCardinality(MAX_CARDINALITY);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
-    @Ignore
+    /*@Ignore
     @Test
-    public void testGroupActionSingleQueryException() throws FoxtrotException {
+    public void testGroupActionSingleQueryException() throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("os"));
@@ -76,7 +72,7 @@ public class GroupActionTest extends ActionTest {
             ex.printStackTrace();
             assertEquals(ErrorCode.ACTION_EXECUTION_ERROR, ex.getCode());
         }
-    }
+    }*/
 
     @Test
     public void testGroupActionSingleFieldNoFilter() throws FoxtrotException, JsonProcessingException {
@@ -123,8 +119,7 @@ public class GroupActionTest extends ActionTest {
     }
 
     @Test
-    public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter()
-            throws FoxtrotException, JsonProcessingException {
+    public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter() throws FoxtrotException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -331,24 +326,29 @@ public class GroupActionTest extends ActionTest {
         response.put("android", new HashMap<String, Object>() {{
             put("1", 48.0);
             put("2", 99.0);
-            put("3",87.0);
+            put("3", 87.0);
         }});
         response.put("ios", new HashMap<String, Object>() {{
             put("1", 24.0);
-            put("2",56.0);
+            put("2", 56.0);
         }});
 
         GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
-        assertEquals(((Map<String, Object>) response.get("android")).get("1"), ((Map<String, Object>) actualResult.getResult()
-                .get("android")).get("1"));
-        assertEquals(((Map<String, Object>) response.get("android")).get("2"), ((Map<String, Object>) actualResult.getResult()
-                .get("android")).get("2"));
-        assertEquals(((Map<String, Object>) response.get("android")).get("3"), ((Map<String, Object>) actualResult.getResult()
-                .get("android")).get("3"));
-        assertEquals(((Map<String, Object>) response.get("ios")).get("1"), ((Map<String, Object>) actualResult.getResult()
-                .get("ios")).get("1"));
-        assertEquals(((Map<String, Object>) response.get("ios")).get("2"), ((Map<String, Object>) actualResult.getResult()
-                .get("ios")).get("2"));
+        assertEquals(((Map<String, Object>) response.get("android")).get("1"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("1"));
+        assertEquals(((Map<String, Object>) response.get("android")).get("2"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("2"));
+        assertEquals(((Map<String, Object>) response.get("android")).get("3"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("3"));
+        assertEquals(((Map<String, Object>) response.get("ios")).get("1"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("1"));
+        assertEquals(((Map<String, Object>) response.get("ios")).get("2"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("2"));
     }
 
     @Test
@@ -384,8 +384,9 @@ public class GroupActionTest extends ActionTest {
         assertEquals(((Map<String, Object>) response.get("ios")).get("1"),
                 ((Map<String, Object>) actualResult.getResult()
                         .get("ios")).get("1"));
-        assertEquals(((Map<String, Object>) response.get("ios")).get("2"), ((Map<String, Object>) actualResult.getResult()
-                .get("ios")).get("2"));
+        assertEquals(((Map<String, Object>) response.get("ios")).get("2"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("2"));
     }
 
     @Test
@@ -399,9 +400,9 @@ public class GroupActionTest extends ActionTest {
 
         Map<String, Object> response = Maps.newHashMap();
         response.put("android", new HashMap<String, Object>() {{
-            put("1",72.0);
+            put("1", 72.0);
             put("2", 253.0);
-            put("3",161.0);
+            put("3", 161.0);
         }});
         response.put("ios", new HashMap<String, Object>() {{
             put("1", 24.0);
@@ -409,16 +410,21 @@ public class GroupActionTest extends ActionTest {
         }});
 
         GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
-        assertEquals(((Map<String, Object>) response.get("android")).get("1"), ((Map<String, Object>) actualResult.getResult()
-                .get("android")).get("1"));
-        assertEquals(((Map<String, Object>) response.get("android")).get("2"), ((Map<String, Object>) actualResult.getResult()
-                .get("android")).get("2"));
-        assertEquals(((Map<String, Object>) response.get("android")).get("3"), ((Map<String, Object>) actualResult.getResult()
-                .get("android")).get("3"));
-        assertEquals(((Map<String, Object>) response.get("ios")).get("1"), ((Map<String, Object>) actualResult.getResult()
-                .get("ios")).get("1"));
-        assertEquals(((Map<String, Object>) response.get("ios")).get("2"), ((Map<String, Object>) actualResult.getResult()
-                .get("ios")).get("2"));
+        assertEquals(((Map<String, Object>) response.get("android")).get("1"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("1"));
+        assertEquals(((Map<String, Object>) response.get("android")).get("2"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("2"));
+        assertEquals(((Map<String, Object>) response.get("android")).get("3"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("3"));
+        assertEquals(((Map<String, Object>) response.get("ios")).get("1"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("1"));
+        assertEquals(((Map<String, Object>) response.get("ios")).get("2"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("2"));
     }
 
     @Test
@@ -433,12 +439,50 @@ public class GroupActionTest extends ActionTest {
         Map<String, Object> response = Maps.newHashMap();
         response.put("android", new HashMap<String, Object>() {{
             put("1", 2L);
-            put("2",3L);
+            put("2", 3L);
             put("3", 2L);
         }});
         response.put("ios", new HashMap<String, Object>() {{
             put("1", 1L);
             put("2", 3L);
+        }});
+
+        GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
+        assertEquals(((Map<String, Object>) response.get("android")).get("1"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("1"));
+        assertEquals(((Map<String, Object>) response.get("android")).get("2"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("2"));
+        assertEquals(((Map<String, Object>) response.get("android")).get("3"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("android")).get("3"));
+        assertEquals(((Map<String, Object>) response.get("ios")).get("1"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("1"));
+        assertEquals(((Map<String, Object>) response.get("ios")).get("2"),
+                ((Map<String, Object>) actualResult.getResult()
+                        .get("ios")).get("2"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testGroupActionCountAggregationWithNonNumericField() {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setNesting(Arrays.asList("os", "version"));
+        groupRequest.setAggregationField("device");
+        groupRequest.setAggregationType(Stat.COUNT);
+
+        Map<String, Object> response = Maps.newHashMap();
+        response.put("android", new HashMap<String, Object>() {{
+            put("1", 1L);
+            put("2", 2L);
+            put("3", 2L);
+        }});
+        response.put("ios", new HashMap<String, Object>() {{
+            put("1", 1L);
+            put("2", 2L);
         }});
 
         GroupResponse actualResult = (GroupResponse) getQueryExecutor().execute(groupRequest);
@@ -453,5 +497,4 @@ public class GroupActionTest extends ActionTest {
         assertEquals(((Map<String, Object>) response.get("ios")).get("2"), ((Map<String, Object>) actualResult.getResult()
                 .get("ios")).get("2"));
     }
-
 }

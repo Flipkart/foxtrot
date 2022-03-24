@@ -1,11 +1,10 @@
 package com.flipkart.foxtrot.server.auth.filter;
 
 import com.flipkart.foxtrot.server.auth.AuthConfig;
-import com.flipkart.foxtrot.server.auth.UserPrincipal;
+import com.flipkart.foxtrot.server.auth.TokenAuthenticator;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import io.dropwizard.auth.AuthenticationException;
-import io.dropwizard.auth.Authenticator;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -34,13 +33,13 @@ public class UserAuthenticationFilter implements Filter {
     private static final Set<String> WHITELISTED_PATTERNS = ImmutableSet.<String>builder()
             .add("/foxtrot/oauth")
             .add("^/foxtrot/auth.*")
-        .build();
-    private final AuthConfig authConfig;
-    private final Provider<Authenticator<String, UserPrincipal>> authenticator;
+            .build();
+    private AuthConfig authConfig;
+    private Provider<TokenAuthenticator> authenticator;
 
     @Inject
     public UserAuthenticationFilter(
-            AuthConfig authConfig, Provider<Authenticator<String, UserPrincipal>> authenticator) {
+            AuthConfig authConfig, Provider<TokenAuthenticator> authenticator) {
         this.authConfig = authConfig;
         this.authenticator = authenticator;
     }
@@ -53,7 +52,7 @@ public class UserAuthenticationFilter implements Filter {
     @Override
     public void doFilter(
             ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if(!authConfig.isEnabled()) {
+        if (!authConfig.isEnabled()) {
             log.trace("Auth disabled");
             chain.doFilter(request, response);
             return;
@@ -61,29 +60,26 @@ public class UserAuthenticationFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         final String requestURI = httpRequest.getRequestURI();
-        if(WHITELISTED_PATTERNS.stream().anyMatch(requestURI::startsWith)) {
+        if (WHITELISTED_PATTERNS.stream().anyMatch(requestURI::startsWith)) {
             chain.doFilter(request, response);
             return;
         }
         val jwt = getTokenFromCookieOrHeader(httpRequest).orElse(null);
-        if(!Strings.isNullOrEmpty(jwt)) {
+        if (!Strings.isNullOrEmpty(jwt)) {
             try {
                 val principal = authenticator.get()
                         .authenticate(jwt).orElse(null);
-                if(null != principal) {
+                if (null != principal) {
                     SessionUser.put(principal);
                     chain.doFilter(request, response);
                     return;
-                }
-                else {
+                } else {
                     log.info("No principal ");
                 }
-            }
-            catch (AuthenticationException e) {
+            } catch (AuthenticationException e) {
                 log.error("Jwt validation failure: ", e);
             }
-        }
-        else {
+        } else {
             log.debug("No token in request");
         }
         val referrer = httpRequest.getHeader(org.apache.http.HttpHeaders.REFERER);
@@ -119,9 +115,9 @@ public class UserAuthenticationFilter implements Filter {
 
     private Optional<String> getTokenFromCookie(HttpServletRequest request) {
         val cookies = request.getCookies();
-        if(null != cookies && cookies.length != 0) {
+        if (null != cookies && cookies.length != 0) {
             val token = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals("token")).findAny().orElse(null);
-            if(null != token) {
+            if (null != token) {
                 return Optional.of(token.getValue());
             }
         }

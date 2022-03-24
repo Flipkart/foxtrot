@@ -31,7 +31,8 @@ public class DummyCacheableActionResponse extends ActionResponse {
     }
 
     @Override
-    public void accept(ResponseVisitor visitor) {
-
+    public <T> T accept(ResponseVisitor<T> visitor) {
+        return null;
     }
+
 }

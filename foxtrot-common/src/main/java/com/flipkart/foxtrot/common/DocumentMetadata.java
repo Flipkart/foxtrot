@@ -14,6 +14,7 @@ import java.io.Serializable;
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentMetadata implements Serializable {
+
     private static final long serialVersionUID = -2513729439392513459L;
     private String id;
     private String rawStorageId;
@@ -22,7 +23,9 @@ public class DocumentMetadata implements Serializable {
     public DocumentMetadata() {
     }
 
-    public DocumentMetadata(String id, String rawStorageId, long time) {
+    public DocumentMetadata(String id,
+                            String rawStorageId,
+                            long time) {
         this.id = id;
         this.rawStorageId = rawStorageId;
         this.time = time;

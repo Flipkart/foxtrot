@@ -16,10 +16,13 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.enums.SourceType;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import com.flipkart.foxtrot.core.config.QueryConfig;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.server.ResourceTestUtils;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
@@ -50,12 +53,13 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
 
     public AnalyticsResourceTest() throws Exception {
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
-        getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchConnection().getClient()
+        getQueryStore().saveAll(TestUtils.TEST_TABLE_NAME, documents);
+        elasticsearchConnection.getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
         resources = ResourceTestUtils.testResourceBuilder(getMapper())
-                .addResource(new AnalyticsResource(getQueryExecutor(), objectMapper))
+                .addResource(new AnalyticsResource(getQueryExecutorFactory(), getMapper(), new QueryConfig()))
+                .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .build();
     }
 
@@ -64,6 +68,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
     public void testRunSync() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setSourceType(SourceType.ECHO_BROWSE_EVENTS);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
         Map<String, Object> expectedResponse = new LinkedHashMap<String, Object>();
@@ -109,6 +114,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME + "-dummy");
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
+        groupRequest.setSourceType(SourceType.ECHO_BROWSE_EVENTS);
 
         try {
             Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
@@ -127,6 +133,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
+        groupRequest.setSourceType(SourceType.ECHO_BROWSE_EVENTS);
 
         Map<String, Object> expectedResponse = new LinkedHashMap<String, Object>();
 
@@ -162,9 +169,10 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
         AsyncDataToken response = resources.target("/v1/analytics/async")
                 .request()
                 .post(serviceUserEntity, AsyncDataToken.class);
-        await().pollDelay(2000, TimeUnit.MILLISECONDS).until(() -> true);
+        await().pollDelay(2000, TimeUnit.MILLISECONDS)
+                .until(() -> true);
         GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(response.getAction())
-                                                                        .get(response.getKey()));
+                .get(response.getKey()));
         assertEquals(expectedResponse, actualResponse.getResult());
     }
 
@@ -173,6 +181,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME + "-dummy");
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
+        groupRequest.setSourceType(SourceType.ECHO_BROWSE_EVENTS);
 
         GroupResponse expectedResponse = new GroupResponse();
         Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
@@ -180,9 +189,11 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                 .request()
                 .header("Authorization", "Bearer TOKEN")
                 .post(serviceUserEntity, AsyncDataToken.class);
-        await().pollDelay(2000, TimeUnit.MILLISECONDS).until(() -> true);
-        GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(asyncDataToken.getAction())
-                                                                        .get(asyncDataToken.getKey()));
+        await().pollDelay(2000, TimeUnit.MILLISECONDS)
+                .until(() -> true);
+        GroupResponse actualResponse = GroupResponse.class.cast(
+                getCacheManager().getCacheFor(asyncDataToken.getAction())
+                        .get(asyncDataToken.getKey()));
         assertEquals(expectedResponse.getResult(), actualResponse.getResult());
     }
 }

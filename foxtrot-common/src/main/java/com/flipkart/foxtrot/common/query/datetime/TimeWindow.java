@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class TimeWindow {
+
     private long startTime = 0L;
     private long endTime = 0L;
 
@@ -12,7 +13,8 @@ public class TimeWindow {
     }
 
     @Builder
-    public TimeWindow(long startTime, long endTime) {
+    public TimeWindow(long startTime,
+                      long endTime) {
         this.startTime = startTime;
         this.endTime = endTime;
     }

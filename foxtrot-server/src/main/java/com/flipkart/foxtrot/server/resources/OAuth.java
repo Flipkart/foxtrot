@@ -53,11 +53,11 @@ public class OAuth {
                 .redirectionURL(sessionId);
         log.info("Redirection uri: {}", redirectionURL);
         final String cookieReferrerUrl = null == cookieReferrer
-                                         ? null
-                                         : cookieReferrer.getValue();
+                ? null
+                : cookieReferrer.getValue();
         val source = Strings.isNullOrEmpty(cookieReferrerUrl)
-                     ? referrer
-                     : cookieReferrerUrl;
+                ? referrer
+                : cookieReferrerUrl;
         log.debug("Call source: {} Referrer: {} Redirection: {}", source, referrer, cookieReferrerUrl);
         if (!Strings.isNullOrEmpty(source)) {
             sessionDataStore.get()
@@ -109,13 +109,13 @@ public class OAuth {
         }
         log.debug("Got: {} against session: {}", existingReferrer, authCode);
         final String finalRedirect = Strings.isNullOrEmpty((String) existingReferrer)
-                                     ? "/"
-                                     : (String) existingReferrer;
+                ? "/"
+                : (String) existingReferrer;
         log.debug("Will be redirecting to: {}. Existing: {}", finalRedirect, existingReferrer);
         return Response.seeOther(URI.create(finalRedirect))
                 .cookie(createTokenCookie(token.getIdType().equals(IdType.SESSION_ID)
-                                      ? AuthUtils.createJWT(token, authConfig.getJwt())
-                                      : token.getId()),
+                                ? AuthUtils.createJWT(token, authConfig.getJwt())
+                                : token.getId()),
                         expireCookie(cookieState))
                 .build();
     }
@@ -132,8 +132,7 @@ public class OAuth {
             return Response.seeOther(URI.create("/"))
                     .cookie(createTokenCookie(""))
                     .build();
-        }
-        else {
+        } else {
             log.info("Empty token in logout call");
         }
         return Response.seeOther(URI.create("/")).build();
@@ -141,15 +140,15 @@ public class OAuth {
 
     private NewCookie createTokenCookie(String value) {
         return new NewCookie("token",
-                             value,
-                             "/",
-                             null,
-                             Cookie.DEFAULT_VERSION,
-                             null,
-                             NewCookie.DEFAULT_MAX_AGE,
-                             null,
-                             false,
-                             true);
+                value,
+                "/",
+                null,
+                Cookie.DEFAULT_VERSION,
+                null,
+                NewCookie.DEFAULT_MAX_AGE,
+                null,
+                false,
+                true);
     }
 
     private NewCookie expireCookie(@CookieParam("gauth-state") Cookie cookieState) {

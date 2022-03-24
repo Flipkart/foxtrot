@@ -17,7 +17,7 @@ elasticsearch:
   connectionType: ${ELASTICSEARCH_PROTOCOL}
 
 hbase:
-  secure : false
+  secure: false
   tableName: ${HBASE_TABLE_NAME}
   hbaseZookeeperQuorum: ${HBASE_ZOOKEEPER_QUORUM}
   hbaseZookeeperClientPort: ${HBASE_ZOOKEEPER_CLIENT_PORT}
@@ -33,6 +33,11 @@ cacheConfig:
   maxIdleSeconds: 15
   timeToLiveSeconds: 15
 
+distributedLockConfig:
+  locksConfig:
+    FUNNEL_APPROVAL:
+      lockExpiryTimeInMs: 2000
+
 logging:
   level: INFO
   loggers:
@@ -47,7 +52,7 @@ logging:
       logFormat: "%(%-5level) [%date] %X{TRACE-ID} [%thread] [%logger{0}]: %message%n"
 
 cardinality:
-  enabled: true
+  enabled: false
   batchSize: 10
   active: true
   interval: 86400
@@ -57,7 +62,7 @@ cardinality:
 deletionconfig:
   active: true
   interval: 86400
-  initialdelay: 60
+  initialDelay: 6
 
 esIndexOptimizationConfig:
   active: true

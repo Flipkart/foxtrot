@@ -17,27 +17,24 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
+import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.ResourceTestUtils;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -46,93 +43,89 @@ import static org.mockito.Mockito.*;
  */
 public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
-    private final FoxtrotTableManager tableManager;
 
     @Rule
     public ResourceTestRule resources;
 
     public TableFieldMappingResourceTest() throws Exception {
         super();
-        tableManager = mock(FoxtrotTableManager.class);
+        FoxtrotTableManager tableManager = mock(FoxtrotTableManager.class);
         when(tableManager.getAll()).thenReturn(Collections.singletonList(TestUtils.TEST_TABLE));
         resources = ResourceTestUtils.testResourceBuilder(getMapper())
                 .addResource(new TableFieldMappingResource(tableManager, getTableMetadataManager()))
                 .build();
     }
 
-    @Ignore
     @Test
     public void testGet() throws Exception {
-        getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
-        await().pollDelay(500, TimeUnit.MILLISECONDS).until(() -> true);
+        getQueryStore().saveAll(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
+        await().pollDelay(500, TimeUnit.MILLISECONDS)
+                .until(() -> true);
 
         Set<FieldMetadata> mappings = new HashSet<>();
         mappings.add(FieldMetadata.builder()
-                             .field("time")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("time")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("word")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("word")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("data.data")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("data.data")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("header.hello")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("header.hello")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("head.hello")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("head.hello")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.dayOfWeek")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.monthOfYear")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.minuteOfDay")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.hourOfDay")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.monthOfYear")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.year")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.hourOfDay")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.dayOfMonth")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.year")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.minuteOfHour")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.dayOfMonth")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("eventData.funnelInfo.funnelId")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.minuteOfHour")
-                             .type(FieldType.LONG)
-                             .build());
-
-        TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
-        String response = resources
-                .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
+                .field("date.humanDate")
+                .type(FieldType.STRING)
+                .build());
+        TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings, new Date());
+        String response = resources.target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .get(String.class);
 
         TableFieldMapping mapping = getMapper().readValue(response, TableFieldMapping.class);
         assertEquals(tableFieldMapping.getTable(), mapping.getTable());
-        assertTrue(tableFieldMapping.getMappings()
-                           .equals(mapping.getMappings()));
+        Assert.assertTrue(mapping.getMappings()
+                .containsAll(tableFieldMapping.getMappings()));
     }
 
     @Test
     public void testGetInvalidTable() throws Exception {
         try {
-            resources
-                    .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing"))
+            resources.target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing"))
                     .request()
                     .head();
         } catch (WebApplicationException ex) {
@@ -143,29 +136,27 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testGetTableWithNoDocument() throws Exception {
-        TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<>());
-        TableFieldMapping response = resources
-                .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
+        TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<>(), new Date());
+        TableFieldMapping response = resources.target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .get(TableFieldMapping.class);
         assertEquals(request.getTable(), response.getTable());
-        assertNotNull(response.getMappings());
     }
 
     @Test
     public void getAllFields() throws Exception {
-        doNothing().when(getQueryStore())
-                .initializeTable(any(String.class));
 
-        getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
-        await().pollDelay(500, TimeUnit.MILLISECONDS).until(() -> true);
+        doNothing().when(mock(getQueryStore().getClass()))
+                .initializeTable(any(Table.class));
 
-        Map<String, TableFieldMapping> response = resources
-                .target("/v1/tables/fields")
+        getQueryStore().saveAll(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
+        await().pollDelay(500, TimeUnit.MILLISECONDS)
+                .until(() -> true);
+
+        Map<String, TableFieldMapping> response = resources.target("/v1/tables/fields")
                 .request()
                 .get(new GenericType<Map<String, TableFieldMapping>>() {
                 });
-        //System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
         Assert.assertFalse(response.isEmpty());
         Assert.assertEquals(1, response.size());
         Assert.assertTrue(response.containsKey(TestUtils.TEST_TABLE_NAME));

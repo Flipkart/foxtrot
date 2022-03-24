@@ -19,7 +19,7 @@ function FqlTable() {
     this.refresh = true;
     this.setupModalName = "#setupFqlTableModal";
     this.query = null;
-    this.url = "/foxtrot/v1/fql";
+    this.url = "/foxtrot/v2/fql";
     this.contentType = 'text/plain';
 }
 

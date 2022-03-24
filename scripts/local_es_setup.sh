@@ -83,6 +83,7 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/template_foxt
             }
           }
         },
+
         {
           "template_no_store": {
             "match_mapping_type": "*",
@@ -109,7 +110,7 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/template_foxt
   }
 }'
 
-curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/console_v2 -d '
+curl -H 'Content-type: application/json' -XPUT localhost:9200/_template/console_v2 -d '
 {
   "template": "consoles_v2*",
   "settings": {
@@ -119,7 +120,7 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/console_v2 -d
             }
         },
   "mappings": {
-    "document": {
+    "console_data": {
       "dynamic_templates": [
 
         {
@@ -174,15 +175,6 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/console_v2 -d
 }'
 
 
-curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/consoles/" -d '{
-    "settings" : {
-        "index" : {
-            "number_of_shards" : 1,
-            "number_of_replicas" : 0
-        }
-    }
-}'
-
 curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/consoles_v2/" -d '{
     "settings" : {
         "index" : {
@@ -201,3 +193,16 @@ curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/table-meta/" -d
         }
     }
 }'
+curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/tenant-meta/" -d '
+{"aliases":{},"mappings":{"tenant-meta":{"properties":{"emailIds":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"tenantName":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}}}}},"settings":{"index":{"number_of_shards":"5","number_of_replicas":"1"}}}
+'
+curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/pipeline-meta/" -d '
+{"aliases":{},"mappings":{"pipeline-meta":{"properties":{"name":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"ignoreErrors":{"type":"boolean"}}}},"settings":{"index":{"number_of_shards":"5","number_of_replicas":"1"}}}
+'
+
+
+
+curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/consoles_history/" -d '
+
+{"aliases":{},"mappings":{"console_data":{"properties":{"id":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"name":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"sections":{"properties":{"id":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"name":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"templateFilter":{"properties":{"filters":{"properties":{"cachedResultsAccepted":{"type":"boolean"},"field":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"operator":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"value":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"values":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}}}},"table":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}}}},"templateFilters":{"properties":{"cachedResultsAccepted":{"type":"boolean"},"field":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"operator":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"value":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}}}},"tileData":{"type":"object","enabled":false},"tileList":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}}}},"updatedAt":{"type":"long"},"version":{"type":"long"}}}},"settings":{"index":{"number_of_shards":"5","number_of_replicas":"1"}}}
+'

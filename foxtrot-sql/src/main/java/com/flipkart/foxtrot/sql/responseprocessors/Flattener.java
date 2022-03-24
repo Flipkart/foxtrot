@@ -4,19 +4,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.QueryResponse;
 import com.flipkart.foxtrot.common.ResponseVisitor;
 import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
+import com.flipkart.foxtrot.common.exception.FqlParsingException;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
-import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
-import com.flipkart.foxtrot.core.exception.FqlParsingException;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FieldHeader;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
@@ -32,39 +32,41 @@ import static com.flipkart.foxtrot.core.querystore.actions.Utils.statsString;
 import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.generateFieldMappings;
 import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genericParse;
 
-public class Flattener implements ResponseVisitor {
+public class Flattener implements ResponseVisitor<FlatRepresentation> {
+
     private final List<String> fieldsToReturn;
-    private FlatRepresentation flatRepresentation;
     private ObjectMapper objectMapper;
     private ActionRequest request;
 
 
-    public Flattener(ObjectMapper objectMapper, ActionRequest request, List<String> fieldsToReturn) {
+    public Flattener(ObjectMapper objectMapper,
+                     ActionRequest request,
+                     List<String> fieldsToReturn) {
         this.objectMapper = objectMapper;
         this.request = request;
         this.fieldsToReturn = fieldsToReturn;
     }
 
     @Override
-    public void visit(GroupResponse groupResponse) {
+    public FlatRepresentation visit(GroupResponse groupResponse) {
         final String separator = "__SEPARATOR__";
         Map<String, Integer> fieldNames = Maps.newTreeMap();
-        Map<String, MetaData> dataFields = generateFieldMappings(null, objectMapper.valueToTree(groupResponse.getResult()), separator);
-        GroupRequest groupRequest = (GroupRequest)request;
+        Map<String, MetaData> dataFields = generateFieldMappings(null,
+                objectMapper.valueToTree(groupResponse.getResult()), separator);
+        GroupRequest groupRequest = (GroupRequest) request;
 
         String statsHeader = getStatsHeader(groupRequest);
-
         List<Map<String, Object>> rows = Lists.newArrayList();
-        for(Map.Entry<String, MetaData> groupData : dataFields.entrySet()) {
+        for (Map.Entry<String, MetaData> groupData : dataFields.entrySet()) {
             String[] values = groupData.getKey()
                     .split(separator);
             Map<String, Object> row = Maps.newHashMap();
-            for(int i = 0; i < groupRequest.getNesting()
+            for (int i = 0; i < groupRequest.getNesting()
                     .size(); i++) {
                 final String fieldName = groupRequest.getNesting()
                         .get(i);
                 row.put(fieldName, values[i]);
-                if(!fieldNames.containsKey(fieldName)) {
+                if (!fieldNames.containsKey(fieldName)) {
                     fieldNames.put(fieldName, 0);
                 }
                 fieldNames.put(fieldName, lengthMax(fieldNames.get(fieldName), values[i]));
@@ -75,59 +77,52 @@ public class Flattener implements ResponseVisitor {
         }
         fieldNames.put(statsHeader, 10);
         List<FieldHeader> headers = Lists.newArrayList();
-        for(String fieldName : groupRequest.getNesting()) {
+        for (String fieldName : groupRequest.getNesting()) {
             headers.add(new FieldHeader(fieldName, fieldNames.get(fieldName)));
         }
         headers.add(new FieldHeader(statsHeader, 10));
-        flatRepresentation = new FlatRepresentation("group", headers, rows);
+        return new FlatRepresentation("group", headers, rows);
     }
-
-    private String getStatsHeader(GroupRequest groupRequest) {
-        String statsHeader = Utils.COUNT;
-        if(Objects.nonNull(groupRequest.getAggregationType())){
-            statsHeader = statsString(groupRequest.getAggregationType());
-        }
-        return statsHeader;
-    }
-
 
     @Override
-    public void visit(HistogramResponse histogramResponse) {
+    public FlatRepresentation visit(HistogramResponse histogramResponse) {
         List<Map<String, Object>> rows = Lists.newArrayList();
         rows.addAll(histogramResponse.getCounts()
-                            .stream()
-                            .map(count -> {
-                                Map<String, Object> map = new HashMap<>();
-                                map.put("timestamp", count.getPeriod());
-                                map.put(COUNT, count.getCount());
-                                return map;
-                            })
-                            .collect(Collectors.toList()));
+                .stream()
+                .map(count -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("timestamp", count.getPeriod());
+                    map.put(COUNT, count.getCount());
+                    return map;
+                })
+                .collect(Collectors.toList()));
 
         List<FieldHeader> headers = Lists.newArrayList();
         headers.add(new FieldHeader("timestamp", 15));
         headers.add(new FieldHeader(COUNT, 15));
-        flatRepresentation = new FlatRepresentation("histogram", headers, rows);
+        return new FlatRepresentation("histogram", headers, rows);
     }
 
     @Override
-    public void visit(QueryResponse queryResponse) {
+    public FlatRepresentation visit(QueryResponse queryResponse) {
         Map<String, Integer> fieldNames = Maps.newTreeMap();
         List<Map<String, Object>> rows = Lists.newArrayList();
-        Set<String> fieldToLookup = (null == fieldsToReturn) ? Collections.emptySet() : new HashSet<>(fieldsToReturn);
+        Set<String> fieldToLookup = (null == fieldsToReturn)
+                ? Collections.emptySet()
+                : new HashSet<>(fieldsToReturn);
         boolean isAllFields = fieldToLookup.isEmpty();
-        for(Document document : queryResponse.getDocuments()) {
+        for (Document document : queryResponse.getDocuments()) {
             Map<String, MetaData> docFields = generateFieldMappings(null, objectMapper.valueToTree(document));
             Map<String, Object> row = Maps.newTreeMap();
-            for(Map.Entry<String, MetaData> docField : docFields.entrySet()) {
+            for (Map.Entry<String, MetaData> docField : docFields.entrySet()) {
                 String fieldName = docField.getKey();
                 String prettyFieldName = fieldName.replaceFirst("data.", "");
-                if(!isAllFields && !fieldToLookup.contains(prettyFieldName)) {
+                if (!isAllFields && !fieldToLookup.contains(prettyFieldName)) {
                     continue;
                 }
                 row.put(prettyFieldName, docField.getValue()
                         .getData());
-                if(!fieldNames.containsKey(prettyFieldName)) {
+                if (!fieldNames.containsKey(prettyFieldName)) {
                     fieldNames.put(prettyFieldName, 0);
                 }
                 fieldNames.put(prettyFieldName, Math.max(fieldNames.get(prettyFieldName), docField.getValue()
@@ -135,14 +130,15 @@ public class Flattener implements ResponseVisitor {
             }
             rows.add(row);
         }
-        if(!rows.isEmpty()) {
-            flatRepresentation = new FlatRepresentation("query", getFieldsFromList(fieldNames), rows);
+        if (!rows.isEmpty()) {
+            return new FlatRepresentation("query", getFieldsFromList(fieldNames), rows);
         }
+        return null;
     }
 
     @Override
-    public void visit(StatsResponse statsResponse) {
-        flatRepresentation = genericParse(objectMapper.valueToTree(statsResponse.getResult()));
+    public FlatRepresentation visit(StatsResponse statsResponse) {
+        FlatRepresentation flatRepresentation = genericParse(objectMapper.valueToTree(statsResponse.getResult()));
         List<FieldHeader> headers = Lists.newArrayList();
         headers.add(new FieldHeader("percentiles.1.0", 20));
         headers.add(new FieldHeader("percentiles.5.0", 20));
@@ -161,11 +157,12 @@ public class Flattener implements ResponseVisitor {
         headers.add(new FieldHeader("stats.std_deviation", 20));
         flatRepresentation.setHeaders(headers);
         flatRepresentation.setOpcode("stats");
+        return flatRepresentation;
     }
 
 
     @Override
-    public void visit(StatsTrendResponse statsTrendResponse) {
+    public FlatRepresentation visit(StatsTrendResponse statsTrendResponse) {
         List<Map<String, Object>> rows = Lists.newArrayList();
         List<FieldHeader> fieldHeaders = Lists.newArrayList();
         fieldHeaders.add(new FieldHeader("period", 20));
@@ -184,15 +181,15 @@ public class Flattener implements ResponseVisitor {
         fieldHeaders.add(new FieldHeader("stats.sum_of_squares", 20));
         fieldHeaders.add(new FieldHeader("stats.variance", 20));
         fieldHeaders.add(new FieldHeader("stats.std_deviation", 20));
-        flatRepresentation = new FlatRepresentation("statstrend", fieldHeaders, rows);
+        return new FlatRepresentation("statstrend", fieldHeaders, rows);
     }
 
     @Override
-    public void visit(TrendResponse trendResponse) {
+    public FlatRepresentation visit(TrendResponse trendResponse) {
         List<FieldHeader> headers = Lists.newArrayListWithCapacity(3);
         JsonNode root = objectMapper.valueToTree(trendResponse.getTrends());
-        if(null == root || !root.isObject()) {
-            return;
+        if (null == root || !root.isObject()) {
+            return null;
         }
         List<String> types = Lists.newArrayList();
         List<Map<String, Object>> rows = Lists.newArrayList();
@@ -203,10 +200,10 @@ public class Flattener implements ResponseVisitor {
             String typeName = typeNameIt.next();
             types.add(typeName);
             typeNameMaxLength = Math.max(typeNameMaxLength, typeName.length());
-            for(JsonNode dataNode : root.get(typeName)) {
+            for (JsonNode dataNode : root.get(typeName)) {
                 final String time = Long.toString(dataNode.get("period")
-                                                          .asLong());
-                if(!representation.containsKey(time)) {
+                        .asLong());
+                if (!representation.containsKey(time)) {
                     representation.put(time, Maps.newHashMap());
                 }
                 representation.get(time)
@@ -216,78 +213,84 @@ public class Flattener implements ResponseVisitor {
         }
 
         headers.add(new FieldHeader("time", 20));
-        for(String type : types) {
+        for (String type : types) {
             headers.add(new FieldHeader(type, 20));
         }
-        for(Map.Entry<String, Map<String, Object>> element : representation.entrySet()) {
+        for (Map.Entry<String, Map<String, Object>> element : representation.entrySet()) {
             Map<String, Object> row = Maps.newTreeMap();
             row.put("time", element.getKey());
-            for(Map.Entry<String, Object> data : element.getValue()
+            for (Map.Entry<String, Object> data : element.getValue()
                     .entrySet()) {
                 row.put(data.getKey(), data.getValue());
             }
             rows.add(row);
         }
-        flatRepresentation = new FlatRepresentation("trend", new ArrayList<>(headers), rows);
+        return new FlatRepresentation("trend", new ArrayList<>(headers), rows);
     }
 
     @Override
-    public void visit(CountResponse countResponse) {
+    public FlatRepresentation visit(CountResponse countResponse) {
         FieldHeader fieldHeader = new FieldHeader(COUNT, 20);
         List<Map<String, Object>> rows = Lists.newArrayList();
         rows.add(Collections.singletonMap(COUNT, countResponse.getCount()));
-        flatRepresentation = new FlatRepresentation(COUNT, Collections.singletonList(fieldHeader), rows);
+        return new FlatRepresentation(COUNT, Collections.singletonList(fieldHeader), rows);
     }
 
     @Override
-    public void visit(DistinctResponse distinctResponse) {
+    public FlatRepresentation visit(DistinctResponse distinctResponse) {
         List<FieldHeader> fieldHeaders = Lists.newArrayList();
-        for(String header : distinctResponse.getHeaders()) {
+        for (String header : distinctResponse.getHeaders()) {
             fieldHeaders.add(new FieldHeader(header, 10));
         }
         List<List<String>> distinctResponseRows = distinctResponse.getResult();
         List<Map<String, Object>> rows = Lists.newArrayList();
-        for(List<String> responseRow : distinctResponseRows) {
+        for (List<String> responseRow : distinctResponseRows) {
             Map<String, Object> row = Maps.newHashMap();
-            for(int i = 0; i < fieldHeaders.size(); i++) {
+            for (int i = 0; i < fieldHeaders.size(); i++) {
                 row.put(fieldHeaders.get(i)
-                                .getName(), responseRow.get(i));
+                        .getName(), responseRow.get(i));
             }
             rows.add(row);
         }
-        flatRepresentation = new FlatRepresentation("distinct", fieldHeaders, rows);
+        return new FlatRepresentation("distinct", fieldHeaders, rows);
     }
 
     @Override
-    public void visit(MultiQueryResponse multiQueryResponse) {
+    public FlatRepresentation visit(MultiQueryResponse multiQueryResponse) {
         throw new FqlParsingException("Fql query not supported for this operation");
     }
 
     @Override
-    public void visit(MultiTimeQueryResponse multiTimeQueryResponse) {
+    public FlatRepresentation visit(MultiTimeQueryResponse multiTimeQueryResponse) {
         throw new FqlParsingException("Fql query not supported for this operation");
     }
 
-    public FlatRepresentation getFlatRepresentation() {
-        return flatRepresentation;
-    }
-
-    private int lengthMax(int currMax, final String rhs) {
-        return currMax > rhs.length() ? currMax : rhs.length();
+    private int lengthMax(int currMax,
+                          final String rhs) {
+        return currMax > rhs.length()
+                ? currMax
+                : rhs.length();
     }
 
     private List<FieldHeader> getFieldsFromList(Map<String, Integer> fieldNames) {
         List<FieldHeader> headers = Lists.newArrayList();
-        if(null == fieldsToReturn || fieldsToReturn.isEmpty()) {
-            for(Map.Entry<String, Integer> entry : fieldNames.entrySet()) {
+        if (null == fieldsToReturn || fieldsToReturn.isEmpty()) {
+            for (Map.Entry<String, Integer> entry : fieldNames.entrySet()) {
                 headers.add(new FieldHeader(entry.getKey(), entry.getValue()));
             }
         } else {
-            for(String fieldName : fieldsToReturn) {
+            for (String fieldName : fieldsToReturn) {
                 headers.add(new FieldHeader(fieldName, fieldNames.get(fieldName)));
             }
         }
         return headers;
     }
 
+    private String getStatsHeader(GroupRequest groupRequest) {
+        String statsHeader = Utils.COUNT;
+        if (Objects.nonNull(groupRequest.getAggregationType())) {
+            statsHeader = statsString(groupRequest.getAggregationType());
+        }
+        return statsHeader;
+    }
 }

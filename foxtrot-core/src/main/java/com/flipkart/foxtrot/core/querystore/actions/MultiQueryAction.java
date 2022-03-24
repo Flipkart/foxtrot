@@ -3,18 +3,19 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.common.exception.MalformedQueryException;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.elasticsearch.action.search.MultiSearchRequest;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /***
@@ -36,10 +38,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MultiQueryAction extends Action<MultiQueryRequest> {
 
-    private AnalyticsLoader analyticsLoader;
-    private Map<ActionRequest, Action> requestActionMap = Maps.newHashMap();
+    private final AnalyticsLoader analyticsLoader;
+    private final Map<ActionRequest, Action> requestActionMap = Maps.newHashMap();
 
-    public MultiQueryAction(MultiQueryRequest parameter, AnalyticsLoader analyticsLoader) {
+    public MultiQueryAction(MultiQueryRequest parameter,
+                            AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.analyticsLoader = analyticsLoader;
     }
@@ -69,9 +72,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        return String.format("multquery-%d-%s",
-                             filterHashKey,
-                             processForSubQueries(parameter, (action, request) -> action.getRequestCacheKey()));
+        return String.format("multquery-%d-%s", filterHashKey,
+                processForSubQueries(parameter, (action, request) -> action.getRequestCacheKey()));
     }
 
     @Override
@@ -86,7 +88,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             }
             return null;
         });
-        if(CollectionUtils.isNotEmpty(multiException.getErrors())) {
+        if (CollectionUtils.isNotEmpty(multiException.getErrors())) {
             throw multiException;
         }
 
@@ -94,24 +96,24 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     @Override
     public ActionResponse execute(MultiQueryRequest parameter) {
-        if(Utils.hasTemporalFilters(parameter.getFilters())) {
-            val offendingRequests = parameter.getRequests().entrySet().stream()
-                    .filter(entry -> Utils.hasTemporalFilters(entry.getValue().getFilters()))
+        if (Utils.hasTemporalFilters(parameter.getFilters())) {
+            val offendingRequests = parameter.getRequests()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> Utils.hasTemporalFilters(entry.getValue()
+                            .getFilters()))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
-            if(CollectionUtils.isNotEmpty(offendingRequests)) {
-                throw FoxtrotExceptions.createMalformedQueryException(
-                        parameter,
-                        Collections.singletonList(
-                                "Temporal filters passed in multi query as well as children: " + offendingRequests));
+            if (CollectionUtils.isNotEmpty(offendingRequests)) {
+                throw FoxtrotExceptions.createMalformedQueryException(parameter, Collections.singletonList(
+                        "Temporal filters passed in multi query as well as children: " + offendingRequests));
             }
         }
         MultiSearchRequest multiSearchRequestBuilder = getRequestBuilder(parameter, Collections.emptyList());
         try {
             log.info("Search: {}", multiSearchRequestBuilder);
-            MultiSearchResponse multiSearchResponse = getConnection()
-                    .getClient()
-                    .multiSearch(multiSearchRequestBuilder, RequestOptions.DEFAULT);
+            MultiSearchResponse multiSearchResponse = getConnection().getClient()
+                    .msearch(multiSearchRequestBuilder, RequestOptions.DEFAULT);
             return getResponse(multiSearchResponse, parameter);
         } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
@@ -119,27 +121,28 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     @Override
-    public MultiSearchRequest getRequestBuilder(MultiQueryRequest parameter, List<Filter> extraFilters) {
+    public MultiSearchRequest getRequestBuilder(MultiQueryRequest parameter,
+                                                List<Filter> extraFilters) {
 
         MultiSearchRequest multiSearchRequest = new MultiSearchRequest();
         val filterBuilder = ImmutableList.<Filter>builder();
-        if(null != parameter.getFilters()) {
+        if (null != parameter.getFilters()) {
             filterBuilder.addAll(parameter.getFilters());
         }
-        if(null != extraFilters) {
+        if (null != extraFilters) {
             filterBuilder.addAll(extraFilters);
         }
-        val filters =  filterBuilder.build();
+        val filters = filterBuilder.build();
 
-        for(Map.Entry<String, ActionRequest> entry : parameter.getRequests()
+        for (Map.Entry<String, ActionRequest> entry : parameter.getRequests()
                 .entrySet()) {
             ActionRequest request = entry.getValue();
             Action<ActionRequest> action = analyticsLoader.getAction(request);
-            if(null == action) {
+            if (null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
             }
             org.elasticsearch.action.ActionRequest requestBuilder = action.getRequestBuilder(request, filters);
-            if(requestBuilder instanceof SearchRequest) {
+            if (requestBuilder instanceof SearchRequest) {
                 multiSearchRequest.add((SearchRequest) requestBuilder);
             }
         }
@@ -147,18 +150,18 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse, MultiQueryRequest parameter) {
-
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse,
+                                      MultiQueryRequest parameter) {
         Map<String, ActionResponse> queryVsQueryResponseMap = Maps.newHashMap();
         int queryCounter = 0;
         List<String> queryKeys = Lists.newArrayList();
         List<ActionRequest> requests = Lists.newArrayList();
-        for(Map.Entry<String, ActionRequest> entry : getParameter().getRequests()
+        for (Map.Entry<String, ActionRequest> entry : getParameter().getRequests()
                 .entrySet()) {
             queryKeys.add(entry.getKey());
             requests.add(entry.getValue());
         }
-        for(MultiSearchResponse.Item item : ((MultiSearchResponse)multiSearchResponse).getResponses()) {
+        for (MultiSearchResponse.Item item : ((MultiSearchResponse) multiSearchResponse).getResponses()) {
             Action action = null;
             ActionRequest request = requests.get(queryCounter);
             try {
@@ -166,7 +169,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             } catch (Exception e) {
                 log.error("Error occurred while executing multiQuery request : {}", e);
             }
-            if(null == action) {
+            if (null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
             }
             String key = queryKeys.get(queryCounter++);
@@ -177,46 +180,44 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     private void createActions(final MultiQueryRequest multiQueryRequest) {
-        if(Utils.hasTemporalFilters(multiQueryRequest.getFilters())) {
-            val offendingRequests = multiQueryRequest.getRequests().entrySet().stream()
-                    .filter(entry -> Utils.hasTemporalFilters(entry.getValue().getFilters()))
+        if (Utils.hasTemporalFilters(multiQueryRequest.getFilters())) {
+            val offendingRequests = multiQueryRequest.getRequests()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> Utils.hasTemporalFilters(entry.getValue()
+                            .getFilters()))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
-            if(CollectionUtils.isNotEmpty(offendingRequests)) {
-                throw FoxtrotExceptions.createMalformedQueryException(
-                        multiQueryRequest,
-                        Collections.singletonList(
-                                "Temporal filters passed in multi query as well as children: " + offendingRequests));
+            if (CollectionUtils.isNotEmpty(offendingRequests)) {
+                throw FoxtrotExceptions.createMalformedQueryException(multiQueryRequest, Collections.singletonList(
+                        "Temporal filters passed in multi query as well as children: " + offendingRequests));
             }
         }
 
-        for(Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests().entrySet()) {
+        for (Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests()
+                .entrySet()) {
             ActionRequest request = entry.getValue();
             Action action;
             if (requestActionMap.get(request) != null) {
                 action = requestActionMap.get(request);
-            }
-            else {
+            } else {
                 action = analyticsLoader.getAction(request);
                 requestActionMap.put(request, action);
             }
             if (null == action) {
-                throw FoxtrotExceptions.createMalformedQueryException(multiQueryRequest, Collections.singletonList(
-                        "No action found for the sub request : " + request.toString()));
+                throw FoxtrotExceptions.createMalformedQueryException(multiQueryRequest,
+                        Collections.singletonList("No action found for the sub request : " + request.toString()));
             }
-
         }
     }
 
-    private String processForSubQueries(MultiQueryRequest multiQueryRequest, ActionInterface actionInterface) {
-        List<String> results = Lists.newArrayList();
-        for(Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests().entrySet()) {
-            if(null == entry.getValue()) {
-                log.warn("Empty response for query: {}", entry.getKey());
-                continue;
-            }
+    private String processForSubQueries(MultiQueryRequest multiQueryRequest,
+                                        ActionInterface actionInterface) {
+        Set<String> results = Sets.newHashSet();
+        for (Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests()
+                .entrySet()) {
             String result = actionInterface.invoke(requestActionMap.get(entry.getValue()), entry.getValue());
-            if(!Strings.isNullOrEmpty(result)) {
+            if (!Strings.isNullOrEmpty(result)) {
                 results.add(result);
             }
         }

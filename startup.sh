@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FOXTROT_CONFIG_FILE=/config/docker.yml
+FOXTROT_CONFIG_FILE=/config/local.yml
 
 if [ -z "${CONFIG_PATH}" ]; then
     echo "No CONFIG_PATH defined. We shall be using default config from ${FOXTROT_CONFIG_FILE}"

@@ -16,6 +16,15 @@
 package com.foxtrot.flipkart.translator;
 
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.Option;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
+import com.jayway.jsonpath.spi.json.JsonProvider;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
+import com.jayway.jsonpath.spi.mapper.MappingProvider;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -33,6 +42,31 @@ public class TestUtils {
         TranslatorConfig translatorConfig = new TranslatorConfig();
         translatorConfig.setRawKeyVersion("2.0");
         return translatorConfig;
+    }
+
+    public static TranslatorConfig createTranslatorConfigWithRawKeyV3() {
+        TranslatorConfig translatorConfig = new TranslatorConfig();
+        translatorConfig.setRawKeyVersion("3.0");
+        return translatorConfig;
+    }
+
+    public static void setupJsonPath() {
+        Configuration.setDefaults(new Configuration.Defaults() {
+            @Override
+            public JsonProvider jsonProvider() {
+                return new JacksonJsonNodeJsonProvider();
+            }
+
+            @Override
+            public Set<Option> options() {
+                return EnumSet.noneOf(Option.class);
+            }
+
+            @Override
+            public MappingProvider mappingProvider() {
+                return new JacksonMappingProvider();
+            }
+        });
     }
 
 }

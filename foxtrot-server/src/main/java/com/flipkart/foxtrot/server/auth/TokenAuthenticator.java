@@ -30,12 +30,12 @@ public class TokenAuthenticator implements Authenticator<String, UserPrincipal> 
 
     @Override
     public Optional<UserPrincipal> authenticate(String token) throws AuthenticationException {
-        if(!config.isEnabled()) {
+        if (!config.isEnabled()) {
             log.debug("Authentication is disabled");
             return Optional.of(UserPrincipal.DEFAULT);
         }
         log.debug("Auth called");
-        if(Strings.isNullOrEmpty(token)) {
+        if (Strings.isNullOrEmpty(token)) {
             log.warn("authentication_failed::empty token");
             return Optional.empty();
         }

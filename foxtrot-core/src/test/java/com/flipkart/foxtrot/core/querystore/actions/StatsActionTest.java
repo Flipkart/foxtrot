@@ -15,18 +15,29 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.exception.CardinalityOverflowException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.MalformedQueryException;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.stats.*;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.exception.MalformedQueryException;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
-import org.junit.BeforeClass;
+import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -40,19 +51,57 @@ import static org.junit.Assert.*;
  * Created by rishabh.goyal on 29/04/14.
  */
 public class StatsActionTest extends ActionTest {
-    @BeforeClass
-    public static void setUp() throws Exception {
-        List<Document> documents = TestUtils.getStatsDocuments(getMapper());
-        getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
+
+    private static final String STATS_TEST_TABLE = "stats-test-table";
+
+    private static final String STATS_CARDINALITY_TEST_TABLE = "stats-cardinality-test-table";
+    private static final String TEST_TENANT = "test-tenant";
+
+    private static final Long time = DateTime.now()
+            .minusDays(1)
+            .toDate()
+            .getTime();
+
+    @Before
+    public void setUp() throws Exception {
+        super.setup();
+        tableMetadataManager.save(Table.builder()
+                .name(STATS_TEST_TABLE)
+                .ttl(30)
+                .tenantName(TEST_TENANT)
+                .build());
+        List<Document> documents = TestUtils.getStatsDocuments(getMapper(), time);
+        getQueryStore().saveAll(STATS_TEST_TABLE, documents);
         getElasticsearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
+
+        tableMetadataManager.save(Table.builder()
+                .name(STATS_CARDINALITY_TEST_TABLE)
+                .ttl(30)
+                .tenantName(TEST_TENANT)
+                .build());
+        List<Document> documentsForEstimation = TestUtils.getTestDocumentsForCardinalityEstimation(getMapper(), time,
+                300);
+        getQueryStore().saveAll(STATS_CARDINALITY_TEST_TABLE, documentsForEstimation);
+        getElasticsearchConnection().getClient()
+                .indices()
+                .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
+        getTableMetadataManager().calculateCardinality(STATS_CARDINALITY_TEST_TABLE);
+        ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
+                .setMaxCardinality(1500);
+        getTableMetadataManager().updateEstimationData(STATS_CARDINALITY_TEST_TABLE, time);
+    }
+
+    @After
+    public void afterMethod() {
+        ElasticsearchTestUtils.cleanupIndices(getElasticsearchConnection());
     }
 
     @Test
     public void testStatsActionWithoutNesting() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField("battery");
 
         StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
@@ -67,13 +116,14 @@ public class StatsActionTest extends ActionTest {
                 .get("count")
                 .intValue());
         assertNull(statsResponse.getBuckets());
-        assertNotNull(statsResponse.getResult().getPercentiles());
+        assertNotNull(statsResponse.getResult()
+                .getPercentiles());
     }
 
     @Test
     public void testStatsActionWithoutNestingNoPercentile() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField("battery");
         request.setFlags(EnumSet.of(AnalyticsRequestFlags.STATS_SKIP_PERCENTILES));
 
@@ -89,13 +139,14 @@ public class StatsActionTest extends ActionTest {
                 .get("count")
                 .intValue());
         assertNull(statsResponse.getBuckets());
-        assertNull(statsResponse.getResult().getPercentiles());
+        assertTrue(CollectionUtils.isEmpty(statsResponse.getResult()
+                .getPercentiles()));
     }
 
     @Test
     public void testStatsActionWithoutNestingNonNumericField() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField("os");
         request.setFilters(Collections.singletonList(new EqualsFilter("os", "android")));
 
@@ -107,18 +158,19 @@ public class StatsActionTest extends ActionTest {
                 .get("count")
                 .intValue());
         assertNull(statsResponse.getBuckets());
-        assertNull(statsResponse.getResult().getPercentiles());
+        assertTrue(CollectionUtils.isEmpty(statsResponse.getResult()
+                .getPercentiles()));
     }
 
     @Test
     public void testStatsActionNoExtendedStat() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField("battery");
         request.setStats(EnumSet.allOf(Stat.class)
-                                 .stream()
-                                 .filter(x -> !x.isExtended())
-                                 .collect(Collectors.toSet()));
+                .stream()
+                .filter(x -> !x.isExtended())
+                .collect(Collectors.toSet()));
 
         StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
@@ -131,7 +183,7 @@ public class StatsActionTest extends ActionTest {
     @Test
     public void testStatsActionOnlyCountStat() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField("battery");
         request.setStats(Collections.singleton(Stat.COUNT));
 
@@ -142,14 +194,14 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("count"));
+                .getStats()
+                .containsKey("count"));
     }
 
     @Test
     public void testStatsActionOnlyMaxStat() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField("battery");
         request.setStats(Collections.singleton(Stat.MAX));
 
@@ -160,14 +212,14 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("max"));
+                .getStats()
+                .containsKey("max"));
     }
 
     @Test
     public void testStatsActionOnlyMinStat() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField("battery");
         request.setStats(Collections.singleton(Stat.MIN));
 
@@ -178,15 +230,15 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("min"));
+                .getStats()
+                .containsKey("min"));
     }
 
 
     @Test
     public void testStatsActionOnlyAvgStat() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField("battery");
         request.setStats(Collections.singleton(Stat.AVG));
 
@@ -197,14 +249,14 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("avg"));
+                .getStats()
+                .containsKey("avg"));
     }
 
     @Test
     public void testStatsActionOnlySumStat() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField("battery");
         request.setStats(Collections.singleton(Stat.SUM));
 
@@ -212,14 +264,14 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("sum"));
+                .getStats()
+                .containsKey("sum"));
     }
 
     @Test
     public void testStatsActionOnlyOnePercentile() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField("battery");
         request.setPercentiles(Collections.singletonList(5d));
 
@@ -230,21 +282,21 @@ public class StatsActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsResponse statsResponse = (StatsResponse)getQueryExecutor().execute(request);
+        StatsResponse statsResponse = (StatsResponse) getQueryExecutor().execute(request);
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(1, statsResponse.getResult()
                 .getPercentiles()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getPercentiles()
-                           .containsKey(5d));
+                .getPercentiles()
+                .containsKey(5d));
     }
 
     @Test
     public void testStatsActionWithNesting() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField("battery");
         request.setNesting(Lists.newArrayList("os"));
 
@@ -253,7 +305,7 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse.getResult());
         assertEquals(3, statsResponse.getBuckets()
                 .size());
-        for(BucketResponse bucketResponse : statsResponse.getBuckets()) {
+        for (BucketResponse bucketResponse : statsResponse.getBuckets()) {
             assertNotNull(bucketResponse.getResult());
         }
     }
@@ -261,7 +313,7 @@ public class StatsActionTest extends ActionTest {
     @Test
     public void testStatsActionWithMultiLevelNesting() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField("battery");
         request.setNesting(Lists.newArrayList("os", "version"));
 
@@ -270,7 +322,7 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse.getResult());
         assertEquals(3, statsResponse.getBuckets()
                 .size());
-        for(BucketResponse bucketResponse : statsResponse.getBuckets()) {
+        for (BucketResponse bucketResponse : statsResponse.getBuckets()) {
             assertNull(bucketResponse.getResult());
             assertNotNull(bucketResponse.getBuckets());
         }
@@ -289,9 +341,64 @@ public class StatsActionTest extends ActionTest {
     @Test(expected = MalformedQueryException.class)
     public void testStatsActionNullField() throws FoxtrotException {
         StatsRequest request = new StatsRequest();
-        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTable(STATS_TEST_TABLE);
         request.setField(null);
         request.setNesting(Lists.newArrayList("os", "version"));
         getQueryExecutor().execute(request);
+    }
+
+    @Test(expected = CardinalityOverflowException.class)
+    public void testEstimationWithMultipleNestingHighCardinality() {
+
+        StatsRequest statsRequest = new StatsRequest();
+        statsRequest.setTable(STATS_CARDINALITY_TEST_TABLE);
+        statsRequest.setField("battery");
+        statsRequest.setNesting(Lists.newArrayList("os", "deviceId"));
+
+        StatsResponse response = StatsResponse.class.cast(getQueryExecutor().execute(statsRequest));
+    }
+
+    @Test(expected = CardinalityOverflowException.class)
+    public void testEstimationGTFilterHighCardinality() throws Exception {
+        StatsRequest statsRequest = new StatsRequest();
+        statsRequest.setField("battery");
+        statsRequest.setTable(STATS_CARDINALITY_TEST_TABLE);
+        statsRequest.setNesting(Collections.singletonList("deviceId"));
+        statsRequest.setFilters(ImmutableList.of(GreaterThanFilter.builder()
+                .field("value")
+                .value(10)
+                .build()));
+        getQueryExecutor().execute(statsRequest);
+    }
+
+    @Test
+    // High cardinality field queries with filters including small subset are allowed
+    public void testEstimationLTFilterHighCardinality() throws Exception {
+        StatsRequest statsRequest = new StatsRequest();
+        statsRequest.setField("battery");
+        statsRequest.setTable(STATS_CARDINALITY_TEST_TABLE);
+        statsRequest.setNesting(Collections.singletonList("deviceId"));
+        statsRequest.setFilters(ImmutableList.of(LessThanFilter.builder()
+                .field("value")
+                .value(3)
+                .build()));
+        StatsResponse response = StatsResponse.class.cast(getQueryExecutor().execute(statsRequest));
+
+        Assert.assertNotNull(response.getResult());
+        Assert.assertFalse(response.getBuckets()
+                .isEmpty());
+    }
+
+    @Test(expected = CardinalityOverflowException.class)
+    public void testEstimationLTFilterHighCardinalityBlocked() {
+        StatsRequest statsRequest = new StatsRequest();
+        statsRequest.setTable(STATS_CARDINALITY_TEST_TABLE);
+        statsRequest.setField("battery");
+        statsRequest.setNesting(Collections.singletonList("deviceId"));
+        statsRequest.setFilters(ImmutableList.of(LessThanFilter.builder()
+                .field("value")
+                .value(80)
+                .build()));
+        getQueryExecutor().execute(statsRequest);
     }
 }

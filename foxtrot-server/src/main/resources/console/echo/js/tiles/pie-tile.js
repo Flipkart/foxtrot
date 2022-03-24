@@ -24,6 +24,10 @@ function getPieChartFormValues() {
   var uniqueKey = $("#pie-uniquekey").val();
   var ignoreDigits = $(".pie-ignored-digits").val();
   var selectedValue = $("#pie-selected-value").val();
+  var aggregationType = $('#pie-aggregation-type').val();
+  var aggregationField = $('#pie-aggregation-field').val();
+  
+
   if (chartField == "none") {
     return [[], false];
   }
@@ -34,6 +38,17 @@ function getPieChartFormValues() {
     uniqueKey = currentFieldList[parseInt(uniqueKey)].field
   }
 
+
+  if(aggregationField == "none" || aggregationField == "" || aggregationField == null || aggregationField == "undefined") {
+    aggregationField = null;
+  } else {
+    aggregationField = currentFieldList[parseInt(aggregationField)].field
+  }
+
+  if(aggregationType == "none" || aggregationType == "" || aggregationType == "null" || aggregationType == "undefined") {
+    aggregationType = null;
+  } 
+
   chartField = currentFieldList[parseInt(chartField)].field;
   return {
     "period": period
@@ -42,6 +57,8 @@ function getPieChartFormValues() {
     , "eventFiled": chartField
     , "ignoreDigits" : ignoreDigits
     , "selectedValue": selectedValue
+    , "aggregationType":aggregationType
+    , "aggregationField":aggregationField
     , };
 }
 
@@ -58,6 +75,9 @@ function setPieChartFormValues(object) {
   $("#pie-uniquekey").selectpicker('refresh');
   $(".pie-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
   $("#pie-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
+  $('#pie-aggregation-field').val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.aggregationField)));
+  $('#pie-aggregation-field').selectpicker('refresh');
+  $('#pie-aggregation-Type').val();
 }
 
 function clearPieChartForm() {
@@ -68,11 +88,16 @@ function clearPieChartForm() {
 PieTile.prototype.getQuery = function (object) {
   this.object = object;
   var filters = [];
-  if(globalFilters) {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-  } else {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-  }
+  // ------- Starts added  today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
 
   if(object.tileContext.filters) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
@@ -91,13 +116,24 @@ PieTile.prototype.getQuery = function (object) {
   if(templateFilters.length > 0) {
     filters = filters.concat(templateFilters);
   }
+
+  var requestTags = {
+    "widget": this.object.title,
+    "consoleId": getCurrentConsoleId()
+  }
   
   var data = {
     "opcode": "group"
+    ,"consoleId": getCurrentConsoleId()
     , "table": object.tileContext.table
     , "filters": filters
     , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
     , nesting: [object.tileContext.eventFiled]
+    ,"aggregationField":object.tileContext.aggregationField
+    ,"aggregationType":object.tileContext.aggregationType
+    ,"sourceType":"ECHO_DASHBOARD",
+      "requestTags": requestTags,
+      "extrapolationFlag": false
   }
   var refObject = this.object;
   $.ajax({
@@ -106,7 +142,7 @@ PieTile.prototype.getQuery = function (object) {
     , accepts: {
       json: 'application/json'
     }
-    , url: apiUrl + "/v1/analytics"
+    , url: apiUrl + "/v2/analytics"
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
@@ -242,3 +278,75 @@ PieTile.prototype.render = function (columns, dataLength) {
     });
   }
 }
+
+
+
+//  -------------------- Starts added download widget 2--------------------
+
+PieTile.prototype.downloadWidget = function (object) {
+  this.object = object;
+  var filters = [];
+// ------- Starts added  download for today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
+  }
+  if (object.tileContext.selectedValue) {
+    filters.push({
+      field: object.tileContext.nesting.toString(),
+      operator: "in",
+      values: object.tileContext.selectedValue.split(',')
+    });
+  }
+
+  var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+  if(templateFilters.length > 0) {
+    filters = filters.concat(templateFilters);
+  }
+
+  var requestTags = {
+    "widget": this.object.title,
+    "consoleId": getCurrentConsoleId()
+  }
+
+  var data = {
+    "opcode": "group"
+    ,"consoleId": getCurrentConsoleId()
+    , "table": object.tileContext.table
+    , "filters": filters
+    , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
+    , nesting: [object.tileContext.eventFiled]
+    ,"sourceType":"ECHO_DASHBOARD"
+    ,"requestTags": requestTags
+    ,"extrapolationFlag": false
+  }
+  var refObject = this.object;
+  $.ajax({
+    url: apiUrl + "/v2/analytics/download",
+    type: 'POST',
+    data: JSON.stringify(data),
+    dataType: 'text',
+
+    contentType: 'application/json',
+    context: this,
+    success: function(response) {
+      downloadTextAsCSV(response, 'PieChart.csv')
+    },
+    error: function(xhr, textStatus, error ) {
+      console.log("error.........",error,textStatus,xhr)
+    }
+});
+}
+
+//  -------------------- Ends added download widget 2--------------------
