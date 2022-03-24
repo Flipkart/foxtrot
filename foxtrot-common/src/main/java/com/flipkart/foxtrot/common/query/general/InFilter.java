@@ -16,8 +16,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA. User: rishabh.goyal Date: 02/09/14 Time: 11:46 AM To change this template use File |
- * Settings | File Templates.
+ * Created with IntelliJ IDEA.
+ * User: rishabh.goyal
+ * Date: 02/09/14
+ * Time: 11:46 AM
+ * To change this template use File | Settings | File Templates.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

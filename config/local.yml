@@ -49,7 +49,6 @@ restrictedTables:
 
 cardinality:
   enabled: true
-  #  retryCount: 3
   batchSize: 10
   active: true
   interval: 86400
@@ -190,19 +189,12 @@ auth:
     issuerId: foxtrot-server
     privateKey: ${PRIVATE_KEY}
     sessionDuration: 15d
-
   provider:
     type: OAUTH_GOOGLE
     clientId: ${GOOGLE_CLIENT_ID}
     clientSecret: ${GOOGLE_CLIENT_SECRET}
     server: ${GOOGLE_CALLBACK_HOST_PORT}
     secureEndpoint: false
-
-clusterRerouteConfig:
-  active: false
-  interval: 86400
-  initialDelay: 10
-  thresholdShardCountPercentage: 10
 
 sessionCleanupConfig:
   active: true

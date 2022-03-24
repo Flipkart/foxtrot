@@ -83,7 +83,6 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/template_foxt
             }
           }
         },
-
         {
           "template_no_store": {
             "match_mapping_type": "*",
@@ -110,7 +109,7 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/template_foxt
   }
 }'
 
-curl -H 'Content-type: application/json' -XPUT localhost:9200/_template/console_v2 -d '
+curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/console_v2 -d '
 {
   "template": "consoles_v2*",
   "settings": {

@@ -31,6 +31,8 @@ import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.pipeline.PipelineConfiguration;
 import com.flipkart.foxtrot.pipeline.resources.GeojsonStoreConfiguration;
+import com.flipkart.foxtrot.server.auth.AuthConfig;
+import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
@@ -86,6 +88,9 @@ public class FoxtrotServerConfiguration extends Configuration {
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
 
     @Valid
+    private SessionCleanupConfig sessionCleanupConfig;
+
+    @Valid
     private TableIndexMetadataJobConfig tableIndexMetadataJobConfig;
 
     @Valid
@@ -137,6 +142,7 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Builder.Default
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
 
+
     @Valid
     private NodeGroupActivityConfig nodeGroupActivityConfig;
 
@@ -145,6 +151,10 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     @Valid
     private GeojsonStoreConfiguration geojsonStoreConfiguration;
+
+    @Valid
+    @NotNull
+    private AuthConfig auth = new AuthConfig();
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();

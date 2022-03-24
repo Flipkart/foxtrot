@@ -12,7 +12,7 @@ if __name__ == "__main__":
 
     url = "http://" + args["host"] + ":" + args["port"] + "/foxtrot/v1/tables"
     table = {"name": args["name"], "ttl": args["ttl"]}
-    data = table
+    data = json.dumps(table)
     headers = {'Content-Type': 'application/json'}
     print(data)
     request = requests.post(url, json=data, headers=headers)

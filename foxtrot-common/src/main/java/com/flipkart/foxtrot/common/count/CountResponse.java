@@ -32,5 +32,4 @@ public class CountResponse extends ActionResponse {
     public <T> T accept(ResponseVisitor<T> visitor) {
         return visitor.visit(this);
     }
-
 }
