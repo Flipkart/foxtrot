@@ -71,15 +71,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
     @Override
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {
-        String teamId = System.getenv("TEAM_ID");
-
-        boolean localConfig = Boolean.parseBoolean(System.getProperty("localConfig", "false"));
-        if (localConfig) {
-            bootstrap.setConfigurationSourceProvider(
-                    new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
-                            new EnvironmentVariableSubstitutor()));
-        }
-        bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
+        bootstrap.setConfigurationSourceProvider(
+                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
+        bootstrap.addBundle(new AssetsBundle("/console/echo/", "/", "browse-events.htm", "console"));
         bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
             public boolean withOor() {
                 return false;
@@ -143,7 +137,6 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 .build(Stage.PRODUCTION));
         bootstrap.addCommand(new InitializerCommand());
         configureObjectMapper(bootstrap.getObjectMapper());
-
     }
 
     @Override
@@ -186,6 +179,5 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         objectMapper.registerSubtypes(new NamedType(KubernetesClusterDiscoveryConfig.class, "foxtrot_kubernetes"));
         SerDe.init(objectMapper);
     }
-
 
 }

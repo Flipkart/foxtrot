@@ -99,9 +99,4 @@ public class ElasticsearchConfig {
         HTTPS
     }
 
-    public enum ConnectionType {
-        HTTP,
-        HTTPS
-    }
-
 }

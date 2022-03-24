@@ -18,7 +18,7 @@ elasticsearch:
 serviceDiscovery:
   namespace: local
   environment: local
-  zookeeper: stg-appzkobserver001.phonepe.nb6:2181
+  zookeeper: localhost:2181
   publishedHost: 127.0.0.1
   publishedPort: 8080
 

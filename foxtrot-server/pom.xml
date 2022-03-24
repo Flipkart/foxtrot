@@ -79,11 +79,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.phonepe.platform</groupId>
-            <artifactId>rosey-dropwizard-config</artifactId>
-            <version>1.18</version>
-        </dependency>
-        <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
             <version>${project.version}</version>
