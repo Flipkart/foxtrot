@@ -114,7 +114,7 @@ restrictAccess: false
 swagger:
   resourcePackage: com.flipkart.foxtrot.server.resources
   title: Foxtrot
-  description: A store abstraction and analytics http://siphon-ui.test system for real-time event data.
+  description: A store abstraction and analytics
   uriPrefix: "/foxtrot"
 
 distributedLockConfig:
@@ -125,7 +125,7 @@ distributedLockConfig:
 funnelConfiguration:
   querySize: 100
   funnelIndex: foxtrot_funnel
-  funnelConsoleUrl: http://siphon-ui.test.com/#/
+  funnelConsoleUrl: http://funnel-ui.test.com/#/
   defaultVersionCodeFilter:
     operator: greater_equal
     field: eventData.versionCode
@@ -136,52 +136,12 @@ funnelConfiguration:
   funnelDropdownConfig:
     eventTypes:
       - APP_LOADED
-      - REFERRAL_RECEIVED
-      - FORCE_LOGOUT
-      - RESET_DEVICE_MAPPING
-      - USER_LOGOUT
-      - INSTALL_REFERRAL
-      - P2P_SEND_TRANSACTION_TAG_SELECTED
-      - P2P_SEND_TRANSACTION_CONTACT_CHANGE_INITIATED
-      - P2P_REQUEST_TRANSACTION_INITIATED
-      - P2P_REQUEST_CONTACT_SELECTED
-      - P2P_REQUEST_TRANSACTION_TAG_SELECTED
-      - P2P_REQUEST_TRANSACTION_CONTACT_CHANGE_INITIATED
-      - P2P_SPLIT_TRANSACTION_INITIATED
-      - P2P_SPLIT_CONTACT_SELECTED
-      - P2P_SPLIT_TRANSACTION_TAG_SELECTED
-      - P2P_SPLIT_TRANSACTION_CONTACT_CHANGE_INITIATED
-      - P2P_INIT
-      - MANAGE_REMINDER_INIT
-      - WALLET_TOPUP_INIT
-      - CHECK_BALANCE_INIT
-      - P2P_CONTACT_SELECTED
     categories:
       - P2PSendTransaction
-      - P2P_REQUEST_TRANSACTION
-      - P2P_Split_Transaction
-      - home
-      - RechargePayment
-      - DatacardPayment
-      - Notifications
-      - P2PPayToMoneyRequest
-      - CS
-      - Invite
-      - SendMoney
-      - ManageReminders
-      - WalletTopup
-      - CHECK_BALANCE
-      - P2P
-      - PAY
     deviceAttributes:
       - deviceId
       - Model
       - OS_Version
-      - Network_Provider
-      - Manufacturer
-      - Latitude
-      - Longitude
-      - OS
 
 auth:
   enabled: false
