@@ -1,11 +1,10 @@
 package com.flipkart.foxtrot.server.auth.filter;
 
 import com.flipkart.foxtrot.server.auth.AuthConfig;
-import com.flipkart.foxtrot.server.auth.UserPrincipal;
+import com.flipkart.foxtrot.server.auth.TokenAuthenticator;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import io.dropwizard.auth.AuthenticationException;
-import io.dropwizard.auth.Authenticator;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -35,12 +34,12 @@ public class UserAuthenticationFilter implements Filter {
             .add("/foxtrot/oauth")
             .add("^/foxtrot/auth.*")
             .build();
-    private final AuthConfig authConfig;
-    private final Provider<Authenticator<String, UserPrincipal>> authenticator;
+    private AuthConfig authConfig;
+    private Provider<TokenAuthenticator> authenticator;
 
     @Inject
     public UserAuthenticationFilter(
-            AuthConfig authConfig, Provider<Authenticator<String, UserPrincipal>> authenticator) {
+            AuthConfig authConfig, Provider<TokenAuthenticator> authenticator) {
         this.authConfig = authConfig;
         this.authenticator = authenticator;
     }

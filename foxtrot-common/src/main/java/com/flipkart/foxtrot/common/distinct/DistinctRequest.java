@@ -15,9 +15,11 @@
  */
 package com.flipkart.foxtrot.common.distinct;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
+import com.flipkart.foxtrot.common.enums.SourceType;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -26,12 +28,14 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.Map;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 21/03/14
  * Time: 4:52 PM
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DistinctRequest extends ActionRequest {
 
     @NotNull
@@ -41,14 +45,24 @@ public class DistinctRequest extends ActionRequest {
     @Size(max = 10)
     private List<ResultSort> nesting;
 
+    private String consoleId;
+
     public DistinctRequest() {
         super(Opcodes.DISTINCT);
     }
 
-    public DistinctRequest(List<Filter> filters, String table, List<ResultSort> nesting) {
-        super(Opcodes.DISTINCT, filters);
+    public DistinctRequest(List<Filter> filters,
+                           String table,
+                           List<ResultSort> nesting,
+                           String consoleId,
+                           boolean bypassCache,
+                           Map<String, String> requestTags,
+                           SourceType sourceType,
+                           boolean extrapolationflag) {
+        super(Opcodes.DISTINCT, filters, bypassCache, requestTags, sourceType, extrapolationflag);
         this.table = table;
         this.nesting = nesting;
+        this.consoleId = consoleId;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
@@ -75,6 +89,7 @@ public class DistinctRequest extends ActionRequest {
     public String toString() {
         return new ToStringBuilder(this).append("table", table)
                 .append("filters", getFilters())
+                .append("consoleId", consoleId)
                 .append("nesting", nesting)
                 .toString();
     }

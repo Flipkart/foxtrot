@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.core.alerts;
 
 import com.flipkart.foxtrot.core.email.Email;
 import com.flipkart.foxtrot.core.email.EmailClient;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.email.RichEmailBuilder;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBusConsumer;
 import com.flipkart.foxtrot.core.internalevents.InternalSystemEvent;
@@ -19,13 +20,15 @@ public class AlertingSystemEventConsumer implements InternalEventBusConsumer {
 
     private final EmailClient emailClient;
     private final RichEmailBuilder richEmailBuilder;
+    private final EmailConfig emailConfig;
 
     @Inject
-    public AlertingSystemEventConsumer(
-            EmailClient emailClient,
-            RichEmailBuilder richEmailBuilder) {
+    public AlertingSystemEventConsumer(EmailClient emailClient,
+                                       RichEmailBuilder richEmailBuilder,
+                                       EmailConfig emailConfig) {
         this.emailClient = emailClient;
         this.richEmailBuilder = richEmailBuilder;
+        this.emailConfig = emailConfig;
     }
 
     @Override

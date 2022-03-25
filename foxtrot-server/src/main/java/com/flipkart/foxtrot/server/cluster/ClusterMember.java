@@ -3,13 +3,15 @@ package com.flipkart.foxtrot.server.cluster;
 import java.io.Serializable;
 
 public class ClusterMember implements Serializable {
+
     private String host;
     private int port;
 
     public ClusterMember() {
     }
 
-    public ClusterMember(String host, int port) {
+    public ClusterMember(String host,
+                         int port) {
         this.host = host;
         this.port = port;
     }

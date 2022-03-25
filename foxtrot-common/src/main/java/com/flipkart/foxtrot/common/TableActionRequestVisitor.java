@@ -6,7 +6,6 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryRequest;
-import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
@@ -53,6 +52,11 @@ public class TableActionRequestVisitor implements ActionRequestVisitor<String> {
     }
 
     public String visit(CountRequest request) {
+        return request.getTable();
+    }
+
+    @Override
+    public String visit(GeoAggregationRequest request) {
         return request.getTable();
     }
 }

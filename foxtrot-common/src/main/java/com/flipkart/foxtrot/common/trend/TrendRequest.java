@@ -15,17 +15,20 @@
  */
 package com.flipkart.foxtrot.common.trend;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.enums.CountPrecision;
+import com.flipkart.foxtrot.common.enums.SourceType;
 import com.flipkart.foxtrot.common.query.Filter;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -34,6 +37,7 @@ import java.util.List;
  */
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TrendRequest extends ActionRequest {
 
     private String table;
@@ -50,23 +54,49 @@ public class TrendRequest extends ActionRequest {
 
     private CountPrecision precision;
 
+    private String consoleId;
+
     public TrendRequest() {
         super(Opcodes.TREND);
     }
 
-    public TrendRequest(List<Filter> filters, String table, String field, String timestamp, Period period, List<String> values,
-                        String uniqueCountOn) {
-        super(Opcodes.TREND, filters);
+    public TrendRequest(List<Filter> filters,
+                        String table,
+                        String field,
+                        String timestamp,
+                        Period period,
+                        List<String> values,
+                        String uniqueCountOn,
+                        String consoleId,
+                        boolean bypassCache,
+                        Map<String, String> requestTags,
+                        SourceType sourceType,
+                        boolean extrapolationFlag) {
+        super(Opcodes.TREND, filters, bypassCache, requestTags, sourceType, extrapolationFlag);
         this.table = table;
         this.field = field;
         this.timestamp = timestamp;
         this.period = period;
         this.values = values;
         this.uniqueCountOn = uniqueCountOn;
+        this.consoleId = consoleId;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).appendSuper(super.toString())
+                .append("table", table)
+                .append("field", field)
+                .append("timestamp", timestamp)
+                .append("period", period)
+                .append("values", values)
+                .append("uniqueCountOn", uniqueCountOn)
+                .append("consoleId", consoleId)
+                .toString();
     }
 
     public String getTable() {
@@ -115,17 +145,5 @@ public class TrendRequest extends ActionRequest {
 
     public void setPeriod(Period period) {
         this.period = period;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).appendSuper(super.toString())
-                .append("table", table)
-                .append("field", field)
-                .append("timestamp", timestamp)
-                .append("period", period)
-                .append("values", values)
-                .append("uniqueCountOn", uniqueCountOn)
-                .toString();
     }
 }

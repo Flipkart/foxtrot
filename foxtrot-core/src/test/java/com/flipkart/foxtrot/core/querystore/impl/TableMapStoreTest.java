@@ -41,6 +41,7 @@ import static org.junit.Assert.*;
  */
 @Slf4j
 public class TableMapStoreTest {
+
     public static final String TEST_TABLE = "test-table";
     public static final String TABLE_META_INDEX = "table-meta";
     public static final String TABLE_META_TYPE = "table-meta";
@@ -85,6 +86,13 @@ public class TableMapStoreTest {
         compareTables(table, mapper.readValue(response.getSourceAsBytes(), Table.class));
     }
 
+    private void compareTables(Table expected,
+                               Table actual) {
+        assertNotNull(actual);
+        assertEquals(expected.getName(), actual.getName());
+        assertEquals(expected.getTtl(), actual.getTtl());
+    }
+
     @Test(expected = RuntimeException.class)
     public void testStoreNullKey() throws Exception {
         Table table = new Table();
@@ -123,7 +131,8 @@ public class TableMapStoreTest {
         MultiGetRequest multiGetRequest = new MultiGetRequest();
         tables.keySet()
                 .forEach(key -> multiGetRequest.add(TABLE_META_INDEX, TABLE_META_TYPE, key));
-        MultiGetResponse response = elasticsearchConnection.getClient().mget(multiGetRequest, RequestOptions.DEFAULT);
+        MultiGetResponse response = elasticsearchConnection.getClient()
+                .mget(multiGetRequest, RequestOptions.DEFAULT);
         Map<String, Table> responseTables = Maps.newHashMap();
         for (MultiGetItemResponse multiGetItemResponse : response) {
             Table table = mapper.readValue(multiGetItemResponse.getResponse()
@@ -224,7 +233,6 @@ public class TableMapStoreTest {
         tableMapStore.storeAll(tables);
     }
 
-
     @Test
     public void testDelete() throws Exception {
         Table table = new Table();
@@ -250,8 +258,8 @@ public class TableMapStoreTest {
     @Test
     public void testDeleteMissingKey() throws Exception {
         tableMapStore.delete("HELLO");
+        assertTrue(true);
     }
-
 
     @Test
     public void testDeleteAll() throws Exception {
@@ -294,7 +302,6 @@ public class TableMapStoreTest {
         tableMapStore.deleteAll(keys);
     }
 
-
     @Test
     public void testLoad() throws Exception {
         Table table = new Table();
@@ -302,8 +309,7 @@ public class TableMapStoreTest {
         table.setTtl(30);
         Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
         elasticsearchConnection.getClient()
-                .index(new IndexRequest(TABLE_META_INDEX)
-                        .type(TABLE_META_TYPE)
+                .index(new IndexRequest(TABLE_META_INDEX).type(TABLE_META_TYPE)
                         .source(sourceMap)
                         .id(table.getName())
                         .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
@@ -329,14 +335,12 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testLoadKeyWithWrongJson() throws Exception {
         elasticsearchConnection.getClient()
-                .index(new IndexRequest(TABLE_META_INDEX)
-                        .type(TABLE_META_TYPE)
+                .index(new IndexRequest(TABLE_META_INDEX).type(TABLE_META_TYPE)
                         .source("{ \"test\" : \"test\"}")
                         .id(TEST_TABLE)
                         .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
         tableMapStore.load(TEST_TABLE);
     }
-
 
     @Test
     public void testLoadAll() throws Exception {
@@ -349,12 +353,10 @@ public class TableMapStoreTest {
             tables.put(table.getName(), table);
             Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
             elasticsearchConnection.getClient()
-                    .index(new IndexRequest(TABLE_META_INDEX)
-                                    .type(TABLE_META_TYPE)
-                                    .source(sourceMap)
-                                    .id(table.getName())
-                                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
-                            RequestOptions.DEFAULT);
+                    .index(new IndexRequest(TABLE_META_INDEX).type(TABLE_META_TYPE)
+                            .source(sourceMap)
+                            .id(table.getName())
+                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
         }
 
         Set<String> names = ImmutableSet.copyOf(Iterables.limit(tables.keySet(), 5));
@@ -373,14 +375,12 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testLoadAllKeyWithWrongJson() throws Exception {
         elasticsearchConnection.getClient()
-                .index(new IndexRequest(TABLE_META_INDEX)
-                        .type(TABLE_META_TYPE)
+                .index(new IndexRequest(TABLE_META_INDEX).type(TABLE_META_TYPE)
                         .source("{ \"test\" : \"test\"}")
                         .id(TEST_TABLE)
                         .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE));
         tableMapStore.loadAll(Arrays.asList(TEST_TABLE));
     }
-
 
     @Test
     public void testLoadAllKeys() throws Exception {
@@ -393,23 +393,15 @@ public class TableMapStoreTest {
             tables.put(table.getName(), table);
             Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
             elasticsearchConnection.getClient()
-                    .index(new IndexRequest(TABLE_META_INDEX)
-                                    .type(TABLE_META_TYPE)
-                                    .source(sourceMap)
-                                    .id(table.getName())
-                                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
-                            RequestOptions.DEFAULT);
+                    .index(new IndexRequest(TABLE_META_INDEX).type(TABLE_META_TYPE)
+                            .source(sourceMap)
+                            .id(table.getName())
+                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
         }
 
         Set<String> responseKeys = tableMapStore.loadAllKeys();
         for (String name : tables.keySet()) {
             assertTrue(responseKeys.contains(name));
         }
-    }
-
-    private void compareTables(Table expected, Table actual) {
-        assertNotNull(actual);
-        assertEquals(expected.getName(), actual.getName());
-        assertEquals(expected.getTtl(), actual.getTtl());
     }
 }

@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 
 /***
  Created by nitish.goyal on 29/11/18
@@ -30,24 +31,21 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class Date implements Serializable {
 
+    private String humanDate;
     private int year;
     private int monthOfYear;
-    private int dayOfWeek;
     private int dayOfMonth;
     private int hourOfDay;
     private int minuteOfHour;
-    private int minuteOfDay;
-    private int weekOfYear;
+    private int secondOfMinute;
 
-    public Date(DateTime dateTime) {
-
+    public Date(final DateTime dateTime) {
+        this.humanDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(dateTime.toDate());
         this.year = dateTime.getYear();
         this.monthOfYear = dateTime.getMonthOfYear();
-        this.dayOfWeek = dateTime.getDayOfWeek();
         this.dayOfMonth = dateTime.getDayOfMonth();
         this.hourOfDay = dateTime.getHourOfDay();
         this.minuteOfHour = dateTime.getMinuteOfHour();
-        this.minuteOfDay = dateTime.getMinuteOfDay();
-        this.weekOfYear = dateTime.getWeekOfWeekyear();
+        this.secondOfMinute = dateTime.getSecondOfMinute();
     }
 }

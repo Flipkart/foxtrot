@@ -28,6 +28,8 @@ function getSunburstChartFormValues() {
     var timeframe = $("#sunburst-timeframe").val();
     var period = $("#sunburst-time-unit").val();
     var unique = $("#sunburst-uniqueKey").val();
+    var aggregationType = $('#sunburst-aggregation-type').val();
+    var aggregationField = $('#sunburst-aggregation-field').val();
     
     var nestingArray = [];
     var parentEl = $(".sunburstForm")
@@ -38,12 +40,28 @@ function getSunburstChartFormValues() {
             nestingArray.push(value)
         }
     }
-    //console.log(nestingArray)
+
+   
+
+    if(aggregationField == "null" || aggregationField == "" || aggregationField == null || aggregationField == "undefined") {
+        aggregationField = "none";
+      } else {
+        aggregationField = currentFieldList[parseInt(aggregationField)].field
+      }
+      if(unique == "none" || unique == "" || unique == null) {
+        unique = null;
+      } else {
+        unique = currentFieldList[parseInt(unique)].field
+      }
+    
+    console.log("nestingArray.....",nestingArray)
     return {
         "nesting": prepareNesting(nestingArray),
         "timeframe": timeframe,
         "period": period,
-        "uniqueCountOn": unique
+        "uniqueCountOn": unique,
+        "aggregationType":aggregationType,
+        "aggregationField":aggregationField
     };
 }
 
@@ -70,6 +88,11 @@ function setSunBurstChartFormValues(object) {
     var uniqeKey = parentElement.find("#sunburst-uniqueKey");
     uniqeKey.val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueCountOn));
     $(uniqeKey).selectpicker('refresh');
+
+  $('#sunburst-aggregation-field').val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.aggregationField)));
+  $('#sunburst-aggregation-field').selectpicker('refresh');
+  $('#sunburst-aggregation-Type').val();
+
 }
 
 function clearSunburstChartForm() {
@@ -80,11 +103,16 @@ function clearSunburstChartForm() {
 SunburstTile.prototype.getQuery = function(object) {
     this.object = object;
     var filters = [];
-    if (globalFilters) {
-        filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-    } else {
-        filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-    }
+    // ------- Starts added today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+    filters,
+    globalFilters,
+    getGlobalFilters,
+    getPeriodSelect,
+    timeValue,
+    object
+  );
+  // ------ Ends added today yesterday and daybefore yesterday-------------------------------
 
     if (object.tileContext.filters) {
         for (var i = 0; i < object.tileContext.filters.length; i++) {
@@ -97,12 +125,23 @@ SunburstTile.prototype.getQuery = function(object) {
       filters = filters.concat(templateFilters);
     }
     
+    var requestTags = {
+        "widget": this.object.title,
+        "consoleId": getCurrentConsoleId()
+      }
 
     var data = {
         "opcode": "group",
+        "consoleId": getCurrentConsoleId(),
         "table": object.tileContext.table,
         "filters": filters,
-        "nesting": object.tileContext.nesting
+        "nesting": object.tileContext.nesting,
+        "aggregationField":object.tileContext.aggregationField,
+        "aggregationType":object.tileContext.aggregationType
+        ,"sourceType":"ECHO_DASHBOARD",
+        "requestTags": requestTags,
+        "extrapolationFlag": false,
+        "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
     }
     var refObject = this.object;
     $.ajax({
@@ -111,7 +150,7 @@ SunburstTile.prototype.getQuery = function(object) {
         accepts: {
             json: 'application/json'
         },
-        url: apiUrl + "/v1/analytics",
+        url: apiUrl + "/v2/analytics",
         contentType: "application/json",
         data: JSON.stringify(data),
         success: $.proxy(this.getData, this),
@@ -506,3 +545,69 @@ SunburstTile.prototype.render = function(data) {
         return prepareDumb(data.result);        
     }
 }
+
+
+
+
+//  -------------------- Starts Added download widget 2 --------------------
+
+
+SunburstTile.prototype.downloadWidget = function(object) {
+    this.object = object;
+    var filters = [];
+    // ------- Starts added  download for today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+    filters,
+    globalFilters,
+    getGlobalFilters,
+    getPeriodSelect,
+    timeValue,
+    object
+  );
+  // ------ Ends added today yesterday and daybefore yesterday-------------------------------
+
+    if (object.tileContext.filters) {
+        for (var i = 0; i < object.tileContext.filters.length; i++) {
+            filters.push(object.tileContext.filters[i]);
+        }
+    }
+
+    var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+    if(templateFilters.length > 0) {
+      filters = filters.concat(templateFilters);
+    }
+
+    var requestTags = {
+        "widget": this.object.title,
+        "consoleId": getCurrentConsoleId()
+      }
+
+    var data = {
+        "opcode": "group",
+        "consoleId": getCurrentConsoleId(),
+        "table": object.tileContext.table,
+        "filters": filters,
+        "nesting": object.tileContext.nesting,
+        "sourceType":"ECHO_DASHBOARD",
+        "requestTags": requestTags,
+        "extrapolationFlag": false
+    }
+    var refObject = this.object;
+    $.ajax({
+        url: apiUrl + "/v2/analytics/download",
+        type: 'POST',
+        data: JSON.stringify(data),
+        dataType: 'text',
+
+        contentType: 'application/json',
+        context: this,
+        success: function(response) {
+          downloadTextAsCSV(response, 'SunburstChart.csv')
+        },
+        error: function(xhr, textStatus, error ) {
+          console.log("error.........",error,textStatus,xhr)
+        }
+    });
+}
+
+//  -------------------- Ends Added download widget 2 --------------------

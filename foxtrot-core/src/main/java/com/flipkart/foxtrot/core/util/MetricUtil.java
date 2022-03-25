@@ -1,7 +1,6 @@
 package com.flipkart.foxtrot.core.util;
 
 import com.codahale.metrics.MetricRegistry;
-
 import com.codahale.metrics.jmx.JmxReporter;
 
 import java.util.concurrent.TimeUnit;
@@ -14,6 +13,11 @@ public class MetricUtil {
     private static final MetricUtil metricsHelper;
     private static final String PACKAGE_PREFIX = "com.flipkart.foxtrot.core";
     private static final String ACTION_METRIC_PREFIX = "action";
+    private static final String CARDINALITY_METRIC_PREFIX = "cardinality";
+    private static final String FILTER_METRIC_PREFIX = "filter";
+    private static final String DOT_CONCATENATED_FOUR_VARIABLES = "%s.%s.%s.%s";
+    private static final String DOT_CONCATENATED_THREE_VARIABLES = "%s.%s.%s";
+
     private static MetricRegistry metrics;
 
     static {
@@ -36,39 +40,65 @@ public class MetricUtil {
         return metricsHelper;
     }
 
-    public void registerActionCacheHit(String opcode, String metricKey) {
-        registerActionCacheOperation(opcode, metricKey, "success");
+    public void registerActionCacheHit(String opCode) {
+        registerActionCacheOperation(opCode, "success");
     }
 
-    public void registerActionCacheMiss(String opcode, String metricKey) {
-        registerActionCacheOperation(opcode, metricKey, "failure");
-    }
-
-    private void registerActionCacheOperation(String opcode, String metricKey, String status) {
+    private void registerActionCacheOperation(String opCode,
+                                              String status) {
         metrics.meter(String.format("%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, status))
                 .mark();
-        metrics.meter(String.format("%s.%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, status))
-                .mark();
-        metrics.meter(String.format("%s.%s.%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, metricKey, status))
+        metrics.meter(String.format("%s.%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opCode, status))
                 .mark();
     }
 
-    public void registerActionSuccess(String opcode, String metricKey, long duration) {
-        registerActionOperation(opcode, metricKey, "success", duration);
+    public void registerActionCacheMiss(String opCode) {
+        registerActionCacheOperation(opCode, "failure");
     }
 
-    public void registerActionFailure(String opcode, String metricKey, long duration) {
-        registerActionOperation(opcode, metricKey, "failure", duration);
+    public void registerActionSuccess(String metricKey,
+                                      long duration) {
+        registerActionOperation(metricKey, "success", duration);
     }
 
-    private void registerActionOperation(String opcode, String metricKey, String status, long duration) {
-        metrics.timer(String.format("%s.%s.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode))
+    private void registerActionOperation(String metricKey,
+                                         String status,
+                                         long duration) {
+        metrics.timer(String.format(DOT_CONCATENATED_THREE_VARIABLES, PACKAGE_PREFIX, ACTION_METRIC_PREFIX, metricKey))
                 .update(duration, TimeUnit.MILLISECONDS);
-        metrics.timer(String.format("%s.%s.%s.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, metricKey))
-                .update(duration, TimeUnit.MILLISECONDS);
-        metrics.timer(String.format("%s.%s.%s.%s.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, metricKey, status))
+        metrics.timer(
+                String.format(DOT_CONCATENATED_FOUR_VARIABLES, PACKAGE_PREFIX, ACTION_METRIC_PREFIX, metricKey, status))
                 .update(duration, TimeUnit.MILLISECONDS);
     }
+
+    public void registerActionFailure(String metricKey,
+                                      long duration) {
+        registerActionOperation(metricKey, "failure", duration);
+    }
+
+    public void registerCardinalityValidationOperation(String opCode,
+                                                       String status) {
+        metrics.meter(
+                String.format(DOT_CONCATENATED_THREE_VARIABLES, PACKAGE_PREFIX, CARDINALITY_METRIC_PREFIX, status))
+                .mark();
+        metrics.meter(String.format(DOT_CONCATENATED_FOUR_VARIABLES, PACKAGE_PREFIX, CARDINALITY_METRIC_PREFIX, opCode,
+                status))
+                .mark();
+    }
+
+    public void registerFilterUsage(String filterOperator) {
+        metrics.meter(
+                String.format(DOT_CONCATENATED_THREE_VARIABLES, PACKAGE_PREFIX, FILTER_METRIC_PREFIX, filterOperator))
+                .mark();
+    }
+
+    public void registerFilterUsage(String table,
+                                    String filterOperator) {
+        metrics.meter(String.format(DOT_CONCATENATED_FOUR_VARIABLES, PACKAGE_PREFIX, FILTER_METRIC_PREFIX, table,
+                filterOperator))
+                .mark();
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }

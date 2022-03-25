@@ -23,6 +23,10 @@ function getstackedChartFormValues() {
   var groupingKey = $("#stacked-grouping-key").val();
   var stackingKey = $("#stacking-key").val();
   var uniqueKey = $("#stacked-uniquekey").val();
+  var aggregationType = $('#stacked-aggregation-type').val();
+  var aggregationField = $('#stacked-aggregation-field').val();
+
+  
   if (groupingKey == "none" || stackingKey == "none") {
     return [[], false];
   }
@@ -38,6 +42,17 @@ function getstackedChartFormValues() {
     uniqueKey = currentFieldList[parseInt(uniqueKey)].field
   }
 
+
+  if(aggregationField == "none" || aggregationField == "" || aggregationField == null || aggregationField == "undefined") {
+    aggregationField = null;
+  } else {
+    aggregationField = currentFieldList[parseInt(aggregationField)].field
+  }
+
+  if(aggregationType == "none" || aggregationType == "" || aggregationType == "null" || aggregationType == "undefined") {
+    aggregationType = null;
+  } 
+  
   return {
     "period": period
     , "timeframe": timeframe
@@ -45,6 +60,8 @@ function getstackedChartFormValues() {
     , "stackingKey": stackingString
     , "uniqueKey": uniqueKey
     , "nesting": nestingArray
+    , "aggregationType":aggregationType
+    , "aggregationField":aggregationField
   };
 }
 
@@ -58,6 +75,9 @@ function setStackedChartFormValues(object) {
   $("#stacking-key").selectpicker('refresh');
   $("#stacked-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
   $("#stacked-uniquekey").selectpicker('refresh');
+  $('#stacked-aggregation-field').val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.aggregationField)));
+  $('#stacked-aggregation-field').selectpicker('refresh');
+  $('#stacked-aggregation-Type').val();
 }
 
 function clearstackedChartForm() {
@@ -67,11 +87,16 @@ function clearstackedChartForm() {
 StackedTile.prototype.getQuery = function (object) {
   this.object = object;
   var filters = [];
-  if(globalFilters) {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-  } else {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-  }
+// ------- Starts added  download for today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
 
   if(object.tileContext.filters) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
@@ -84,14 +109,25 @@ StackedTile.prototype.getQuery = function (object) {
     filters = filters.concat(templateFilters);
   }
   
+  var requestTags = {
+    "widget": this.object.title,
+    "consoleId": getCurrentConsoleId()
+  }
   var data = {
     "opcode": "group"
+    ,"consoleId": getCurrentConsoleId()
     , "table": object.tileContext.table
     , "filters": filters
     , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
     , "nesting": object.tileContext.nesting
+    ,"aggregationField":object.tileContext.aggregationField
+    ,"aggregationType":object.tileContext.aggregationType
+    ,"sourceType":"ECHO_DASHBOARD",
+    "requestTags": requestTags,
+    "extrapolationFlag": false
   }
   var currentTileId = this.object.id;
+
   var refObject = this.object;
   $.ajax({
     method: "post"
@@ -99,7 +135,7 @@ StackedTile.prototype.getQuery = function (object) {
     , accepts: {
       json: 'application/json'
     }
-    , url: apiUrl + "/v1/analytics"
+    , url: apiUrl + "/v2/analytics"
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
@@ -352,3 +388,69 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
     ctx.show();
   }
 }
+
+
+
+//  -------------------- Start added download widget 2--------------------
+
+
+StackedTile.prototype.downloadWidget= function (object) {
+  this.object = object;
+  var filters = [];
+// ------- Starts added  download for today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
+  }
+
+  var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+  if(templateFilters.length > 0) {
+    filters = filters.concat(templateFilters);
+  }
+
+  var requestTags = {
+    "widget": this.object.title,
+    "consoleId": getCurrentConsoleId()
+  }
+  var data = {
+    "opcode": "group"
+    ,"consoleId": getCurrentConsoleId()
+    , "table": object.tileContext.table
+    , "filters": filters
+    , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
+    , "nesting": object.tileContext.nesting
+    ,"sourceType":"ECHO_DASHBOARD"
+    ,"requestTags": requestTags
+    ,"extrapolationFlag": false
+  }
+  var currentTileId = this.object.id;
+  var refObject = this.object;
+  $.ajax({
+    url: apiUrl + "/v2/analytics/download",
+    type: 'POST',
+    data: JSON.stringify(data),
+    dataType: 'text',
+
+    contentType: 'application/json',
+    context: this,
+    success: function(response) {
+      downloadTextAsCSV(response, 'StackedBarChart.csv')
+    },
+    error: function(xhr, textStatus, error ) {
+      console.log("error.........",error,textStatus,xhr)
+    }
+});
+}
+
+//  -------------------- Ends added download widget 2--------------------

@@ -11,6 +11,7 @@ import lombok.Data;
  */
 @Data
 public class QueryProcessed implements InternalSystemEvent {
+
     private final ActionRequest request;
     private final ActionResponse response;
     private final long evaluationDurationMs;

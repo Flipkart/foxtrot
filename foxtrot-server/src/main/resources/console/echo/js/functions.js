@@ -1,3 +1,5 @@
+var consoleName = ''
+
 function addTilesList(object) { // add tiles list to tile list array
   tiles[object.id] = object;
   tileList.push(object.id);
@@ -10,13 +12,16 @@ function setClicketData(ele) {
   showHideSideBar();
 }
 
-function fetchFields(tableName) { // fetching field for particular table
+function fetchFields(tableName, callback) { // fetching field for particular table
   $.ajax({
     url: apiUrl+"/v1/tables/" + tableName + "/fields",
     contentType: "application/json",
     context: this,
     success: function(resp){
       tableFiledsArray[tableName] = resp;
+      if(callback != undefined) {
+        callback()
+      }
     }
   });
 }
@@ -87,7 +92,6 @@ function generateTemplateFilter(el, type, fieldList) {
   var columnType = fieldList[selectedColumn].type;
   var rowString = $(el).attr('id');
   var rowIdArray = rowString.split('-');
-  console.log(rowIdArray)
   var rowId = rowIdArray[3];
   var el = $("#filter-type-option-"+rowId);
   $("#template-filter-form").find(".template-filter-rows").find(el)
@@ -104,7 +108,7 @@ function templateFilterFieldTriggered(el) {
   var rowString = $(el).attr('id');
   var rowIdArray = rowString.split('-');
   var rowId = rowIdArray[3];
-  if(selectedColumn == "exists") {
+  if(selectedColumn == "exists" || selectedColumn == "missing") {
     $('#filter-column-row-'+rowId).hide();
   } else {
     $('#filter-column-row-'+rowId).show();
@@ -116,7 +120,7 @@ function filterFieldTriggered(el) {
   var rowString = $(el).attr('id');
   var rowIdArray = rowString.split('-');
   var rowId = rowIdArray[2];
-  if(selectedColumn == "exists") {
+  if(selectedColumn == "exists" || selectedColumn == "missing") {
     $('#filter-column-row-'+rowId).hide();
   } else {
     $('#filter-column-row-'+rowId).show();
@@ -206,21 +210,24 @@ function clearModal() {
 }
 
 function hideFilters() {
-  $(".global-filters").removeClass('col-sm-3');
+  // $(".global-filters").removeClass('col-sm-3');
+  var selectedConsole = $("#listConsole").val();
+  consoleName = selectedConsole
   $(".global-filters").addClass('col-sm-2');
-  $(".global-filters").css({'width': "138px"});
+  $(".global-filters").css({'width': "auto"});
   $(".global-filter-switch-div").css({'border': "none"})
   $(".widget-btns").css({'left': "172px"});
-  $(".hide-filters").css({"display": "none"});
+  $(".hide-filters").css({"display": "block"});
 }
 
 function showFilters() {
-  $(".global-filters").removeClass('col-sm-2');
+  globalFilters = true;
+  // $(".global-filters").removeClass('col-sm-2');
   $(".global-filters").addClass('col-sm-3');
   $(".global-filter-switch-div").css({'border': "none"})
   $(".widget-btns").css({'left': "0px"});
   $(".hide-filters").css({"display": "block"});
-  $(".global-filter-switch-div").css({'border-right': "1px solid #aeb8bd"});
+  // $(".global-filter-switch-div").css({'border-right': "1px solid #aeb8bd"});
   $(".global-filters").css({'width': "auto"});
 }
 
@@ -302,7 +309,6 @@ function sortConsoleArray(array) {
 }
 
 function prepareListOption(array, appendVersion) {
-  console.log(appendVersion)
   var textToInsert = [];
   var i = 0;
   array = sortConsoleArray(array);
@@ -316,7 +322,13 @@ function prepareListOption(array, appendVersion) {
 }
 
 function appendConsoleList(array) { // console list to dropdown
-  $("#listConsole").append(prepareListOption(array, false).join(''));
+  // $("#listConsole").append(prepareListOption(array, false).join(''));
+  var list = prepareListOption(array, false).join('');
+  $("#listConsole").append(list);
+  $("#listConsoleCopyTab").append(list); // for copy tabs
+
+  var Consolefromurl = getParameterByName("console");  // on page reload the selected console value from url  is set in dropdown
+  $("#listConsole").val(Consolefromurl);
 }
 
 function appendVersionConsoleList(array) {
@@ -328,7 +340,7 @@ function appendVersionConsoleList(array) {
  * Refresh pages without loading
  * @param {*} selectedConsole
  */
-function loadConsolesWithoutRefreshing(selectedConsole) {
+function loadConsolesWithoutRefreshing(selectedConsole ,data) {
 
   stopRefreshInterval();
   getConsoleById(selectedConsole);
@@ -339,7 +351,6 @@ function loadConsolesWithoutRefreshing(selectedConsole) {
   isViewingVersionConsole = false;
   hideTemplateFilters();
   clearTemplateFilter();
-
   $('.template-filter-switch').attr('checked', false).triggerHandler('click');
   $('.filter-switch').attr('checked', false).triggerHandler('click');
   globalFilterResetFromConsoleLoad();
@@ -350,7 +361,14 @@ function loadConsolesWithoutRefreshing(selectedConsole) {
   // Update broweser URL
   var fullUrl = window.location.href;
   var newUrl = fullUrl.substr(0, fullUrl.indexOf('?'));
-  window.history.pushState(null, "Echo", newUrl+"?console="+selectedConsole);
+  // window.history.pushState(null, "Echo", newUrl+"?console="+selectedConsole);
+  if(data.isCopy) {
+    window.history.pushState(null, "Echo", newUrl+"?console="+selectedConsole+"&tab="+data.tabName);
+  } else {
+    window.history.pushState(null, "Echo", newUrl+"?console="+selectedConsole);
+  }
+
+
 
 
   setTimeout(function () { // triiger version console api
@@ -384,28 +402,24 @@ function resetGloblaDateFilter() {
 
 function loadParticularConsole() { // reload page based on selected console
   var selectedConsole = $("#listConsole").val();
-if(window.location.href.indexOf("fql") > -1) {
-  window.location.href = "/index.htm?console=" + selectedConsole ;
-  } else if(window.location.href.indexOf("browse") > -1) {
-    window.location.href = "/index.htm?console=" + selectedConsole ;
-  } 
-  else if(window.location.href.indexOf("index") > -1) {
-    loadConsolesWithoutRefreshing(selectedConsole)
-  } 
-  else {
-  //window.location.assign("index.htm?console=" + selectedConsole);
-  window.location.href = "/index.htm?console=" + selectedConsole ;
-  }
+  if(window.location.href.indexOf("fql") > -1 || window.location.href.indexOf("browse") > -1) {
+    window.location.href = "/echo/index.htm?console=" + selectedConsole
+ } else {
+   //window.location.assign("index.htm?console=" + selectedConsole);
+  //  loadConsolesWithoutRefreshing(selectedConsole)
+
+  loadConsolesWithoutRefreshing(selectedConsole, {"isCopy": false, "tabName": ""})
+ }
 }
 function getWhereOption(fieldType) {
-  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="in">In</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option><option value="exists">Exist</option><option value="not_in">Not In</option>';
+  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="in">In</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option><option value="exists">Exist</option><option value="missing">Not Exist</option><option value="not_in">Not In</option>';
 
 
-  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="exists">Exist</option><option value="in">In</option><option value="not_in">Not In</option>';
+  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="exists">Exist</option><option value="in">In</option><option value="missing">Not Exist</option><option value="not_in">Not In</option>';
 
-  var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="exists">Exist</option>';
+  var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="missing">Not Exist</option><option value="exists">Exist</option>';
 
-  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="between">Between</option><option value="exists">Exist</option>';
+  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="between">Between</option><option value="missing">Not Exist</option><option value="exists">Exist</option>';
 
   var intArray = ["LONG", "INTEGER", "SHORT", "BYTE", "DATE", "FLOAT", "DOUBLE"];
   var boolArray = ["BOOLEAN"];
@@ -425,13 +439,13 @@ function getWhereOption(fieldType) {
 }
 
 function getTilesFilterWhereOption(fieldType) {
-  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Contains</option><option value="between">Between</option><option value="in">In</option><option value="not_in">Not In</option><option value="exists">Exist</option>';
+  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Contains</option><option value="between">Between</option><option value="in">In</option><option value="not_in">Not In</option><option value="missing">Not Exist</option><option value="exists">Exist</option>';
 
-  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="in">In</option><option value="not_in">Not In</option><option value="exists">Exist</option>';
+  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="in">In</option><option value="not_in">Not In</option><option value="missing">Not Exist</option><option value="exists">Exist</option>';
 
-  var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="exists">Exist</option>';
+  var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="missing">Not Exist</option><option value="exists">Exist</option>';
 
-  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="between">Between</option><option value="exists">Exist</option>';
+  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="between">Between</option><option value="missing">Not Exist</option><option value="exists">Exist</option>';
 
   var intArray = ["LONG", "INTEGER", "SHORT", "BYTE", "DATE", "FLOAT", "DOUBLE"];
   var boolArray = ["BOOLEAN"];
@@ -497,6 +511,12 @@ function getConsole() {
 }
 
 $("#listConsole").change(function () {
+  var fullUrl = window.location.href;
+  var splitUrl = fullUrl.split('=');
+  if( splitUrl[1] !== "none" && splitUrl[1] !== undefined) {
+    $('.template-filter').val('none');
+    $('.template-filter').selectpicker('refresh');
+  }
   loadParticularConsole();
 });
 
@@ -609,9 +629,6 @@ function getOpcode(object) {
  * prepare multi series query data
  */
 function prepareMultiSeriesQueryObject(data, object, filters) {
-
-  //console.log(object)
-
   var currentTime = filters[0].currentTime;
   var duration = filters[0].duration;
   var period = data.period;
@@ -669,6 +686,16 @@ function getPeriodText(text) {
   else if (text == "h") {
     return "hours";
   }
+  else if (text == "t") {
+    return "minutes";
+  }
+  else if (text == "y") {
+    return "minutes";
+  }
+  else if (text == "dby") {
+    return "minutes";
+  }
+
   else {
     return "minutes";
   }
@@ -678,7 +705,7 @@ function getPeriodText(text) {
  * Get old console list
  */
 function getOldConsoleList(res) {
-  var consoleId = getParameterByName("console").replace('/', '');
+  var consoleId = getParameterByName("console");
   var index = _.indexOf(_.pluck(res, 'id'), consoleId);
   if (index >= 0) {
       var consoleObject = consoleList[index];
@@ -693,7 +720,7 @@ function getOldConsoleList(res) {
  * function to reset broswer url without tab details for older versions list
  */
 function resetBrowserUrl() {
-  window.history.pushState({}, document.title, window.location.pathname+"?console="+getParameterByName("console").replace('/',''));
+  window.history.pushState({}, document.title, window.location.pathname+"?console="+getParameterByName("console"));
 }
 
 function getTemplateFilterTable() {
@@ -744,6 +771,10 @@ function deletTemplateFilterQueryRow(el) {
   var rowId = getRowId[3];
   var index = templateFilterArray.indexOf(parseInt(rowId));
   templateFilterArray.splice(index, 1);
+  if( templateFilterArray.length === 0 ) {
+    $('.template-filter').val('none');
+    $('.template-filter').selectpicker('refresh');
+  }
   $(parentRow).remove();
 }
 
@@ -778,7 +809,7 @@ function getTemplateFilters() {
           , "values": arrayValue
           , "field": fieldList[parseInt(filterColumn)].field
         }
-      } else if(filterType == "exists") {
+      } else if(filterType == "exists" || filterType == "missing") {
         filterObject = {
           "operator": filterType
           , "field": fieldList[parseInt(filterColumn)].field
@@ -833,6 +864,12 @@ function renderTemplateFilter(tableName) {
     var filterColumn = $("#template-filter-row-" + filterCount).find('.filter-column');
     setTimeout(function () {
       generateDropDown(fieldList, filterColumn);
+      loadDataTotemplateFilter(templateFilterDetails);
+
+      if(templateFilterArray.length < templateFilterDetails.length){
+        $("#template-filter-add-values").click();
+      }
+
     }, 0);
 
     $(filterValueEl).click(function () {
@@ -857,6 +894,71 @@ function renderTemplateFilter(tableName) {
   }
 }
 
+//--------------------THIRD ---------- arv--------------------
+function postTemplateFilters() {
+  templateFilterDetails=[];
+  const templateData = getTemplateFilters();
+  const selectedConsole = $("#listConsole").val();
+  const activeConsoleTab = $(".tab .active").attr("id");
+  var templateTableData = getTemplateFilterTable()
+
+  $.ajax({
+    url: apiUrl + "/v2/consoles/",
+    type: "GET",
+    contentType: "application/json",
+    success: function (res) {
+      let selectedConsoleData = [];
+      const consoleData = res;
+      consoleData.map((console, index) => {
+        if (console.id == selectedConsole) {
+          selectedConsoleData = console;
+        }
+      });
+      selectedConsoleData.sections.map((section, index) => {
+        if (section.name == activeConsoleTab) {
+          section.templateFilter = {
+            "table": templateTableData,
+            "filters":templateData,
+          };
+        }
+
+      });
+      const data = {
+        id: selectedConsole,
+        name: selectedConsole,
+        sections: [...selectedConsoleData.sections],
+        updatedAt:selectedConsoleData.updatedAt,
+        version: selectedConsoleData.version,
+      };
+
+      $.ajax({
+        url: apiUrl + "/v2/consoles",
+        type: "POST",
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        context: this,
+        success: function (response) {
+        },
+        error: function (xhr, textStatus, error) {
+        },
+      });
+    },
+    error: function () {
+      showErrorAlert("Could not save console");
+    },
+  });
+}
+
+$("#template-filter-save-values").click(function () {
+  if (templateFilterArray.length > 0) {
+    isTemplateFilter = true;
+    postTemplateFilters();
+  } else {
+    alert(" Add Template Filters");
+  }
+});
+
+
 $(".template-filter").change( function(e) {
   fetchTemplateFiltersFields($(this).val());
 });
@@ -870,6 +972,8 @@ $("#template-filter-submit-values").click(function() {
   if(templateFilterArray.length > 0) {
     isTemplateFilter = true;
     refereshTiles();
+    $(".template-filter-switch").prop("checked", true).change();
+    getSavedTemplateFilter();
   } else {
     alert(" ADD Template Filters");
   }
@@ -926,3 +1030,24 @@ function fetchTemplateFiltersFields(tableName) { // fetching field for particula
     }
   });
 }
+
+/**
+ * get current console id
+ */
+function getCurrentConsoleId() {
+  return convertName(currentConsoleName);
+}
+
+
+// To load the template saved filter values
+
+function loadDataTotemplateFilter(filters=[]){
+  filters.forEach(renderTemplateFilterWithData)
+  }
+  function renderTemplateFilterWithData(item,index){
+  var currentFieldList = tableFiledsArray[getTemplateFilterTable()].mappings;
+  let field=currentFieldList.findIndex(x=>x.field===item.field)
+  $("#template-filter-row-" + index).find('.filter-column').val(field).change();
+  $("#template-filter-row-" + index).find('.filter-type').val(item.operator).change();
+  $("#template-filter-row-" + index).find('.template-filter-value').val(item.value);
+  }

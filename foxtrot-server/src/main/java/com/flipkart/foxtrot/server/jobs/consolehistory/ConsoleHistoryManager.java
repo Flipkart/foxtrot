@@ -2,12 +2,14 @@ package com.flipkart.foxtrot.server.jobs.consolehistory;
 
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
 import com.flipkart.foxtrot.core.jobs.BaseJobManager;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.server.console.ConsoleFetchException;
 import com.flipkart.foxtrot.server.console.ConsoleV2;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.elasticsearch.action.search.SearchRequest;
@@ -22,8 +24,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 import javax.inject.Inject;
@@ -36,9 +36,9 @@ import java.util.concurrent.ScheduledExecutorService;
  ***/
 @Singleton
 @Order(45)
+@Slf4j
 public class ConsoleHistoryManager extends BaseJobManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConsoleHistoryManager.class.getSimpleName());
     private static final String TYPE = "console_data";
     private static final String INDEX_V2 = "consoles_v2";
     private static final String INDEX_HISTORY = "consoles_history";
@@ -48,8 +48,11 @@ public class ConsoleHistoryManager extends BaseJobManager {
     private final ElasticsearchConsolePersistence elasticsearchConsolePersistence;
 
     @Inject
-    public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService, ConsoleHistoryConfig consoleHistoryConfig,
-                                 ElasticsearchConnection connection, HazelcastConnection hazelcastConnection, ObjectMapper mapper) {
+    public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService,
+                                 ConsoleHistoryConfig consoleHistoryConfig,
+                                 ElasticsearchConnection connection,
+                                 HazelcastConnection hazelcastConnection,
+                                 ObjectMapper mapper) {
         super(consoleHistoryConfig, scheduledExecutorService, hazelcastConnection);
         this.consoleHistoryConfig = consoleHistoryConfig;
         this.connection = connection;
@@ -58,7 +61,8 @@ public class ConsoleHistoryManager extends BaseJobManager {
     }
 
     @Override
-    protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
+    protected void runImpl(LockingTaskExecutor executor,
+                           Instant lockAtMostUntil) {
         executor.executeWithLock(() -> {
             try {
                 SearchResponse searchResponse = connection.getClient()
@@ -76,7 +80,7 @@ public class ConsoleHistoryManager extends BaseJobManager {
                     deleteOldData(entry.getKeyAsString());
                 }
             } catch (Exception e) {
-                logger.info("Failed to get aggregations and delete data for index history. {}", e);
+                log.info("Failed to get aggregations and delete data for index history. ", e);
             }
 
         }, new LockConfiguration(consoleHistoryConfig.getJobName(), lockAtMostUntil));

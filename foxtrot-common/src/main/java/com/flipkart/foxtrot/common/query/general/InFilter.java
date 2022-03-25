@@ -37,7 +37,8 @@ public class InFilter extends Filter {
     }
 
     @Builder
-    public InFilter(String field, List<Object> values) {
+    public InFilter(String field,
+                    List<Object> values) {
         super(FilterOperator.in, field);
         this.values = values;
     }

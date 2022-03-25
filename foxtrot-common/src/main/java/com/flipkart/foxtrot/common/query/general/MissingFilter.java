@@ -15,6 +15,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class MissingFilter extends Filter {
+
     public MissingFilter() {
         super(FilterOperator.missing);
     }
@@ -28,6 +29,4 @@ public class MissingFilter extends Filter {
     public <T> T accept(FilterVisitor<T> visitor) {
         return visitor.visit(this);
     }
-
-
 }

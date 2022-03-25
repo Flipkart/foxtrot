@@ -21,7 +21,6 @@ import com.flipkart.foxtrot.common.query.FilterVisitor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.validation.constraints.NotNull;
@@ -32,9 +31,8 @@ import java.util.Set;
  * Date: 14/03/14
  * Time: 2:10 AM
  */
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class BetweenFilter extends Filter {
 
     private boolean temporal;
@@ -50,7 +48,10 @@ public class BetweenFilter extends Filter {
     }
 
     @Builder
-    public BetweenFilter(String field, Number from, Number to, boolean temporal) {
+    public BetweenFilter(String field,
+                         Number from,
+                         Number to,
+                         boolean temporal) {
         super(FilterOperator.between, field);
         this.from = from;
         this.to = to;
@@ -60,6 +61,15 @@ public class BetweenFilter extends Filter {
     @Override
     public <T> T accept(FilterVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).appendSuper(super.toString())
+                .append("temporal", temporal)
+                .append("from", from.toString())
+                .append("to", to.toString())
+                .toString();
     }
 
     @Override
@@ -80,12 +90,5 @@ public class BetweenFilter extends Filter {
         return validationErrors;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).appendSuper(super.toString())
-                .append("temporal", temporal)
-                .append("from", from.toString())
-                .append("to", to.toString())
-                .toString();
-    }
+
 }

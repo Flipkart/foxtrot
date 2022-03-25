@@ -27,6 +27,7 @@ import java.util.Map;
  * Time: 5:07 PM
  */
 public class GroupResponse extends ActionResponse {
+
     private Map<String, Object> result;
 
     public GroupResponse() {
@@ -47,7 +48,7 @@ public class GroupResponse extends ActionResponse {
     }
 
     @Override
-    public void accept(ResponseVisitor visitor) {
-        visitor.visit(this);
+    public <T> T accept(ResponseVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.core.exception;
 
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.google.common.collect.Maps;
 
 import java.util.Map;

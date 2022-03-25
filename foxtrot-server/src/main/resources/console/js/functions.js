@@ -12,10 +12,7 @@ function getLoginRedirectUrl() {
 	
 	  var hostname = window.location.hostname;
 	  var redirectUrl = encodeURIComponent(window.location.href);
-	  switch (hostname) {
-		  default:
-			  return 0;
-	  }
+      return 0;
 	}
 	
 	/**

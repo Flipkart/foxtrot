@@ -3,12 +3,13 @@ package com.flipkart.foxtrot.sql;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.Query;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
+import com.flipkart.foxtrot.common.exception.FqlParsingException;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.*;
@@ -19,7 +20,7 @@ import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
-import com.flipkart.foxtrot.core.exception.FqlParsingException;
+import com.flipkart.foxtrot.sql.constants.Constants;
 import com.flipkart.foxtrot.sql.constants.FqlFunctionType;
 import com.flipkart.foxtrot.sql.extendedsql.ExtendedSqlStatement;
 import com.flipkart.foxtrot.sql.extendedsql.desc.Describe;
@@ -50,22 +51,31 @@ import java.util.Set;
 
 import static com.flipkart.foxtrot.sql.constants.Constants.*;
 
-
 public class QueryTranslator extends SqlElementVisitor {
+
     private static final Logger logger = LoggerFactory.getLogger(QueryTranslator.class.getSimpleName());
     private static final MetaStatementMatcher metastatementMatcher = new MetaStatementMatcher();
 
+    private final List<String> groupBycolumnsList = Lists.newArrayList();
+    private final List<String> selectedColumns = Lists.newArrayList();
+    private final List<ResultSort> columnsWithSort = Lists.newArrayList();
+
     private FqlQueryType queryType = FqlQueryType.SELECT;
     private String tableName;
-    private List<String> groupBycolumnsList = Lists.newArrayList();
     private ResultSort resultSort;
     private boolean hasLimit = false;
     private long limitFrom;
     private long limitCount;
     private ActionRequest calledAction;
     private List<Filter> filters;
-    private List<String> selectedColumns = Lists.newArrayList();
-    private List<ResultSort> columnsWithSort = Lists.newArrayList();
+
+    @Override
+    public void visit(Function function) {
+        List params = function.getParameters()
+                .getExpressions();
+
+        ((Expression) params.toArray()[0]).accept(this);
+    }
 
     @Override
     public void visit(PlainSelect plainSelect) {
@@ -91,7 +101,8 @@ public class QueryTranslator extends SqlElementVisitor {
                 queryType = FqlQueryType.GROUP;
                 if (groupByItem instanceof Column) {
                     Column column = (Column) groupByItem;
-                    groupBycolumnsList.add(column.getFullyQualifiedName().replaceAll(REGEX, REPLACEMENT));
+                    groupBycolumnsList.add(column.getFullyQualifiedName()
+                            .replaceAll(REGEX, REPLACEMENT));
                 }
             }
         }
@@ -111,67 +122,12 @@ public class QueryTranslator extends SqlElementVisitor {
             FilterParser filterParser = new FilterParser();
             plainSelect.getWhere()
                     .accept(filterParser);
-            filters = (filterParser.filters.isEmpty()) ? null : filterParser.filters;
+            filters = (filterParser.filters.isEmpty())
+                    ? null
+                    : filterParser.filters;
         }
 
         handleDistinct(plainSelect);
-    }
-
-    private void handleDistinct(PlainSelect plainSelect) {
-        List<ResultSort> tempColumnsWithSort = generateColumnSort(plainSelect.getOrderByElements());
-        if (null != plainSelect.getDistinct()) {
-            for (String selectedColumn : selectedColumns) {
-                boolean alreadyAdded = false;
-                for (ResultSort columnWithSort : tempColumnsWithSort) {
-                    if (selectedColumn.equalsIgnoreCase(columnWithSort.getField())) {
-                        columnsWithSort.add(columnWithSort);
-                        alreadyAdded = true;
-                        break;
-                    }
-                }
-                if (!alreadyAdded) {
-                    ResultSort columnWithoutSort = new ResultSort();
-                    columnWithoutSort.setField(selectedColumn);
-                    columnWithoutSort.setOrder(ResultSort.Order.desc);
-                    columnsWithSort.add(columnWithoutSort);
-                }
-            }
-            this.queryType = FqlQueryType.DISTINCT;
-        }
-    }
-
-    @Override
-    public void visit(Select select) {
-        select.getSelectBody()
-                .accept(this);
-    }
-
-    @Override
-    public void visit(Table tableName) {
-        this.tableName = tableName.getName()
-                .replaceAll(SQL_TABLE_REGEX, "");
-    }
-
-    @Override
-    public void visit(Function function) {
-        List params = function.getParameters()
-                .getExpressions();
-
-        ((Expression) params.toArray()[0]).accept(this);
-    }
-
-    @Override
-    public void visit(ExpressionList expressionList) {
-        ExpressionList expressions = (ExpressionList) expressionList.getExpressions();
-        for (Object expression : expressions.getExpressions()) {
-            logger.info("Expression: {}", expression.getClass());
-        }
-    }
-
-    @Override
-    public void visit(SelectExpressionItem selectExpressionItem) {
-        selectExpressionItem.getExpression()
-                .accept(this);
     }
 
     public FqlQuery translate(String sql) {
@@ -208,6 +164,7 @@ public class QueryTranslator extends SqlElementVisitor {
             case STATSTREND:
                 request = createStatsTrendActionRequest();
                 break;
+
             case SUM:
             case AVG:
             case MIN:
@@ -224,7 +181,6 @@ public class QueryTranslator extends SqlElementVisitor {
                 request = createCountActionRequest();
                 break;
 
-
             case DISTINCT:
                 request = createDistinctActionRequest();
                 break;
@@ -236,6 +192,29 @@ public class QueryTranslator extends SqlElementVisitor {
             throw new FqlParsingException("Could not parse provided FQL.");
         }
         return new FqlActionQuery(request, selectedColumns);
+    }
+
+    private void handleDistinct(PlainSelect plainSelect) {
+        List<ResultSort> tempColumnsWithSort = generateColumnSort(plainSelect.getOrderByElements());
+        if (null != plainSelect.getDistinct()) {
+            for (String selectedColumn : selectedColumns) {
+                boolean alreadyAdded = false;
+                for (ResultSort columnWithSort : tempColumnsWithSort) {
+                    if (selectedColumn.equalsIgnoreCase(columnWithSort.getField())) {
+                        columnsWithSort.add(columnWithSort);
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+                if (!alreadyAdded) {
+                    ResultSort columnWithoutSort = new ResultSort();
+                    columnWithoutSort.setField(selectedColumn);
+                    columnWithoutSort.setOrder(ResultSort.Order.desc);
+                    columnsWithSort.add(columnWithoutSort);
+                }
+            }
+            this.queryType = FqlQueryType.DISTINCT;
+        }
     }
 
     private ActionRequest createSelectActionRequest() {
@@ -250,6 +229,12 @@ public class QueryTranslator extends SqlElementVisitor {
         return query;
     }
 
+    @Override
+    public void visit(Select select) {
+        select.getSelectBody()
+                .accept(this);
+    }
+
     private ActionRequest createGroupActionRequest() {
         GroupRequest group = new GroupRequest();
         group.setTable(tableName);
@@ -257,6 +242,12 @@ public class QueryTranslator extends SqlElementVisitor {
         group.setFilters(filters);
         setGroupAggregation(group);
         return group;
+    }
+
+    @Override
+    public void visit(Table tableName) {
+        this.tableName = tableName.getName()
+                .replaceAll(Constants.SQL_TABLE_REGEX, "");
     }
 
     private ActionRequest createTrendActionRequest() {
@@ -273,11 +264,25 @@ public class QueryTranslator extends SqlElementVisitor {
         return statsTrend;
     }
 
+    @Override
+    public void visit(ExpressionList expressionList) {
+        ExpressionList expressions = (ExpressionList) expressionList.getExpressions();
+        for (Object expression : expressions.getExpressions()) {
+            logger.info("Expression: {}", expression.getClass());
+        }
+    }
+
     private ActionRequest createStatsActionRequest() {
         StatsRequest stats = (StatsRequest) calledAction;
         stats.setTable(tableName);
         stats.setFilters(filters);
         return stats;
+    }
+
+    @Override
+    public void visit(SelectExpressionItem selectExpressionItem) {
+        selectExpressionItem.getExpression()
+                .accept(this);
     }
 
     private ActionRequest createHistogramActionRequest() {
@@ -310,8 +315,11 @@ public class QueryTranslator extends SqlElementVisitor {
         OrderByElement orderByElement = orderByElements.get(0);
         Column sortColumn = (Column) orderByElement.getExpression();
         ResultSort resultSortColumn = new ResultSort();
-        resultSortColumn.setField(sortColumn.getFullyQualifiedName().replaceAll(REGEX, REPLACEMENT));
-        resultSortColumn.setOrder(orderByElement.isAsc() ? ResultSort.Order.asc : ResultSort.Order.desc);
+        resultSortColumn.setField(sortColumn.getFullyQualifiedName()
+                .replaceAll(REGEX, REPLACEMENT));
+        resultSortColumn.setOrder(orderByElement.isAsc()
+                ? ResultSort.Order.asc
+                : ResultSort.Order.desc);
         logger.info("ResultSort: {}", resultSortColumn);
         return resultSortColumn;
     }
@@ -322,12 +330,15 @@ public class QueryTranslator extends SqlElementVisitor {
             if (countRequest.isDistinct()) {
                 group.setUniqueCountOn(countRequest.getField());
             } else {
-                group.setAggregationType(Stat.COUNT);
                 group.setAggregationField(countRequest.getField());
+                group.setAggregationType(Stat.COUNT);
             }
         } else if (calledAction instanceof StatsRequest) {
             StatsRequest statsRequest = (StatsRequest) this.calledAction;
-            group.setAggregationType(statsRequest.getStats().stream().findFirst().orElse(Stat.COUNT));
+            group.setAggregationType(statsRequest.getStats()
+                    .stream()
+                    .findFirst()
+                    .orElse(Stat.COUNT));
             group.setAggregationField(statsRequest.getField());
         }
     }
@@ -340,14 +351,18 @@ public class QueryTranslator extends SqlElementVisitor {
         for (OrderByElement orderByElement : orderItems) {
             Column sortColumn = (Column) orderByElement.getExpression();
             ResultSort resultSortColumn = new ResultSort();
-            resultSortColumn.setField(sortColumn.getFullyQualifiedName().replaceAll(REGEX, REPLACEMENT));
-            resultSortColumn.setOrder(orderByElement.isAsc() ? ResultSort.Order.asc : ResultSort.Order.desc);
+            resultSortColumn.setField(sortColumn.getFullyQualifiedName()
+                    .replaceAll(REGEX, REPLACEMENT));
+            resultSortColumn.setOrder(orderByElement.isAsc()
+                    ? ResultSort.Order.asc
+                    : ResultSort.Order.desc);
             resultSortList.add(resultSortColumn);
         }
         return resultSortList;
     }
 
     private static final class FunctionReader extends SqlElementVisitor {
+
         private FqlQueryType queryType = FqlQueryType.SELECT;
         private ActionRequest actionRequest;
         private String columnName = null;
@@ -357,7 +372,8 @@ public class QueryTranslator extends SqlElementVisitor {
             Expression expression = selectExpressionItem.getExpression();
             if (expression instanceof Function) {
                 Function function = (Function) expression;
-                String functionName = function.getName().replaceAll(REGEX, REPLACEMENT);
+                String functionName = function.getName()
+                        .replaceAll(REGEX, REPLACEMENT);
                 queryType = getType(functionName);
                 switch (queryType) {
                     case TREND:
@@ -376,8 +392,7 @@ public class QueryTranslator extends SqlElementVisitor {
                         actionRequest = parseHistogramRequest(function.getParameters());
                         break;
                     case COUNT:
-                        actionRequest = parseCountRequest(function.getParameters(),
-                                function.isAllColumns(),
+                        actionRequest = parseCountRequest(function.getParameters(), function.isAllColumns(),
                                 function.isDistinct());
                         break;
                     case SUM:
@@ -406,9 +421,11 @@ public class QueryTranslator extends SqlElementVisitor {
             } else {
 
                 if (expression instanceof Parenthesis) {
-                    columnName = ((Column) ((Parenthesis) expression).getExpression()).getFullyQualifiedName().replaceAll(REGEX, REPLACEMENT);
+                    columnName = ((Column) ((Parenthesis) expression).getExpression()).getFullyQualifiedName()
+                            .replaceAll(REGEX, REPLACEMENT);
                 } else if (expression instanceof Column) {
-                    columnName = ((Column) expression).getFullyQualifiedName().replaceAll(REGEX, REPLACEMENT);
+                    columnName = ((Column) expression).getFullyQualifiedName()
+                            .replaceAll(REGEX, REPLACEMENT);
                 }
             }
         }
@@ -446,7 +463,8 @@ public class QueryTranslator extends SqlElementVisitor {
 
         private TrendRequest parseTrendFunction(List expressions) {
             if (expressions == null || expressions.isEmpty() || expressions.size() > 3) {
-                throw new FqlParsingException("trend function has following format: trend(fieldname, [period, [timestamp field]])");
+                throw new FqlParsingException(
+                        "trend function has following format: trend(fieldname, [period, [timestamp field]])");
             }
             TrendRequest trendRequest = new TrendRequest();
             trendRequest.setField(QueryUtils.expressionToString((Expression) expressions.get(0)));
@@ -462,13 +480,15 @@ public class QueryTranslator extends SqlElementVisitor {
 
         private StatsTrendRequest parseStatsTrendFunction(List expressions) {
             if (expressions == null || expressions.isEmpty() || expressions.size() > 2) {
-                throw new FqlParsingException("statstrend function has following format: statstrend(fieldname, [period])");
+                throw new FqlParsingException(
+                        "statstrend function has following format: statstrend(fieldname, [period])");
             }
             StatsTrendRequest statsTrendRequest = new StatsTrendRequest();
             statsTrendRequest.setField(QueryUtils.expressionToString((Expression) expressions.get(0)));
             if (expressions.size() > 1) {
-                statsTrendRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression) expressions.get(1))
-                        .toLowerCase()));
+                statsTrendRequest.setPeriod(Period.valueOf(
+                        QueryUtils.expressionToString((Expression) expressions.get(1))
+                                .toLowerCase()));
             }
             return statsTrendRequest;
         }
@@ -476,7 +496,8 @@ public class QueryTranslator extends SqlElementVisitor {
         /*
             When asked for specific stats then add those stats and skip percentiles to save on execution time
          */
-        private StatsRequest parseStatsFunction(List expressions, Set<Stat> stats) {
+        private StatsRequest parseStatsFunction(List expressions,
+                                                Set<Stat> stats) {
             StatsRequest statsRequest = parseStatsFunction(expressions);
             statsRequest.setStats(stats);
             statsRequest.setFlags(Sets.newHashSet(AnalyticsRequestFlags.STATS_SKIP_PERCENTILES));
@@ -495,7 +516,8 @@ public class QueryTranslator extends SqlElementVisitor {
         private HistogramRequest parseHistogramRequest(ExpressionList expressionList) {
             if (expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions()
                     .size() > 2)) {
-                throw new FqlParsingException("histogram function has the following format: histogram([period, [timestamp field]])");
+                throw new FqlParsingException(
+                        "histogram function has the following format: histogram([period, [timestamp field]])");
             }
             HistogramRequest histogramRequest = new HistogramRequest();
             if (null != expressionList) {
@@ -509,7 +531,9 @@ public class QueryTranslator extends SqlElementVisitor {
             return histogramRequest;
         }
 
-        private ActionRequest parseCountRequest(ExpressionList expressionList, boolean allColumns, boolean isDistinct) {
+        private ActionRequest parseCountRequest(ExpressionList expressionList,
+                                                boolean allColumns,
+                                                boolean isDistinct) {
 
             CountRequest countRequest = new CountRequest();
             if (allColumns) {
@@ -529,10 +553,12 @@ public class QueryTranslator extends SqlElementVisitor {
 
         private String expressionToString(Expression expression) {
             if (expression instanceof Column) {
-                return ((Column) expression).getFullyQualifiedName().replaceAll(REGEX, REPLACEMENT);
+                return ((Column) expression).getFullyQualifiedName()
+                        .replaceAll(REGEX, REPLACEMENT);
             }
             if (expression instanceof StringValue) {
-                return ((StringValue) expression).getValue().replaceAll(REGEX, REPLACEMENT);
+                return ((StringValue) expression).getValue()
+                        .replaceAll(REGEX, REPLACEMENT);
             }
             return null;
         }
@@ -698,10 +724,10 @@ public class QueryTranslator extends SqlElementVisitor {
             throw new FqlParsingException("Only last() function is supported");
         }
 
-
         private LastFilter parseWindowFunction(List expressions) {
             if (expressions == null || expressions.isEmpty() || expressions.size() > 3) {
-                throw new FqlParsingException("last function has following format: last(duration, [start-time, [timestamp field]])");
+                throw new FqlParsingException(
+                        "last function has following format: last(duration, [start-time, [timestamp field]])");
             }
             LastFilter lastFilter = new LastFilter();
             lastFilter.setDuration(Duration.parse(QueryUtils.expressionToString((Expression) expressions.get(0))));
@@ -759,17 +785,22 @@ public class QueryTranslator extends SqlElementVisitor {
                     if (parameters.size() != 1 || !(parameters.get(0) instanceof Column)) {
                         throw new FqlParsingException("temporal function must have a fieldname as parameter");
                     }
-                    return ColumnData.temporal(((Column) parameters.get(0)).getFullyQualifiedName().replaceAll(REGEX, REPLACEMENT));
+                    return ColumnData.temporal(((Column) parameters.get(0)).getFullyQualifiedName()
+                            .replaceAll(REGEX, REPLACEMENT));
                 }
                 throw new FqlParsingException("Only the function 'temporal' is supported in where clause");
             }
             if (expression instanceof Column) {
-                return new ColumnData(((Column) expression).getFullyQualifiedName().replaceAll(REGEX, REPLACEMENT));
+                return new ColumnData(((Column) expression).getFullyQualifiedName()
+                        .replaceAll(REGEX, REPLACEMENT));
+
             }
-            throw new FqlParsingException("Only the function 'temporal([fieldname)' and fieldname is supported in where clause");
+            throw new FqlParsingException(
+                    "Only the function 'temporal([fieldname)' and fieldname is supported in where clause");
         }
 
         private static final class ColumnData {
+
             private final String columnName;
             private boolean temporal = false;
             private boolean window = false;
@@ -799,7 +830,12 @@ public class QueryTranslator extends SqlElementVisitor {
     }
 
     private static final class ExtendedSqlParser extends SqlElementVisitor {
+
         private FqlQuery query;
+
+        public FqlQuery getQuery() {
+            return query;
+        }
 
         @Override
         public void visit(Describe describe) {
@@ -811,11 +847,6 @@ public class QueryTranslator extends SqlElementVisitor {
         public void visit(ShowTables showTables) {
             query = new FqlShowTablesQuery();
         }
-
-        public FqlQuery getQuery() {
-            return query;
-        }
     }
-
 
 }

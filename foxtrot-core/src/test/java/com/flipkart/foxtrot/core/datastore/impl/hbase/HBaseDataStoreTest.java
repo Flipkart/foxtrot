@@ -17,44 +17,55 @@ package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.Date;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.exception.BadRequestException;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.StoreConnectionException;
+import com.flipkart.foxtrot.common.util.SerDe;
 import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.BadRequestException;
-import com.flipkart.foxtrot.core.exception.ErrorCode;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.exception.StoreConnectionException;
 import com.foxtrot.flipkart.translator.DocumentTranslator;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
+import com.foxtrot.flipkart.translator.config.UnmarshallerConfig;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableList;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 
+import static com.flipkart.foxtrot.common.Table.DEFAULT_COLUMNS;
 import static com.flipkart.foxtrot.core.TestUtils.TEST_TABLE_NAME;
+import static com.flipkart.foxtrot.core.TestUtils.TEST_TENANT_NAME;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
  * Created by rishabh.goyal on 15/04/14.
  */
-
 public class HBaseDataStoreTest {
+
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
     private static final Table TEST_APP = Table.builder()
             .name(TEST_TABLE_NAME)
             .ttl(7)
+            .tenantName(TEST_TENANT_NAME)
             .build();
     private HBaseDataStore hbaseDataStore;
     private org.apache.hadoop.hbase.client.Table tableInterface;
@@ -69,8 +80,7 @@ public class HBaseDataStoreTest {
         when(hbaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(tableInterface);
         when(hbaseTableConnection.getHbaseConfig()).thenReturn(new HbaseConfig());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1())
-        );
+                new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1()));
     }
 
     @Test
@@ -84,7 +94,7 @@ public class HBaseDataStoreTest {
         expectedDocument.setTimestamp(System.currentTimeMillis());
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         expectedDocument.setData(data);
-        hbaseDataStore.save(TEST_APP, expectedDocument);
+        hbaseDataStore.save(TEST_APP.getName(), TEST_APP, expectedDocument);
         validateSave(v1FormatKey(expectedDocument.getId()), expectedDocument);
 
         // rawKeyVersion 2.0
@@ -96,17 +106,45 @@ public class HBaseDataStoreTest {
         expectedDocument.setTimestamp(System.currentTimeMillis());
         data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         expectedDocument.setData(data);
-        hbaseDataStore.save(TEST_APP, expectedDocument);
+        hbaseDataStore.save(TEST_APP.getName(), TEST_APP, expectedDocument);
         validateSave(documentTranslator.translate(TEST_APP, expectedDocument)
                 .getMetadata()
                 .getRawStorageId(), expectedDocument);
+    }
+
+    public void validateSave(String id,
+                             Document expectedDocument) throws Exception {
+        Get get = new Get(Bytes.toBytes(id));
+        Result result = tableInterface.get(get);
+        assertNotNull("Get for Id should not be null", result);
+        Document actualDocument = new Document(expectedDocument.getId(), expectedDocument.getTimestamp(),
+                mapper.readTree(result.getValue(COLUMN_FAMILY, DATA_FIELD_NAME)));
+        compare(expectedDocument, actualDocument);
+    }
+
+    private String v1FormatKey(String id) {
+        return String.format("%s:%s", id, TestUtils.TEST_TABLE_NAME);
+    }
+
+    public void compare(Document expected,
+                        Document actual) throws Exception {
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertNotNull("Actual document Id should not be null", actual.getId());
+        assertNotNull("Actual document data should not be null", actual.getData());
+        assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
+        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(),
+                actual.getTimestamp());
+        String expectedData = mapper.writeValueAsString(expected.getData());
+        String actualData = mapper.writeValueAsString(actual.getData());
+        assertEquals("Actual data should match expected data", expectedData, actualData);
     }
 
     @Test
     public void testSaveSingleNullDocument() throws Exception {
         Document document = null;
         try {
-            hbaseDataStore.save(TEST_APP, document);
+            hbaseDataStore.save(TEST_APP.getName(), TEST_APP, document);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
@@ -118,11 +156,21 @@ public class HBaseDataStoreTest {
         Document document = createDummyDocument();
         document.setId(null);
         try {
-            hbaseDataStore.save(TEST_APP, document);
+            hbaseDataStore.save(TEST_APP.getName(), TEST_APP, document);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
+    }
+
+    private Document createDummyDocument() {
+        Document document = new Document();
+        document.setId(UUID.randomUUID()
+                .toString());
+        document.setTimestamp(System.currentTimeMillis());
+        JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
+        document.setData(data);
+        return document;
     }
 
     @Test
@@ -130,7 +178,7 @@ public class HBaseDataStoreTest {
         Document document = new Document(UUID.randomUUID()
                 .toString(), System.currentTimeMillis(), null);
         try {
-            hbaseDataStore.save(TEST_APP, document);
+            hbaseDataStore.save(TEST_APP.getName(), TEST_APP, document);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
@@ -141,12 +189,11 @@ public class HBaseDataStoreTest {
     public void testSaveSingleHBaseWriteException() throws Exception {
         Document document = new Document(UUID.randomUUID()
                 .toString(), System.currentTimeMillis(),
-                mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))
-        );
+                mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST")));
         doThrow(new IOException()).when(tableInterface)
                 .put(Matchers.<Put>any());
         try {
-            hbaseDataStore.save(TEST_APP, document);
+            hbaseDataStore.save(TEST_APP.getName(), TEST_APP, document);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.STORE_CONNECTION_ERROR, ex.getCode());
@@ -157,11 +204,10 @@ public class HBaseDataStoreTest {
     public void testSaveSingleHBaseCloseException() throws Exception {
         Document document = new Document(UUID.randomUUID()
                 .toString(), System.currentTimeMillis(),
-                mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))
-        );
+                mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST")));
         doThrow(new IOException()).when(tableInterface)
                 .close();
-        hbaseDataStore.save(TEST_APP, document);
+        hbaseDataStore.save(TEST_APP.getName(), TEST_APP, document);
     }
 
     @Test
@@ -173,7 +219,7 @@ public class HBaseDataStoreTest {
         for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
-        hbaseDataStore.saveAll(TEST_APP, documents);
+        hbaseDataStore.saveAll(null, documents, TEST_APP);
         for (Document document : documents) {
             validateSave(v1FormatKey(document.getId()), document);
         }
@@ -186,7 +232,7 @@ public class HBaseDataStoreTest {
             documents.add(null);
         }
         try {
-            hbaseDataStore.saveAll(TEST_APP, documents);
+            hbaseDataStore.saveAll(TEST_APP.getName(), documents, TEST_APP);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
@@ -197,7 +243,7 @@ public class HBaseDataStoreTest {
     public void testSaveBulkNullIdList() throws Exception {
         List<Document> documents = null;
         try {
-            hbaseDataStore.saveAll(TEST_APP, documents);
+            hbaseDataStore.saveAll(TEST_APP.getName(), documents, TEST_APP);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
@@ -209,11 +255,10 @@ public class HBaseDataStoreTest {
         List<Document> documents = new Vector<Document>();
         for (int i = 0; i < 10; i++) {
             documents.add(new Document(null, System.currentTimeMillis(),
-                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))
-            ));
+                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
         }
         try {
-            hbaseDataStore.saveAll(TEST_APP, documents);
+            hbaseDataStore.saveAll(TEST_APP.getName(), documents, TEST_APP);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
@@ -228,7 +273,7 @@ public class HBaseDataStoreTest {
                     .toString(), System.currentTimeMillis(), null));
         }
         try {
-            hbaseDataStore.saveAll(TEST_APP, documents);
+            hbaseDataStore.saveAll(TEST_APP.getName(), documents, TEST_APP);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
@@ -239,13 +284,11 @@ public class HBaseDataStoreTest {
     public void testSaveBulkHBaseWriteException() throws Exception {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(UUID.randomUUID()
-                .toString(), System.currentTimeMillis(),
-                mapper.valueToTree(Collections.singletonMap("TEST", "TEST"))
-        ));
+                .toString(), System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST", "TEST"))));
         doThrow(new IOException()).when(tableInterface)
                 .put(Matchers.anyListOf(Put.class));
         try {
-            hbaseDataStore.saveAll(TEST_APP, documents);
+            hbaseDataStore.saveAll(TEST_APP.getName(), documents, TEST_APP);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.STORE_CONNECTION_ERROR, ex.getCode());
@@ -257,25 +300,10 @@ public class HBaseDataStoreTest {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(UUID.randomUUID()
                 .toString(), System.currentTimeMillis(),
-                mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_SAVE_TEST"))
-        ));
+                mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_SAVE_TEST"))));
         doThrow(new IOException()).when(tableInterface)
                 .close();
-        hbaseDataStore.saveAll(TEST_APP, documents);
-    }
-
-    public void validateSave(String id, Document expectedDocument) throws Exception {
-        Get get = new Get(Bytes.toBytes(id));
-        Result result = tableInterface.get(get);
-        assertNotNull("Get for Id should not be null", result);
-        Document actualDocument = new Document(expectedDocument.getId(), expectedDocument.getTimestamp(),
-                mapper.readTree(result.getValue(COLUMN_FAMILY, DATA_FIELD_NAME))
-        );
-        compare(expectedDocument, actualDocument);
-    }
-
-    private String v1FormatKey(String id) {
-        return String.format("%s:%s", id, TestUtils.TEST_TABLE_NAME);
+        hbaseDataStore.saveAll(TEST_APP.getName(), documents, TEST_APP);
     }
 
     @Test
@@ -283,8 +311,7 @@ public class HBaseDataStoreTest {
         // rawKeyVersion 1.0 with no metadata stored in the system (This will happen for documents which were indexed
         // before rawKey versioning came into place)
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1())
-        );
+                new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1()));
 
         String id = UUID.randomUUID()
                 .toString();
@@ -292,26 +319,24 @@ public class HBaseDataStoreTest {
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         Document expectedDocument = new Document(id, timestamp, data);
         tableInterface.put(new Put(Bytes.toBytes(v1FormatKey(id))).addColumn(COLUMN_FAMILY, Bytes.toBytes("data"),
-                mapper.writeValueAsBytes(data)
-        )
+                mapper.writeValueAsBytes(data))
                 .addColumn(COLUMN_FAMILY, Bytes.toBytes("timestamp"), Bytes.toBytes(timestamp)));
-        Document actualDocument = hbaseDataStore.get(TEST_APP, id);
+        Document actualDocument = hbaseDataStore.get(TEST_APP.getName(), TEST_APP, id);
         compare(expectedDocument, actualDocument);
 
         // rawKeyVersion 1.0
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1())
-        );
+                new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1()));
 
         id = UUID.randomUUID()
                 .toString();
         data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         String newId = v1FormatKey(id);
-        expectedDocument = new Document(id, System.currentTimeMillis(), new DocumentMetadata(id, newId, timestamp), data);
+        expectedDocument = new Document(id, System.currentTimeMillis(), new DocumentMetadata(id, newId, timestamp),
+                data);
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
-        actualDocument = hbaseDataStore.get(TEST_APP, id);
+        actualDocument = hbaseDataStore.get(TEST_APP.getName(), TEST_APP, id);
         compare(expectedDocument, actualDocument);
-
 
         // rawKeyVersion 2.0
         DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2());
@@ -323,9 +348,10 @@ public class HBaseDataStoreTest {
         Document originalDocument = new Document(id, System.currentTimeMillis(), data);
         newId = documentTranslator.translate(TEST_APP, originalDocument)
                 .getId();
-        expectedDocument = new Document(newId, originalDocument.getTimestamp(), new DocumentMetadata(id, newId, timestamp), data);
+        expectedDocument = new Document(newId, originalDocument.getTimestamp(),
+                new DocumentMetadata(id, newId, timestamp), data);
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
-        actualDocument = hbaseDataStore.get(TEST_APP, newId);
+        actualDocument = hbaseDataStore.get(TEST_APP.getName(), TEST_APP, newId);
         compare(originalDocument, actualDocument);
 
     }
@@ -333,7 +359,7 @@ public class HBaseDataStoreTest {
     @Test
     public void testGetSingleMissingDocument() {
         try {
-            hbaseDataStore.get(TEST_APP, UUID.randomUUID()
+            hbaseDataStore.get(TEST_APP.getName(), TEST_APP, UUID.randomUUID()
                     .toString());
             fail();
         } catch (FoxtrotException ex) {
@@ -348,13 +374,12 @@ public class HBaseDataStoreTest {
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
 
         Document expectedDocument = new Document(id, System.currentTimeMillis(),
-                new DocumentMetadata(id, v1FormatKey(id), System.currentTimeMillis()), data
-        );
+                new DocumentMetadata(id, v1FormatKey(id), System.currentTimeMillis()), data);
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         doThrow(new IOException()).when(tableInterface)
                 .get(Matchers.<Get>any());
         try {
-            hbaseDataStore.get(TEST_APP, id);
+            hbaseDataStore.get(TEST_APP.getName(), TEST_APP, id);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.STORE_CONNECTION_ERROR, ex.getCode());
@@ -365,15 +390,14 @@ public class HBaseDataStoreTest {
     public void testGetSingleHBaseCloseException() throws Exception {
         Document originalDocument = createDummyDocument();
         originalDocument.setMetadata(
-                new DocumentMetadata(originalDocument.getId(), v1FormatKey(originalDocument.getId()), System.currentTimeMillis()));
+                new DocumentMetadata(originalDocument.getId(), v1FormatKey(originalDocument.getId()),
+                        System.currentTimeMillis()));
         Document expectedDocument = new Document(v1FormatKey(originalDocument.getId()), originalDocument.getTimestamp(),
-                originalDocument.getMetadata(), originalDocument.getData()
-        );
-
+                originalDocument.getMetadata(), originalDocument.getData());
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         doThrow(new IOException()).when(tableInterface)
                 .close();
-        hbaseDataStore.get(TEST_APP, originalDocument.getId());
+        hbaseDataStore.get(TEST_APP.getName(), TEST_APP, originalDocument.getId());
     }
 
     @Test
@@ -394,7 +418,7 @@ public class HBaseDataStoreTest {
             idValues.put(id, new Document(id, timestamp, data));
         }
         tableInterface.put(putList);
-        List<Document> actualDocuments = hbaseDataStore.getAll(TEST_APP, ids);
+        List<Document> actualDocuments = hbaseDataStore.getAll(TEST_APP.getName(), TEST_APP, ids);
         for (Document doc : actualDocuments) {
             actualIdValues.put(doc.getId(), doc);
         }
@@ -426,7 +450,7 @@ public class HBaseDataStoreTest {
             rawIds.add(translated.getId());
         }
         tableInterface.put(putList);
-        List<Document> actualDocuments = hbaseDataStore.getAll(TEST_APP, rawIds);
+        List<Document> actualDocuments = hbaseDataStore.getAll(TEST_APP.getName(), TEST_APP, rawIds);
         for (Document doc : actualDocuments) {
             actualIdValues.put(doc.getId(), doc);
         }
@@ -440,7 +464,7 @@ public class HBaseDataStoreTest {
     @Test
     public void testGetBulkNullIdList() throws Exception {
         try {
-            hbaseDataStore.getAll(TEST_APP, null);
+            hbaseDataStore.getAll(TEST_APP.getName(), TEST_APP, null);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
@@ -455,7 +479,7 @@ public class HBaseDataStoreTest {
                     .toString());
         }
         try {
-            hbaseDataStore.getAll(TEST_APP, ids);
+            hbaseDataStore.getAll(TEST_APP.getName(), TEST_APP, ids);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.DOCUMENT_NOT_FOUND, ex.getCode());
@@ -471,15 +495,14 @@ public class HBaseDataStoreTest {
                     .toString();
             Document document = new Document(id, System.currentTimeMillis(),
                     new DocumentMetadata(id, String.format("row:%d", i), System.currentTimeMillis()),
-                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_GET_TEST"))
-            );
+                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_GET_TEST")));
             putList.add(hbaseDataStore.getPutForDocument(document));
         }
         tableInterface.put(putList);
         doThrow(new IOException()).when(tableInterface)
                 .get(Matchers.anyListOf(Get.class));
         try {
-            hbaseDataStore.getAll(TEST_APP, ids);
+            hbaseDataStore.getAll(TEST_APP.getName(), TEST_APP, ids);
             fail();
         } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
@@ -495,36 +518,188 @@ public class HBaseDataStoreTest {
                     .toString();
             Document document = new Document(id, System.currentTimeMillis(),
                     new DocumentMetadata(id, String.format("row:%d", i), System.currentTimeMillis()),
-                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_GET_TEST"))
-            );
+                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_GET_TEST")));
             putList.add(hbaseDataStore.getPutForDocument(document));
         }
         tableInterface.put(putList);
         doThrow(new IOException()).when(tableInterface)
                 .close();
-        hbaseDataStore.getAll(TEST_APP, ids);
+        hbaseDataStore.getAll(TEST_APP.getName(), TEST_APP, ids);
         verify(tableInterface, times(1)).close();
     }
 
-    public void compare(Document expected, Document actual) throws Exception {
-        assertNotNull(expected);
-        assertNotNull(actual);
-        assertNotNull("Actual document Id should not be null", actual.getId());
-        assertNotNull("Actual document data should not be null", actual.getData());
-        assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
-        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
-        String expectedData = mapper.writeValueAsString(expected.getData());
-        String actualData = mapper.writeValueAsString(actual.getData());
-        assertEquals("Actual data should match expected data", expectedData, actualData);
+    @Test
+    public void testSaveDocumentsWithUnmarshallException() throws IOException {
+        SerDe.init(mapper);
+
+        DocumentTranslator documentTranslator = new DocumentTranslator(getTranslatorConfigWithUnmarshallJsonPath());
+        hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
+
+        Table table = Table.builder()
+                .name("consumer_app")
+                .build();
+
+        String eventJson1 = "{\"app\":\"consumer_app\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"eventData\":{\"category\":\"Check Balance\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"funnelInfo\":\"[{funnelData={startPercentage=30.0, endPercentage=100.0}, funnelId=1}]\"},"
+                + "\"ingestionTime\":1591707569435}";
+
+        String eventJson2 = "{\"app\":\"consumer_app\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"eventData\":{\"category\":\"Check Balance\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"funnelInfo\":\"[{funnelData={startPercentage=10.0, endPercentage=30.0}, funnelId=2}]\"},"
+                + "\"ingestionTime\":1591707569435}";
+
+        String eventJson3 = "{\"app\":\"consumer_app\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"eventData\":{\"category\":\"Check Balance\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"funnelInfo\":\"[{funnelData={startPercentage=0.0, endPercentage=100.0}, funnelId=3}]\"},"
+                + "\"ingestionTime\":1591707569435}";
+
+        String eventJson4 = "{\"app\":\"consumer_app\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"eventData\":{\"category\":\"Check Balance\",\"eventType\":\"CHECK_BALANCE_INIT\","
+                + "\"funnelInfo\":\"[{\\\"funnelData\\\":{\\\"startPercentage\\\":20.0,\\\"endPercentage\\\":40.0},"
+                + "\\\"funnelId\\\":\\\"4\\\"}]\"},\"ingestionTime\":1591707569435}";
+        Document document1 = buildTestDocument(eventJson1);
+        Document document2 = buildTestDocument(eventJson2);
+        Document document3 = buildTestDocument(eventJson3);
+        Document document4 = buildTestDocument(eventJson4);
+
+        List<Document> translatedDocuments = hbaseDataStore.saveAll(TEST_APP.getName(),
+                ImmutableList.of(document1, document2, document3, document4), table);
+        Assert.assertEquals(1, translatedDocuments.size());
+        Assert.assertEquals("4", translatedDocuments.get(0)
+                .getData()
+                .at("/eventData/funnelInfo")
+                .get(0)
+                .get("funnelId")
+                .asText());
+
     }
 
-    private Document createDummyDocument() {
+    @Test
+    public void shouldUpdateTableInHBase() throws NoSuchFieldException, IllegalAccessException, IOException {
+        HbaseConfig hbaseConfig = new HbaseConfig();
+        hbaseConfig.setSeggregatedTablePrefix("foxtrot-");
+        HbaseTableConnection hbaseTableConnection = new HbaseTableConnection(hbaseConfig);
+        final Field connectionField = HbaseTableConnection.class.getDeclaredField("connection");
+        final Field hBaseAdminField = HbaseTableConnection.class.getDeclaredField("hBaseAdmin");
+
+        connectionField.setAccessible(true);
+        hBaseAdminField.setAccessible(true);
+
+        Admin mockAdmin = Mockito.mock(Admin.class);
+        Connection connection = Mockito.mock(Connection.class);
+        Admin hBaseAdmin = Mockito.spy(mockAdmin);
+
+        connectionField.set(hbaseTableConnection, connection);
+        hBaseAdminField.set(hbaseTableConnection, hBaseAdmin);
+
+        DocumentTranslator documentTranslator = Mockito.mock(DocumentTranslator.class);
+
+        Table table = Table.builder()
+                .name(TestUtils.TEST_TABLE_NAME)
+                .ttl(7)
+                .shards(1)
+                .columns(DEFAULT_COLUMNS)
+                .seggregatedBackend(true)
+                .tenantName(TestUtils.TEST_TENANT_NAME)
+                .build();
+
+        Mockito.when(hBaseAdmin.isTableAvailable(Mockito.any(TableName.class)))
+                .thenReturn(true);
+
+        Mockito.doNothing()
+                .when(hBaseAdmin)
+                .modifyTable(Mockito.any(TableName.class), Mockito.any(HTableDescriptor.class));
+
+        HBaseDataStore hBaseDataStore = new HBaseDataStore(hbaseTableConnection, new ObjectMapper(),
+                documentTranslator);
+
+        Table updatedTable = Table.builder()
+                .name(TestUtils.TEST_TABLE_NAME)
+                .ttl(14)
+                .shards(20)
+                .columns(DEFAULT_COLUMNS)
+                .seggregatedBackend(true)
+                .tenantName(TestUtils.TEST_TENANT_NAME)
+                .build();
+
+        hBaseDataStore.updateTable(table, updatedTable);
+
+        Mockito.verify(hBaseAdmin, Mockito.times(1))
+                .modifyTable(Mockito.any(TableName.class), Mockito.any(HTableDescriptor.class));
+    }
+
+    @Test
+    public void shouldNotUpdateTableInHBase() throws NoSuchFieldException, IllegalAccessException, IOException {
+        HbaseConfig hbaseConfig = new HbaseConfig();
+        hbaseConfig.setSeggregatedTablePrefix("foxtrot-");
+        HbaseTableConnection hbaseTableConnection = new HbaseTableConnection(hbaseConfig);
+        final Field connectionField = HbaseTableConnection.class.getDeclaredField("connection");
+        final Field hBaseAdminField = HbaseTableConnection.class.getDeclaredField("hBaseAdmin");
+
+        connectionField.setAccessible(true);
+        hBaseAdminField.setAccessible(true);
+
+        Admin mockAdmin = Mockito.mock(Admin.class);
+        Connection connection = Mockito.mock(Connection.class);
+        Admin hBaseAdmin = Mockito.spy(mockAdmin);
+
+        connectionField.set(hbaseTableConnection, connection);
+        hBaseAdminField.set(hbaseTableConnection, hBaseAdmin);
+
+        DocumentTranslator documentTranslator = Mockito.mock(DocumentTranslator.class);
+
+        Table table = Table.builder()
+                .name(TestUtils.TEST_TABLE_NAME)
+                .ttl(7)
+                .shards(1)
+                .columns(DEFAULT_COLUMNS)
+                .seggregatedBackend(true)
+                .tenantName(TestUtils.TEST_TENANT_NAME)
+                .build();
+
+        Mockito.when(hBaseAdmin.isTableAvailable(Mockito.any(TableName.class)))
+                .thenReturn(true);
+
+        Mockito.doNothing()
+                .when(hBaseAdmin)
+                .modifyTable(Mockito.any(TableName.class), Mockito.any(HTableDescriptor.class));
+
+        HBaseDataStore hBaseDataStore = new HBaseDataStore(hbaseTableConnection, new ObjectMapper(),
+                documentTranslator);
+
+        Table updatedTable = Table.builder()
+                .name(TestUtils.TEST_TABLE_NAME)
+                .ttl(7)
+                .shards(20)
+                .columns(DEFAULT_COLUMNS)
+                .seggregatedBackend(true)
+                .tenantName(TestUtils.TEST_TENANT_NAME)
+                .build();
+
+        hBaseDataStore.updateTable(table, updatedTable);
+
+        Mockito.verify(hBaseAdmin, Mockito.times(0))
+                .modifyTable(Mockito.any(TableName.class), Mockito.any(HTableDescriptor.class));
+    }
+
+    private Document buildTestDocument(String eventJson) throws IOException {
         Document document = new Document();
+        document.setDate(new Date());
         document.setId(UUID.randomUUID()
                 .toString());
-        document.setTimestamp(System.currentTimeMillis());
-        JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
-        document.setData(data);
+        document.setData(mapper.readTree(eventJson));
         return document;
+    }
+
+    private TranslatorConfig getTranslatorConfigWithUnmarshallJsonPath() {
+        TranslatorConfig translatorConfig = new TranslatorConfig();
+        translatorConfig.setRawKeyVersion("2.0");
+        translatorConfig.setUnmarshallerConfig(UnmarshallerConfig.builder()
+                .unmarshallingEnabled(true)
+                .tableVsUnmarshallJsonPath(
+                        ImmutableMap.of("consumer_app", Arrays.asList(new String[]{"/eventData/funnelInfo"})))
+                .build());
+        return translatorConfig;
     }
 }

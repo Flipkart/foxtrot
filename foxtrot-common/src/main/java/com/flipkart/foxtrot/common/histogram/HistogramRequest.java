@@ -15,11 +15,13 @@
  */
 package com.flipkart.foxtrot.common.histogram;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.enums.CountPrecision;
+import com.flipkart.foxtrot.common.enums.SourceType;
 import com.flipkart.foxtrot.common.query.Filter;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +30,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -36,6 +39,7 @@ import java.util.List;
  */
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HistogramRequest extends ActionRequest {
 
     @NotNull
@@ -49,9 +53,11 @@ public class HistogramRequest extends ActionRequest {
     @NotNull
     private Period period;
 
-    private String uniqueCountOn;
-
     private CountPrecision precision;
+
+    private String consoleId;
+
+    private String uniqueCountOn;
 
     public HistogramRequest() {
         super(Opcodes.HISTOGRAM);
@@ -59,16 +65,37 @@ public class HistogramRequest extends ActionRequest {
         this.period = Period.minutes;
     }
 
-    public HistogramRequest(List<Filter> filters, String table, String field, String uniqueCountOn, Period period) {
-        super(Opcodes.HISTOGRAM, filters);
+    public HistogramRequest(List<Filter> filters,
+                            String table,
+                            String field,
+                            String uniqueCountOn,
+                            Period period,
+                            String consoleId,
+                            boolean bypassCache,
+                            Map<String, String> requestTags,
+                            SourceType sourceType,
+                            boolean extrapolationFlag) {
+        super(Opcodes.HISTOGRAM, filters, bypassCache, requestTags, sourceType, extrapolationFlag);
         this.table = table;
         this.field = field;
         this.uniqueCountOn = uniqueCountOn;
         this.period = period;
+        this.consoleId = consoleId;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).appendSuper(super.toString())
+                .append("table", table)
+                .append("field", field)
+                .append("uniqueCountOn", uniqueCountOn)
+                .append("period", period)
+                .append("consoleId", consoleId)
+                .toString();
     }
 
     public String getTable() {
@@ -101,15 +128,5 @@ public class HistogramRequest extends ActionRequest {
 
     public void setField(String field) {
         this.field = field;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).appendSuper(super.toString())
-                .append("table", table)
-                .append("field", field)
-                .append("uniqueCountOn", uniqueCountOn)
-                .append("period", period)
-                .toString();
     }
 }

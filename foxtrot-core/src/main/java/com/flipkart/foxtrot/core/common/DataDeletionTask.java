@@ -1,6 +1,6 @@
 package com.flipkart.foxtrot.core.common;
 
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.slf4j.Logger;
@@ -12,6 +12,7 @@ import java.util.TimerTask;
  * Created by rishabh.goyal on 07/07/14.
  */
 public class DataDeletionTask extends TimerTask {
+
     private static final Logger logger = LoggerFactory.getLogger(DataDeletionTask.class.getSimpleName());
     private final QueryStore queryStore;
 

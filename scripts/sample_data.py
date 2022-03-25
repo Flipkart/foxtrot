@@ -17,16 +17,20 @@ def create_table(table):
         "name": table,
         "ttl": 30
     }
-    requests.post(url="http://localhost:17000/foxtrot/v1/tables", headers=HEADERS, data=json.dumps(request))
+    requests.post(url="http://localhost:17000/foxtrot/v1/tables", headers=HEADERS,
+                  data=json.dumps(request))
 
 
 def persist_documents(table, documents):
-    requests.post(url="http://localhost:17000/foxtrot/v1/document/{}/bulk".format(table), headers=HEADERS,
-                  data=json.dumps(documents))
+    requests.post(
+        url="http://localhost:17000/foxtrot/v1/document/{}/bulk".format(table),
+        headers=HEADERS,
+        data=json.dumps(documents))
 
 
 def random_value(character_count):
-    return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(character_count))
+    return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in
+                   range(character_count))
 
 
 def current_time():

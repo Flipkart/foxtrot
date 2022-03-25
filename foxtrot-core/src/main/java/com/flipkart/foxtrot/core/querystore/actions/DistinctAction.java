@@ -3,14 +3,14 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Sets;
@@ -36,26 +36,23 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 /**
  * Created by rishabh.goyal on 17/11/14.
  */
-
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 @AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable = true)
 public class DistinctAction extends Action<DistinctRequest> {
+
     private static final Logger logger = LoggerFactory.getLogger(DistinctAction.class);
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader) {
+    public DistinctAction(DistinctRequest parameter,
+                          AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
     public void preprocess() {
-        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
-    }
-
-    @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
+        getParameter().setTable(ElasticsearchUtils.getValidName(getParameter().getTable()));
     }
 
     @Override
@@ -64,7 +61,7 @@ public class DistinctAction extends Action<DistinctRequest> {
         DistinctRequest query = getParameter();
         if (null != query.getFilters()) {
             for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+                filterHashKey += 31 * filter.accept(getCacheKeyVisitor());
             }
         }
         for (int i = 0; i < query.getNesting()
@@ -94,9 +91,16 @@ public class DistinctAction extends Action<DistinctRequest> {
                 if (resultSort.getOrder() == null) {
                     validationErrors.add("nested parameter cannot have null sorting order");
                 }
-
             }
         }
+
+        if (!CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
+            getCardinalityValidator().validateCardinality(this, parameter, parameter.getTable(), parameter.getNesting()
+                    .stream()
+                    .map(ResultSort::getField)
+                    .collect(Collectors.toList()));
+        }
+
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
@@ -112,8 +116,7 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
 
         try {
-            SearchResponse response = getConnection()
-                    .getClient()
+            SearchResponse response = getConnection().getClient()
                     .search(query);
 
             return getResponse(response, getParameter());
@@ -123,7 +126,13 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(DistinctRequest request, List<Filter> extraFilters) {
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
+    public SearchRequest getRequestBuilder(DistinctRequest request,
+                                           List<Filter> extraFilters) {
         try {
             return new SearchRequest(ElasticsearchUtils.getIndices(request.getTable(), request))
                     .indicesOptions(Utils.indicesOptions())
@@ -140,7 +149,8 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DistinctRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      DistinctRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         // Check if any aggregation is present or not
         if (aggregations == null) {
@@ -150,7 +160,8 @@ public class DistinctAction extends Action<DistinctRequest> {
         return getDistinctResponse(parameter, aggregations);
     }
 
-    private DistinctResponse getDistinctResponse(DistinctRequest request, Aggregations aggregations) {
+    private DistinctResponse getDistinctResponse(DistinctRequest request,
+                                                 Aggregations aggregations) {
         DistinctResponse response = new DistinctResponse();
         List<String> headerList = request.getNesting()
                 .stream()
@@ -164,11 +175,10 @@ public class DistinctAction extends Action<DistinctRequest> {
         return response;
     }
 
-    private void flatten(
-            String parentKey,
-            List<String> fields,
-            List<List<String>> responseList,
-            Aggregations aggregations) {
+    private void flatten(String parentKey,
+                         List<String> fields,
+                         List<List<String>> responseList,
+                         Aggregations aggregations) {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1)
                 ? fields.subList(1, fields.size())
@@ -186,13 +196,15 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
     }
 
-    private String getProperKey(String parentKey, String currentKey) {
+    private String getProperKey(String parentKey,
+                                String currentKey) {
         return parentKey == null
                 ? currentKey
                 : parentKey + Constants.SEPARATOR + currentKey;
     }
 
-    private List<String> getValueList(String parentKey, String currentKey) {
+    private List<String> getValueList(String parentKey,
+                                      String currentKey) {
         String finalValue = getProperKey(parentKey, currentKey);
         String[] valuesList = finalValue.split(Constants.SEPARATOR);
         return Arrays.asList(valuesList);

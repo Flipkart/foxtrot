@@ -21,11 +21,14 @@ public class ResponseCacheUpdater implements ActionExecutionObserver {
         if (null == response || null == response.getResponse() || null == response.getExecutedAction()) {
             return;
         }
-        final Cache cache = cacheManager.getCacheFor(response.getRequest().getOpcode());
-        if (null == cache || response.getRequest().isBypassCache()) {
+        final Cache cache = cacheManager.getCacheFor(response.getRequest()
+                .getOpcode());
+        if (null == cache || response.getRequest()
+                .isBypassCache()) {
             return;
         }
-        final String cacheKey = response.getExecutedAction().cacheKey();
+        final String cacheKey = response.getExecutedAction()
+                .cacheKey();
         cache.put(cacheKey, response.getResponse());
     }
 }

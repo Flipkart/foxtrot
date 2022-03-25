@@ -1,15 +1,15 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.*;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Lists;
@@ -37,16 +37,19 @@ import java.util.stream.Collectors;
  */
 
 @AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = true)
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 public class StatsAction extends Action<StatsRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public StatsAction(StatsRequest parameter, AnalyticsLoader analyticsLoader) {
+    public StatsAction(StatsRequest parameter,
+                       AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
-    private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
+    private static StatsValue buildStatsValue(String field,
+                                              Aggregations aggregations) {
         String metricKey = Utils.getExtendedStatsAggregationKey(field);
         String percentileMetricKey = Utils.getPercentileAggregationKey(field);
 
@@ -64,7 +67,7 @@ public class StatsAction extends Action<StatsRequest> {
 
     @Override
     public void preprocess() {
-        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        getParameter().setTable(ElasticsearchUtils.getValidName(getParameter().getTable()));
     }
 
     @Override
@@ -78,7 +81,7 @@ public class StatsAction extends Action<StatsRequest> {
         StatsRequest statsRequest = getParameter();
         if (null != statsRequest.getFilters()) {
             for (Filter filter : statsRequest.getFilters()) {
-                statsHashKey += 31 * filter.hashCode();
+                statsHashKey += 31 * filter.accept(getCacheKeyVisitor());
             }
         }
 
@@ -103,14 +106,16 @@ public class StatsAction extends Action<StatsRequest> {
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
+
+        getCardinalityValidator().validateCardinality(this, parameter, parameter.getTable(), parameter.getNesting());
+
     }
 
     @Override
     public ActionResponse execute(StatsRequest parameter) {
         SearchRequest query = getRequestBuilder(parameter, Collections.emptyList());
         try {
-            SearchResponse response = getConnection()
-                    .getClient()
+            SearchResponse response = getConnection().getClient()
                     .search(query, RequestOptions.DEFAULT);
             return getResponse(response, parameter);
         } catch (IOException e) {
@@ -119,9 +124,9 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
-    public SearchRequest getRequestBuilder(StatsRequest parameter, List<Filter> extraFilters) {
-        final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
-                .size(0)
+    public SearchRequest getRequestBuilder(StatsRequest parameter,
+                                           List<Filter> extraFilters) {
+        final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().size(0)
                 .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
                 .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters));
 
@@ -130,8 +135,7 @@ public class StatsAction extends Action<StatsRequest> {
         boolean isNumericField = Utils.isNumericField(getTableMetadataManager(), parameter.getTable(), field);
         final AbstractAggregationBuilder extendedStats;
         if (isNumericField) {
-            if (!AnalyticsRequestFlags.hasFlag(parameter.getFlags(),
-                    AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
+            if (!AnalyticsRequestFlags.hasFlag(parameter.getFlags(), AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
                 percentiles = Utils.buildPercentileAggregation(field, getParameter().getPercentiles());
                 sourceBuilder.aggregation(percentiles);
             }
@@ -146,21 +150,19 @@ public class StatsAction extends Action<StatsRequest> {
             if (null != percentiles) {
                 subAggregations.add(percentiles);
             }
-            sourceBuilder.aggregation(
-                    Utils.buildTermsAggregation(getParameter().getNesting()
-                                    .stream()
-                                    .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                                    .collect(Collectors.toList()),
-                            subAggregations,
-                            elasticsearchTuningConfig.getAggregationSize()));
+            sourceBuilder.aggregation(Utils.buildTermsAggregation(getParameter().getNesting()
+                    .stream()
+                    .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                    .collect(Collectors.toList()), subAggregations, elasticsearchTuningConfig.getAggregationSize()));
         }
-        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                .indicesOptions(Utils.indicesOptions())
+        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
+                Utils.indicesOptions())
                 .source(sourceBuilder);
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      StatsRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         if (aggregations != null) {
             return buildResponse(parameter, aggregations);
@@ -168,7 +170,8 @@ public class StatsAction extends Action<StatsRequest> {
         return null;
     }
 
-    private StatsResponse buildResponse(StatsRequest request, Aggregations aggregations) {
+    private StatsResponse buildResponse(StatsRequest request,
+                                        Aggregations aggregations) {
         // First build root level stats value
         StatsValue statsValue = buildStatsValue(request.getField(), aggregations);
 
@@ -185,7 +188,8 @@ public class StatsAction extends Action<StatsRequest> {
         return statsResponse;
     }
 
-    private List<BucketResponse<StatsValue>> buildNestedStats(List<String> nesting, Aggregations aggregations) {
+    private List<BucketResponse<StatsValue>> buildNestedStats(List<String> nesting,
+                                                              Aggregations aggregations) {
         final String field = nesting.get(0);
         final List<String> remainingFields = (nesting.size() > 1)
                 ? nesting.subList(1, nesting.size())

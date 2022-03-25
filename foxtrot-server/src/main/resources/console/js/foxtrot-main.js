@@ -276,7 +276,7 @@ $(document).ready(function(){
 	//Check if a console is specified.
 	//If yes, render the UI accordingly...
 
-	var consoleId = getParameterByName("console").replace('/','');
+	var consoleId = getParameterByName("console");
 	if(consoleId) {
 		info("Loading console: " + consoleId);
 		foxtrot.loadConsole(consoleId);

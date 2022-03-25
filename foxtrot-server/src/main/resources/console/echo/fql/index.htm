@@ -75,10 +75,10 @@
     </div>
 </div>
 
-<div class="container-full">
+<div class="fql-container-full">
     <div class="new-header">
         <div class="inner-header container-fluid">
-            <h1 class="col-sm-4 heading">
+            <h1 class="col-sm-2 heading">
                 <a href="../index.htm"><img src="../img/echo_1.png" alt="logo"/></a>
             </h1>
             <div id="console-list-dropdown">
@@ -88,11 +88,17 @@
                 <ul id="left-menu">
                     <li><a href="../browse-events.htm">Browse Events</a></li>
                     <li><a href="../cluster/index.htm">Cluster</a></li>
+                    <li><a href="https://github.com/Flipkart/foxtrot/wiki" target="_blank">Wiki</a></li>
+                    <li><a href="https://confluence.phonepe.com/confluence/display/ED/Foxtrot+-+Guide" target="_blank">Confluence</a></li>
                     <li><a id="active-fql">FQL</a></li>
                     <li id="fql-dashboard">
                         <span id="create-new-dashboard">Create New Dashboard</span>
                     </li>
-                    <li><a href="/foxtrot/oauth/logout">Logout</a></li>
+                    <li>
+                        <form id="logout" method="post">
+                            <img id="logout-icon" class="logout" src="../img/logout.png" title="Logout" alt="Logout">
+                        </form>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -100,28 +106,73 @@
     <!-- Modal -->
 
     <div id="fql-content">
+        <div class="fql-header-container">
         <div class="loading">Loading&#8230;</div>
+        
+        <div class="fql-query-history">
+            <div class="panel-warpper">
+                <div class="tab-warpper">
+                    
+                    <!-- <div class="saved-tab-style">
+                        <div class="tab-name-saved">Saved FQL</div>
+                    </div> -->
+                    <!-- <div class="history-tab-style">
+                        <div class="tab-name-history">History</div>
+                    </div> -->
+                </div>
+                <div class="header-name">
+                    <div class="tab-header">Saved FQL</div>
+                </div>
+            </div>
+            <label class="queries-search-label">Search for query</label>
+            <input type="text" class="queries-search" name="fname" placeholder="Search for query" >
+            <div class="query-list-wrapper">
+                <div class="line"></div>
+                <ul class="query-list"></ul>
+                <div class="no-saved-query">
+                    No Saved Query
+                </div>
+            </div>
+        </div>
+        <!-- <div class="line"></div> -->
         <div class="container-fluid" id="fql-container">
-            <div id="fql-settings" class="container">
+            <div id="fql-settings" class="container" style="display: flex; justify-content: center;">
                 <form id="fql-form">
                     <div class="form-group row">
                         <div class="col-xs-12 form-group">
-                            <label class="control-label">Fql query <span class="mandatory-text">*</span></label>
-                            <input type="text" class="fql-query form-control" name="fql-query" id="fql-query" required/>
+                            <label class="control-label">Fql query</label>
+                            <!-- <input type="text" class="fql-query form-control" name="fql-query" id="fql-query"/> -->
+                            <textarea type="text" class="fql-query form-control" name="fql-query" id="fql-query"></textarea>
+
                             <ul id="auto-suggest">
                             </ul>
                         </div>
                     </div>
                     <div class="row" id="fql-buttons">
-                        <div class="col-sm-12">
+                        <div class="col-sm-12" id="fql-buttons-wrapper">
+                        <!-- <div class="col-sm-12">
+                            <div class="col-sm-3">
+                            <input type="checkbox" class="pie-show-legend" id="pie-show-legend"/>
+                        </div>
+                        </div> -->
+                        <div class="col-sm-3">
+                            <div class="extrapolation-wrapper" style=" display: flex;
+                            flex-direction: row;
+                            margin-top: 6px;">
+                                <input type="checkbox" id="mark-extrapolation"/>
+                                <div class="extrapolation-wrapper-text" style=" margin-left: 10px;
+                                ">Enable Sampling</div>
+                            </div>
+                        </div>
+
                             <div class="col-sm-3">
                                 <a href="#" id="open-fql-modal" class="form-control">
                                     <span> Save FQL</span>
                                 </a>
                             </div>
-                            <div class="col-sm-5">
+                            <div class="col-sm-3">
                                 <button type="button" id="fql-csv-download" class="form-control">
-                                    <span> Download CSV</span>
+                                    <div> Download CSV</div>
                                 </button>
                             </div>
                             <div class="col-sm-3">
@@ -132,13 +183,13 @@
                     </div>
                 </form>
             </div>
+            </div>
         </div>
 
         <div class="container-fluid" id="scroll-ref">
             <div class="row">
-                <div class="col-sm-8"><span id="event-display-heading">Query Result</span></div>
-                <div class="col-sm-4">
-                    <button type="button" class="form-control fql-event-choose-btn"><span> Choose columns</span>
+                <div class="col-sm-12"><id id="event-display-heading">Query Result</id>
+                    <button type="button" class="form-control fql-event-choose-btn">Choose columns
                     </button>
                 </div>
             </div>
@@ -264,7 +315,7 @@
         }
     });
 
-    $("#fql-column-chooser-close-btn").click(function() {
+   $("#fql-column-chooser-close-btn").click(function() {
       showHideColumnChooser();
     });
 
@@ -301,6 +352,20 @@
         $("#fql-run-query").trigger("click");
       }
     });
+
+    $('.extrapolation-wrapper-text').click(function(){
+        const extrapolationTemp = $("#mark-extrapolation").attr("checked") ? true : false;
+        console.log('extrapolation-wrapper-text', extrapolationTemp);
+        if ($('#mark-extrapolation').is(":checked")) {
+            $("#mark-extrapolation").prop("checked", false).change();
+        }
+        else if(!extrapolationTemp) {
+
+        $("#mark-extrapolation").prop("checked", true).change();
+        }
+    })
+
+
 
 
 

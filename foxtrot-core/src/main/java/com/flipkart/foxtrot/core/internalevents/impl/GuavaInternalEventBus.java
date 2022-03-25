@@ -6,13 +6,11 @@ import com.flipkart.foxtrot.core.internalevents.InternalSystemEvent;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.Subscribe;
 
-import javax.inject.Singleton;
 import java.util.concurrent.Executors;
 
 /**
  *
  */
-@Singleton
 public class GuavaInternalEventBus implements InternalEventBus {
 
     private final AsyncEventBus eventBus;
@@ -32,6 +30,7 @@ public class GuavaInternalEventBus implements InternalEventBus {
     }
 
     private class Subscriber {
+
         private final InternalEventBusConsumer consumer;
 
         private Subscriber(InternalEventBusConsumer consumer) {

@@ -15,10 +15,12 @@
  */
 package com.flipkart.foxtrot.common.group;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.enums.CountPrecision;
+import com.flipkart.foxtrot.common.enums.SourceType;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.stats.Stat;
 import lombok.Getter;
@@ -28,7 +30,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -37,13 +39,13 @@ import java.util.Set;
  */
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GroupRequest extends ActionRequest {
 
     @NotNull
     @NotEmpty
     private String table;
 
-    // Kept for backward compatibility
     private String uniqueCountOn;
 
     private String aggregationField;
@@ -54,21 +56,33 @@ public class GroupRequest extends ActionRequest {
     @NotEmpty
     private List<String> nesting;
 
+    private String consoleId;
+
     private CountPrecision precision;
 
     public GroupRequest() {
         super(Opcodes.GROUP);
     }
 
-    public GroupRequest(List<Filter> filters, String table, String uniqueCountOn,
-                        String aggregationField, Stat aggregationType,
-                        List<String> nesting, CountPrecision precision) {
-        super(Opcodes.GROUP, filters);
+    public GroupRequest(List<Filter> filters,
+                        String table,
+                        String uniqueCountOn,
+                        String aggregationField,
+                        Stat aggregationType,
+                        List<String> nesting,
+                        String consoleId,
+                        CountPrecision precision,
+                        boolean bypassCache,
+                        Map<String, String> requestTags,
+                        SourceType sourceType,
+                        boolean extrapolationFlag) {
+        super(Opcodes.GROUP, filters, bypassCache, requestTags, sourceType, extrapolationFlag);
         this.table = table;
         this.uniqueCountOn = uniqueCountOn;
         this.aggregationField = aggregationField;
         this.aggregationType = aggregationType;
         this.nesting = nesting;
+        this.consoleId = consoleId;
         this.precision = precision;
     }
 
@@ -83,6 +97,7 @@ public class GroupRequest extends ActionRequest {
                 .append("aggregationType", aggregationType)
                 .append("uniqueCountOn", uniqueCountOn)
                 .append("aggregationField", aggregationField)
+                .append("consoleId", consoleId)
                 .append("nesting", nesting)
                 .toString();
     }

@@ -6,5 +6,7 @@ import java.util.Map;
  *
  */
 public interface EmailBodyBuilder {
-    String content(final String identifier, final Map<String, Object> context);
+
+    String content(final String identifier,
+                   final Map<String, Object> context);
 }

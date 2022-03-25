@@ -15,38 +15,57 @@ package com.flipkart.foxtrot.common.query;
  * limitations under the License.
  */
 
+import com.collections.CollectionUtils;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.junit.Assert;
+
 
 import java.util.Map;
-
-import lombok.Data;
 
 /***
  Created by nitish.goyal on 22/08/18
  ***/
 @Data
+@EqualsAndHashCode(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MultiQueryRequest extends ActionRequest {
 
     private Map<String, ActionRequest> requests;
+
+    private String consoleId;
 
     public MultiQueryRequest() {
         super(Opcodes.MULTI_QUERY);
     }
 
-    public MultiQueryRequest(Map<String, ActionRequest> requests) {
-        super(Opcodes.MULTI_QUERY);
-        this.requests = requests;
+    public MultiQueryRequest(Map<String, ActionRequest> requests,
+                             String consoleId) {
+        this(requests);
+        this.consoleId = consoleId;
     }
 
-    @Override
-    public String toString() {
-        return requests.toString();
+    public MultiQueryRequest(Map<String, ActionRequest> requests) {
+        super(Opcodes.MULTI_QUERY);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(requests));
+        this.requests = requests;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).appendSuper(super.toString())
+                .append("requests", requests.toString())
+                .append("consoleId", consoleId)
+                .toString();
     }
 
 }

@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.cache.impl;
 
@@ -30,9 +27,7 @@ import java.io.IOException;
 import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_PREFIX;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 25/03/14
- * Time: 7:43 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 25/03/14 Time: 7:43 PM
  */
 
 public class DistributedCache implements Cache {
@@ -41,14 +36,17 @@ public class DistributedCache implements Cache {
     private final IMap<String, String> distributedMap;
     private final ObjectMapper mapper;
 
-    public DistributedCache(HazelcastConnection hazelcastConnection, String name, ObjectMapper mapper) {
+    public DistributedCache(HazelcastConnection hazelcastConnection,
+                            String name,
+                            ObjectMapper mapper) {
         this.distributedMap = hazelcastConnection.getHazelcast()
                 .getMap(CACHE_NAME_PREFIX + name);
         this.mapper = mapper;
     }
 
     @Override
-    public ActionResponse put(String key, ActionResponse data) {
+    public ActionResponse put(String key,
+                              ActionResponse data) {
         try {
             final String serializedData = mapper.writeValueAsString(data);
             if (serializedData != null) {
@@ -58,8 +56,7 @@ public class DistributedCache implements Cache {
                 } else {
                     String responsePart = serializedData.substring(0, 1024);
                     logger.error("Size of response is too big for cache. Skipping it. Response Part : {}",
-                            responsePart
-                    );
+                            responsePart);
                 }
             }
         } catch (JsonProcessingException e) {

@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.common;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -30,8 +31,10 @@ import java.util.Set;
 @Builder
 @EqualsAndHashCode
 public class TableFieldMapping implements Serializable {
+
     private static final long serialVersionUID = 251932689582302800L;
     private String table;
     private Set<FieldMetadata> mappings;
+    private Date updatedAt;
 
 }

@@ -49,20 +49,8 @@ public class TrendResponse extends ActionResponse {
     }
 
     @Override
-    public void accept(ResponseVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof TrendResponse))
-            return false;
-
-        TrendResponse that = (TrendResponse) o;
-
-        return trends.equals(that.trends);
+    public <T> T accept(ResponseVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     @Override
@@ -70,14 +58,29 @@ public class TrendResponse extends ActionResponse {
         return trends.hashCode();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TrendResponse)) {
+            return false;
+        }
+
+        TrendResponse that = (TrendResponse) o;
+        return trends.equals(that.trends);
+    }
+
     public static class Count {
+
         private Number period;
         private long count;
 
         public Count() {
         }
 
-        public Count(Number period, long count) {
+        public Count(Number period,
+                     long count) {
             this.period = period;
             this.count = count;
         }
@@ -100,15 +103,17 @@ public class TrendResponse extends ActionResponse {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (!(o instanceof Count))
+            }
+            if (!(o instanceof Count)) {
                 return false;
-
+            }
             Count count1 = (Count) o;
 
-            if (count != count1.count)
+            if (count != count1.count) {
                 return false;
+            }
             return period.equals(count1.period);
         }
 

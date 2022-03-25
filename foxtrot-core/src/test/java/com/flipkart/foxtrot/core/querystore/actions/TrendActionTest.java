@@ -18,24 +18,36 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.exception.CardinalityOverflowException;
+import com.flipkart.foxtrot.common.exception.ErrorCode;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
+import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.ErrorCode;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
-import org.junit.BeforeClass;
+import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -43,24 +55,67 @@ import static org.junit.Assert.fail;
  * Created by rishabh.goyal on 29/04/14.
  */
 public class TrendActionTest extends ActionTest {
-    @BeforeClass
-    public static void setUp() throws Exception {
+
+    private static final String TREND_CARDINALITY_TEST_TABLE = "trend-cardinality-test-table";
+    private static final String TREND_TEST_TABLE = "trend-test-table";
+    private static final String TREND_TEST_TENANT = "trend_test_tenant";
+
+    private static final Long time = DateTime.now()
+            .minusDays(1)
+            .toDate()
+            .getTime();
+
+    @Before
+    public void setUp() throws Exception {
+        super.setup();
+        tableMetadataManager.save(Table.builder()
+                .name(TREND_TEST_TABLE)
+                .ttl(30)
+                .tenantName(TREND_TEST_TENANT)
+                .build());
+        tableMetadataManager.save(Table.builder()
+                .name(TREND_CARDINALITY_TEST_TABLE)
+                .ttl(30)
+                .tenantName(TREND_TEST_TENANT)
+                .build());
+
         List<Document> documents = TestUtils.getTrendDocuments(getMapper());
-        getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
+        getQueryStore().saveAll(TREND_TEST_TABLE, documents);
         getElasticsearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
+
+        // have 30,000 docs for cardinality test
+        for (int i = 0; i < 10; i++) {
+
+            List<Document> documentsForEstimation = TestUtils.getTestDocumentsForCardinalityEstimation(getMapper(),
+                    time, 300);
+            getQueryStore().saveAll(TREND_CARDINALITY_TEST_TABLE, documentsForEstimation);
+
+            getElasticsearchConnection().getClient()
+                    .indices()
+                    .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
+        }
+
+        await().pollDelay(2000, TimeUnit.MILLISECONDS)
+                .until(() -> true);
+
+        getTableMetadataManager().calculateCardinality(TREND_CARDINALITY_TEST_TABLE);
+        ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
+                .setMaxCardinality(1500);
+        getTableMetadataManager().updateEstimationData(TREND_CARDINALITY_TEST_TABLE, time);
     }
 
-    private void filterNonZeroCounts(List<TrendResponse.Count> counts) {
-        counts.removeIf(count -> count.getCount() == 0);
+    @After
+    public void afterMethod() {
+        ElasticsearchTestUtils.cleanupIndices(getElasticsearchConnection());
     }
 
     //TODO trend action with null field is not working
     @Test
     public void testTrendActionNullField() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        trendRequest.setTable(TREND_TEST_TABLE);
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
         betweenFilter.setTo(System.currentTimeMillis());
@@ -81,7 +136,7 @@ public class TrendActionTest extends ActionTest {
     @Test
     public void testTrendActionFieldAll() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        trendRequest.setTable(TREND_TEST_TABLE);
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
         betweenFilter.setTo(System.currentTimeMillis());
@@ -101,7 +156,7 @@ public class TrendActionTest extends ActionTest {
     @Test
     public void testTrendActionEmptyField() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        trendRequest.setTable(TREND_TEST_TABLE);
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
         betweenFilter.setTo(System.currentTimeMillis());
@@ -121,7 +176,7 @@ public class TrendActionTest extends ActionTest {
     @Test
     public void testTrendActionFieldWithSpecialCharacters() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        trendRequest.setTable(TREND_TEST_TABLE);
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
         betweenFilter.setTo(System.currentTimeMillis());
@@ -161,7 +216,7 @@ public class TrendActionTest extends ActionTest {
     @Test
     public void testTrendActionWithField() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        trendRequest.setTable(TREND_TEST_TABLE);
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
         betweenFilter.setTo(System.currentTimeMillis());
@@ -194,10 +249,14 @@ public class TrendActionTest extends ActionTest {
         assertEquals(expectedResponse, actualResponse);
     }
 
+    private void filterNonZeroCounts(List<TrendResponse.Count> counts) {
+        counts.removeIf(count -> count.getCount() == 0);
+    }
+
     @Test
     public void testTrendActionWithFieldZeroTo() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        trendRequest.setTable(TREND_TEST_TABLE);
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
         betweenFilter.setTo(System.currentTimeMillis());
@@ -233,7 +292,7 @@ public class TrendActionTest extends ActionTest {
     @Test
     public void testTrendActionWithFieldZeroFrom() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        trendRequest.setTable(TREND_TEST_TABLE);
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
         betweenFilter.setTo(System.currentTimeMillis());
@@ -269,7 +328,7 @@ public class TrendActionTest extends ActionTest {
     @Test
     public void testTrendActionWithFieldWithValues() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        trendRequest.setTable(TREND_TEST_TABLE);
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
         betweenFilter.setTo(System.currentTimeMillis());
@@ -298,7 +357,7 @@ public class TrendActionTest extends ActionTest {
     @Test
     public void testTrendActionWithFieldWithFilterWithValues() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        trendRequest.setTable(TREND_TEST_TABLE);
         trendRequest.setField("os");
         trendRequest.setValues(Arrays.asList("android"));
 
@@ -310,7 +369,6 @@ public class TrendActionTest extends ActionTest {
         lessThanFilter.setField("_timestamp");
         lessThanFilter.setValue(System.currentTimeMillis());
         trendRequest.setFilters(Lists.newArrayList(equalsFilter, lessThanFilter));
-
 
         TrendResponse expectedResponse = new TrendResponse();
         Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
@@ -328,7 +386,7 @@ public class TrendActionTest extends ActionTest {
     @Test
     public void testTrendActionWithFieldWithFilter() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        trendRequest.setTable(TREND_TEST_TABLE);
         trendRequest.setField("os");
 
         EqualsFilter equalsFilter = new EqualsFilter();
@@ -360,7 +418,7 @@ public class TrendActionTest extends ActionTest {
     @Test
     public void testTrendActionWithFieldWithFilterWithInterval() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        trendRequest.setTable(TREND_TEST_TABLE);
         trendRequest.setField("os");
         trendRequest.setPeriod(Period.days);
 
@@ -388,5 +446,61 @@ public class TrendActionTest extends ActionTest {
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test(expected = CardinalityOverflowException.class)
+    public void shouldBlockQueryOnFieldWithHighCardinality() {
+
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TREND_CARDINALITY_TEST_TABLE);
+        trendRequest.setField("deviceId");
+        trendRequest.setPeriod(Period.days);
+
+        getQueryExecutor().execute(trendRequest);
+    }
+
+    @Test(expected = CardinalityOverflowException.class)
+    public void shouldBlockQueryWithGTFilterHighCardinalityField() {
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TREND_CARDINALITY_TEST_TABLE);
+        trendRequest.setField("deviceId");
+        trendRequest.setPeriod(Period.days);
+
+        trendRequest.setFilters(ImmutableList.of(GreaterThanFilter.builder()
+                .field("value")
+                .value(10)
+                .build()));
+        getQueryExecutor().execute(trendRequest);
+    }
+
+    @Test
+    // High cardinality field queries with filters including small subset are allowed
+    public void testEstimationLTFilterHighCardinality() throws Exception {
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TREND_CARDINALITY_TEST_TABLE);
+        trendRequest.setField("deviceId");
+        trendRequest.setPeriod(Period.days);
+
+        trendRequest.setFilters(ImmutableList.of(LessThanFilter.builder()
+                .field("value")
+                .value(3)
+                .build()));
+        TrendResponse response = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
+
+        Assert.assertFalse(response.getTrends()
+                .isEmpty());
+    }
+
+    @Test(expected = CardinalityOverflowException.class)
+    public void testEstimationLTFilterHighCardinalityBlocked() {
+        StatsRequest statsRequest = new StatsRequest();
+        statsRequest.setTable(TREND_CARDINALITY_TEST_TABLE);
+        statsRequest.setField("battery");
+        statsRequest.setNesting(Collections.singletonList("deviceId"));
+        statsRequest.setFilters(ImmutableList.of(LessThanFilter.builder()
+                .field("value")
+                .value(80)
+                .build()));
+        getQueryExecutor().execute(statsRequest);
     }
 }

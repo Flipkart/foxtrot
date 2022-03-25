@@ -29,8 +29,8 @@ import java.util.Set;
  * Time: 2:25 PM
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public abstract class NumericBinaryFilter extends Filter {
 
     @NotNull
@@ -42,7 +42,10 @@ public abstract class NumericBinaryFilter extends Filter {
         super(operator);
     }
 
-    protected NumericBinaryFilter(final String operator, String field, Number value, boolean temporal) {
+    protected NumericBinaryFilter(final String operator,
+                                  String field,
+                                  Number value,
+                                  boolean temporal) {
         super(operator, field);
         this.value = value;
         this.temporal = temporal;
@@ -61,4 +64,5 @@ public abstract class NumericBinaryFilter extends Filter {
         }
         return validationErrors;
     }
+
 }

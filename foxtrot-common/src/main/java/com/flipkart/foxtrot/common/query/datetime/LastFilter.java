@@ -9,15 +9,13 @@ import io.dropwizard.util.Duration;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 
-@Getter
-@Setter
+@Data
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class LastFilter extends Filter {
 
     private long currentTime;
@@ -34,17 +32,28 @@ public class LastFilter extends Filter {
     }
 
     @Builder
-    public LastFilter(String field, long currentTime, Duration duration, RoundingMode roundingMode) {
+    public LastFilter(String field,
+                      long currentTime,
+                      Duration duration,
+                      RoundingMode roundingMode) {
         super(FilterOperator.last);
-        super.setField(Strings.isNullOrEmpty(field) ? "_timestamp" : field);
-        this.currentTime = currentTime == 0 ? System.currentTimeMillis() : currentTime;
+        super.setField(Strings.isNullOrEmpty(field)
+                ? "_timestamp"
+                : field);
+        this.currentTime = currentTime == 0
+                ? System.currentTimeMillis()
+                : currentTime;
         this.duration = duration;
-        this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
+        this.roundingMode = roundingMode == null
+                ? RoundingMode.NONE
+                : roundingMode;
     }
 
     public void setDuration(Duration duration) {
         this.duration = duration;
-        this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
+        this.roundingMode = roundingMode == null
+                ? RoundingMode.NONE
+                : roundingMode;
     }
 
     @Override
@@ -61,37 +70,6 @@ public class LastFilter extends Filter {
     @JsonIgnore
     public TimeWindow getWindow() {
         return WindowUtil.calculate(currentTime, duration, roundingMode);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getOperator().hashCode();
-        result = 31 * result + getField().hashCode();
-        if (!getField().equals("_timestamp")) {
-            result = result * 21 + (getCurrentTime() == 0
-                    ? 43
-                    : Long.valueOf(getCurrentTime()).hashCode());
-        } else {
-            result = result * 21 + Long.valueOf(getCurrentTime() / (long) 30000).hashCode();
-        }
-        result = result * 13 + getRoundingMode().name().hashCode();
-        result = result * 7 + getDuration().toString().hashCode();
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        } else if (!(o instanceof LastFilter)) {
-            return false;
-        }
-
-        LastFilter that = (LastFilter) o;
-
-        return getField().equals(that.getField()) && getOperator().equals(that.getOperator()) &&
-                getDuration().equals(that.getDuration()) && getRoundingMode().equals(that.getRoundingMode()) &&
-                getCurrentTime() == that.getCurrentTime();
     }
 
 }

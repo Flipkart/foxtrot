@@ -15,183 +15,188 @@
     * limitations under the License.
     -->
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="shortcut icon" href="img/favicon.ico">
-        <title>Echo Cluster</title>
-        <!-- Bootstrap core CSS -->
-        <link href="../css/open-sans.css" rel="stylesheet">
-        <link href="../css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="../css/jquery-ui.css">
-        <link href="../css/foxtrot.css" rel="stylesheet">
-        <link href="../css/mobile.css" rel="stylesheet">
-        <link href="../css/sweetalert2.min.css" rel="stylesheet">
-    </head>
-    <body>
-            <div class="loading">Loading&#8230;</div>
-        <span id="ruler"></span>
-        <div class="container-full">
-            <div class="new-header">
-                <div class="inner-header container-fluid">
-                    <h1 class="col-sm-4 heading">
-                        <a href="../index.htm"><img src="../img/echo_1.png" alt="logo"/></a>
-                    </h1>
-                    <div class="col-sm-8">
-                        <ul id="cluster-menu">
-                            <li> <a class="load-foxtrot cluster-menu-active">Foxtrot</a></li>
-                            <li> <a class="load-elastic">Elastic Search</a></li>
-                            <li> <input type="checkbox" checked class="auto-refresh"> Refresh</li>
-                        </ul>
-                    </div>
-                </div>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="img/favicon.ico">
+    <title>Echo Cluster</title>
+    <!-- Bootstrap core CSS -->
+    <link href="../css/open-sans.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/jquery-ui.css">
+    <link href="../css/foxtrot.css" rel="stylesheet">
+    <link href="../css/mobile.css" rel="stylesheet">
+    <link href="../css/sweetalert2.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="loading">Loading&#8230;</div>
+<span id="ruler"></span>
+<div class="container-full">
+    <div class="new-header">
+        <div class="inner-header container-fluid">
+            <h1 class="col-sm-2 heading">
+                <a href="../index.htm"><img src="../img/echo_1.png" alt="logo"/></a>
+            </h1>
+            <div class="col-sm-8">
+                <ul id="cluster-menu">
+                    <li><a class="load-foxtrot cluster-menu-active">Foxtrot</a></li>
+                    <li><a class="load-elastic">Elastic Search</a></li>
+                    <li><input type="checkbox" checked class="auto-refresh"> Refresh</li>
+                    <li>
+                        <form id="logout" method="post">
+                            <img id="logout-icon" class="logout" src="../img/logout.png" title="Logout" alt="Logout">
+                        </form>
+                    </li>
+                </ul>
             </div>
-            <section id="cluster-content">
-                <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane data-tab fade active" id="elasticsearch">
-                        <div class="cluster-data-area"></div>
-                        <div class="data-area"></div>
-                    </div>
-                    <div role="tabpanel" class="tab-pane data-tab fade active" id="foxtrot">
-                        <div class="table-data-area"></div>
-                    </div>
-                </div>
-            </section>
         </div>
-        <!--Templates-->
-        <script id="cluster-template" type="text/x-handlebars-template">
-            <table class="cluster-data-table table cluster-table-bordered table-hover table-condensed dataview-table pure-table-bordered">
-                <thead>
-                <tr>
-                    <th class="section-end">Cluster</th>
-                    <th class="section-end">Status</th>
-                    <th># Nodes</th>
-                    <th># Data Nodes</th>
-                    <th>Active Shards</th>
-                    <th>Relocating Shards</th>
-                    <th>Initializing Shards</th>
-                    <th>Unassigned Shards</th>
-                    <th># Events</th>
-                    <th>Data Size</th>
-                    <th>Data Size (Replicated)</th>
-                </tr>
-                </thead>
-                <tbody>
-                {{#with cluster}}
-                <tr>
-                    <td class="section-end">{{name}}</td>
-                    <td class="section-end">{{status}}</td>
-                    <td>{{numNodes}}</td>
-                    <td>{{numDataNodes}}</td>
-                    <td>{{activeShards}}</td>
-                    <td>{{relocatingShards}}</td>
-                    <td>{{initializingShards}}</td>
-                    <td>{{unassignedShards}}</td>
-                    <td>{{documentCount}}</td>
-                    <td>{{dataSize}}</td>
-                    <td>{{replicatedDataSize}}</td>
-                </tr>
-                {{/with}}
-                </tbody>
-            </table>
-        </script>
-        <script id="hosts-template" type="text/x-handlebars-template">
-            <table class="data-table table cluster-table-bordered table-hover table-condensed dataview-table tablesorter">
-                <thead>
-                <tr>
-                    <th class="{sorter: 'text'}"> IP</th>
-                    <th class="{sorter: 'text'}">Host</th>
-            
-                    <th class="{sorter: 'sizesorter'}"> Load</th>
-                    <th class="{sorter: 'sizesorter'}"> Memory Total</th>
-                    <th class="{sorter: 'sizesorter'}"> Memory Used</th>
-                    <th class="{sorter: 'text'}"> Memory Used (%)</th>
-            
-                    <th class="{sorter: 'sizesorter'}"> Disk Total</th>
-                    <th class="{sorter: 'sizesorter'}"> Disk Used</th>
-                    <th class="{sorter: 'text'}"> Disk Used (%)</th>
-            
-                    <th class="{sorter: 'sizesorter'}"> Heap Committed</th>
-                    <th class="{sorter: 'sizesorter'}"> Heap Used</th>
-                    <th class="{sorter: 'sizesorter'}"> Heap Used (%)</th>
-            
-                    <th class="{sorter: 'sizesorter'}">Field cache</th>
-                    <th class="{sorter: 'text'}"> Field cache (%)</th>
-                    <th class="{sorter: 'sizesorter'}">Field Cache Evictions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {{#each hosts}}
-                <tr>
-                    <td class="{sorter: 'text'}">{{ip}}</td>
-                    <td class="{sorter: 'text'}">{{host}}</td>
-            
-                    <td class="{sorter: 'sizesorter'}">{{load}}</td>
-                    <td class="{sorter: 'sizesorter'}">{{memoryTotal}}</td>
-                    <td class="{sorter: 'sizesorter'}">{{memoryUsed}}</td>
-                    <td class="{sorter: 'sizesorter'}">{{memoryUsedPercent}}</td>
-            
-                    <td class="{sorter: 'sizesorter'}">{{diskTotal}}</td>
-                    <td class="{sorter: 'sizesorter'}">{{diskUsed}}</td>
-                    <td class="percentage-value section-end">{{diskUsedPercent}}</td>
-            
-                    <td class="{sorter: 'sizesorter'}">{{jvmTotal}}</td>
-                    <td class="{sorter: 'sizesorter'}">{{jvmUsed}}</td>
-                    <td class="percentage-value section-end">{{jvmUsedPercent}}</td>
-            
-                    <td class="{sorter: 'sizesorter'}">{{fieldCacheAbs}}</td>
-                    <td class="percentage-value">{{fieldCache}}</td>
-                    <td class="{sorter: 'sizesorter'}">{{fieldCacheEvictions}}</td>
-                </tr>
-                {{/each}}
-                </tbody>
-            </table>
-        </script>
-        <script id="tables-template" type="text/x-handlebars-template">
-            <table class="table-data-table table cluster-table-bordered table-hover table-condensed dataview-table tablesorter">
-                <thead>
-                <tr>
-                    <th class="section-end {sorter: 'text'}">Table</th>
-                    <th># Days</th>
-                    <th>Events Indexed</th>
-                    <th class="section-end">Size</th>
-                    <th>Average event size</th>
-                    <th>Number of columns</th>
-                </tr>
-                </thead>
-                <tbody>
-                {{#each tables}}
-                <tr>
-                    <td class="section-end">{{name}}</td>
-                    <td>{{days}}</td>
-                    <td>{{events}}</td>
-                    <td>{{size}}</td>
-                    <td>{{avgSize}}</td>
-                    <td>{{columnCount}}</td>
-                </tr>
-                {{/each}}
-                </tbody>
-            </table>
-        </script>
-        <!-- /container -->
-        <!-- Bootstrap core JavaScript
-            ================================================== -->
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="../js/hostdetails.js"></script>
-        <script src="../js/jquery.js"></script>
-        <script src="../js/common-utils.js"></script>
-        <script src="../js/handlebars-v1.3.0.js"></script>
-        <script src="../js/handlebars-helper.js"></script>
-        <script src="../js/bootstrap/bootstrap.min.js"></script>
-        <script src="../js/jquery-ui.js"></script>
-        <script src="../js/jquery.tablesorter.min.js"></script>
-        <script src="../js/utills.js"></script>
-        <script src="../js/functions.js"></script>
-        <script src="../js/eventbus.js"></script>
-        <script src="../js/cluster-console.js"></script>
-    </body>
+    </div>
+    <section id="cluster-content">
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane data-tab fade active" id="elasticsearch">
+                <div class="cluster-data-area"></div>
+                <div class="data-area"></div>
+            </div>
+            <div role="tabpanel" class="tab-pane data-tab fade active" id="foxtrot">
+                <div class="table-data-area"></div>
+            </div>
+        </div>
+    </section>
+</div>
+<!--Templates-->
+<script id="cluster-template" type="text/x-handlebars-template">
+    <table class="cluster-data-table table cluster-table-bordered table-hover table-condensed dataview-table pure-table-bordered">
+        <thead>
+        <tr>
+            <th class="section-end">Cluster</th>
+            <th class="section-end">Status</th>
+            <th># Nodes</th>
+            <th># Data Nodes</th>
+            <th>Active Shards</th>
+            <th>Relocating Shards</th>
+            <th>Initializing Shards</th>
+            <th>Unassigned Shards</th>
+            <th># Events</th>
+            <th>Data Size</th>
+            <th>Data Size (Replicated)</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#with cluster}}
+        <tr>
+            <td class="section-end">{{name}}</td>
+            <td class="section-end">{{status}}</td>
+            <td>{{numNodes}}</td>
+            <td>{{numDataNodes}}</td>
+            <td>{{activeShards}}</td>
+            <td>{{relocatingShards}}</td>
+            <td>{{initializingShards}}</td>
+            <td>{{unassignedShards}}</td>
+            <td>{{documentCount}}</td>
+            <td>{{dataSize}}</td>
+            <td>{{replicatedDataSize}}</td>
+        </tr>
+        {{/with}}
+        </tbody>
+    </table>
+</script>
+<script id="hosts-template" type="text/x-handlebars-template">
+    <table class="data-table table cluster-table-bordered table-hover table-condensed dataview-table tablesorter">
+        <thead>
+        <tr>
+            <th class="{sorter: 'text'}"> IP</th>
+            <th class="{sorter: 'text'}">Host</th>
+
+            <th class="{sorter: 'sizesorter'}"> Load</th>
+            <th class="{sorter: 'sizesorter'}"> Memory Total</th>
+            <th class="{sorter: 'sizesorter'}"> Memory Used</th>
+            <th class="{sorter: 'text'}"> Memory Used (%)</th>
+
+            <th class="{sorter: 'sizesorter'}"> Disk Total</th>
+            <th class="{sorter: 'sizesorter'}"> Disk Used</th>
+            <th class="{sorter: 'text'}"> Disk Used (%)</th>
+
+            <th class="{sorter: 'sizesorter'}"> Heap Committed</th>
+            <th class="{sorter: 'sizesorter'}"> Heap Used</th>
+            <th class="{sorter: 'sizesorter'}"> Heap Used (%)</th>
+
+            <th class="{sorter: 'sizesorter'}">Field cache</th>
+            <th class="{sorter: 'text'}"> Field cache (%)</th>
+            <th class="{sorter: 'sizesorter'}">Field Cache Evictions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each hosts}}
+        <tr>
+            <td class="{sorter: 'text'}">{{ip}}</td>
+            <td class="{sorter: 'text'}">{{host}}</td>
+
+            <td class="{sorter: 'sizesorter'}">{{load}}</td>
+            <td class="{sorter: 'sizesorter'}">{{memoryTotal}}</td>
+            <td class="{sorter: 'sizesorter'}">{{memoryUsed}}</td>
+            <td class="{sorter: 'sizesorter'}">{{memoryUsedPercent}}</td>
+
+            <td class="{sorter: 'sizesorter'}">{{diskTotal}}</td>
+            <td class="{sorter: 'sizesorter'}">{{diskUsed}}</td>
+            <td class="percentage-value section-end">{{diskUsedPercent}}</td>
+
+            <td class="{sorter: 'sizesorter'}">{{jvmTotal}}</td>
+            <td class="{sorter: 'sizesorter'}">{{jvmUsed}}</td>
+            <td class="percentage-value section-end">{{jvmUsedPercent}}</td>
+
+            <td class="{sorter: 'sizesorter'}">{{fieldCacheAbs}}</td>
+            <td class="percentage-value">{{fieldCache}}</td>
+            <td class="{sorter: 'sizesorter'}">{{fieldCacheEvictions}}</td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</script>
+<script id="tables-template" type="text/x-handlebars-template">
+    <table class="table-data-table table cluster-table-bordered table-hover table-condensed dataview-table tablesorter">
+        <thead>
+        <tr>
+            <th class="section-end {sorter: 'text'}">Table</th>
+            <th># Days</th>
+            <th>Events Indexed</th>
+            <th class="section-end">Size</th>
+            <th>Average event size</th>
+            <th>Number of columns</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each tables}}
+        <tr>
+            <td class="section-end">{{name}}</td>
+            <td>{{days}}</td>
+            <td>{{events}}</td>
+            <td>{{size}}</td>
+            <td>{{avgSize}}</td>
+            <td>{{columnCount}}</td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</script>
+<!-- /container -->
+<!-- Bootstrap core JavaScript
+    ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../js/hostdetails.js"></script>
+<script src="../js/jquery.js"></script>
+<script src="../js/common-utils.js"></script>
+<script src="../js/handlebars-v1.3.0.js"></script>
+<script src="../js/handlebars-helper.js"></script>
+<script src="../js/bootstrap/bootstrap.min.js"></script>
+<script src="../js/jquery-ui.js"></script>
+<script src="../js/jquery.tablesorter.min.js"></script>
+<script src="../js/utills.js"></script>
+<script src="../js/functions.js"></script>
+<script src="../js/eventbus.js"></script>
+<script src="../js/cluster-console.js"></script>
+</body>
 </html>

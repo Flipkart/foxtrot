@@ -23,9 +23,11 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCache;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidator;
+import com.flipkart.foxtrot.core.cardinality.CardinalityValidatorImpl;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
@@ -45,6 +47,7 @@ import static org.mockito.Mockito.*;
  * Created by rishabh.goyal on 28/04/14.
  */
 public class DistributedCacheTest {
+
     private DistributedCache distributedCache;
     private HazelcastInstance hazelcastInstance;
     private ObjectMapper mapper;
@@ -58,14 +61,15 @@ public class DistributedCacheTest {
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
         distributedCache = new DistributedCache(hazelcastConnection, "TEST", mapper);
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-
+        CacheManager cacheManager = new CacheManager(
+                new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         QueryStore queryStore = Mockito.mock(QueryStore.class);
+        CardinalityValidator cardinalityValidator = new CardinalityValidatorImpl(queryStore, tableMetadataManager);
 
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, null, queryStore,
-                null, cacheManager, mapper, new ElasticsearchTuningConfig());
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, null, queryStore, null,
+                cacheManager, mapper, new ElasticsearchTuningConfig(), cardinalityValidator);
         TestUtils.registerActions(analyticsLoader, mapper);
     }
 

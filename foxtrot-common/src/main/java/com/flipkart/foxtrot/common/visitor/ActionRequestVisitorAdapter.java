@@ -1,13 +1,14 @@
 package com.flipkart.foxtrot.common.visitor;
 
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
+import com.flipkart.foxtrot.common.GeoAggregationRequest;
+import com.flipkart.foxtrot.common.Query;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryRequest;
-import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
@@ -60,6 +61,10 @@ public abstract class ActionRequestVisitorAdapter<T> implements ActionRequestVis
     }
 
     public T visit(CountRequest request) {
+        return defaultValue;
+    }
+
+    public T visit(GeoAggregationRequest request) {
         return defaultValue;
     }
 }

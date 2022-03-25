@@ -68,11 +68,16 @@ function setStatsTrendTileChartFormValues(object) {
 StatsTrendTile.prototype.getQuery = function(object) {
   this.object = object;
   var filters = [];
-  if(globalFilters) {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-  } else {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-  }
+  // ------- Starts added  today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
 
   if(object.tileContext.filters) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
@@ -84,13 +89,22 @@ StatsTrendTile.prototype.getQuery = function(object) {
   if(templateFilters.length > 0) {
     filters = filters.concat(templateFilters);
   }
+
+  var requestTags = {
+    "widget": this.object.title,
+    "consoleId": getCurrentConsoleId()
+  }
   
   var data = {
     "opcode": "statstrend",
+    "consoleId": getCurrentConsoleId(),
     "table": object.tileContext.table,
     "filters": filters,
     "field": object.tileContext.statsFieldName,
     "period": periodFromWindow(object.tileContext.period, "custom")
+    ,"sourceType":"ECHO_DASHBOARD",
+     "requestTags": requestTags,
+     "extrapolationFlag": false
   }
 
   // var multiQueryData = {};
@@ -110,7 +124,7 @@ StatsTrendTile.prototype.getQuery = function(object) {
     accepts: {
       json: 'application/json'
     },
-    url: apiUrl+"/v1/analytics",
+    url: apiUrl+"/v2/analytics",
     contentType: "application/json",
     data: JSON.stringify(data),
     success: $.proxy(this.getData, this)
@@ -350,3 +364,67 @@ StatsTrendTile.prototype.render = function (rows, dataLength) {
     });
   }
 }
+
+//  -------------------- Starts Added download widget 2 --------------------
+
+
+
+StatsTrendTile.prototype.downloadWidget = function(object) {
+  this.object = object;
+  var filters = [];
+// ------- Starts added  download for today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
+  }
+
+  var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+  if(templateFilters.length > 0) {
+    filters = filters.concat(templateFilters);
+  }
+
+  var requestTags = {
+    "widget": this.object.title,
+    "consoleId": getCurrentConsoleId()
+  }
+
+  var data = {
+    "opcode": "statstrend",
+    "table": object.tileContext.table,
+    "filters": filters,
+    "field": object.tileContext.statsFieldName,
+    "period": periodFromWindow(object.tileContext.period, "custom")
+    ,"sourceType":"ECHO_DASHBOARD"
+    ,"requestTags": requestTags
+    ,"extrapolationFlag": false
+  }
+
+  var refObject = this.object;
+  $.ajax({
+    url: apiUrl + "/v2/analytics/download",
+    type: 'POST',
+    data: JSON.stringify(data),
+    dataType: 'text',
+    contentType: 'application/json',
+    context: this,
+    success: function(response) {
+      downloadTextAsCSV(response, 'StatsChart.csv')
+    },
+    error: function(xhr, textStatus, error ) {
+      console.log("error.........",error,textStatus,xhr)
+    }
+});
+}
+
+//  -------------------- Ends Added download widget 2 --------------------

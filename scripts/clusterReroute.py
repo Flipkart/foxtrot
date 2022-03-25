@@ -6,7 +6,7 @@ import requests
 import time
 
 # body = {
-#     "commands" : [ 
+#     "commands" : [
 #         {
 #             "move" : {
 #                 "index" : None, "shard" : None,
@@ -97,7 +97,8 @@ def moveShard(dataSplitLines, fromHost, toHost, nodeMap):
             continue
         if "STARTED" != data[3]:
             continue
-        if (data[0] in alreadyMovedShard) and (alreadyMovedShard[data[0]] == data[1]):
+        if (data[0] in alreadyMovedShard) and (
+                alreadyMovedShard[data[0]] == data[1]):
             continue
         size = data[5]
         calSize = convertToGb(size)
@@ -139,8 +140,12 @@ parser = argparse.ArgumentParser(description='Cluster Rerouting')
 parser.add_argument('--shards', type=int, metavar='N', action='store',
                     help='Number of shards to be moved',
                     required=True)
-parser.add_argument('--f', action='store', type=str, help='Host from which the shard has to be moved', required=True)
-parser.add_argument('--t', action='store', type=str, help='Host to which the shard has to be moved', required=True)
+parser.add_argument('--f', action='store', type=str,
+                    help='Host from which the shard has to be moved',
+                    required=True)
+parser.add_argument('--t', action='store', type=str,
+                    help='Host to which the shard has to be moved',
+                    required=True)
 args = parser.parse_args()
 
 dataSplitLines = getData()

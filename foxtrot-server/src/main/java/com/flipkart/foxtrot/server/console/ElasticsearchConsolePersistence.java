@@ -54,20 +54,20 @@ import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 
 @Singleton
 public class ElasticsearchConsolePersistence implements ConsolePersistence {
-    public static final String INDEX_HISTORY = "consoles_history";
-    public static final String INDEX_V2 = "consoles_v2";
-    public static final String INDEX = "consoles";
 
+    public static final String INDEX = "consoles";
+    public static final String INDEX_V2 = "consoles_v2";
+    public static final String INDEX_HISTORY = "consoles_history";
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConsolePersistence.class);
     private static final String TYPE = "console_data";
     private static final int SCROLL_SIZE = 500;
     private static final long SCROLL_TIMEOUT = TimeUnit.MINUTES.toMillis(2);
-
-    private ElasticsearchConnection connection;
-    private ObjectMapper mapper;
+    private final ElasticsearchConnection connection;
+    private final ObjectMapper mapper;
 
     @Inject
-    public ElasticsearchConsolePersistence(ElasticsearchConnection connection, ObjectMapper mapper) {
+    public ElasticsearchConsolePersistence(ElasticsearchConnection connection,
+                                           ObjectMapper mapper) {
         this.connection = connection;
         this.mapper = mapper;
     }
@@ -152,7 +152,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public void saveV2(ConsoleV2 console, boolean newConsole) {
+    public void saveV2(ConsoleV2 console,
+                       boolean newConsole) {
         preProcess(console, newConsole);
         try {
             connection.getClient()
@@ -194,20 +195,16 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                                     .sort(fieldSort("name.keyword").order(SortOrder.DESC).unmappedType("keyword")))
                             .scroll(new TimeValue(SCROLL_TIMEOUT)), RequestOptions.DEFAULT);
             List<ConsoleV2> results = new ArrayList<>();
-            while (true) {
+            do {
                 SearchHits hits = response.getHits();
-                for (SearchHit hit : hits) {
+                for (SearchHit hit : hits.getHits()) {
                     results.add(mapper.readValue(hit.getSourceAsString(), ConsoleV2.class));
                 }
-                if (SCROLL_SIZE >= response.getHits()
-                        .getTotalHits()) {
-                    break;
-                }
-
                 response = connection.getClient()
-                        .scroll(new SearchScrollRequest(response.getScrollId())
-                                .scroll(new TimeValue(SCROLL_TIMEOUT)), RequestOptions.DEFAULT);
-            }
+                        .scroll(new SearchScrollRequest(response.getScrollId()).scroll(new TimeValue(SCROLL_TIMEOUT)),
+                                RequestOptions.DEFAULT);
+
+            } while (response.getHits().getHits().length > 0);
             return results;
         } catch (Exception e) {
             throw new ConsoleFetchException(e);
@@ -215,7 +212,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public List<ConsoleV2> getAllOldVersions(final String name, final String sortBy) {
+    public List<ConsoleV2> getAllOldVersions(final String name,
+                                             final String sortBy) {
         try {
             SearchHits searchHits = connection.getClient()
                     .search(new SearchRequest(INDEX_HISTORY)
@@ -261,7 +259,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         }
     }
 
-    private void preProcess(ConsoleV2 console, boolean newConsole) {
+    private void preProcess(ConsoleV2 console,
+                            boolean newConsole) {
         if (console.getUpdatedAt() == 0L) {
             console.setUpdatedAt(System.currentTimeMillis());
         }
@@ -282,7 +281,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             return;
         }
         if (oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt() && newConsole) {
-            throw new ConsolePersistenceException(console.getId(), "Updated version of console exists. Kindly refresh" + " your dashboard");
+            throw new ConsolePersistenceException(console.getId(),
+                    "Updated version of console exists. Kindly refresh" + " your dashboard");
         }
 
         String sortBy = "version";

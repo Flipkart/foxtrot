@@ -17,6 +17,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class WildCardFilter extends Filter {
+
     private String value;
 
     public WildCardFilter() {

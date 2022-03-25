@@ -26,6 +26,9 @@ function getPercentageGaugeChartFormValues() {
   var thresholdField = $("#percentage-gauge-threshold-field").val();
   var status = false;
   var uniqueKey = $("#percentage-gauge-uniquekey").val();
+  var aggregationType = $('#percentage-gauge-aggregation-type').val();
+  var aggregationField = $('#percentage-gauge-aggregation-field').val();
+  var markDecimal = $('#mark-decimal').is(":checked");
 
   if(uniqueKey == "none" || uniqueKey == "" || uniqueKey == null) {
     uniqueKey = null;
@@ -33,6 +36,18 @@ function getPercentageGaugeChartFormValues() {
     uniqueKey = currentFieldList[parseInt(uniqueKey)].field
   }
 
+
+  if(aggregationField == "none" || aggregationField == "" || aggregationField == null || aggregationField == "undefined") {
+    aggregationField = null;
+  } else {
+    aggregationField = currentFieldList[parseInt(aggregationField)].field
+  }
+
+  if(aggregationType == "none" || aggregationType == "" || aggregationType == "null" || aggregationType == "undefined") {
+    aggregationType = null;
+  } 
+
+  
   var nestingArray = [];
   nestingArray.push(currentFieldList[parseInt(nesting)].field);
   return {
@@ -43,6 +58,9 @@ function getPercentageGaugeChartFormValues() {
     , "denominator" : denominatorField
     , "uniqueKey": uniqueKey
     , "threshold": thresholdField
+    , "aggregationType":aggregationType
+    , "aggregationField":aggregationField
+    , "markDecimal":markDecimal
   }; 
 }
 
@@ -55,7 +73,8 @@ function setPercentageGaugeChartFormValues(object) {
   var timeUnit = $("#percentage-gauge-time-unit").val(object.tileContext.period);
   timeUnit.selectpicker('refresh');
 
-  $("#percentage-gauge-timeframe").val(object.tileContext.timeframe)
+  $("#percentage-gauge-timeframe").val(object.tileContext.timeframe);
+  $('#mark-decimal').prop("checked",object.tileContext.markDecimal).change();
 
   $("#percentage-gauge-numerator-field").val((object.tileContext.numerator == undefined ? '' : object.tileContext.numerator));
 
@@ -68,6 +87,10 @@ function setPercentageGaugeChartFormValues(object) {
   var threshold = object.tileContext.threshold == undefined ? '' : object.tileContext.threshold;
   $("#percentage-gauge-threshold-field").val(threshold);
 
+  $('#percentage-gauge-aggregation-field').val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.aggregationField)));
+  $('#percentage-gauge-aggregation-field').selectpicker('refresh');
+  $('#percentage-gauge-aggregation-Type').val();
+  $("#mark-extrapolation-percentageGauge-chart").prop("checked", object.tileContext.markDecimal).change();
 }
 
 function clearPercentageGaugeChartForm() {
@@ -77,11 +100,16 @@ function clearPercentageGaugeChartForm() {
 PercentageGaugeTile.prototype.getQuery = function (object) {
   this.object = object;
   var filters = [];
-  if(globalFilters) {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
-  } else {
-    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
-  }
+  // ------- Starts added today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
 
   if(object.tileContext.filters) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
@@ -94,12 +122,23 @@ PercentageGaugeTile.prototype.getQuery = function (object) {
     filters = filters.concat(templateFilters);
   }
   
+  var requestTags = {
+    "widget": this.object.title,
+    "consoleId": getCurrentConsoleId()
+  }
+  
   var data = {
     "opcode": "group"
+    ,"consoleId": getCurrentConsoleId()
     , "table": object.tileContext.table
     , "filters": filters
     , "nesting": object.tileContext.nesting
     , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
+    ,"aggregationField":object.tileContext.aggregationField
+    ,"aggregationType":object.tileContext.aggregationType
+    ,"sourceType":"ECHO_DASHBOARD"
+    ,"requestTags": requestTags
+    ,"extrapolationFlag": false
   }
   var refObject = this.object;
   $.ajax({
@@ -108,7 +147,7 @@ PercentageGaugeTile.prototype.getQuery = function (object) {
     , accepts: {
       json: 'application/json'
     }
-    , url: apiUrl + "/v1/analytics"
+    , url: apiUrl + "/v2/analytics"
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
@@ -211,7 +250,9 @@ PercentageGaugeTile.prototype.render = function (total, diff, dataLength) {
     }
   }
 
-  chartDiv.append('<div id="percentage-gauge-' + object.id + '"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="' + diff + '" data-color="#82c91e">' + Math.round(diff) + '%</div></div></div>')
+  const roundOff = $('#mark-decimal').is(":checked") || this.object.tileContext.markDecimal ? diff.toFixed(2) : Math.round(diff);
+
+  chartDiv.append('<div id="percentage-gauge-' + object.id + '"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="' + diff + '" data-color="#82c91e">' + roundOff + '%</div></div></div>')
   var ctx = chartDiv.find("#percentage-gauge-" + object.id);
   var donutDiv = ctx.find(".halfDonutChart");
   $(donutDiv).each(function (index, chart) {
@@ -247,4 +288,62 @@ PercentageGaugeTile.prototype.render = function (total, diff, dataLength) {
     ctx.show();
   }
 
+}
+
+
+PercentageGaugeTile.prototype.downloadWidget = function (object) {
+  this.object = object;
+  var filters = [];
+  // ------- Starts added  download for today yesterday and daybefore yesterday---------------
+ todayTomorrow(
+  filters,
+  globalFilters,
+  getGlobalFilters,
+  getPeriodSelect,
+  timeValue,
+  object
+);
+// ------ Ends added today yesterday and daybefore yesterday-------------------------------
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
+  }
+
+  var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+  if(templateFilters.length > 0) {
+    filters = filters.concat(templateFilters);
+  }
+  var requestTags = {
+    "widget": this.object.title,
+    "consoleId": getCurrentConsoleId()
+  }
+  var data = {
+    "opcode": "group"
+    ,"consoleId": getCurrentConsoleId()
+    , "table": object.tileContext.table
+    , "filters": filters
+    , "nesting": object.tileContext.nesting
+    , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
+    ,"sourceType":"ECHO_DASHBOARD"
+    ,"requestTags": requestTags
+    ,"extrapolationFlag": false
+  }
+  var refObject = this.object;
+  $.ajax({
+    url: apiUrl + "/v2/analytics/download",
+    type: 'POST',
+    data: JSON.stringify(data),
+    dataType: 'text',
+
+    contentType: 'application/json',
+    context: this,
+    success: function(response) {
+      downloadTextAsCSV(response, 'PercentageGauageChart.csv')
+    },
+    error: function(xhr, textStatus, error ) {
+      console.log("error.........",error,textStatus,xhr)
+    }
+});
 }

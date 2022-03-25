@@ -1,23 +1,19 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p/>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p/>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.google.common.base.Strings;
-import lombok.experimental.UtilityClass;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -34,28 +30,39 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
-@UtilityClass
-public class HBaseUtil {
+public abstract class HBaseUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(HBaseUtil.class);
 
-    public static void createTable(final HbaseConfig hbaseConfig, final String tableName) throws IOException {
-        final TableName name = TableName.valueOf(tableName);
-        HTableDescriptor hTableDescriptor = new HTableDescriptor(name);
+    private HBaseUtil() {
+    }
+
+    public static void createTable(final HbaseConfig hbaseConfig,
+                                   final String tableName) throws IOException {
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
         HColumnDescriptor columnDescriptor = new HColumnDescriptor("d");
         columnDescriptor.setCompressionType(Compression.Algorithm.GZ);
         hTableDescriptor.addFamily(columnDescriptor);
         Configuration configuration = HBaseUtil.create(hbaseConfig);
-        try (Connection connection = ConnectionFactory.createConnection(configuration)) {
-            try (Admin admin = connection.getAdmin()) {
-                if (admin.tableExists(TableName.valueOf(tableName))) {
-                    logger.info("Table {} already exists. Nothing to do.", tableName);
-                    return;
+        Connection connection = ConnectionFactory.createConnection(configuration);
+        Admin hBaseAdmin = null;
+        try {
+            hBaseAdmin = connection.getAdmin();
+            hBaseAdmin.createTable(hTableDescriptor);
+        } catch (Exception e) {
+            logger.error("Could not create table: {}", tableName, e);
+        } finally {
+            try {
+                if (hBaseAdmin != null) {
+                    hBaseAdmin.close();
                 }
-                logger.info("Creating table: {}", tableName);
-                admin.createTable(hTableDescriptor);
             } catch (Exception e) {
-                logger.error("Could not create table: " + tableName, e);
+                logger.error("Error closing hbase admin", e);
+            }
+            try {
+                connection.close();
+            } catch (Exception e) {
+                logger.error("Error closing hbase connection", e);
             }
         }
     }

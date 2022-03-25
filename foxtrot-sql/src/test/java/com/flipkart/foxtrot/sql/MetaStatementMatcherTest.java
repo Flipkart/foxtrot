@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class MetaStatementMatcherTest {
+
     private MetaStatementMatcher metaStatementMatcher = new MetaStatementMatcher();
 
     @Test

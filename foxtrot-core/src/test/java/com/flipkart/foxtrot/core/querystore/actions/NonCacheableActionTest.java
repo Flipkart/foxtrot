@@ -16,13 +16,13 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.noncacheable.NonCacheableActionRequest;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -32,10 +32,11 @@ import java.util.List;
  */
 public class NonCacheableActionTest extends ActionTest {
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
+        super.setup();
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
-        getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
+        getQueryStore().saveAll(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
@@ -43,6 +44,7 @@ public class NonCacheableActionTest extends ActionTest {
 
     @Test
     public void checkCacheability() throws FoxtrotException {
-        Assert.assertFalse(getQueryExecutor().execute(new NonCacheableActionRequest()).isFromCache());
+        Assert.assertFalse(getQueryExecutor().execute(new NonCacheableActionRequest())
+                .isFromCache());
     }
 }

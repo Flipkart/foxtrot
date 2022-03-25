@@ -44,18 +44,20 @@ public class HistogramResponse extends ActionResponse {
     }
 
     @Override
-    public void accept(ResponseVisitor visitor) {
-        visitor.visit(this);
+    public <T> T accept(ResponseVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     public static class Count {
+
         private Number period;
         private long count;
 
         public Count() {
         }
 
-        public Count(Number period, long count) {
+        public Count(Number period,
+                     long count) {
             this.period = period;
             this.count = count;
         }
@@ -77,24 +79,27 @@ public class HistogramResponse extends ActionResponse {
         }
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (!(o instanceof Count))
-                return false;
-
-            Count count1 = (Count) o;
-
-            if (count != count1.count)
-                return false;
-            return period.equals(count1.period);
-        }
-
-        @Override
         public int hashCode() {
             int result = period.hashCode();
             result = 31 * result + (int) (count ^ (count >>> 32));
             return result;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof Count)) {
+                return false;
+            }
+
+            Count count1 = (Count) o;
+
+            if (count != count1.count) {
+                return false;
+            }
+            return period.equals(count1.period);
         }
 
         @Override

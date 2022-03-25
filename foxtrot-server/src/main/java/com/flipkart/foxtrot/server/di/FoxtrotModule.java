@@ -2,119 +2,161 @@ package com.flipkart.foxtrot.server.di;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.ActionRequestVisitor;
+import com.flipkart.foxtrot.common.TableActionRequestVisitor;
 import com.flipkart.foxtrot.core.alerts.AlertingSystemEventConsumer;
 import com.flipkart.foxtrot.core.cache.CacheFactory;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
-import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
+import com.flipkart.foxtrot.core.cardinality.*;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.config.*;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
+import com.flipkart.foxtrot.core.email.EmailClient;
 import com.flipkart.foxtrot.core.email.EmailConfig;
+import com.flipkart.foxtrot.core.email.RichEmailBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.EmailBodyBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.EmailSubjectBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailBodyBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailSubjectBuilder;
+import com.flipkart.foxtrot.core.events.EventBusManager;
+import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
+import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
+import com.flipkart.foxtrot.core.funnel.persistence.ElasticsearchFunnelStore;
+import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
+import com.flipkart.foxtrot.core.funnel.services.FunnelService;
+import com.flipkart.foxtrot.core.funnel.services.FunnelServiceImplV1;
+import com.flipkart.foxtrot.core.indexmeta.IndexMetadataManager;
+import com.flipkart.foxtrot.core.indexmeta.TableIndexMetadataService;
+import com.flipkart.foxtrot.core.indexmeta.impl.IndexMetadataManagerImpl;
+import com.flipkart.foxtrot.core.indexmeta.impl.TableIndexMetadataServiceImpl;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBus;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBusConsumer;
 import com.flipkart.foxtrot.core.internalevents.impl.GuavaInternalEventBus;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
+import com.flipkart.foxtrot.core.lock.HazelcastDistributedLockConfig;
+import com.flipkart.foxtrot.core.nodegroup.AllocationManager;
+import com.flipkart.foxtrot.core.nodegroup.AllocationManagerImpl;
+import com.flipkart.foxtrot.core.nodegroup.NodeGroupManager;
+import com.flipkart.foxtrot.core.nodegroup.NodeGroupManagerImpl;
+import com.flipkart.foxtrot.core.nodegroup.repository.NodeGroupRepository;
+import com.flipkart.foxtrot.core.nodegroup.repository.NodeGroupRepositoryImpl;
+import com.flipkart.foxtrot.core.pipeline.PipelineManager;
+import com.flipkart.foxtrot.core.pipeline.PipelineMetadataManager;
+import com.flipkart.foxtrot.core.pipeline.PipelineMetadataManagerPipelineFetcherAdaptor;
+import com.flipkart.foxtrot.core.pipeline.impl.DistributedPipelineMetadataManager;
+import com.flipkart.foxtrot.core.pipeline.impl.FoxtrotPipelineManager;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.EventPublisherActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.handlers.MetricRecorder;
 import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
 import com.flipkart.foxtrot.core.querystore.handlers.SlowQueryReporter;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
+import com.flipkart.foxtrot.core.shardtuning.ShardCountTuningService;
+import com.flipkart.foxtrot.core.shardtuning.ShardCountTuningServiceImpl;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
-import com.flipkart.foxtrot.server.auth.*;
+import com.flipkart.foxtrot.core.tenant.TenantManager;
+import com.flipkart.foxtrot.core.tenant.TenantMetadataManager;
+import com.flipkart.foxtrot.core.tenant.impl.DistributedTenantMetadataManager;
+import com.flipkart.foxtrot.core.tenant.impl.FoxtrotTenantManager;
+import com.flipkart.foxtrot.pipeline.resolver.PipelineFetcher;
+import com.flipkart.foxtrot.pipeline.resources.GeojsonStoreConfiguration;
+import com.flipkart.foxtrot.server.auth.AuthStore;
+import com.flipkart.foxtrot.server.auth.ESAuthStore;
+import com.flipkart.foxtrot.server.auth.IdmanAuthStore;
 import com.flipkart.foxtrot.server.auth.authprovider.AuthProvider;
-import com.flipkart.foxtrot.server.auth.authprovider.ConfiguredAuthProviderFactory;
+import com.flipkart.foxtrot.server.auth.authprovider.NoneAuthProvider;
+import com.flipkart.foxtrot.server.auth.authprovider.impl.GoogleAuthProvider;
+import com.flipkart.foxtrot.server.auth.authprovider.impl.IdmanAuthProvider;
 import com.flipkart.foxtrot.server.auth.sessionstore.DistributedSessionDataStore;
 import com.flipkart.foxtrot.server.auth.sessionstore.SessionDataStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
-import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
-import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
+import com.flipkart.foxtrot.server.console.QueryManager;
+import com.flipkart.foxtrot.server.console.QueryManagerImpl;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
-import com.google.common.cache.CacheBuilderSpec;
 import com.google.common.collect.ImmutableList;
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
-import io.dropwizard.auth.Authenticator;
-import io.dropwizard.auth.Authorizer;
-import io.dropwizard.auth.CachingAuthenticator;
-import io.dropwizard.auth.CachingAuthorizer;
+import com.google.inject.name.Names;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
-import lombok.val;
 import org.apache.hadoop.conf.Configuration;
-import org.jose4j.jwa.AlgorithmConstraints;
-import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtConsumerBuilder;
-import org.jose4j.keys.HmacKey;
 
 import javax.inject.Singleton;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
 
 /**
  *
  */
 public class FoxtrotModule extends AbstractModule {
+
     @Override
     protected void configure() {
-        bind(TableMetadataManager.class)
-                .to(DistributedTableMetadataManager.class);
-        bind(DataStore.class)
-                .to(HBaseDataStore.class);
-        bind(QueryStore.class)
-                .to(ElasticsearchQueryStore.class);
-        bind(FqlStoreService.class)
-                .to(FqlStoreServiceImpl.class);
-        bind(CacheFactory.class)
-                .to(DistributedCacheFactory.class);
-        bind(InternalEventBus.class)
-                .to(GuavaInternalEventBus.class);
-        bind(InternalEventBusConsumer.class)
-                .to(AlertingSystemEventConsumer.class);
-        bind(ConsolePersistence.class)
-                .to(ElasticsearchConsolePersistence.class);
-        bind(EmailSubjectBuilder.class)
-                .to(StrSubstitutorEmailSubjectBuilder.class);
-        bind(EmailBodyBuilder.class)
-                .to(StrSubstitutorEmailBodyBuilder.class);
-        bind(TableManager.class)
-                .to(FoxtrotTableManager.class);
+//        bind(AuthConfig.class);
+        bind(ESAuthStore.class);
+        bind(IdmanAuthStore.class);
+        bind(GoogleAuthProvider.class);
+        bind(IdmanAuthProvider.class);
+        bind(NoneAuthProvider.class);
+        bind(AuthProvider.class).to(GoogleAuthProvider.class);
+        bind(AuthStore.class).to(ESAuthStore.class);
+        bind(SessionDataStore.class).to(DistributedSessionDataStore.class);
+        bind(TableMetadataManager.class).to(DistributedTableMetadataManager.class);
+        bind(TenantMetadataManager.class).to(DistributedTenantMetadataManager.class);
+        bind(PipelineMetadataManager.class).to(DistributedPipelineMetadataManager.class);
+        bind(DataStore.class).to(HBaseDataStore.class);
+        bind(QueryStore.class).to(ElasticsearchQueryStore.class);
+        bind(FqlStoreService.class).to(FqlStoreServiceImpl.class);
+        bind(CacheFactory.class).to(DistributedCacheFactory.class);
+        bind(InternalEventBusConsumer.class).to(AlertingSystemEventConsumer.class);
+        bind(ConsolePersistence.class).to(ElasticsearchConsolePersistence.class);
+        bind(TableManager.class).to(FoxtrotTableManager.class);
+        bind(TenantManager.class).to(FoxtrotTenantManager.class);
+        bind(PipelineManager.class).to(FoxtrotPipelineManager.class);
+        bind(QueryManager.class).to(QueryManagerImpl.class);
+
+        bind(new TypeLiteral<ActionRequestVisitor<String>>() {
+        }).toInstance(new TableActionRequestVisitor());
+        bind(FunnelService.class).annotatedWith(Names.named("FunnelServiceImplV1"))
+                .to(FunnelServiceImplV1.class);
+        bind(FunnelService.class).to(FunnelServiceImplV1.class);
+        bind(FunnelStore.class).to(ElasticsearchFunnelStore.class);
         bind(new TypeLiteral<List<HealthCheck>>() {
         }).toProvider(HealthcheckListProvider.class);
-        bind(AuthStore.class)
-                .to(ESAuthStore.class);
-        bind(SessionDataStore.class)
-                .to(DistributedSessionDataStore.class);
+        bind(CardinalityValidator.class).to(CardinalityValidatorImpl.class);
+        bind(CardinalityCalculationService.class).to(CardinalityCalculationServiceImpl.class);
+        bind(NodeGroupManager.class).to(NodeGroupManagerImpl.class);
+        bind(AllocationManager.class).to(AllocationManagerImpl.class);
+        bind(NodeGroupRepository.class).to(NodeGroupRepositoryImpl.class);
+        bind(PipelineFetcher.class).to(PipelineMetadataManagerPipelineFetcherAdaptor.class);
+        bind(IndexMetadataManager.class).to(IndexMetadataManagerImpl.class);
+        bind(TableIndexMetadataService.class).to(TableIndexMetadataServiceImpl.class);
+        bind(ShardCountTuningService.class).to(ShardCountTuningServiceImpl.class);
+        bind(PipelineFetcher.class).to(PipelineMetadataManagerPipelineFetcherAdaptor.class);
     }
 
     @Provides
@@ -127,12 +169,6 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ElasticsearchConfig esConfig(FoxtrotServerConfiguration configuration) {
         return configuration.getElasticsearch();
-    }
-
-    @Provides
-    @Singleton
-    public TranslatorConfig getTranslatorConfig(FoxtrotServerConfiguration configuration) {
-        return configuration.getTranslatorConfig();
     }
 
     @Provides
@@ -173,10 +209,10 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public SessionCleanupConfig sessionCleanupConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getSessionCleanupConfig()
-                ? new SessionCleanupConfig()
-                : configuration.getSessionCleanupConfig();
+    public ShardRebalanceJobConfig shardRebalanceJobConfig(FoxtrotServerConfiguration configuration) {
+        return null == configuration.getShardRebalanceJobConfig()
+                ? new ShardRebalanceJobConfig()
+                : configuration.getShardRebalanceJobConfig();
     }
 
     @Provides
@@ -205,23 +241,52 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public List<IndexerEventMutator> provideMutators(
-            FoxtrotServerConfiguration configuration,
-            ObjectMapper objectMapper) {
+    public List<IndexerEventMutator> provideMutators(FoxtrotServerConfiguration configuration,
+                                                     ObjectMapper objectMapper) {
         return Collections.singletonList(new LargeTextNodeRemover(objectMapper, configuration.getTextNodeRemover()));
     }
 
     @Provides
     @Singleton
-    public List<ActionExecutionObserver> actionExecutionObservers(
-            CacheManager cacheManager,
-            InternalEventBus eventBus) {
+    public InternalEventBus internalEventBus() {
+        return new GuavaInternalEventBus();
+    }
+
+    @Provides
+    @Singleton
+    public EventBus provideEventbus() {
+        return new AsyncEventBus(Executors.newCachedThreadPool());
+    }
+
+    @Provides
+    @Singleton
+    public EmailClient emailClient(EmailConfig emailConfig) {
+        return new EmailClient(emailConfig);
+    }
+
+    @Provides
+    @Singleton
+    public List<ActionExecutionObserver> actionExecutionObservers(CacheManager cacheManager,
+                                                                  InternalEventBus eventBus,
+                                                                  QueryConfig queryConfig,
+                                                                  EmailConfig emailConfig,
+                                                                  EmailClient emailClient,
+                                                                  RichEmailBuilder richEmailBuilder,
+                                                                  EventBusManager eventBusManager) {
         return ImmutableList.<ActionExecutionObserver>builder()
                 .add(new MetricRecorder())
                 .add(new ResponseCacheUpdater(cacheManager))
-                .add(new SlowQueryReporter())
-                .add(new EventPublisherActionExecutionObserver(eventBus))
+                .add(new SlowQueryReporter(queryConfig))
+                .add(new EventPublisherActionExecutionObserver(eventBus, eventBusManager, queryConfig))
                 .build();
+    }
+
+    @Provides
+    @Singleton
+    public RichEmailBuilder richEmailBuilder() {
+        EmailSubjectBuilder emailSubjectBuilder = new StrSubstitutorEmailSubjectBuilder();
+        EmailBodyBuilder emailBodyBuilder = new StrSubstitutorEmailBodyBuilder();
+        return new RichEmailBuilder(emailSubjectBuilder, emailBodyBuilder);
     }
 
     @Provides
@@ -246,8 +311,52 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
+    public FunnelConfiguration funnelConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getFunnelConfiguration() != null
+                ? configuration.getFunnelConfiguration()
+                : FunnelConfiguration.builder()
+                .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
+                        .eventType("APP_LOADED")
+                        .category("APP_LOADED")
+                        .build())
+                .querySize(100)
+                .build();
+    }
+
+    @Provides
+    @Singleton
     public Configuration provideHBaseConfiguration(HbaseConfig hbaseConfig) throws IOException {
         return HBaseUtil.create(hbaseConfig);
+    }
+
+    @Provides
+    @Singleton
+    public HazelcastDistributedLockConfig hazelcastDistributedLockConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getDistributedLockConfig();
+    }
+
+    @Provides
+    @Singleton
+    public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getElasticsearchTuningConfig();
+    }
+
+    @Provides
+    @Singleton
+    public GeojsonStoreConfiguration provideGeoJsonStoreConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getGeojsonStoreConfiguration();
+    }
+
+    @Provides
+    @Singleton
+    public QueryConfig providerQueryConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getQueryConfig();
+    }
+
+    @Provides
+    @Singleton
+    public TranslatorConfig translatorConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getTranslatorConfig();
     }
 
     @Provides
@@ -256,93 +365,51 @@ public class FoxtrotModule extends AbstractModule {
         return configuration.getServerFactory();
     }
 
+
     @Provides
     @Singleton
-    public AuthConfig authConfig(FoxtrotServerConfiguration serverConfiguration) {
-        return serverConfiguration.getAuth();
+    public ShardCountTuningJobConfig shardCountTuningJobConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getShardCountTuningJobConfig();
     }
 
-/*    @Provides
+    @Provides
     @Singleton
-    public GoogleAuthProviderConfig googleAuthProviderConfig(FoxtrotServerConfiguration configuration) {
-        return (GoogleAuthProviderConfig)configuration.getAuth().getProvider();
-    }*/
+    public TableIndexMetadataJobConfig tableIndexMetadataJobConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getTableIndexMetadataJobConfig();
+    }
 
     @Provides
     @Singleton
-    public AuthProvider authProvider(
-            FoxtrotServerConfiguration configuration,
-            AuthConfig authConfig,
-            Environment environment,
-            Injector injector) {
-        val authType = authConfig.getProvider().getType();
-        AuthStore authStore = null;
-        switch (authType) {
-            case NONE: {
-                break;
-            }
-            case OAUTH_GOOGLE:
-                authStore = injector.getInstance(ESAuthStore.class);
-                break;
-            case OAUTH_IDMAN:
-                authStore = injector.getInstance(IdmanAuthStore.class);
-                break;
-            default: {
-                throw new IllegalArgumentException("Mode " + authType.name() + " not supported");
-            }
+    public IndexMetadataCleanupJobConfig indexMetadataCleanupJobConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getIndexMetadataCleanupJobConfig();
+    }
+
+    @Provides
+    @Singleton
+    public boolean restrictAccess(FoxtrotServerConfiguration configuration) {
+        return configuration.isRestrictAccess();
+    }
+
+    @Provides
+    @Singleton
+    public List<String> restrictedTables(FoxtrotServerConfiguration configuration) {
+        return configuration.getRestrictedTables();
+    }
+
+    @Provides
+    @Singleton
+    public NodeGroupActivityConfig provideNodeGroupActivityConfig(FoxtrotServerConfiguration configuration) {
+        if (configuration.getNodeGroupActivityConfig() == null) {
+            return NodeGroupActivityConfig.builder()
+                    .vacantGroupReadRepairIntervalInMins(5)
+                    .build();
         }
-        return new ConfiguredAuthProviderFactory(configuration.getAuth())
-                .build(environment.getObjectMapper(), authStore);
+        return configuration.getNodeGroupActivityConfig();
     }
 
-    @Provides
-    @Singleton
-    public JwtConsumer provideJwtConsumer(AuthConfig config) {
-        final JwtConfig jwtConfig = config.getJwt();
-        final byte[] secretKey = jwtConfig.getPrivateKey().getBytes(StandardCharsets.UTF_8);
-        return new JwtConsumerBuilder()
-                .setRequireIssuedAt()
-                .setRequireSubject()
-                .setExpectedIssuer(jwtConfig.getIssuerId())
-                .setVerificationKey(new HmacKey(secretKey))
-                .setJwsAlgorithmConstraints(new AlgorithmConstraints(
-                        AlgorithmConstraints.ConstraintType.WHITELIST,
-                        AlgorithmIdentifiers.HMAC_SHA512))
-                .setExpectedAudience(Arrays.stream(TokenType.values())
-                        .map(TokenType::name)
-                        .toArray(String[]::new))
-                .build();
-    }
-
-    @Provides
-    @Singleton
-    public Authenticator<String, UserPrincipal> authenticator(
-            final Environment environment,
-            final TokenAuthenticator authenticator,
-            final AuthConfig authConfig) {
-        return new CachingAuthenticator<>(
-                environment.metrics(),
-                authenticator,
-                CacheBuilderSpec.parse(authConfig.getJwt().getAuthCachePolicy()));
-    }
-
-    @Provides
-    @Singleton
-    public Authorizer<UserPrincipal> authorizer(
-            final Environment environment,
-            final RoleAuthorizer authorizer,
-            final AuthConfig authConfig) {
-        return new CachingAuthorizer<>(environment.metrics(),
-                authorizer,
-                CacheBuilderSpec.parse(authConfig.getJwt().getAuthCachePolicy()));
-    }
-
-    @Provides
-    @Singleton
-    public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
-        return Objects.nonNull(configuration.getElasticsearchTuningConfig())
-                ? configuration.getElasticsearchTuningConfig()
-                : new ElasticsearchTuningConfig();
-    }
-
+//    @Provides
+//    @Singleton
+//    public Authenticator<String, UserPrincipal> provideAuthenticator() {
+//        return TokenAuthenticator.class;
+//    }
 }

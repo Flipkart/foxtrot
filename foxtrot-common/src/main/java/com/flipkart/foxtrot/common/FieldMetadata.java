@@ -29,9 +29,11 @@ import java.io.Serializable;
 @Builder
 @EqualsAndHashCode
 public class FieldMetadata implements Serializable {
+
     private static final long serialVersionUID = 4583132990544615374L;
 
     private String field;
     private FieldType type;
     private EstimationData estimationData;
+
 }

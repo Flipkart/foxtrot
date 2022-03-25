@@ -9,6 +9,7 @@ import com.flipkart.foxtrot.server.auth.authprovider.AuthType;
 import com.flipkart.foxtrot.server.auth.authprovider.IdType;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 import io.appform.idman.model.IdmanUser;
 import io.appform.idman.model.TokenInfo;
 import lombok.SneakyThrows;
@@ -39,6 +40,7 @@ public class IdmanAuthProvider implements AuthProvider {
     private final IdmanAuthProviderConfig config;
     private final ObjectMapper mapper;
 
+    @Inject
     public IdmanAuthProvider(IdmanAuthProviderConfig config, ObjectMapper mapper) {
         this.config = config;
         this.mapper = mapper;

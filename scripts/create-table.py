@@ -1,6 +1,6 @@
 import argparse
 import json
-import urllib2
+import requests
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -14,6 +14,6 @@ if __name__ == "__main__":
     table = {"name": args["name"], "ttl": args["ttl"]}
     data = json.dumps(table)
     headers = {'Content-Type': 'application/json'}
-    request = urllib2.Request(url, data, headers)
-    response = urllib2.urlopen(request)
-    response.close()
+    print(data)
+    request = requests.post(url, json=data, headers=headers)
+    print(request.text)

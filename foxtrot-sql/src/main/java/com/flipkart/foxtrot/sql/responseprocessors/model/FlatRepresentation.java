@@ -1,21 +1,27 @@
 package com.flipkart.foxtrot.sql.responseprocessors.model;
 
 import com.google.common.collect.Lists;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
 
+@NoArgsConstructor
 public class FlatRepresentation {
+
     private String opcode;
     private List<FieldHeader> headers = Lists.newArrayList();
     private List<Map<String, Object>> rows = Lists.newArrayList();
 
-    public FlatRepresentation(List<FieldHeader> headers, List<Map<String, Object>> rows) {
+    public FlatRepresentation(List<FieldHeader> headers,
+                              List<Map<String, Object>> rows) {
         this.headers = headers;
         this.rows = rows;
     }
 
-    public FlatRepresentation(String opcode, List<FieldHeader> headers, List<Map<String, Object>> rows) {
+    public FlatRepresentation(String opcode,
+                              List<FieldHeader> headers,
+                              List<Map<String, Object>> rows) {
         this.opcode = opcode;
         this.headers = headers;
         this.rows = rows;

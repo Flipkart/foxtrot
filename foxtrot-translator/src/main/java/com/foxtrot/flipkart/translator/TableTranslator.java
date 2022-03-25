@@ -8,12 +8,14 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Map;
 
 /***
  Created by nitish.goyal on 28/08/19
  ***/
 @Slf4j
+@Singleton
 public class TableTranslator {
 
     private static final String EVENT_TYPE = "eventType";
@@ -21,21 +23,25 @@ public class TableTranslator {
     private final Map<String, String> eventTypeVsNewTable = Maps.newHashMap();
 
     @Inject
-    public TableTranslator(SegregationConfiguration segregationConfiguration) {
+    public TableTranslator(final SegregationConfiguration segregationConfiguration) {
         if (segregationConfiguration != null) {
-            segregationConfiguration.getTableSegregationConfigs().forEach(tableSegregationConfig -> {
-                tableVsSegregationConfig.putIfAbsent(tableSegregationConfig.getOldTable(), tableSegregationConfig);
-                tableSegregationConfig.getNewTableVsEventTypes().forEach((newTable, eventTypes) -> {
-                    if (CollectionUtils.isNotEmpty(eventTypes)) {
-                        eventTypes.forEach(s -> eventTypeVsNewTable.putIfAbsent(s, newTable));
-                    }
-                });
-            });
+            segregationConfiguration.getTableSegregationConfigs()
+                    .forEach(tableSegregationConfig -> {
+                        tableVsSegregationConfig.putIfAbsent(tableSegregationConfig.getOldTable(),
+                                tableSegregationConfig);
+                        tableSegregationConfig.getNewTableVsEventTypes()
+                                .forEach((newTable, eventTypes) -> {
+                                    if (CollectionUtils.isNotEmpty(eventTypes)) {
+                                        eventTypes.forEach(s -> eventTypeVsNewTable.putIfAbsent(s, newTable));
+                                    }
+                                });
+                    });
         }
 
     }
 
-    public String getTable(String table, Document document) {
+    public String getTable(String table,
+                           Document document) {
         if (!isTransformableTable(table)) {
             return table;
         }
@@ -53,7 +59,8 @@ public class TableTranslator {
         return tableVsSegregationConfig.get(table) != null;
     }
 
-    private String getSegregatedTableName(String table, String eventType) {
+    private String getSegregatedTableName(String table,
+                                          String eventType) {
         return eventTypeVsNewTable.getOrDefault(eventType, table);
     }
 

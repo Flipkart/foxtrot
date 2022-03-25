@@ -26,7 +26,8 @@ public abstract class BaseJobManager implements Managed {
     private final ScheduledExecutorService scheduledExecutorService;
     private final HazelcastConnection hazelcastConnection;
 
-    public BaseJobManager(BaseJobConfig baseJobConfig, ScheduledExecutorService scheduledExecutorService,
+    public BaseJobManager(BaseJobConfig baseJobConfig,
+                          ScheduledExecutorService scheduledExecutorService,
                           HazelcastConnection hazelcastConnection) {
         this.baseJobConfig = baseJobConfig;
         this.scheduledExecutorService = scheduledExecutorService;
@@ -52,8 +53,9 @@ public abstract class BaseJobManager implements Managed {
         ZonedDateTime timeToRunJob = zonedNow.withHour(baseJobConfig.getInitialDelay())
                 .withMinute(0)
                 .withSecond(0);
-        if (zonedNow.compareTo(timeToRunJob) > 0)
+        if (zonedNow.compareTo(timeToRunJob) > 0) {
             timeToRunJob = timeToRunJob.plusDays(1);
+        }
 
         Duration duration = Duration.between(zonedNow, timeToRunJob);
         long initialDelay = duration.getSeconds();
@@ -82,6 +84,7 @@ public abstract class BaseJobManager implements Managed {
         LOGGER.info("Stopped {} Job Manager", baseJobConfig.getJobName());
     }
 
-    protected abstract void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil);
+    protected abstract void runImpl(LockingTaskExecutor executor,
+                                    Instant lockAtMostUntil);
 
 }

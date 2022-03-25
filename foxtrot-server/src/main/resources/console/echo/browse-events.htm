@@ -52,7 +52,7 @@
 <div class="container-full">
     <div class="new-header">
         <div class="inner-header container-fluid">
-            <h1 class="col-sm-4 heading">
+            <h1 class="col-sm-2 heading">
                 <a href="index.htm"><img src="img/echo_1.png" alt="logo"/></a>
             </h1>
             <div id="console-list-dropdown">
@@ -62,9 +62,15 @@
                 <ul id="left-menu">
                     <li><a href="browse-events.htm" class="active-browse-link">Browse Events</a></li>
                     <li><a href="cluster/index.htm">Cluster</a></li>
+                    <li><a href="https://github.com/Flipkart/foxtrot/wiki" target="_blank">Wiki</a></li>
                     <li><a href="fql/index.htm">FQL</a></li>
                     <li id="add-sections">
                         <span id="create-new-dashboard">Create New Dashboard</span>
+                    </li>
+                    <li>
+                        <form id="logout" method="post">
+                            <img id="logout-icon" class="logout" src="img/logout.png" title="Logout" alt="Logout">
+                        </form>
                     </li>
                     <li><a href="/foxtrot/oauth/logout">Logout</a></li>
                 </ul>
@@ -112,7 +118,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-xs-6 form-group"><a id="show-more">Show more</a></div>
-                                <div class="col-xs-6 form-group">
+                                <div class="col-sm-6">
                                     <div id="browse-run-query-btn-div">
                                         <button type="button" id="browse-events-run-query" class="form-control"><span> Browse Events</span>
                                         </button>
@@ -127,9 +133,29 @@
 
         <div class="container-fluid" id="scroll-ref">
             <div class="row">
-                <div class="col-sm-8"><span id="event-display-heading">Events</span></div>
+                <div class="col-sm-1"><span id="event-display-heading">Events</span></div>
+                <div class="col-sm-7">
+                    <div class="col-sm-4 global-filters col-sm-2" style="width: auto; display: inline-block;top: 31px;">
+                        <div class="col-sm-6 global-filter-switch-div" style="border: none;">
+                            <label>Map View<input type="checkbox" class="ios-switch blue filter-switch tinyswitch">
+                                <div class="switch-element" id="customSwitch1">
+                                    <div></div>
+                                </div>
+                            </label>
+                        </div>
+                            <div class="col-sm-6 hide-filters" style="display: block; bottom:2px;">
+                                <select class="global-filter-period-select" id="geopoint-field-select">
+                                    <!-- <option value="custom" selected>Custom/option> -->
+                                    <option value="NA" selected="">No Geopoint found.</option>
+
+                                </select>
+
+                            </div>
+                    </div>
+                </div>
                 <div class="col-sm-4">
-                    <button type="button" class="form-control event-export-btn"><span> Export data</span></button>
+
+                    <button type="button" id="event-export-btn" class="form-control event-export-btn"><span> Export data</span></button>
                     <button type="button" class="form-control event-choose-btn"><span> Choose columns</span></button>
                 </div>
             </div>
@@ -159,6 +185,9 @@
                         </button>
                     </div>
                 </script>
+            </div>
+            <div class="row map-view">
+                <div id="map-container" style="height: 700px"></div>
             </div>
         </div>
 
@@ -214,6 +243,9 @@
 <script src="js/bootstrap/bootstrap-datetimepicker.min.js"></script>
 <script src="js/daterangepicker.js"></script>
 <script src="js/validate.js"></script>
+<script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.css' rel='stylesheet' />
 <script type="text/javascript">
     $(function() {
       $('#column-chooser').hide();
@@ -274,6 +306,7 @@
         }
       });
     });
+
 
 
 

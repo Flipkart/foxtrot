@@ -22,15 +22,10 @@ public class HBaseHealthCheck extends NamedHealthCheck {
     protected Result check() throws Exception {
         try {
             HBaseAdmin.checkHBaseAvailable(configuration);
-
-            return HealthCheck.Result.builder()
-                    .healthy()
-                    .withMessage("HBase running")
-                    .build();
+            return HealthCheck.Result.
+                    healthy("HBase running");
         } catch (Exception e) {
-            return HealthCheck.Result.builder()
-                    .unhealthy(e)
-                    .build();
+            return HealthCheck.Result.unhealthy(e);
         }
     }
 

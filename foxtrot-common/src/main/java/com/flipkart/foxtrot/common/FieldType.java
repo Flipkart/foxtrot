@@ -28,5 +28,6 @@ public enum FieldType {
     DATE,
     OBJECT,
     KEYWORD,
-    TEXT
+    TEXT,
+    GEO_POINT
 }

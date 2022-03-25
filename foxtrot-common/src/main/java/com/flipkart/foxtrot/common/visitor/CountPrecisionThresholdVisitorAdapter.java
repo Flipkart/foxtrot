@@ -17,14 +17,16 @@ public class CountPrecisionThresholdVisitorAdapter extends ActionRequestVisitorA
     public Integer visit(CountRequest request) {
         return Objects.isNull(request.getPrecision())
                 ? defaultValue
-                : request.getPrecision().getPrecisionThreshold();
+                : request.getPrecision()
+                .getPrecisionThreshold();
     }
 
     @Override
     public Integer visit(GroupRequest request) {
         return Objects.isNull(request.getPrecision())
                 ? defaultValue
-                : request.getPrecision().getPrecisionThreshold();
+                : request.getPrecision()
+                .getPrecisionThreshold();
     }
 
 
@@ -32,7 +34,8 @@ public class CountPrecisionThresholdVisitorAdapter extends ActionRequestVisitorA
     public Integer visit(HistogramRequest request) {
         return Objects.isNull(request.getPrecision())
                 ? defaultValue
-                : request.getPrecision().getPrecisionThreshold();
+                : request.getPrecision()
+                .getPrecisionThreshold();
     }
 
 
@@ -40,7 +43,8 @@ public class CountPrecisionThresholdVisitorAdapter extends ActionRequestVisitorA
     public Integer visit(TrendRequest request) {
         return Objects.isNull(request.getPrecision())
                 ? defaultValue
-                : request.getPrecision().getPrecisionThreshold();
+                : request.getPrecision()
+                .getPrecisionThreshold();
     }
 
 }

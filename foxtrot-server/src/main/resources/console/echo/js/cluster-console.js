@@ -1,3 +1,5 @@
+var apiUrl = getHostUrl();
+
 $.tablesorter.addParser({
     // set a unique id
     id: 'sizesorter',
@@ -150,10 +152,11 @@ function formatValues(bytes, convertTo) {
 }
 
 EventBus.addEventListener('indices_loaded', function (event, data) {
-    if (!data.indicesStatsResponse.hasOwnProperty('indices')) {
-        return;
+    if (!data.hasOwnProperty('indices')) {
+        return; 
     }
-    var indices = data.indicesStatsResponse['indices'];
+     var indices = data['indices'];
+     
     var indexTable = {}
     var tableNamePrefix =  (esConfig.hasOwnProperty("tableNamePrefix"))
             ? tableNamePrefix = esConfig.tableNamePrefix
@@ -177,6 +180,7 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
         indexData.size += indices[indexName].primaries.store.size_in_bytes;
     }
     var tables = []
+    var tablesColumncount = loadTablesCoulmnCount();
     for (var i in indexTable) {
         var table = new Table();
         var rawTable = indexTable[i];
@@ -184,7 +188,19 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
         table.days = rawTable.days;
         table.events = rawTable.events;
         table.size = formatValues(rawTable.size, 'GB');
-        table.columnCount = data.tableColumnCount[rawTable.name];
+        if (data.tableColumnCount == undefined){
+            table.columnCount = tablesColumncount[rawTable.name];
+        }
+        else{
+            // table.columnCount = data.tableColumnCount[rawTable.name];
+            if (data.tableColumnCount == undefined){
+                table.columnCount = data[rawTable.name];
+            }
+            else{
+                table.columnCount = data.tableColumnCount[rawTable.name];
+            }
+
+        }
         var calculateSize = rawTable.size/rawTable.events;
         table.avgSize = formatValues(calculateSize, 'KB');;
         tables.push(table);
@@ -248,7 +264,7 @@ function loadData() {
     dataLoadComplete = false;
     $.ajax({
             type: 'GET',
-            url: '/foxtrot/v1/clusterhealth/nodestats',
+            url: apiUrl+'/v1/clusterhealth/nodestats',
             success: function (data) {
                 hideLoader();
                 EventBus.dispatch('hosts_loaded', this, data);
@@ -263,7 +279,7 @@ function loadIndexData() {
     if($('.auto-refresh:checked').length == 0) {
         return;
     }
-    
+
     if(!$(".new-header").find("#cluster-menu").find(".load-foxtrot").hasClass("cluster-menu-active")) {
         return;
     }
@@ -285,8 +301,9 @@ function loadIndexData() {
 
     indexLoadComplete = false;
     $.ajax({
+
             type: 'GET',
-            url: '/foxtrot/v1/clusterhealth/indicesstats',
+            url: apiUrl+'/v1/clusterhealth/indicesstats',
             success: function (data) {
                 hideLoader();
                 if (typeof data._all.primaries.docs != "undefined") {
@@ -315,6 +332,27 @@ function loadIndexData() {
         });
 }
 
+function loadTablesCoulmnCount() {
+var tablesColumncount = {};
+$.ajax({
+    type:"GET",
+    url: apiUrl + "/v1/tables/fields",
+    async: false,
+    contentType: "application/json",
+    context: this,
+    success:function(tableFieldData){
+            for(var table in tableFieldData)
+                {
+                    var mappingSize = tableFieldData[table].mappings.length;
+                    if( mappingSize == undefined)
+                        mappingSize = 0;
+                    tablesColumncount[table] = mappingSize;
+                }
+        }
+    });
+    return tablesColumncount;
+}
+
 function loadClusterHealth() {
     
     if($('.auto-refresh:checked').length == 0) {
@@ -337,7 +375,7 @@ function loadClusterHealth() {
     clusterLoadComplete = false;
     $.ajax({
             type: 'GET',
-            url: '/foxtrot/v1/clusterhealth',
+            url: apiUrl+'/v1/clusterhealth',
             success: function (data) {
                 cluster.name = data.clusterName;
                 cluster.status = data.status;
@@ -377,7 +415,7 @@ $(document).ready(function () {
 
     $.ajax({
         type: 'GET',
-        url: '/foxtrot/v1/util/config',
+        url: apiUrl+'/v1/util/config',
         success: function (data) {
             esConfig = data['elasticsearch'];
             loadClusterHealth();

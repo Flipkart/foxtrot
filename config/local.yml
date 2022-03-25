@@ -15,8 +15,15 @@ elasticsearch:
   connectionType: HTTP
   port: 9200
 
+serviceDiscovery:
+  namespace: local
+  environment: local
+  zookeeper: localhost:2181
+  publishedHost: 127.0.0.1
+  publishedPort: 8080
+
 hbase:
-  secure : false
+  secure: false
   tableName: foxtrot
   hbaseZookeeperQuorum: localhost:2181
   hbaseZookeeperClientPort: 2181
@@ -37,13 +44,41 @@ cacheConfig:
 logging:
   level: INFO
 
+restrictedTables:
+  - test
+
 cardinality:
   enabled: true
   batchSize: 10
   active: true
   interval: 86400
   initialDelay: 6
-  maxCardinality: 20000
+  maxCardinality: 20
+
+tableIndexMetadataJobConfig:
+  active: true
+  interval: 1800
+  initialDelay: 1
+  oldMetadataSyncDurationInDays: 14
+
+indexMetadataCleanupJobConfig:
+  active: true
+  interval: 86400
+  initialDelay: 2
+  retentionDays: 180
+  maxTimeToRunJobInMinutes: 60
+
+shardCountTuningJobConfig:
+  active: true
+  interval: 3600
+  initialDelay: 1
+  idealShardSizeInGBs: 20
+
+shardRebalanceJobConfig:
+  active: true
+  interval: 600
+  initialDelay: 1
+  shardCountThresholdPercentage: 30
 
 elasticsearchTuningConfig:
   precisionThreshold: 500
@@ -64,19 +99,47 @@ consoleHistoryConfig:
 deletionconfig:
   active: false
   interval: 86400
-  initialdelay: 60
+  initialDelay: 1
 
+emailConfig:
+  from: test@email.com
+  host: email.test.com
+  port: 25
+  user: test
+  password: test
+  url: /
 
-clusterRerouteConfig:
-  active: false
-  interval: 86400
-  initialDelay: 10
-  thresholdShardCountPercentage: 10
+restrictAccess: false
 
-sessionCleanupConfig:
-  active: true
-  interval: 86400
-  initialDelay: 10
+swagger:
+  resourcePackage: com.flipkart.foxtrot.server.resources
+  title: Foxtrot
+  description: A store abstraction and analytics
+  uriPrefix: "/foxtrot"
+
+distributedLockConfig:
+  locksConfig:
+    FUNNEL_APPROVAL:
+      lockExpiryTimeInMs: 2000
+
+funnelConfiguration:
+  querySize: 100
+  funnelIndex: foxtrot_funnel
+  funnelConsoleUrl: http://funnel-ui.test.com/#/
+  defaultVersionCodeFilter:
+    operator: greater_equal
+    field: eventData.versionCode
+    value: 400728
+  baseFunnelEventConfig:
+    eventType: TEST
+    category: General
+  funnelDropdownConfig:
+    eventTypes:
+      - TEST
+    categories:
+      - TEST
+    deviceAttributes:
+      - deviceId
 
 auth:
   enabled: false
@@ -84,10 +147,14 @@ auth:
     issuerId: foxtrot-server
     privateKey: ${PRIVATE_KEY}
     sessionDuration: 15d
-
   provider:
     type: OAUTH_GOOGLE
     clientId: ${GOOGLE_CLIENT_ID}
     clientSecret: ${GOOGLE_CLIENT_SECRET}
     server: ${GOOGLE_CALLBACK_HOST_PORT}
     secureEndpoint: false
+
+sessionCleanupConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10

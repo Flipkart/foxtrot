@@ -26,7 +26,8 @@ import java.util.Map;
 @Singleton
 @PermitAll
 public class ClusterInfoResource {
-    private ClusterManager clusterManager;
+
+    private final ClusterManager clusterManager;
 
     @Inject
     public ClusterInfoResource(ClusterManager clusterManager) {

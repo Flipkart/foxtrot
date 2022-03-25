@@ -1,31 +1,28 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.Query;
+import com.flipkart.foxtrot.common.QueryResponse;
+import com.flipkart.foxtrot.common.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,23 +46,24 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 24/03/14
- * Time: 1:00 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 1:00 PM
  */
+@SuppressWarnings("squid:CallToDeprecatedMethod")
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
-    private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
-    private ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public FilterAction(Query parameter, AnalyticsLoader analyticsLoader) {
+    private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    public FilterAction(Query parameter,
+                        AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
         this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
     public void preprocess() {
-        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        getParameter().setTable(ElasticsearchUtils.getValidName(getParameter().getTable()));
         if (null == getParameter().getSort()) {
             ResultSort resultSort = new ResultSort();
             resultSort.setField("_timestamp");
@@ -85,11 +83,13 @@ public class FilterAction extends Action<Query> {
         Query query = getParameter();
         if (null != query.getFilters()) {
             for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+                filterHashKey += 31 * filter.accept(getCacheKeyVisitor());
             }
         }
-        filterHashKey += 31 * (query.getSort() != null ? query.getSort()
-                .hashCode() : "SORT".hashCode());
+        filterHashKey += 31 * (query.getSort() != null
+                ? query.getSort()
+                .hashCode()
+                : "SORT".hashCode());
 
         return String.format("%s-%d-%d-%d", query.getTable(), query.getFrom(), query.getLimit(), filterHashKey);
     }
@@ -122,6 +122,7 @@ public class FilterAction extends Action<Query> {
         }
     }
 
+
     @Override
     public ActionResponse execute(Query parameter) {
         if (parameter.isScrollRequest()) {
@@ -130,58 +131,63 @@ public class FilterAction extends Action<Query> {
         return executeRequest(parameter);
     }
 
+
     @Override
-    public SearchRequest getRequestBuilder(Query parameter, List<Filter> extraFilters) {
+    public SearchRequest getRequestBuilder(Query parameter,
+                                           List<Filter> extraFilters) {
         SearchRequest searchRequest = getSearchRequest(parameter, extraFilters);
         //Adding from here since from isn't supported in scroll request
-        searchRequest.source().from(parameter.getFrom());
+        searchRequest.source()
+                .from(parameter.getFrom());
         return searchRequest;
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, Query parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      Query parameter) {
         List<String> ids = new ArrayList<>();
         SearchHits searchHits = ((SearchResponse) response).getHits();
         for (SearchHit searchHit : searchHits) {
             ids.add(searchHit.getId());
         }
         if (ids.isEmpty()) {
-            return QueryResponse
-                    .builder()
+            return QueryResponse.builder()
                     .documents(Collections.emptyList())
                     .totalHits(0)
                     .build();
         }
-        return QueryResponse
-                .builder()
-                .documents(getQueryStore()
-                        .getAll(parameter.getTable(), ids, true))
+        return QueryResponse.builder()
+                .documents(getQueryStore().getAll(parameter.getTable(), ids, true))
                 .totalHits(searchHits.getTotalHits())
                 .build();
     }
 
 
-    private SearchRequest getScrollRequestBuilder(Query parameter, List<Filter> extraFilters) {
+    private SearchRequest getScrollRequestBuilder(Query parameter,
+                                                  List<Filter> extraFilters) {
         SearchRequest searchRequest = getSearchRequest(parameter, extraFilters);
         searchRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
         return searchRequest;
     }
 
-    private SearchRequest getSearchRequest(Query parameter, List<Filter> extraFilters) {
-        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                .indicesOptions(Utils.indicesOptions())
+    private SearchRequest getSearchRequest(Query parameter,
+                                           List<Filter> extraFilters) {
+        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
+                Utils.indicesOptions())
                 .types(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                 .searchType(SearchType.QUERY_THEN_FETCH)
-                .source(new SearchSourceBuilder()
-                        .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
+                .source(new SearchSourceBuilder().timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
                         .size(parameter.getLimit())
                         .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
-                        .sort(Utils.storedFieldName(parameter.getSort().getField()),
-                                ResultSort.Order.desc == parameter.getSort().getOrder()
-                                        ? SortOrder.DESC : SortOrder.ASC));
+                        .sort(Utils.storedFieldName(parameter.getSort()
+                                .getField()), ResultSort.Order.desc == parameter.getSort()
+                                .getOrder()
+                                ? SortOrder.DESC
+                                : SortOrder.ASC));
     }
 
-    private ActionResponse executeScrollRequest(Query parameter, List<Filter> extraFilters) {
+    private ActionResponse executeScrollRequest(Query parameter,
+                                                List<Filter> extraFilters) {
         List<String> ids = new ArrayList<>();
         String scrollId;
         long totalHits = 0;
@@ -190,8 +196,8 @@ public class FilterAction extends Action<Query> {
                 scrollId = parameter.getScrollId();
                 SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollId);
                 scrollRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
-                SearchResponse searchScrollResponse = getConnection().getClient().scroll(scrollRequest,
-                        RequestOptions.DEFAULT);
+                SearchResponse searchScrollResponse = getConnection().getClient()
+                        .scroll(scrollRequest, RequestOptions.DEFAULT);
                 scrollId = searchScrollResponse.getScrollId();
                 SearchHits hits = searchScrollResponse.getHits();
                 for (SearchHit searchHit : hits) {
@@ -199,8 +205,7 @@ public class FilterAction extends Action<Query> {
                 }
             } else {
                 SearchRequest searchRequest = getScrollRequestBuilder(parameter, extraFilters);
-                SearchResponse searchResponse = getConnection()
-                        .getClient()
+                SearchResponse searchResponse = getConnection().getClient()
                         .search(searchRequest, RequestOptions.DEFAULT);
                 SearchHits searchHits = searchResponse.getHits();
                 totalHits = searchHits.getTotalHits();
@@ -215,22 +220,22 @@ public class FilterAction extends Action<Query> {
         }
     }
 
-    private QueryResponse getResponse(Query parameter, long totalHits, List<String> ids, String scrollId) {
+    private QueryResponse getResponse(Query parameter,
+                                      long totalHits,
+                                      List<String> ids,
+                                      String scrollId) {
         if (ids.isEmpty()) {
-            return QueryResponse
-                    .builder()
+            return QueryResponse.builder()
                     .documents(Collections.emptyList())
                     .totalHits(0)
                     .moreDataAvailable(false)
                     .build();
         }
-        return QueryResponse
-                .builder()
-                .documents(getQueryStore()
-                        .getAll(parameter.getTable(), ids, true))
+        return QueryResponse.builder()
+                .documents(getQueryStore().getAll(parameter.getTable(), ids, true))
                 .totalHits(totalHits)
                 .scrollId(scrollId)
-                .moreDataAvailable(StringUtils.isNotEmpty(scrollId) ? true : false)
+                .moreDataAvailable(StringUtils.isNotEmpty(scrollId))
                 .build();
     }
 
@@ -238,8 +243,7 @@ public class FilterAction extends Action<Query> {
         SearchRequest search = getRequestBuilder(parameter, Collections.emptyList());
         try {
             logger.info("Search: {}", search);
-            SearchResponse response = getConnection()
-                    .getClient()
+            SearchResponse response = getConnection().getClient()
                     .search(search);
             return getResponse(response, parameter);
         } catch (IOException e) {

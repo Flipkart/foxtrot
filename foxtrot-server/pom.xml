@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>foxtrot</artifactId>
@@ -8,13 +7,14 @@
         <version>6.8.8-1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>foxtrot-server</artifactId>
 
     <properties>
         <jose4j.version>0.7.0</jose4j.version>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <dropwizard.jmxmp.version>1.3.5-1</dropwizard.jmxmp.version>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>io.dropwizard</groupId>
@@ -29,11 +29,6 @@
         <dependency>
             <groupId>ru.vyarus</groupId>
             <artifactId>dropwizard-guicey</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.raven.dropwizard</groupId>
-            <artifactId>dropwizard-oor</artifactId>
-            <version>1.3.13-1</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
@@ -57,7 +52,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j -->
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
@@ -68,6 +62,11 @@
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-sql</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-jmxmp</artifactId>
+            <version>${dropwizard.jmxmp.version}</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
@@ -129,9 +128,73 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--<dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+            <version>2.25.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>2.25.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.25.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-multipart</artifactId>
+            <version>2.25.1</version>
+        </dependency>-->
     </dependencies>
 
     <profiles>
+        <profile>
+            <id>integration-test</id>
+        </profile>
+        <profile>
+            <id>ant</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.19.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
+                            <groups>impl.IntegrationTest</groups>
+                            <skipTests>false</skipTests>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.19.1</version>
+                        <configuration>
+                            <includes>
+                                <include>
+                                    com.flipkart.foxtrot.core.querystore.impl.DistributedTableMetadataManagerTest.java
+                                </include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>docker</id>
             <build>
@@ -139,7 +202,7 @@
                     <plugin>
                         <artifactId>maven-deploy-plugin</artifactId>
                         <configuration>
-                            <skip>true</skip>
+                            <skip>${maven.deploy.skip}</skip>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -202,6 +265,8 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <outputFile>${project.build.directory}/${project.artifactId}.jar
+                            </outputFile>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
@@ -213,6 +278,13 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>${maven.deploy.skip}</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>
