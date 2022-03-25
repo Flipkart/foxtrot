@@ -131,17 +131,15 @@ funnelConfiguration:
     field: eventData.versionCode
     value: 400728
   baseFunnelEventConfig:
-    eventType: APP_LOADED
+    eventType: TEST
     category: General
   funnelDropdownConfig:
     eventTypes:
-      - APP_LOADED
+      - TEST
     categories:
-      - P2PSendTransaction
+      - TEST
     deviceAttributes:
       - deviceId
-      - Model
-      - OS_Version
 
 auth:
   enabled: false
