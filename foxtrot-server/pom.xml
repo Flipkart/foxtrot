@@ -12,7 +12,7 @@
     <artifactId>foxtrot-server</artifactId>
 
     <properties>
-        <jose4j.version>0.7.0</jose4j.version>
+        <jose4j.version>0.9.3</jose4j.version>
     </properties>
     
     <dependencies>
