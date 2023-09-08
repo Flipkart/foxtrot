@@ -1,5 +1,9 @@
 package com.flipkart.foxtrot.server.resources;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.codahale.metrics.health.HealthCheckRegistry;
@@ -14,18 +18,22 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.config.OpensearchTuningConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
+import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchQueryStore;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
-import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
+import com.flipkart.foxtrot.core.table.impl.OpensearchTestUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
@@ -40,17 +48,14 @@ import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.util.Lists;
-import org.junit.Assert;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static org.mockito.Mockito.*;
+import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.util.Lists;
+import org.junit.Assert;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by rishabh.goyal on 27/12/15.
@@ -71,7 +76,7 @@ public abstract class FoxtrotResourceTest {
     protected final ObjectMapper objectMapper = Jackson.newObjectMapper();
     private final ObjectMapper mapper;
     private final HazelcastInstance hazelcastInstance;
-    private final ElasticsearchConnection elasticsearchConnection;
+    private final OpensearchConnection opensearchConnection;
     private final TableMetadataManager tableMetadataManager;
     private final CardinalityConfig cardinalityConfig;
     private final List<IndexerEventMutator> mutators;
@@ -110,11 +115,11 @@ public abstract class FoxtrotResourceTest {
 
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
         try {
-            elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+            opensearchConnection = OpensearchTestUtils.getConnection();
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+        OpensearchUtils.initializeMappings(opensearchConnection.getClient());
 
         Config config = new Config();
         //Initializing Cache Factory
@@ -124,10 +129,11 @@ public abstract class FoxtrotResourceTest {
 
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
 
-        cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
-        TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
-        TestUtils.ensureIndex(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
+        cardinalityConfig = new CardinalityConfig("true", String.valueOf(OpensearchUtils.DEFAULT_SUB_LIST_SIZE));
+        TestUtils.ensureIndex(opensearchConnection, TableMapStore.TABLE_META_INDEX);
+        TestUtils.ensureIndex(opensearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, opensearchConnection, mapper,
+                cardinalityConfig);
         try {
             tableMetadataManager.start();
         } catch (Exception e) {
@@ -138,13 +144,14 @@ public abstract class FoxtrotResourceTest {
                 .ttl(7)
                 .build());
 
-        mutators = Lists.newArrayList(
-                new LargeTextNodeRemover(mapper, TextNodeRemoverConfiguration.builder().build()));
+        mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper, TextNodeRemoverConfiguration.builder()
+                .build()));
         dataStore = TestUtils.getDataStore();
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
+        queryStore = new OpensearchQueryStore(tableMetadataManager, opensearchConnection, dataStore, mutators, mapper,
+                cardinalityConfig);
         queryStore = spy(queryStore);
-        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                cacheManager, mapper, new ElasticsearchTuningConfig());
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, opensearchConnection,
+                cacheManager, mapper, new OpensearchTuningConfig());
         try {
             analyticsLoader.start();
             TestUtils.registerActions(analyticsLoader, mapper);
@@ -160,8 +167,8 @@ public abstract class FoxtrotResourceTest {
         return tableMetadataManager;
     }
 
-    protected ElasticsearchConnection getElasticsearchConnection() {
-        return elasticsearchConnection;
+    protected OpensearchConnection getOpensearchConnection() {
+        return opensearchConnection;
     }
 
     protected HazelcastInstance getHazelcastInstance() {

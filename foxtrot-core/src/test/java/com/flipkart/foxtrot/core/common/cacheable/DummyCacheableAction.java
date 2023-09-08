@@ -23,7 +23,7 @@ import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.annotations.VisibleForTesting;
-import org.elasticsearch.action.ActionRequest;
+import org.opensearch.action.ActionRequest;
 
 import java.util.List;
 
@@ -65,7 +65,7 @@ public class DummyCacheableAction extends Action<DummyCacheableActionRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DummyCacheableActionRequest parameter)
+    public ActionResponse getResponse(org.opensearch.action.ActionResponse response, DummyCacheableActionRequest parameter)
             throws FoxtrotException {
         return null;
     }

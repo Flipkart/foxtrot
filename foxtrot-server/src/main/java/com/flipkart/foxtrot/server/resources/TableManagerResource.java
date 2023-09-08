@@ -18,7 +18,7 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.auth.FoxtrotRole;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -52,7 +52,7 @@ public class TableManagerResource {
     @Path("/{name}")
     @ApiOperation("Get Table")
     public Response get(@PathParam("name") String name) {
-        name = ElasticsearchUtils.getValidTableName(name);
+        name = OpensearchUtils.getValidTableName(name);
         Table table = tableManager.get(name);
         return Response.ok()
                 .entity(table)
@@ -73,7 +73,7 @@ public class TableManagerResource {
     @ApiOperation("Save Table")
     @RolesAllowed(FoxtrotRole.Value.SYSADMIN)
     public Response save(@Valid final Table table, @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
-        table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
+        table.setName(OpensearchUtils.getValidTableName(table.getName()));
         tableManager.save(table, forceCreate);
         return Response.ok(table)
                 .build();
@@ -98,7 +98,7 @@ public class TableManagerResource {
     @ApiOperation("Delete Table")
     @RolesAllowed(FoxtrotRole.Value.SYSADMIN)
     public Response delete(@PathParam("name") String name) {
-        name = ElasticsearchUtils.getValidTableName(name);
+        name = OpensearchUtils.getValidTableName(name);
         tableManager.delete(name);
         return Response.status(Response.Status.NO_CONTENT)
                 .build();

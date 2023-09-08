@@ -31,13 +31,13 @@ import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
 import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
-import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.client.indices.GetIndexResponse;
+import org.opensearch.action.admin.indices.refresh.RefreshRequest;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.indices.GetIndexRequest;
+import org.opensearch.client.indices.GetIndexResponse;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -57,7 +57,7 @@ public class FilterActionTest extends ActionTest {
     public static void setUp() throws Exception {
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchConnection().getClient()
+        getOpensearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
     }
@@ -69,7 +69,7 @@ public class FilterActionTest extends ActionTest {
         resultSort.setOrder(ResultSort.Order.asc);
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
-        when(getElasticsearchConnection().getClient()).thenReturn(null);
+        when(getOpensearchConnection().getClient()).thenReturn(null);
         getQueryExecutor().execute(query);
     }
 
@@ -767,12 +767,12 @@ public class FilterActionTest extends ActionTest {
         documents.addAll(TestUtils.getQueryDocumentsDifferentDate(mapper, new Date(2014 - 1900, 4, 5).getTime()));
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
-            getElasticsearchConnection().getClient()
+            getOpensearchConnection().getClient()
                     .indices()
-                    .refresh(new RefreshRequest(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp())),
+                    .refresh(new RefreshRequest(OpensearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp())),
                             RequestOptions.DEFAULT);
         }
-        GetIndexResponse response = getElasticsearchConnection().getClient()
+        GetIndexResponse response = getOpensearchConnection().getClient()
                 .indices()
                 .get(new GetIndexRequest("*"), RequestOptions.DEFAULT);
         // Find all indices returned for this table name.. (using regex to match)

@@ -21,7 +21,7 @@ import com.flipkart.foxtrot.common.query.FilterVisitorAdapter;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
 import com.flipkart.foxtrot.common.query.numeric.*;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
 import org.joda.time.Interval;
 
 import java.util.List;
@@ -49,7 +49,7 @@ public class PeriodSelector extends FilterVisitorAdapter<Void> {
             }
         }
         for (Filter filter : filters) {
-            if (ElasticsearchUtils.TIME_FIELD.equals(filter.getField())) {
+            if (OpensearchUtils.TIME_FIELD.equals(filter.getField())) {
                 filter.accept(this);
             }
         }

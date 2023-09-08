@@ -3,27 +3,21 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
-import com.flipkart.foxtrot.common.stats.*;
+import com.flipkart.foxtrot.common.stats.AnalyticsRequestFlags;
+import com.flipkart.foxtrot.common.stats.BucketResponse;
+import com.flipkart.foxtrot.common.stats.Stat;
+import com.flipkart.foxtrot.common.stats.StatsRequest;
+import com.flipkart.foxtrot.common.stats.StatsResponse;
+import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.config.OpensearchTuningConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
+import com.flipkart.foxtrot.core.util.OpensearchQueryUtils;
 import com.google.common.collect.Lists;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +25,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.common.unit.TimeValue;
+import org.opensearch.search.aggregations.AbstractAggregationBuilder;
+import org.opensearch.search.aggregations.AggregationBuilder;
+import org.opensearch.search.aggregations.Aggregations;
+import org.opensearch.search.aggregations.bucket.terms.Terms;
+import org.opensearch.search.aggregations.metrics.Percentiles;
+import org.opensearch.search.builder.SearchSourceBuilder;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -39,11 +43,11 @@ import java.util.stream.Collectors;
 @AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = true)
 public class StatsAction extends Action<StatsRequest> {
 
-    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+    private final OpensearchTuningConfig opensearchTuningConfig;
 
     public StatsAction(StatsRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
+        this.opensearchTuningConfig = analyticsLoader.getOpensearchTuningConfig();
     }
 
     private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
@@ -64,7 +68,7 @@ public class StatsAction extends Action<StatsRequest> {
 
     @Override
     public void preprocess() {
-        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        getParameter().setTable(OpensearchUtils.getValidTableName(getParameter().getTable()));
     }
 
     @Override
@@ -120,10 +124,9 @@ public class StatsAction extends Action<StatsRequest> {
 
     @Override
     public SearchRequest getRequestBuilder(StatsRequest parameter, List<Filter> extraFilters) {
-        final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
-                .size(0)
+        final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().size(0)
                 .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
-                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters));
+                .query(OpensearchQueryUtils.translateFilter(parameter, extraFilters));
 
         AbstractAggregationBuilder percentiles = null;
         final String field = getParameter().getField();
@@ -146,21 +149,19 @@ public class StatsAction extends Action<StatsRequest> {
             if (null != percentiles) {
                 subAggregations.add(percentiles);
             }
-            sourceBuilder.aggregation(
-                    Utils.buildTermsAggregation(getParameter().getNesting()
-                                    .stream()
-                                    .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                                    .collect(Collectors.toList()),
-                            subAggregations,
-                            elasticsearchTuningConfig.getAggregationSize()));
+            sourceBuilder.aggregation(Utils.buildTermsAggregation(getParameter().getNesting()
+                    .stream()
+                    .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                    .collect(Collectors.toList()), subAggregations, opensearchTuningConfig.getAggregationSize()));
         }
-        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                .indicesOptions(Utils.indicesOptions())
+        return new SearchRequest(OpensearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
+                        Utils.indicesOptions())
                 .source(sourceBuilder);
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsRequest parameter) {
+    public ActionResponse getResponse(org.opensearch.action.ActionResponse response,
+                                      StatsRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         if (aggregations != null) {
             return buildResponse(parameter, aggregations);

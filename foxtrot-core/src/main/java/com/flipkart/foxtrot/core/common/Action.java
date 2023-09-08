@@ -29,17 +29,16 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConfig;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -53,14 +52,14 @@ public abstract class Action<P extends ActionRequest> {
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
     private P parameter;
-    private ElasticsearchConnection connection;
+    private OpensearchConnection connection;
 
     protected Action(P parameter, AnalyticsLoader analyticsLoader) {
         this.parameter = parameter;
         this.tableMetadataManager = analyticsLoader.getTableMetadataManager();
         this.queryStore = analyticsLoader.getQueryStore();
         this.cacheManager = analyticsLoader.getCacheManager();
-        this.connection = analyticsLoader.getElasticsearchConnection();
+        this.connection = analyticsLoader.getOpensearchConnection();
         this.objectMapper = analyticsLoader.getObjectMapper();
     }
 
@@ -107,7 +106,7 @@ public abstract class Action<P extends ActionRequest> {
 
     public long getGetQueryTimeout() {
         if (getConnection().getConfig() == null) {
-            return ElasticsearchConfig.DEFAULT_TIMEOUT;
+            return OpensearchConfig.DEFAULT_TIMEOUT;
         }
         return getConnection().getConfig()
                 .getGetQueryTimeout();
@@ -142,9 +141,9 @@ public abstract class Action<P extends ActionRequest> {
 
     public abstract String getRequestCacheKey();
 
-    public abstract org.elasticsearch.action.ActionRequest getRequestBuilder(P parameter, List<Filter> extraFilters);
+    public abstract org.opensearch.action.ActionRequest getRequestBuilder(P parameter, List<Filter> extraFilters);
 
-    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, P parameter);
+    public abstract ActionResponse getResponse(org.opensearch.action.ActionResponse response, P parameter);
 
 
     public abstract void validateImpl(P parameter);
@@ -155,7 +154,7 @@ public abstract class Action<P extends ActionRequest> {
         return parameter;
     }
 
-    public ElasticsearchConnection getConnection() {
+    public OpensearchConnection getConnection() {
         return connection;
     }
 

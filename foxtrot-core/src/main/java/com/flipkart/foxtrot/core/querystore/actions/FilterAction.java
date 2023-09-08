@@ -22,31 +22,30 @@ import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.config.OpensearchTuningConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchScrollRequest;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
+import com.flipkart.foxtrot.core.util.OpensearchQueryUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.StringUtils;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.action.search.SearchScrollRequest;
+import org.opensearch.action.search.SearchType;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.common.unit.TimeValue;
+import org.opensearch.search.SearchHit;
+import org.opensearch.search.SearchHits;
+import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -56,16 +55,16 @@ import java.util.concurrent.TimeUnit;
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
-    private ElasticsearchTuningConfig elasticsearchTuningConfig;
+    private OpensearchTuningConfig opensearchTuningConfig;
 
     public FilterAction(Query parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
+        this.opensearchTuningConfig = analyticsLoader.getOpensearchTuningConfig();
     }
 
     @Override
     public void preprocess() {
-        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        getParameter().setTable(OpensearchUtils.getValidTableName(getParameter().getTable()));
         if (null == getParameter().getSort()) {
             ResultSort resultSort = new ResultSort();
             resultSort.setField("_timestamp");
@@ -112,9 +111,9 @@ public class FilterAction extends Action<Query> {
             validationErrors.add("limit must be positive integer");
         }
 
-        if (parameter.getLimit() > elasticsearchTuningConfig.getDocumentsLimitAllowed()) {
+        if (parameter.getLimit() > opensearchTuningConfig.getDocumentsLimitAllowed()) {
             validationErrors.add(String.format("Limit more than %s is not supported",
-                    elasticsearchTuningConfig.getDocumentsLimitAllowed()));
+                    opensearchTuningConfig.getDocumentsLimitAllowed()));
         }
 
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
@@ -139,46 +138,44 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, Query parameter) {
+    public ActionResponse getResponse(org.opensearch.action.ActionResponse response,
+                                      Query parameter) {
         List<String> ids = new ArrayList<>();
         SearchHits searchHits = ((SearchResponse) response).getHits();
         for (SearchHit searchHit : searchHits) {
             ids.add(searchHit.getId());
         }
         if (ids.isEmpty()) {
-            return QueryResponse
-                    .builder()
+            return QueryResponse.builder()
                     .documents(Collections.emptyList())
                     .totalHits(0)
                     .build();
         }
-        return QueryResponse
-                .builder()
-                .documents(getQueryStore()
-                        .getAll(parameter.getTable(), ids, true))
-                .totalHits(searchHits.getTotalHits())
+        return QueryResponse.builder()
+                .documents(getQueryStore().getAll(parameter.getTable(), ids, true))
+                .totalHits(searchHits.getHits().length)
                 .build();
     }
 
 
     private SearchRequest getScrollRequestBuilder(Query parameter, List<Filter> extraFilters) {
         SearchRequest searchRequest = getSearchRequest(parameter, extraFilters);
-        searchRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
+        searchRequest.scroll(TimeValue.timeValueSeconds(opensearchTuningConfig.getScrollTimeInSeconds()));
         return searchRequest;
     }
 
     private SearchRequest getSearchRequest(Query parameter, List<Filter> extraFilters) {
-        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                .indicesOptions(Utils.indicesOptions())
-                .types(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+        return new SearchRequest(OpensearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
+                        Utils.indicesOptions())
                 .searchType(SearchType.QUERY_THEN_FETCH)
-                .source(new SearchSourceBuilder()
-                        .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
+                .source(new SearchSourceBuilder().timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
                         .size(parameter.getLimit())
-                        .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
-                        .sort(Utils.storedFieldName(parameter.getSort().getField()),
-                                ResultSort.Order.desc == parameter.getSort().getOrder()
-                                        ? SortOrder.DESC : SortOrder.ASC));
+                        .query(OpensearchQueryUtils.translateFilter(parameter, extraFilters))
+                        .sort(Utils.storedFieldName(parameter.getSort()
+                                .getField()), ResultSort.Order.desc == parameter.getSort()
+                                .getOrder()
+                                              ? SortOrder.DESC
+                                              : SortOrder.ASC));
     }
 
     private ActionResponse executeScrollRequest(Query parameter, List<Filter> extraFilters) {
@@ -189,7 +186,7 @@ public class FilterAction extends Action<Query> {
             if (StringUtils.isNotEmpty(parameter.getScrollId())) {
                 scrollId = parameter.getScrollId();
                 SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollId);
-                scrollRequest.scroll(TimeValue.timeValueSeconds(elasticsearchTuningConfig.getScrollTimeInSeconds()));
+                scrollRequest.scroll(TimeValue.timeValueSeconds(opensearchTuningConfig.getScrollTimeInSeconds()));
                 SearchResponse searchScrollResponse = getConnection().getClient().scroll(scrollRequest,
                         RequestOptions.DEFAULT);
                 scrollId = searchScrollResponse.getScrollId();
@@ -199,11 +196,10 @@ public class FilterAction extends Action<Query> {
                 }
             } else {
                 SearchRequest searchRequest = getScrollRequestBuilder(parameter, extraFilters);
-                SearchResponse searchResponse = getConnection()
-                        .getClient()
+                SearchResponse searchResponse = getConnection().getClient()
                         .search(searchRequest, RequestOptions.DEFAULT);
                 SearchHits searchHits = searchResponse.getHits();
-                totalHits = searchHits.getTotalHits();
+                totalHits = searchHits.getHits().length;
                 for (SearchHit searchHit : searchHits) {
                     ids.add(searchHit.getId());
                 }
@@ -238,9 +234,8 @@ public class FilterAction extends Action<Query> {
         SearchRequest search = getRequestBuilder(parameter, Collections.emptyList());
         try {
             logger.info("Search: {}", search);
-            SearchResponse response = getConnection()
-                    .getClient()
-                    .search(search);
+            SearchResponse response = getConnection().getClient()
+                    .search(search, RequestOptions.DEFAULT);
             return getResponse(response, parameter);
         } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);

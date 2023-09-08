@@ -15,6 +15,8 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static com.flipkart.foxtrot.core.util.OpensearchQueryUtils.QUERY_SIZE;
+
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -26,37 +28,35 @@ import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.config.OpensearchTuningConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
+import com.flipkart.foxtrot.core.util.OpensearchQueryUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.dropwizard.util.Duration;
-import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.joda.time.DateTime;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
-
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.common.unit.TimeValue;
+import org.opensearch.search.aggregations.AbstractAggregationBuilder;
+import org.opensearch.search.aggregations.Aggregations;
+import org.opensearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
+import org.opensearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.opensearch.search.aggregations.bucket.histogram.Histogram;
+import org.opensearch.search.aggregations.bucket.terms.Terms;
+import org.opensearch.search.aggregations.metrics.Cardinality;
+import org.opensearch.search.builder.SearchSourceBuilder;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -66,16 +66,16 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "trend", request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
 public class TrendAction extends Action<TrendRequest> {
 
-    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+    private final OpensearchTuningConfig opensearchTuningConfig;
 
     public TrendAction(TrendRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
+        this.opensearchTuningConfig = analyticsLoader.getOpensearchTuningConfig();
     }
 
     @Override
     public void preprocess() {
-        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        getParameter().setTable(OpensearchUtils.getValidTableName(getParameter().getTable()));
         if (null != getParameter().getValues() && !getParameter().getValues()
                 .isEmpty()) {
             List<Object> values = (List) getParameter().getValues();
@@ -152,9 +152,8 @@ public class TrendAction extends Action<TrendRequest> {
     public ActionResponse execute(TrendRequest parameter) {
         SearchRequest query = getRequestBuilder(parameter, Collections.emptyList());
         try {
-            SearchResponse response = getConnection()
-                    .getClient()
-                    .search(query);
+            SearchResponse response = getConnection().getClient()
+                    .search(query, RequestOptions.DEFAULT);
             return getResponse(response, parameter);
         } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
@@ -163,18 +162,18 @@ public class TrendAction extends Action<TrendRequest> {
 
     @Override
     public SearchRequest getRequestBuilder(TrendRequest parameter, List<Filter> extraFilters) {
-        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                .indicesOptions(Utils.indicesOptions())
-                .source(new SearchSourceBuilder()
-                        .size(QUERY_SIZE)
+        return new SearchRequest(OpensearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
+                        Utils.indicesOptions())
+                .source(new SearchSourceBuilder().size(QUERY_SIZE)
                         .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
-                        .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
+                        .query(OpensearchQueryUtils.translateFilter(parameter, extraFilters))
                         .aggregation(buildAggregation(parameter)));
 
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, TrendRequest parameter) {
+    public ActionResponse getResponse(org.opensearch.action.ActionResponse response,
+                                      TrendRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         if (aggregations != null) {
             return buildResponse(parameter, aggregations);
@@ -198,12 +197,12 @@ public class TrendAction extends Action<TrendRequest> {
 
         DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval);
         if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
-            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(
-                    getParameter().getUniqueCountOn(), request.accept(new CountPrecisionThresholdVisitorAdapter(
-                            elasticsearchTuningConfig.getPrecisionThreshold()))));
+            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(),
+                    request.accept(new CountPrecisionThresholdVisitorAdapter(
+                            opensearchTuningConfig.getPrecisionThreshold()))));
         }
         return Utils.buildTermsAggregation(Lists.newArrayList(new ResultSort(field, ResultSort.Order.asc)),
-                Sets.newHashSet(histogramBuilder), elasticsearchTuningConfig.getAggregationSize());
+                Sets.newHashSet(histogramBuilder), opensearchTuningConfig.getAggregationSize());
     }
 
     private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations) {

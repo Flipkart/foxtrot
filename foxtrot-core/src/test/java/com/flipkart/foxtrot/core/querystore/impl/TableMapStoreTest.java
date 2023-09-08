@@ -15,25 +15,41 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
+import com.flipkart.foxtrot.core.table.impl.OpensearchTestUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
-import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
+import com.flipkart.foxtrot.core.util.OpensearchQueryUtils;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.action.get.*;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.support.WriteRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.junit.*;
-
-import java.util.*;
-
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.opensearch.action.get.GetRequest;
+import org.opensearch.action.get.GetResponse;
+import org.opensearch.action.get.MultiGetItemResponse;
+import org.opensearch.action.get.MultiGetRequest;
+import org.opensearch.action.get.MultiGetResponse;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.action.support.WriteRequest;
+import org.opensearch.client.RequestOptions;
 
 
 /**
@@ -44,32 +60,32 @@ public class TableMapStoreTest {
     public static final String TEST_TABLE = "test-table";
     public static final String TABLE_META_INDEX = "table-meta";
     public static final String TABLE_META_TYPE = "table-meta";
-    private static ElasticsearchConnection elasticsearchConnection;
+    private static OpensearchConnection opensearchConnection;
     private ObjectMapper mapper = new ObjectMapper();
     private TableMapStore tableMapStore;
 
 
     @BeforeClass
     public static void setupClass() throws Exception {
-        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
-        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+        opensearchConnection = OpensearchTestUtils.getConnection();
+        OpensearchUtils.initializeMappings(opensearchConnection.getClient());
     }
 
     @AfterClass
     public static void tearDownClass() throws Exception {
-        elasticsearchConnection.stop();
+        opensearchConnection.stop();
     }
 
     @Before
     public void setUp() throws Exception {
-        TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
-        TableMapStore.Factory factory = new TableMapStore.Factory(elasticsearchConnection);
+        TestUtils.ensureIndex(opensearchConnection, TableMapStore.TABLE_META_INDEX);
+        TableMapStore.Factory factory = new TableMapStore.Factory(opensearchConnection);
         tableMapStore = factory.newMapStore(null, null);
     }
 
     @After
     public void tearDown() throws Exception {
-        ElasticsearchTestUtils.cleanupIndices(elasticsearchConnection);
+        OpensearchTestUtils.cleanupIndices(opensearchConnection);
     }
 
 
@@ -80,8 +96,8 @@ public class TableMapStoreTest {
         table.setTtl(30);
         tableMapStore.store(table.getName(), table);
 
-        GetResponse response = elasticsearchConnection.getClient()
-                .get(new GetRequest(TABLE_META_INDEX, TABLE_META_TYPE, table.getName()), RequestOptions.DEFAULT);
+        GetResponse response = opensearchConnection.getClient()
+                .get(new GetRequest(TABLE_META_INDEX, table.getName()), RequestOptions.DEFAULT);
         compareTables(table, mapper.readValue(response.getSourceAsBytes(), Table.class));
     }
 
@@ -122,8 +138,9 @@ public class TableMapStoreTest {
         tableMapStore.storeAll(tables);
         MultiGetRequest multiGetRequest = new MultiGetRequest();
         tables.keySet()
-                .forEach(key -> multiGetRequest.add(TABLE_META_INDEX, TABLE_META_TYPE, key));
-        MultiGetResponse response = elasticsearchConnection.getClient().mget(multiGetRequest, RequestOptions.DEFAULT);
+                .forEach(key -> multiGetRequest.add(TABLE_META_INDEX, key));
+        MultiGetResponse response = opensearchConnection.getClient()
+                .mget(multiGetRequest, RequestOptions.DEFAULT);
         Map<String, Table> responseTables = Maps.newHashMap();
         for (MultiGetItemResponse multiGetItemResponse : response) {
             Table table = mapper.readValue(multiGetItemResponse.getResponse()
@@ -231,13 +248,13 @@ public class TableMapStoreTest {
         table.setName(TEST_TABLE);
         table.setTtl(30);
         tableMapStore.store(table.getName(), table);
-        GetResponse response = elasticsearchConnection.getClient()
-                .get(new GetRequest(TABLE_META_INDEX, TABLE_META_TYPE, table.getName()), RequestOptions.DEFAULT);
+        GetResponse response = opensearchConnection.getClient()
+                .get(new GetRequest(TABLE_META_INDEX, table.getName()), RequestOptions.DEFAULT);
         assertTrue(response.isExists());
 
         tableMapStore.delete(table.getName());
-        response = elasticsearchConnection.getClient()
-                .get(new GetRequest(TABLE_META_INDEX, TABLE_META_TYPE, table.getName()), RequestOptions.DEFAULT);
+        response = opensearchConnection.getClient()
+                .get(new GetRequest(TABLE_META_INDEX, table.getName()), RequestOptions.DEFAULT);
         assertFalse(response.isExists());
     }
 
@@ -265,16 +282,16 @@ public class TableMapStoreTest {
         }
         tableMapStore.storeAll(tables);
         for (String name : tables.keySet()) {
-            GetResponse response = elasticsearchConnection.getClient()
-                    .get(new GetRequest(TABLE_META_INDEX, TABLE_META_TYPE, name), RequestOptions.DEFAULT);
+            GetResponse response = opensearchConnection.getClient()
+                    .get(new GetRequest(TABLE_META_INDEX, name), RequestOptions.DEFAULT);
             ;
             assertTrue(response.isExists());
         }
 
         tableMapStore.deleteAll(tables.keySet());
         for (String name : tables.keySet()) {
-            GetResponse response = elasticsearchConnection.getClient()
-                    .get(new GetRequest(TABLE_META_INDEX, TABLE_META_TYPE, name), RequestOptions.DEFAULT);
+            GetResponse response = opensearchConnection.getClient()
+                    .get(new GetRequest(TABLE_META_INDEX, name), RequestOptions.DEFAULT);
             ;
             assertFalse(response.isExists());
         }
@@ -300,10 +317,9 @@ public class TableMapStoreTest {
         Table table = new Table();
         table.setName(TEST_TABLE);
         table.setTtl(30);
-        Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
-        elasticsearchConnection.getClient()
+        Map<String, Object> sourceMap = OpensearchQueryUtils.toMap(mapper, table);
+        opensearchConnection.getClient()
                 .index(new IndexRequest(TABLE_META_INDEX)
-                        .type(TABLE_META_TYPE)
                         .source(sourceMap)
                         .id(table.getName())
                         .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
@@ -328,9 +344,8 @@ public class TableMapStoreTest {
     // Exception Caught because of Runtime. Not an IOException
     @Test(expected = RuntimeException.class)
     public void testLoadKeyWithWrongJson() throws Exception {
-        elasticsearchConnection.getClient()
+        opensearchConnection.getClient()
                 .index(new IndexRequest(TABLE_META_INDEX)
-                        .type(TABLE_META_TYPE)
                         .source("{ \"test\" : \"test\"}")
                         .id(TEST_TABLE)
                         .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
@@ -347,14 +362,11 @@ public class TableMapStoreTest {
                     .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
-            Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
-            elasticsearchConnection.getClient()
-                    .index(new IndexRequest(TABLE_META_INDEX)
-                                    .type(TABLE_META_TYPE)
-                                    .source(sourceMap)
-                                    .id(table.getName())
-                                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
-                            RequestOptions.DEFAULT);
+            Map<String, Object> sourceMap = OpensearchQueryUtils.toMap(mapper, table);
+            opensearchConnection.getClient()
+                    .index(new IndexRequest(TABLE_META_INDEX).source(sourceMap)
+                            .id(table.getName())
+                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
         }
 
         Set<String> names = ImmutableSet.copyOf(Iterables.limit(tables.keySet(), 5));
@@ -372,12 +384,10 @@ public class TableMapStoreTest {
 
     @Test(expected = RuntimeException.class)
     public void testLoadAllKeyWithWrongJson() throws Exception {
-        elasticsearchConnection.getClient()
-                .index(new IndexRequest(TABLE_META_INDEX)
-                        .type(TABLE_META_TYPE)
-                        .source("{ \"test\" : \"test\"}")
+        opensearchConnection.getClient()
+                .index(new IndexRequest(TABLE_META_INDEX).source("{ \"test\" : \"test\"}")
                         .id(TEST_TABLE)
-                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE));
+                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
         tableMapStore.loadAll(Arrays.asList(TEST_TABLE));
     }
 
@@ -391,14 +401,11 @@ public class TableMapStoreTest {
                     .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
-            Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
-            elasticsearchConnection.getClient()
-                    .index(new IndexRequest(TABLE_META_INDEX)
-                                    .type(TABLE_META_TYPE)
-                                    .source(sourceMap)
-                                    .id(table.getName())
-                                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
-                            RequestOptions.DEFAULT);
+            Map<String, Object> sourceMap = OpensearchQueryUtils.toMap(mapper, table);
+            opensearchConnection.getClient()
+                    .index(new IndexRequest(TABLE_META_INDEX).source(sourceMap)
+                            .id(table.getName())
+                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT);
         }
 
         Set<String> responseKeys = tableMapStore.loadAllKeys();

@@ -115,12 +115,12 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     }
 
     @Override
-    public org.elasticsearch.action.ActionRequest getRequestBuilder(MultiTimeQueryRequest parameter, List<Filter> extraFilters) {
+    public org.opensearch.action.ActionRequest getRequestBuilder(MultiTimeQueryRequest parameter, List<Filter> extraFilters) {
         return action.getRequestBuilder(multiQueryRequest, extraFilters);
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse, MultiTimeQueryRequest parameter) {
+    public ActionResponse getResponse(org.opensearch.action.ActionResponse multiSearchResponse, MultiTimeQueryRequest parameter) {
         MultiQueryResponse multiQueryResponse = (MultiQueryResponse) action.getResponse(multiSearchResponse, multiQueryRequest);
         return new MultiTimeQueryResponse(multiQueryResponse.getResponses());
     }

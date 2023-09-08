@@ -15,25 +15,29 @@
  */
 package com.flipkart.foxtrot.core.table.impl;
 
-import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.common.estimation.*;
+import com.flipkart.foxtrot.common.estimation.CardinalityEstimationData;
+import com.flipkart.foxtrot.common.estimation.EstimationData;
+import com.flipkart.foxtrot.common.estimation.EstimationDataVisitor;
+import com.flipkart.foxtrot.common.estimation.FixedEstimationData;
+import com.flipkart.foxtrot.common.estimation.PercentileEstimationData;
+import com.flipkart.foxtrot.common.estimation.TermHistogramEstimationData;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.TableMapStoreException;
-import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
+import com.flipkart.foxtrot.core.parsers.OpensearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
+import com.flipkart.foxtrot.core.util.OpensearchQueryUtils;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -43,40 +47,50 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.map.IMap;
-import lombok.SneakyThrows;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.MultiSearchRequest;
-import org.elasticsearch.action.search.MultiSearchResponse;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
-import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ru.vyarus.dropwizard.guice.module.installer.order.Order;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import lombok.SneakyThrows;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.action.search.MultiSearchRequest;
+import org.opensearch.action.search.MultiSearchResponse;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.client.indices.GetMappingsRequest;
+import org.opensearch.client.indices.GetMappingsResponse;
+import org.opensearch.common.unit.TimeValue;
+import org.opensearch.common.xcontent.XContentType;
+import org.opensearch.index.query.QueryBuilders;
+import org.opensearch.search.SearchHit;
+import org.opensearch.search.aggregations.Aggregation;
+import org.opensearch.search.aggregations.AggregationBuilders;
+import org.opensearch.search.aggregations.bucket.terms.Terms;
+import org.opensearch.search.aggregations.metrics.Cardinality;
+import org.opensearch.search.aggregations.metrics.Percentiles;
+import org.opensearch.search.builder.SearchSourceBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -98,7 +112,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final int TIME_TO_LIVE_CARDINALITY_CACHE = (int) TimeUnit.DAYS.toSeconds(7);
     private static final int TIME_TO_NEAR_CACHE = (int) TimeUnit.MINUTES.toSeconds(15);
     private final HazelcastConnection hazelcastConnection;
-    private final ElasticsearchConnection elasticsearchConnection;
+    private final OpensearchConnection opensearchConnection;
     private final ObjectMapper mapper;
     private final CardinalityConfig cardinalityConfig;
     private IMap<String, Table> tableDataStore;
@@ -106,10 +120,12 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private IMap<String, TableFieldMapping> fieldDataCardinalityCache;
 
     @Inject
-    public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection, ElasticsearchConnection elasticsearchConnection,
-                                           ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
+    public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,
+                                           OpensearchConnection opensearchConnection,
+                                           ObjectMapper mapper,
+                                           CardinalityConfig cardinalityConfig) {
         this.hazelcastConnection = hazelcastConnection;
-        this.elasticsearchConnection = elasticsearchConnection;
+        this.opensearchConnection = opensearchConnection;
         this.mapper = mapper;
         this.cardinalityConfig = cardinalityConfig;
 
@@ -186,7 +202,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         mapConfig.setBackupCount(0);
 
         MapStoreConfig mapStoreConfig = new MapStoreConfig();
-        mapStoreConfig.setFactoryImplementation(TableMapStore.factory(elasticsearchConnection));
+        mapStoreConfig.setFactoryImplementation(TableMapStore.factory(opensearchConnection));
         mapStoreConfig.setEnabled(true);
         mapStoreConfig.setInitialLoadMode(MapStoreConfig.InitialLoadMode.EAGER);
         mapConfig.setMapStoreConfig(mapStoreConfig);
@@ -262,7 +278,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     @Timed
     public TableFieldMapping getFieldMappings(
             String tableName, boolean withCardinality, boolean calculateCardinality, long timestamp) {
-        final String table = ElasticsearchUtils.getValidTableName(tableName);
+        final String table = OpensearchUtils.getValidTableName(tableName);
 
         if (!tableDataStore.containsKey(table)) {
             throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
@@ -299,12 +315,12 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     private TableFieldMapping getTableFieldMapping(String table) {
-        ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
-        final String indices = ElasticsearchUtils.getIndices(table);
+        OpensearchMappingParser mappingParser = new OpensearchMappingParser(mapper);
+        final String indices = OpensearchUtils.getIndices(table);
         logger.info("Selected indices: {}", indices);
         final GetMappingsResponse mappingsResponse;
         try {
-            mappingsResponse = elasticsearchConnection.getClient()
+            mappingsResponse = opensearchConnection.getClient()
                     .indices()
                     .getMapping(new GetMappingsRequest().indices(indices), RequestOptions.DEFAULT);
         } catch (IOException e) {
@@ -312,22 +328,20 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         }
 
         Set<String> indicesName = Sets.newHashSet();
-        for (ObjectCursor<String> index : mappingsResponse.getMappings()
-                .keys()) {
-            indicesName.add(index.value);
-        }
+        indicesName.addAll(mappingsResponse.mappings()
+                .keySet());
+
         List<FieldMetadata> fieldMetadata = indicesName.stream()
                 .filter(x -> !CollectionUtils.isNullOrEmpty(x))
                 .sorted((lhs, rhs) -> {
-                    Date lhsDate = ElasticsearchUtils.parseIndexDate(lhs, table)
+                    Date lhsDate = OpensearchUtils.parseIndexDate(lhs, table)
                             .toDate();
-                    Date rhsDate = ElasticsearchUtils.parseIndexDate(rhs, table)
+                    Date rhsDate = OpensearchUtils.parseIndexDate(rhs, table)
                             .toDate();
                     return -lhsDate.compareTo(rhsDate);
                 })
                 .map(index -> mappingsResponse.mappings()
-                        .get(index)
-                        .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME))
+                        .get(index))
                 .flatMap(mappingData -> {
                     try {
                         return mappingParser.getFieldMappings(mappingData)
@@ -360,8 +374,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         Map<String, FieldMetadata> fieldMap = fields.stream()
                 .collect(Collectors.toMap(FieldMetadata::getField, fieldMetadata -> fieldMetadata, (lhs, rhs) -> lhs));
 
-        final String index = ElasticsearchUtils.getCurrentIndex(ElasticsearchUtils.getValidTableName(table), time);
-        final RestHighLevelClient client = elasticsearchConnection.getClient();
+        final String index = OpensearchUtils.getCurrentIndex(OpensearchUtils.getValidTableName(table), time);
+        final RestHighLevelClient client = opensearchConnection.getClient();
         Map<String, EstimationData> estimationData = estimateFirstPhaseData(table, index, client, fieldMap);
         estimationData = estimateSecondPhaseData(table, index, client, estimationData);
         estimationData.forEach((key, value) -> fieldMap.get(key)
@@ -373,7 +387,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         Map<String, EstimationData> estimationDataMap = Maps.newHashMap();
         int subListSize;
         if (cardinalityConfig == null || cardinalityConfig.getSubListSize() == 0) {
-            subListSize = ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE;
+            subListSize = OpensearchUtils.DEFAULT_SUB_LIST_SIZE;
         } else {
             subListSize = cardinalityConfig.getSubListSize();
         }
@@ -437,8 +451,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 continue;
             }
             final long hits = response.getHits()
-                    .getTotalHits();
-            Map<String, Aggregation> output = response.getAggregations().asMap();
+                    .getHits().length;
+            Map<String, Aggregation> output = response.getAggregations()
+                    .asMap();
             output.forEach((key, value) -> {
                 FieldMetadata fieldMetadata = fields.get(key);
                 if (fieldMetadata == null) {
@@ -581,7 +596,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                                                 .query(QueryBuilders.existsQuery(key))
                                                 .aggregation(AggregationBuilders.terms(key)
                                                         .field(key)
-                                                        .size(ElasticsearchQueryUtils.QUERY_SIZE))
+                                                        .size(OpensearchQueryUtils.QUERY_SIZE))
                                                 .size(0)));
                     }
                 }
@@ -617,8 +632,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 continue;
             }
             final long hits = response.getHits()
-                    .getTotalHits();
-            Map<String, Aggregation> output = response.getAggregations().asMap();
+                    .getHits().length;
+            Map<String, Aggregation> output = response.getAggregations()
+                    .asMap();
             output.forEach((key, value) -> {
                 Terms terms = (Terms) output.get(key);
                 estimationDataMap.put(key, TermHistogramEstimationData.builder()
@@ -674,10 +690,11 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     private void saveCardinalityCache(String table, TableFieldMapping tableFieldMapping) {
         try {
-            elasticsearchConnection.getClient()
-                    .index(new IndexRequest(CARDINALITY_CACHE_INDEX, ElasticsearchUtils.DOCUMENT_TYPE_NAME, table)
-                            .timeout(new TimeValue(2, TimeUnit.SECONDS))
-                            .source(mapper.writeValueAsBytes(tableFieldMapping), XContentType.JSON), RequestOptions.DEFAULT);
+            opensearchConnection.getClient()
+                    .index(new IndexRequest(CARDINALITY_CACHE_INDEX).id(table)
+                                    .timeout(new TimeValue(2, TimeUnit.SECONDS))
+                                    .source(mapper.writeValueAsBytes(tableFieldMapping), XContentType.JSON),
+                            RequestOptions.DEFAULT);
         } catch (Exception e) {
             logger.error("Error in saving cardinality cache: " + e.getMessage(), e);
         }
@@ -687,12 +704,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         int maxSize = 1000;
         List<TableFieldMapping> tableFieldMappings = new ArrayList<>();
         try {
-            SearchResponse response = elasticsearchConnection.getClient()
-                    .search(new SearchRequest(CARDINALITY_CACHE_INDEX)
-                            .types(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                            .indicesOptions(Utils.indicesOptions())
-                            .source(new SearchSourceBuilder()
-                                    .size(maxSize)), RequestOptions.DEFAULT);
+            SearchResponse response = opensearchConnection.getClient()
+                    .search(new SearchRequest(CARDINALITY_CACHE_INDEX).indicesOptions(Utils.indicesOptions())
+                            .source(new SearchSourceBuilder().size(maxSize)), RequestOptions.DEFAULT);
             for (SearchHit hit : com.collections.CollectionUtils.nullAndEmptySafeValueList(response.getHits()
                     .getHits())) {
                 tableFieldMappings.add(mapper.readValue(hit.getSourceAsString(), TableFieldMapping.class));

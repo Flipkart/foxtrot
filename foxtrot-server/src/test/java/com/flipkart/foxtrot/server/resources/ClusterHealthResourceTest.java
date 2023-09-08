@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.ResourceTestUtils;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -85,7 +85,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
         documents.add(document1);
         documents.add(document2);
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchConnection().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        getOpensearchConnection().refresh(OpensearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         JsonNode response = resources
                 .target("/v1/clusterhealth/indicesstats")
                 .request()

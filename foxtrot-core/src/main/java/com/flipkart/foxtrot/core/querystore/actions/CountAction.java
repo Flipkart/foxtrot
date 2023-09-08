@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static com.flipkart.foxtrot.core.util.OpensearchQueryUtils.QUERY_SIZE;
+
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
@@ -8,25 +10,22 @@ import com.flipkart.foxtrot.common.query.general.ExistsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.config.OpensearchTuningConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
+import com.flipkart.foxtrot.core.util.OpensearchQueryUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.search.aggregations.Aggregations;
+import org.opensearch.search.aggregations.metrics.Cardinality;
+import org.opensearch.search.builder.SearchSourceBuilder;
 
 /**
  * Created by rishabh.goyal on 02/11/14.
@@ -35,17 +34,17 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = true)
 public class CountAction extends Action<CountRequest> {
 
-    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+    private final OpensearchTuningConfig opensearchTuningConfig;
 
     public CountAction(CountRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
+        this.opensearchTuningConfig = analyticsLoader.getOpensearchTuningConfig();
     }
 
 
     @Override
     public void preprocess() {
-        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        getParameter().setTable(OpensearchUtils.getValidTableName(getParameter().getTable()));
         // Null field implies complete doc count
         if (getParameter().getField() != null) {
             Filter existsFilter = new ExistsFilter(getParameter().getField());
@@ -115,25 +114,25 @@ public class CountAction extends Action<CountRequest> {
     public SearchRequest getRequestBuilder(CountRequest parameter, List<Filter> extraFilters) {
         if (parameter.isDistinct()) {
             try {
-                return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                return new SearchRequest(OpensearchUtils.getIndices(parameter.getTable(), parameter))
                         .indicesOptions(Utils.indicesOptions())
                         .source(new SearchSourceBuilder()
                                 .size(QUERY_SIZE)
-                                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
+                                .query(OpensearchQueryUtils.translateFilter(parameter, extraFilters))
                                 .aggregation(Utils.buildCardinalityAggregation(parameter.getField(),
                                         parameter.accept(new CountPrecisionThresholdVisitorAdapter(
-                                                elasticsearchTuningConfig.getPrecisionThreshold())))))
+                                                opensearchTuningConfig.getPrecisionThreshold())))))
                         ;
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
         } else {
             try {
-                return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                return new SearchRequest(OpensearchUtils.getIndices(parameter.getTable(), parameter))
                         .indicesOptions(Utils.indicesOptions())
                         .source(new SearchSourceBuilder()
                                 .size(QUERY_SIZE)
-                                .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters)));
+                                .query(OpensearchQueryUtils.translateFilter(parameter, extraFilters)));
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
@@ -141,7 +140,7 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, CountRequest parameter) {
+    public ActionResponse getResponse(org.opensearch.action.ActionResponse response, CountRequest parameter) {
         if (parameter.isDistinct()) {
             Aggregations aggregations = ((SearchResponse) response).getAggregations();
             Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
@@ -151,8 +150,7 @@ public class CountAction extends Action<CountRequest> {
                 return new CountResponse(cardinality.getValue());
             }
         } else {
-            return new CountResponse(((SearchResponse) response).getHits()
-                    .getTotalHits());
+            return new CountResponse(((SearchResponse) response).getHits().getHits().length);
         }
 
     }

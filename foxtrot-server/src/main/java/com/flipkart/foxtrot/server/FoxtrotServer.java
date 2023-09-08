@@ -112,7 +112,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         ((AbstractServerFactory) configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
 
         MetricUtil.setup(environment.metrics());
-        ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
+        OpensearchUtils.setTableNamePrefix(configuration.getOpensearchConfig());
 
     }
 

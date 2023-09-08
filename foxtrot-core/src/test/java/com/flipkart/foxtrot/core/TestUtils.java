@@ -28,7 +28,8 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConnection;
 import com.foxtrot.flipkart.translator.DocumentTranslator;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.google.common.base.Strings;
@@ -36,10 +37,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.settings.Settings;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.indices.CreateIndexRequest;
+import org.opensearch.client.indices.GetIndexRequest;
+import org.opensearch.common.settings.Settings;
 import org.joda.time.DateTime;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -490,7 +491,7 @@ public class TestUtils {
     }
 
     @SneakyThrows
-    public static void ensureIndex(ElasticsearchConnection connection, final String table) {
+    public static void ensureIndex(OpensearchConnection connection, final String table) {
         boolean exists = connection.getClient()
                 .indices()
                 .exists(new GetIndexRequest(table), RequestOptions.DEFAULT);

@@ -18,14 +18,14 @@ package com.flipkart.foxtrot.server.config;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.config.OpensearchTuningConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.email.EmailConfig;
-import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
+import com.flipkart.foxtrot.core.jobs.optimization.DatabaseIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConfig;
 import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.server.auth.AuthConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
@@ -33,12 +33,11 @@ import com.flipkart.foxtrot.server.jobs.sessioncleanup.SessionCleanupConfig;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import io.dropwizard.Configuration;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -53,7 +52,7 @@ public class FoxtrotServerConfiguration extends Configuration {
     private final HbaseConfig hbase;
 
     @Valid
-    private final ElasticsearchConfig elasticsearch;
+    private final OpensearchConfig opensearchConfig;
 
     @Valid
     private final ClusterConfig cluster;
@@ -64,7 +63,7 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     private CardinalityConfig cardinality;
     @Valid
-    private EsIndexOptimizationConfig esIndexOptimizationConfig;
+    private DatabaseIndexOptimizationConfig esIndexOptimizationConfig;
 
     @Valid
     private SessionCleanupConfig sessionCleanupConfig;
@@ -86,7 +85,7 @@ public class FoxtrotServerConfiguration extends Configuration {
     private boolean restrictAccess;
 
     @Valid
-    private ElasticsearchTuningConfig elasticsearchTuningConfig;
+    private OpensearchTuningConfig opensearchTuningConfig;
 
     @Valid
     private String swaggerHost;
@@ -105,8 +104,8 @@ public class FoxtrotServerConfiguration extends Configuration {
     private AuthConfig auth = new AuthConfig();
 
     public FoxtrotServerConfiguration() {
+        opensearchConfig = new OpensearchConfig();
         this.hbase = new HbaseConfig();
-        this.elasticsearch = new ElasticsearchConfig();
         this.cluster = new ClusterConfig();
         this.deletionManagerConfig = new DataDeletionManagerConfig();
         this.emailConfig = new EmailConfig();

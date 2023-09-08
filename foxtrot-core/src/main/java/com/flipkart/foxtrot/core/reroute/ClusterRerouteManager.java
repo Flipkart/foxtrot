@@ -1,31 +1,11 @@
 package com.flipkart.foxtrot.core.reroute;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.common.Date;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Lists;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
-import org.elasticsearch.action.admin.cluster.reroute.ClusterRerouteRequest;
-import org.elasticsearch.action.admin.cluster.reroute.ClusterRerouteResponse;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.cluster.routing.allocation.command.MoveAllocationCommand;
-import org.elasticsearch.index.shard.ShardId;
-import org.joda.time.DateTime;
-import ru.vyarus.dropwizard.guice.module.installer.order.Order;
-
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConnection;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.*;
+import lombok.extern.slf4j.Slf4j;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /***
  Created by mudit.g on Sep, 2019
@@ -35,15 +15,14 @@ import java.util.*;
 @Order(20)
 public class ClusterRerouteManager {
 
-    private final ElasticsearchConnection connection;
+    private final OpensearchConnection connection;
     private final ClusterRerouteConfig clusterRerouteConfig;
     private final ObjectMapper mapper;
 
     @Inject
-    public ClusterRerouteManager(
-            ElasticsearchConnection connection,
-            ClusterRerouteConfig clusterRerouteConfig,
-            ObjectMapper mapper) {
+    public ClusterRerouteManager(OpensearchConnection connection,
+                                 ClusterRerouteConfig clusterRerouteConfig,
+                                 ObjectMapper mapper) {
         this.connection = connection;
         this.clusterRerouteConfig = clusterRerouteConfig;
         this.mapper = mapper;
@@ -120,7 +99,7 @@ public class ClusterRerouteManager {
                     if (shardStats.getShardRouting()
                             .shardId()
                             .getIndexName()
-                            .matches(ElasticsearchUtils.getTodayIndicesPattern())
+                            .matches(OpensearchUtils.getTodayIndicesPattern())
                             && !shardStats.getShardRouting().relocating()) {
                         ShardId shardId = shardStats.getShardRouting()
                                 .shardId();

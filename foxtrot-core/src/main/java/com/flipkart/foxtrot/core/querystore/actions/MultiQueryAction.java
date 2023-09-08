@@ -15,19 +15,18 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.elasticsearch.action.search.MultiSearchRequest;
-import org.elasticsearch.action.search.MultiSearchResponse;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.glassfish.hk2.api.MultiException;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.glassfish.hk2.api.MultiException;
+import org.opensearch.action.search.MultiSearchRequest;
+import org.opensearch.action.search.MultiSearchResponse;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.client.RequestOptions;
 
 /***
  Created by nitish.goyal on 22/08/18
@@ -138,7 +137,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             if (null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
             }
-            org.elasticsearch.action.ActionRequest requestBuilder = action.getRequestBuilder(request, filters);
+            org.opensearch.action.ActionRequest requestBuilder = action.getRequestBuilder(request, filters);
             if (requestBuilder instanceof SearchRequest) {
                 multiSearchRequest.add((SearchRequest) requestBuilder);
             }
@@ -147,7 +146,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse, MultiQueryRequest parameter) {
+    public ActionResponse getResponse(org.opensearch.action.ActionResponse multiSearchResponse,
+                                      MultiQueryRequest parameter) {
 
         Map<String, ActionResponse> queryVsQueryResponseMap = Maps.newHashMap();
         int queryCounter = 0;

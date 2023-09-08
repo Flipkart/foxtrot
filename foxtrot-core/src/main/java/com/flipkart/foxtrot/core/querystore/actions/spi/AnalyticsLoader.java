@@ -20,30 +20,29 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.config.OpensearchTuningConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.AnalyticsActionLoaderException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import io.dropwizard.lifecycle.Managed;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import lombok.Getter;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -62,23 +61,26 @@ public class AnalyticsLoader implements Managed {
     private final TableMetadataManager tableMetadataManager;
     private final DataStore dataStore;
     private final QueryStore queryStore;
-    private final ElasticsearchConnection elasticsearchConnection;
-    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+    private final OpensearchConnection opensearchConnection;
+    private final OpensearchTuningConfig opensearchTuningConfig;
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
 
     @Inject
-    public AnalyticsLoader(
-            TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager,
-            ObjectMapper objectMapper, ElasticsearchTuningConfig elasticsearchTuningConfig) {
+    public AnalyticsLoader(TableMetadataManager tableMetadataManager,
+                           DataStore dataStore,
+                           QueryStore queryStore,
+                           OpensearchConnection opensearchConnection,
+                           CacheManager cacheManager,
+                           ObjectMapper objectMapper,
+                           OpensearchTuningConfig opensearchTuningConfig) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
-        this.elasticsearchConnection = elasticsearchConnection;
+        this.opensearchConnection = opensearchConnection;
         this.cacheManager = cacheManager;
         this.objectMapper = objectMapper;
-        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
+        this.opensearchTuningConfig = opensearchTuningConfig;
     }
 
     @SuppressWarnings("unchecked")

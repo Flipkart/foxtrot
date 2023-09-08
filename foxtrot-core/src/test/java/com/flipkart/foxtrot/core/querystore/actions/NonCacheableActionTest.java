@@ -19,8 +19,8 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.noncacheable.NonCacheableActionRequest;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
-import org.elasticsearch.client.RequestOptions;
+import org.opensearch.action.admin.indices.refresh.RefreshRequest;
+import org.opensearch.client.RequestOptions;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class NonCacheableActionTest extends ActionTest {
     public static void setUp() throws Exception {
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchConnection().getClient()
+        getOpensearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
     }

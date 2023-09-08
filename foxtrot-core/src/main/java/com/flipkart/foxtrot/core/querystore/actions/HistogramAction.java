@@ -15,6 +15,8 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static com.flipkart.foxtrot.core.util.OpensearchQueryUtils.QUERY_SIZE;
+
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
@@ -23,33 +25,31 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.config.OpensearchTuningConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
+import com.flipkart.foxtrot.core.util.OpensearchQueryUtils;
 import io.dropwizard.util.Duration;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
-import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.joda.time.DateTime;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+import org.joda.time.DateTime;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.common.unit.TimeValue;
+import org.opensearch.search.aggregations.AbstractAggregationBuilder;
+import org.opensearch.search.aggregations.Aggregations;
+import org.opensearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
+import org.opensearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.opensearch.search.aggregations.bucket.histogram.Histogram;
+import org.opensearch.search.aggregations.metrics.Cardinality;
+import org.opensearch.search.builder.SearchSourceBuilder;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -59,11 +59,11 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
 
-    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+    private final OpensearchTuningConfig opensearchTuningConfig;
 
     public HistogramAction(HistogramRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
+        this.opensearchTuningConfig = analyticsLoader.getOpensearchTuningConfig();
     }
 
     @Override
@@ -73,7 +73,7 @@ public class HistogramAction extends Action<HistogramRequest> {
 
     @Override
     public void preprocess() {
-        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        getParameter().setTable(OpensearchUtils.getValidTableName(getParameter().getTable()));
     }
 
     @Override
@@ -123,9 +123,8 @@ public class HistogramAction extends Action<HistogramRequest> {
     public ActionResponse execute(HistogramRequest parameter) {
         SearchRequest query = getRequestBuilder(parameter, Collections.emptyList());
         try {
-            SearchResponse response = getConnection()
-                    .getClient()
-                    .search(query);
+            SearchResponse response = getConnection().getClient()
+                    .search(query, RequestOptions.DEFAULT);
             return getResponse(response, parameter);
         } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
@@ -134,17 +133,17 @@ public class HistogramAction extends Action<HistogramRequest> {
 
     @Override
     public SearchRequest getRequestBuilder(HistogramRequest parameter, List<Filter> extraFilters) {
-        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                .indicesOptions(Utils.indicesOptions())
-                .source(new SearchSourceBuilder()
-                        .size(QUERY_SIZE)
+        return new SearchRequest(OpensearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
+                        Utils.indicesOptions())
+                .source(new SearchSourceBuilder().size(QUERY_SIZE)
                         .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
-                        .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
+                        .query(OpensearchQueryUtils.translateFilter(parameter, extraFilters))
                         .aggregation(buildAggregation(parameter)));
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, HistogramRequest parameter) {
+    public ActionResponse getResponse(org.opensearch.action.ActionResponse response,
+                                      HistogramRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         return buildResponse(aggregations);
     }
@@ -178,9 +177,9 @@ public class HistogramAction extends Action<HistogramRequest> {
         DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(getParameter().getField(),
                 interval);
         if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
-            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(
-                    getParameter().getUniqueCountOn(), parameter.accept(new CountPrecisionThresholdVisitorAdapter(
-                            elasticsearchTuningConfig.getPrecisionThreshold()))));
+            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(),
+                    parameter.accept(new CountPrecisionThresholdVisitorAdapter(
+                            opensearchTuningConfig.getPrecisionThreshold()))));
         }
         return histogramBuilder;
     }

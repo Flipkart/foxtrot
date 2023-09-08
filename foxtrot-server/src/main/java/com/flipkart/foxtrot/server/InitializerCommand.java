@@ -17,25 +17,25 @@
 package com.flipkart.foxtrot.server;
 
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConfig;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
-import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.flipkart.foxtrot.server.console.OpensearchConsolePersistence;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.action.support.master.AcknowledgedResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.CreateIndexResponse;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.settings.Settings;
+import org.opensearch.action.admin.cluster.health.ClusterHealthRequest;
+import org.opensearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.opensearch.client.indices.PutIndexTemplateRequest;
+import org.opensearch.action.support.master.AcknowledgedResponse;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.indices.CreateIndexRequest;
+import org.opensearch.client.indices.CreateIndexResponse;
+import org.opensearch.client.indices.GetIndexRequest;
+import org.opensearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
     private static final Logger logger = LoggerFactory.getLogger(InitializerCommand.class.getSimpleName());
 
     public InitializerCommand() {
-        super("initialize", "Initialize elasticsearch and hbase");
+        super("initialize", "Initialize Opensearch and hbase");
     }
 
     @Override
@@ -52,8 +52,8 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                        Namespace namespace,
                        FoxtrotServerConfiguration configuration)
             throws Exception {
-        ElasticsearchConfig esConfig = configuration.getElasticsearch();
-        ElasticsearchConnection connection = new ElasticsearchConnection(esConfig);
+        OpensearchConfig esConfig = configuration.getOpensearchConfig();
+        OpensearchConnection connection = new OpensearchConnection(esConfig);
         connection.start();
 
         try {
@@ -62,21 +62,21 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                     .health(new ClusterHealthRequest(), RequestOptions.DEFAULT);
             int numDataNodes = clusterHealth.getNumberOfDataNodes();
             int numReplicas = (numDataNodes < 2)
-                    ? 0
-                    : 1;
+                              ? 0
+                              : 1;
 
             logger.info("# data nodes: {}, Setting replica count to: {}", numDataNodes, numReplicas);
 
-            createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX, numReplicas);
-            createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX_V2, numReplicas);
+            createMetaIndex(connection, OpensearchConsolePersistence.INDEX, numReplicas);
+            createMetaIndex(connection, OpensearchConsolePersistence.INDEX_V2, numReplicas);
             createMetaIndex(connection, TableMapStore.TABLE_META_INDEX, numReplicas);
-            createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX_HISTORY, numReplicas);
+            createMetaIndex(connection, OpensearchConsolePersistence.INDEX_HISTORY, numReplicas);
             createMetaIndex(connection, FqlStoreServiceImpl.FQL_STORE_INDEX, numReplicas);
             createMetaIndex(connection, "user-meta", numReplicas);
             createMetaIndex(connection, "tokens", numReplicas);
 
             logger.info("Creating mapping");
-            PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
+            PutIndexTemplateRequest putIndexTemplateRequest = OpensearchUtils.getClusterTemplateMapping();
             AcknowledgedResponse response = connection.getClient()
                     .indices()
                     .putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT);
@@ -85,11 +85,14 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
             connection.stop();
         }
         logger.info("Creating hbase table");
-        HBaseUtil.createTable(configuration.getHbase(), configuration.getHbase().getTableName());
+        HBaseUtil.createTable(configuration.getHbase(), configuration.getHbase()
+                .getTableName());
         logger.info("Initialization complete...");
     }
 
-    private void createMetaIndex(final ElasticsearchConnection connection, final String indexName, int replicaCount) {
+    private void createMetaIndex(final OpensearchConnection connection,
+                                 final String indexName,
+                                 int replicaCount) {
         try {
             if (connection.getClient()
                     .indices()

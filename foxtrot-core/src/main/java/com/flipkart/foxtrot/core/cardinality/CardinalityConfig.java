@@ -16,7 +16,7 @@ package com.flipkart.foxtrot.core.cardinality;
  */
 
 import com.flipkart.foxtrot.core.jobs.BaseJobConfig;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -54,7 +54,7 @@ public class CardinalityConfig extends BaseJobConfig {
 
     public int getSubListSize() {
         if (StringUtils.isEmpty(batchSize)) {
-            return ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE;
+            return OpensearchUtils.DEFAULT_SUB_LIST_SIZE;
         }
         return Integer.parseInt(batchSize);
     }

@@ -15,11 +15,18 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static com.flipkart.foxtrot.core.querystore.actions.Utils.statsString;
+import static com.flipkart.foxtrot.core.util.OpensearchQueryUtils.QUERY_SIZE;
+
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.common.estimation.*;
+import com.flipkart.foxtrot.common.estimation.CardinalityEstimationData;
+import com.flipkart.foxtrot.common.estimation.EstimationDataVisitor;
+import com.flipkart.foxtrot.common.estimation.FixedEstimationData;
+import com.flipkart.foxtrot.common.estimation.PercentileEstimationData;
+import com.flipkart.foxtrot.common.estimation.TermHistogramEstimationData;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -29,49 +36,53 @@ import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotInFilter;
-import com.flipkart.foxtrot.common.query.numeric.*;
+import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
-import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.config.OpensearchTuningConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchQueryStore;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
+import com.flipkart.foxtrot.core.util.OpensearchQueryUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggregationBuilder;
-import org.joda.time.Interval;
-
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static com.flipkart.foxtrot.core.querystore.actions.Utils.statsString;
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.joda.time.Interval;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.common.unit.TimeValue;
+import org.opensearch.search.aggregations.AbstractAggregationBuilder;
+import org.opensearch.search.aggregations.AggregationBuilder;
+import org.opensearch.search.aggregations.Aggregations;
+import org.opensearch.search.aggregations.bucket.terms.Terms;
+import org.opensearch.search.aggregations.metrics.Cardinality;
+import org.opensearch.search.aggregations.metrics.CardinalityAggregationBuilder;
+import org.opensearch.search.builder.SearchSourceBuilder;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -85,16 +96,16 @@ public class GroupAction extends Action<GroupRequest> {
     private static final long MAX_CARDINALITY = 50000;
     private static final long MIN_ESTIMATION_THRESHOLD = 1000;
     private static final double PROBABILITY_CUT_OFF = 0.5;
-    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+    private final OpensearchTuningConfig opensearchTuningConfig;
 
     public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
+        this.opensearchTuningConfig = analyticsLoader.getOpensearchTuningConfig();
     }
 
     @Override
     public void preprocess() {
-        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        getParameter().setTable(OpensearchUtils.getValidTableName(getParameter().getTable()));
     }
 
     @Override
@@ -186,17 +197,17 @@ public class GroupAction extends Action<GroupRequest> {
 
     @Override
     public SearchRequest getRequestBuilder(GroupRequest parameter, List<Filter> extraFilters) {
-        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                .indicesOptions(Utils.indicesOptions())
-                .source(new SearchSourceBuilder()
-                        .size(QUERY_SIZE)
+        return new SearchRequest(OpensearchUtils.getIndices(parameter.getTable(), parameter)).indicesOptions(
+                        Utils.indicesOptions())
+                .source(new SearchSourceBuilder().size(QUERY_SIZE)
                         .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
-                        .query(ElasticsearchQueryUtils.translateFilter(parameter, extraFilters))
+                        .query(OpensearchQueryUtils.translateFilter(parameter, extraFilters))
                         .aggregation(buildAggregation(parameter)));
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, GroupRequest parameter) {
+    public ActionResponse getResponse(org.opensearch.action.ActionResponse response,
+                                      GroupRequest parameter) {
         List<String> fields = parameter.getNesting();
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         // Check if any aggregation is present or not
@@ -297,37 +308,28 @@ public class GroupAction extends Action<GroupRequest> {
         // cardinality, reducing cardinality for that query
         //Only reducing cardinality if the doc count is actually less than docCount for a day. Assuming cardinality
         // will remain same if query for more than 1 day
-        if (estimatedMaxDocCount != 0 && ((double) estimatedDocCountAfterFilters / estimatedMaxDocCount) < 1.0 && reduceCardinality
-                .get()) {
-            outputCardinality = (long) (outputCardinality * ((double) estimatedDocCountAfterFilters / estimatedMaxDocCount));
+        if (estimatedMaxDocCount != 0 && ((double) estimatedDocCountAfterFilters / estimatedMaxDocCount) < 1.0
+                && reduceCardinality.get()) {
+            outputCardinality = (long) (outputCardinality * ((double) estimatedDocCountAfterFilters
+                    / estimatedMaxDocCount));
         }
 
-        log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
-                        "docCountAfterFilters:{} outputCardinality:{}",
-                cacheKey,
-                estimatedMaxDocCount,
-                estimatedDocCountBasedOnTime,
-                estimatedDocCountAfterFilters,
-                outputCardinality
-        );
+        log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} "
+                        + "docCountAfterFilters:{} outputCardinality:{}", cacheKey, estimatedMaxDocCount,
+                estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
         long maxCardinality = MAX_CARDINALITY;
-        if (getQueryStore() instanceof ElasticsearchQueryStore &&
-                ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig() != null &&
-                ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
+        if (getQueryStore() instanceof OpensearchQueryStore
+                && ((OpensearchQueryStore) getQueryStore()).getCardinalityConfig() != null &&
+                ((OpensearchQueryStore) getQueryStore()).getCardinalityConfig()
                         .getMaxCardinality() != 0) {
-            maxCardinality = ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
+            maxCardinality = ((OpensearchQueryStore) getQueryStore()).getCardinalityConfig()
                     .getMaxCardinality();
         }
         if (outputCardinality > maxCardinality) {
-            log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, " +
-                            "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  Query: {}",
-                    outputCardinality,
-                    estimatedMaxDocCount,
-                    estimatedDocCountBasedOnTime,
-                    estimatedDocCountAfterFilters,
-                    tableFieldMapping,
-                    parameter.toString()
-            );
+            log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, "
+                            + "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  Query: {}", outputCardinality,
+                    estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters,
+                    tableFieldMapping, parameter.toString());
             return 1.0;
         } else {
             return 0;
@@ -734,7 +736,7 @@ public class GroupAction extends Action<GroupRequest> {
                         .stream()
                         .map(x -> new ResultSort(x, ResultSort.Order.asc))
                         .collect(Collectors.toList()), buildSubAggregation(getParameter()),
-                elasticsearchTuningConfig.getAggregationSize());
+                opensearchTuningConfig.getAggregationSize());
 
     }
 
@@ -762,9 +764,8 @@ public class GroupAction extends Action<GroupRequest> {
 
     private CardinalityAggregationBuilder buildCardinalityAggregation(String aggregationField,
                                                                       GroupRequest groupRequest) {
-        return Utils.buildCardinalityAggregation(aggregationField,
-                groupRequest.accept(new CountPrecisionThresholdVisitorAdapter(
-                        elasticsearchTuningConfig.getPrecisionThreshold())));
+        return Utils.buildCardinalityAggregation(aggregationField, groupRequest.accept(
+                new CountPrecisionThresholdVisitorAdapter(opensearchTuningConfig.getPrecisionThreshold())));
     }
 
     private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
@@ -799,12 +800,11 @@ public class GroupAction extends Action<GroupRequest> {
     private void validateCardinality(GroupRequest parameter) {
         // Perform cardinality analysis and see how much this fucks up the cluster
         QueryStore queryStore = getQueryStore();
-        if (queryStore instanceof ElasticsearchQueryStore && ((ElasticsearchQueryStore) queryStore).getCardinalityConfig()
+        if (queryStore instanceof OpensearchQueryStore && ((OpensearchQueryStore) queryStore).getCardinalityConfig()
                 .isEnabled()) {
             double probability = 0;
             try {
-                TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(),
-                        true,
+                TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true,
                         false);
                 if (null == fieldMappings) {
                     fieldMappings = TableFieldMapping.builder()

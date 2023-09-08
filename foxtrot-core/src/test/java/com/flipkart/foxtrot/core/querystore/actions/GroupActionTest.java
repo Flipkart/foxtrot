@@ -30,10 +30,10 @@ import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchQueryStore;
 import com.google.common.collect.Maps;
-import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
-import org.elasticsearch.client.RequestOptions;
+import org.opensearch.action.admin.indices.refresh.RefreshRequest;
+import org.opensearch.client.RequestOptions;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,11 +54,11 @@ public class GroupActionTest extends ActionTest {
     public static void setUp() throws Exception {
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchConnection().getClient()
+        getOpensearchConnection().getClient()
                 .indices()
                 .refresh(new RefreshRequest("*"), RequestOptions.DEFAULT);
         getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
-        ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
+        ((OpensearchQueryStore) getQueryStore()).getCardinalityConfig()
                 .setMaxCardinality(15000);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
@@ -69,7 +69,7 @@ public class GroupActionTest extends ActionTest {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("os"));
-        doReturn(null).when(getElasticsearchConnection())
+        doReturn(null).when(getOpensearchConnection())
                 .getClient();
         try {
             getQueryExecutor().execute(groupRequest);

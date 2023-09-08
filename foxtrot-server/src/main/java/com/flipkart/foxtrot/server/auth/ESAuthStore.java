@@ -3,32 +3,30 @@ package com.flipkart.foxtrot.server.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.auth.User;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConnection;
 import com.flipkart.foxtrot.server.auth.authprovider.IdType;
 import io.dropwizard.util.Duration;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.action.support.WriteRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.DeleteByQueryRequest;
-import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-
-import javax.inject.Inject;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
+import javax.inject.Inject;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.opensearch.action.DocWriteRequest;
+import org.opensearch.action.delete.DeleteRequest;
+import org.opensearch.action.get.GetRequest;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchType;
+import org.opensearch.action.support.WriteRequest;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.common.xcontent.XContentType;
+import org.opensearch.index.query.QueryBuilders;
+import org.opensearch.index.reindex.DeleteByQueryRequest;
+import org.opensearch.rest.RestStatus;
+import org.opensearch.search.SearchHits;
+import org.opensearch.search.builder.SearchSourceBuilder;
 
 /**
  *
@@ -40,11 +38,12 @@ public class ESAuthStore implements AuthStore {
     private static final String TOKEN_TYPE = "TOKEN";
     private static final String USER_TYPE = "USER";
 
-    private final ElasticsearchConnection connection;
+    private final OpensearchConnection connection;
     private final ObjectMapper mapper;
 
     @Inject
-    public ESAuthStore(ElasticsearchConnection connection, ObjectMapper mapper) {
+    public ESAuthStore(OpensearchConnection connection,
+                       ObjectMapper mapper) {
         this.connection = connection;
         this.mapper = mapper;
     }
@@ -63,7 +62,7 @@ public class ESAuthStore implements AuthStore {
     @SneakyThrows
     public Optional<User> getUser(String userId) {
         val getResp = connection.getClient()
-                .get(new GetRequest(USERS_INDEX, USER_TYPE, userId), RequestOptions.DEFAULT);
+                .get(new GetRequest(USERS_INDEX, userId), RequestOptions.DEFAULT);
         if (!getResp.isExists()) {
             return Optional.empty();
         }
@@ -74,8 +73,8 @@ public class ESAuthStore implements AuthStore {
     @Override
     public boolean deleteUser(String userId) {
         boolean status = connection.getClient()
-                .delete(new DeleteRequest(USERS_INDEX, USER_TYPE, userId)
-                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
+                .delete(new DeleteRequest(USERS_INDEX, userId).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
+                        RequestOptions.DEFAULT)
                 .status() == RestStatus.OK;
         if (status) {
             val count = deleteTokensForUser(userId);
@@ -104,31 +103,25 @@ public class ESAuthStore implements AuthStore {
             log.warn("No user found for is: {}", userId);
             return Optional.empty();
         }
-        if ((tokenType.equals(TokenType.STATIC)
-                || tokenType.equals(TokenType.SYSTEM))
-                && !user.isSystemUser()) {
+        if ((tokenType.equals(TokenType.STATIC) || tokenType.equals(TokenType.SYSTEM)) && !user.isSystemUser()) {
             log.warn("Cannot create system/static token for non system user");
             return Optional.empty();
         }
-        try {
-            val saveStatus = connection.getClient()
-                    .index(new IndexRequest(TOKENS_INDEX)
-                            .source(mapper.writeValueAsString(new Token(tokenId, IdType.SESSION_ID, tokenType, userId, expiry)),
-                                    XContentType.JSON)
-                            .id(tokenId)
-                            .type(TOKEN_TYPE)
-                            .create(true)
-                            .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
-                    .status();
-            if (saveStatus != RestStatus.CREATED) {
-                log.error("ES save status for token for user {} is: {}", userId, saveStatus);
-                return Optional.empty();
-            }
-            log.info("Token created for user: {}", userId);
-        } catch (ElasticsearchException v) {
-            log.warn("A valid token exists exists already.. for id: {}", userId);
-            return getTokenForUser(userId);
+
+        val saveStatus = connection.getClient()
+                .index(new IndexRequest(TOKENS_INDEX).source(
+                                mapper.writeValueAsString(new Token(tokenId, IdType.SESSION_ID, tokenType, userId, expiry)),
+                                XContentType.JSON)
+                        .id(tokenId)
+                        .create(true)
+                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
+                .status();
+        if (saveStatus != RestStatus.CREATED) {
+            log.error("ES save status for token for user {} is: {}", userId, saveStatus);
+            return Optional.empty();
         }
+        log.info("Token created for user: {}", userId);
+
         return getToken(tokenId);
     }
 
@@ -136,7 +129,7 @@ public class ESAuthStore implements AuthStore {
     @SneakyThrows
     public Optional<Token> getToken(String tokenId) {
         val getResp = connection.getClient()
-                .get(new GetRequest(TOKENS_INDEX, TOKEN_TYPE, tokenId), RequestOptions.DEFAULT);
+                .get(new GetRequest(TOKENS_INDEX, tokenId), RequestOptions.DEFAULT);
         if (!getResp.isExists()) {
             return Optional.empty();
         }
@@ -149,12 +142,11 @@ public class ESAuthStore implements AuthStore {
         val getResp = connection.getClient()
                 .search(new SearchRequest(TOKENS_INDEX)
                                 .searchType(SearchType.QUERY_THEN_FETCH)
-                                .types(TOKEN_TYPE)
                                 .source(new SearchSourceBuilder().query(
                                         QueryBuilders.termQuery("userId", userId))),
                         RequestOptions.DEFAULT);
         final SearchHits hits = getResp.getHits();
-        if (hits.totalHits <= 0) {
+        if (hits.getHits().length <= 0) {
             return Optional.empty();
         }
         return Optional.of(mapper.readValue(hits.getAt(0).getSourceAsString(), Token.class));
@@ -164,8 +156,8 @@ public class ESAuthStore implements AuthStore {
     @SneakyThrows
     public boolean deleteToken(String tokenId) {
         return connection.getClient()
-                .delete(new DeleteRequest(TOKENS_INDEX, TOKEN_TYPE, tokenId)
-                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE), RequestOptions.DEFAULT)
+                .delete(new DeleteRequest(TOKENS_INDEX, tokenId).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
+                        RequestOptions.DEFAULT)
                 .status() == RestStatus.OK;
     }
 
@@ -176,7 +168,6 @@ public class ESAuthStore implements AuthStore {
         Date oldestValidDate = new Date(date.getTime() - sessionDuration.toMilliseconds());
         val deletedCount = connection.getClient()
                 .deleteByQuery(new DeleteByQueryRequest(TOKENS_INDEX)
-                        .setDocTypes(TOKEN_TYPE)
                         .setIndicesOptions(Utils.indicesOptions())
                         .setQuery(QueryBuilders.rangeQuery("expiry")
                                 .lt(oldestValidDate.getTime()))
@@ -193,7 +184,6 @@ public class ESAuthStore implements AuthStore {
                 .index(new IndexRequest(USERS_INDEX)
                                 .source(mapper.writeValueAsString(user), XContentType.JSON)
                                 .id(user.getId())
-                                .type(USER_TYPE)
                                 .opType(opType)
                                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE),
                         RequestOptions.DEFAULT)
@@ -204,7 +194,6 @@ public class ESAuthStore implements AuthStore {
     public long deleteTokensForUser(String userId) {
         return connection.getClient()
                 .deleteByQuery(new DeleteByQueryRequest(TOKENS_INDEX)
-                                .setDocTypes(TOKEN_TYPE)
                                 .setQuery(QueryBuilders.termQuery("userId", userId))
                                 .setRefresh(true),
                         RequestOptions.DEFAULT)

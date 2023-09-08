@@ -18,7 +18,7 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.8</version>
+                        <version>17</version>
                         <configuration>
                             <skip>${es.spawn.skip}</skip>
                         </configuration>

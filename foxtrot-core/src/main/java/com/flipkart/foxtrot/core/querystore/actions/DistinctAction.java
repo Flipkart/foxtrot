@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static com.flipkart.foxtrot.core.util.OpensearchQueryUtils.QUERY_SIZE;
+
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
@@ -7,22 +9,13 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.config.OpensearchTuningConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
+import com.flipkart.foxtrot.core.util.OpensearchQueryUtils;
 import com.google.common.collect.Sets;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,8 +23,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.common.unit.TimeValue;
+import org.opensearch.search.aggregations.Aggregations;
+import org.opensearch.search.aggregations.bucket.terms.Terms;
+import org.opensearch.search.builder.SearchSourceBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by rishabh.goyal on 17/11/14.
@@ -41,16 +41,16 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 public class DistinctAction extends Action<DistinctRequest> {
     private static final Logger logger = LoggerFactory.getLogger(DistinctAction.class);
 
-    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+    private final OpensearchTuningConfig opensearchTuningConfig;
 
     public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
+        this.opensearchTuningConfig = analyticsLoader.getOpensearchTuningConfig();
     }
 
     @Override
     public void preprocess() {
-        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        getParameter().setTable(OpensearchUtils.getValidTableName(getParameter().getTable()));
     }
 
     @Override
@@ -112,9 +112,8 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
 
         try {
-            SearchResponse response = getConnection()
-                    .getClient()
-                    .search(query);
+            SearchResponse response = getConnection().getClient()
+                    .search(query, RequestOptions.DEFAULT);
 
             return getResponse(response, getParameter());
         } catch (IOException e) {
@@ -125,13 +124,12 @@ public class DistinctAction extends Action<DistinctRequest> {
     @Override
     public SearchRequest getRequestBuilder(DistinctRequest request, List<Filter> extraFilters) {
         try {
-            return new SearchRequest(ElasticsearchUtils.getIndices(request.getTable(), request))
-                    .indicesOptions(Utils.indicesOptions())
-                    .source(new SearchSourceBuilder()
-                            .query(ElasticsearchQueryUtils.translateFilter(request, extraFilters))
+            return new SearchRequest(OpensearchUtils.getIndices(request.getTable(), request)).indicesOptions(
+                            Utils.indicesOptions())
+                    .source(new SearchSourceBuilder().query(OpensearchQueryUtils.translateFilter(request, extraFilters))
                             .size(QUERY_SIZE)
-                            .aggregation(Utils.buildTermsAggregation(
-                                    request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()))
+                            .aggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet(),
+                                    opensearchTuningConfig.getAggregationSize()))
                             .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS)));
 
         } catch (Exception e) {
@@ -140,7 +138,8 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DistinctRequest parameter) {
+    public ActionResponse getResponse(org.opensearch.action.ActionResponse response,
+                                      DistinctRequest parameter) {
         Aggregations aggregations = ((SearchResponse) response).getAggregations();
         // Check if any aggregation is present or not
         if (aggregations == null) {

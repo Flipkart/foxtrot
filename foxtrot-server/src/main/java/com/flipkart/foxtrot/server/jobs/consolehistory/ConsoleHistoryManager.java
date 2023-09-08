@@ -3,33 +3,32 @@ package com.flipkart.foxtrot.server.jobs.consolehistory;
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.jobs.BaseJobManager;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConnection;
 import com.flipkart.foxtrot.server.console.ConsoleFetchException;
 import com.flipkart.foxtrot.server.console.ConsoleV2;
-import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.flipkart.foxtrot.server.console.OpensearchConsolePersistence;
+import java.time.Instant;
+import java.util.concurrent.ScheduledExecutorService;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.action.search.SearchType;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.index.query.QueryBuilders;
+import org.opensearch.search.SearchHit;
+import org.opensearch.search.SearchHits;
+import org.opensearch.search.aggregations.AggregationBuilders;
+import org.opensearch.search.aggregations.bucket.terms.Terms;
+import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.search.sort.SortBuilders;
+import org.opensearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.time.Instant;
-import java.util.concurrent.ScheduledExecutorService;
 
 /***
  Created by mudit.g on Dec, 2018
@@ -42,19 +41,22 @@ public class ConsoleHistoryManager extends BaseJobManager {
     private static final String TYPE = "console_data";
     private static final String INDEX_V2 = "consoles_v2";
     private static final String INDEX_HISTORY = "consoles_history";
-    private final ElasticsearchConnection connection;
+    private final OpensearchConnection connection;
     private final ConsoleHistoryConfig consoleHistoryConfig;
     private final ObjectMapper mapper;
-    private final ElasticsearchConsolePersistence elasticsearchConsolePersistence;
+    private final OpensearchConsolePersistence opensearchConsolePersistence;
 
     @Inject
-    public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService, ConsoleHistoryConfig consoleHistoryConfig,
-                                 ElasticsearchConnection connection, HazelcastConnection hazelcastConnection, ObjectMapper mapper) {
+    public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService,
+                                 ConsoleHistoryConfig consoleHistoryConfig,
+                                 OpensearchConnection connection,
+                                 HazelcastConnection hazelcastConnection,
+                                 ObjectMapper mapper) {
         super(consoleHistoryConfig, scheduledExecutorService, hazelcastConnection);
         this.consoleHistoryConfig = consoleHistoryConfig;
         this.connection = connection;
         this.mapper = mapper;
-        this.elasticsearchConsolePersistence = new ElasticsearchConsolePersistence(connection, mapper);
+        this.opensearchConsolePersistence = new OpensearchConsolePersistence(connection, mapper);
     }
 
     @Override
@@ -63,7 +65,6 @@ public class ConsoleHistoryManager extends BaseJobManager {
             try {
                 SearchResponse searchResponse = connection.getClient()
                         .search(new SearchRequest(INDEX_V2)
-                                .types(TYPE)
                                 .searchType(SearchType.QUERY_THEN_FETCH)
                                 .source(new SearchSourceBuilder()
                                         .aggregation(AggregationBuilders.terms("names")
@@ -87,7 +88,6 @@ public class ConsoleHistoryManager extends BaseJobManager {
         try {
             SearchHits searchHits = connection.getClient()
                     .search(new SearchRequest(INDEX_HISTORY)
-                                    .types(TYPE)
                                     .searchType(SearchType.QUERY_THEN_FETCH)
                                     .source(new SearchSourceBuilder()
                                             .query(QueryBuilders.termQuery("name.keyword", name))
@@ -98,7 +98,7 @@ public class ConsoleHistoryManager extends BaseJobManager {
                     .getHits();
             for (SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
                 ConsoleV2 consoleV2 = mapper.readValue(searchHit.getSourceAsString(), ConsoleV2.class);
-                elasticsearchConsolePersistence.deleteOldVersion(consoleV2.getId());
+                opensearchConsolePersistence.deleteOldVersion(consoleV2.getId());
             }
         } catch (Exception e) {
             throw new ConsoleFetchException(e);

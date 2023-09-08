@@ -18,10 +18,9 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,12 +35,14 @@ import javax.ws.rs.core.MediaType;
 @Singleton
 @PermitAll
 public class UtilResource {
-    private final ElasticsearchConfig elasticsearch;
+
+    private final OpensearchConfig opensearchConfig;
     private final ObjectMapper mapper;
 
     @Inject
-    public UtilResource(ElasticsearchConfig elasticsearch, ObjectMapper mapper) {
-        this.elasticsearch = elasticsearch;
+    public UtilResource(OpensearchConfig opensearchConfig,
+                        ObjectMapper mapper) {
+        this.opensearchConfig = opensearchConfig;
         this.mapper = mapper;
     }
 
@@ -51,8 +52,8 @@ public class UtilResource {
     @ApiOperation("Get config")
     public JsonNode configuration() {
         return mapper.createObjectNode()
-                .set("elasticsearch", mapper.createObjectNode()
-                        .put("tableNamePrefix", elasticsearch.getTableNamePrefix())
-                        .set("hosts", mapper.valueToTree(elasticsearch.getHosts())));
+                .set("opensearchConfig", mapper.createObjectNode()
+                        .put("tableNamePrefix", opensearchConfig.getTableNamePrefix())
+                        .set("hosts", mapper.valueToTree(opensearchConfig.getHosts())));
     }
 }

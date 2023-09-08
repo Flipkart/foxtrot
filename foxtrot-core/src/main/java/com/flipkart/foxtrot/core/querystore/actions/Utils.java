@@ -1,6 +1,8 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 
+import static com.flipkart.foxtrot.core.util.OpensearchQueryUtils.QUERY_SIZE;
+
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Period;
@@ -11,31 +13,37 @@ import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.stats.Stat.StatVisitor;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.OpensearchUtils;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import java.time.ZoneId;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.val;
-import org.elasticsearch.action.support.IndicesOptions;
-import org.elasticsearch.search.aggregations.*;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.avg.ParsedAvg;
-import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.max.ParsedMax;
-import org.elasticsearch.search.aggregations.metrics.min.ParsedMin;
-import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
-import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.elasticsearch.search.aggregations.metrics.stats.ParsedStats;
-import org.elasticsearch.search.aggregations.metrics.stats.extended.ParsedExtendedStats;
-import org.elasticsearch.search.aggregations.metrics.sum.ParsedSum;
-import org.elasticsearch.search.aggregations.metrics.valuecount.ParsedValueCount;
-import org.joda.time.DateTimeZone;
-
-import java.util.*;
-
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+import org.opensearch.action.support.IndicesOptions;
+import org.opensearch.search.aggregations.AbstractAggregationBuilder;
+import org.opensearch.search.aggregations.Aggregation;
+import org.opensearch.search.aggregations.AggregationBuilder;
+import org.opensearch.search.aggregations.AggregationBuilders;
+import org.opensearch.search.aggregations.BucketOrder;
+import org.opensearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
+import org.opensearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.opensearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.opensearch.search.aggregations.metrics.CardinalityAggregationBuilder;
+import org.opensearch.search.aggregations.metrics.ParsedAvg;
+import org.opensearch.search.aggregations.metrics.ParsedExtendedStats;
+import org.opensearch.search.aggregations.metrics.ParsedMax;
+import org.opensearch.search.aggregations.metrics.ParsedMin;
+import org.opensearch.search.aggregations.metrics.ParsedStats;
+import org.opensearch.search.aggregations.metrics.ParsedSum;
+import org.opensearch.search.aggregations.metrics.ParsedValueCount;
+import org.opensearch.search.aggregations.metrics.Percentile;
+import org.opensearch.search.aggregations.metrics.Percentiles;
 
 /**
  * Created by rishabh.goyal on 24/08/14.
@@ -191,7 +199,7 @@ public class Utils {
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(0)
                 .field(storedFieldName(field))
-                .timeZone(DateTimeZone.getDefault())
+                .timeZone(ZoneId.systemDefault())
                 .dateHistogramInterval(interval);
     }
 
@@ -211,7 +219,7 @@ public class Utils {
 
     public static String storedFieldName(String field) {
         if ("_timestamp".equalsIgnoreCase(field)) {
-            return ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME;
+            return OpensearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME;
         }
         return field;
     }

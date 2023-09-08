@@ -19,14 +19,8 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.table.TableManager;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.SneakyThrows;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import ru.vyarus.dropwizard.guice.module.installer.order.Order;
-
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -34,7 +28,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.concurrent.ExecutionException;
+import lombok.SneakyThrows;
+import org.opensearch.action.admin.cluster.health.ClusterHealthResponse;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 /**
  * Created by swapnil on 20/01/16.

@@ -18,11 +18,11 @@ package com.flipkart.foxtrot.core.querystore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import org.opensearch.action.admin.cluster.health.ClusterHealthResponse;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
