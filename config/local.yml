@@ -6,7 +6,7 @@ server:
     - type: http
       port: 17001
 
-elasticsearch:
+opensearchConfig:
   hosts:
   - localhost
   cluster: foxtrot
@@ -45,13 +45,13 @@ cardinality:
   initialDelay: 6
   maxCardinality: 20000
 
-elasticsearchTuningConfig:
+opensearchTuningConfig:
   precisionThreshold: 500
   aggregationSize: 10000
   scrollTimeInSeconds: 120
   documentsLimitAllowed: 10000
 
-esIndexOptimizationConfig:
+indexOptimizationConfig:
   active: true
   interval: 86400
   initialDelay: 6

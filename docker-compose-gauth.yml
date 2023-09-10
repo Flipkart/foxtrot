@@ -1,20 +1,20 @@
 version: '2'
 services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.8
-    container_name: elasticsearch
-    hostname: elasticsearch
+  opensearch:
+    image: opensearchproject/opensearch:2.0.0
+    container_name: opensearch
+    hostname: opensearch
     environment:
-          - cluster.name=elasticsearch
+          - cluster.name=opensearch
           - bootstrap.memory_lock=true
           - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
           memlock:
             soft: -1
             hard: -1
-    command: elasticsearch -Ehttp.cors.enabled=true
+    command: opensearch -Ehttp.cors.enabled=true
     volumes:
-          - /elasticsearch/data
+          - /opensearch/data
 
   hbase:
     image: hyness/hbase-rest-standalone
@@ -25,7 +25,7 @@ services:
 
   foxtrot-server:
     depends_on:
-     - elasticsearch
+     - opensearch
      - hbase
     container_name: foxtrot_server
     build: .
@@ -37,12 +37,12 @@ services:
      - /var/log/foxtrot-server
     environment:
      - HOST=localhost
-     - ELASTICSEARCH_HOST=elasticsearch
-     - ELASTICSEARCH_PORT=9300
-     - ELASTICSEARCH_CLUSTER_NAME=elasticsearch
-     - ELASTICSEARCH_TABLE_NAME_PREFIX=foxtrot
-     - ELASTICSEARCH_PORT="9200"
-     - ELASTICSEARCH_PROTOCOL=http
+     - OPENSEARCH_HOST=opensearch
+     - OPENSEARCH_PORT=9300
+     - OPENSEARCH_CLUSTER_NAME=opensearch
+     - OPENSEARCH_TABLE_NAME_PREFIX=foxtrot
+     - OPENSEARCH_PORT="9200"
+     - OPENSEARCH_PROTOCOL=http
      - HBASE_TABLE_NAME=foxtrot
      - HBASE_ZOOKEEPER_QUORUM=hbase
      - HBASE_ZOOKEEPER_CLIENT_PORT=2181

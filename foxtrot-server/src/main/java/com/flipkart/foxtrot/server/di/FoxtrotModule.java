@@ -150,9 +150,9 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public DatabaseIndexOptimizationConfig esIndexOptimizationConfig(FoxtrotServerConfiguration configuration) {
-        return null == configuration.getEsIndexOptimizationConfig()
+        return null == configuration.getIndexOptimizationConfig()
                ? new DatabaseIndexOptimizationConfig()
-               : configuration.getEsIndexOptimizationConfig();
+               : configuration.getIndexOptimizationConfig();
     }
 
     @Provides

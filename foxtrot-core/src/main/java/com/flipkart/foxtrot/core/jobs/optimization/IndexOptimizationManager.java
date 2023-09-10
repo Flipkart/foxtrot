@@ -101,7 +101,7 @@ public class IndexOptimizationManager extends BaseJobManager {
             try {
                 IndicesSegmentsRequest indicesSegmentsRequest = new IndicesSegmentsRequest();
 
-                IndicesSegmentResponse indicesSegmentResponse = elasticsearchConnection.getClient()
+                IndicesSegmentResponse indicesSegmentResponse = opensearchConnection.getClient()
                         .admin()
                         .indices()
                         .forcemerge()
@@ -126,7 +126,7 @@ public class IndexOptimizationManager extends BaseJobManager {
         List<List<String>> batchOfIndicesToOptimize = CollectionUtils.partition(indicesToOptimize, BATCH_SIZE);
         for(List<String> indices : batchOfIndicesToOptimize) {
             Stopwatch stopwatch = Stopwatch.createStarted();
-            elasticsearchConnection.getClient()
+            opensearchConnection.getClient()
                     .admin()
                     .indices()
                     .prepareForceMerge(indices.toArray(new String[0]))
@@ -145,12 +145,12 @@ public class IndexOptimizationManager extends BaseJobManager {
 
     private void extractIndicesToOptimizeForIndex(String index, IndexSegments indexShardSegments, Set<String> indicesToOptimize) {
 
-        String table = ElasticsearchUtils.getTableNameFromIndex(index);
+        String table = OpensearchUtils.getTableNameFromIndex(index);
         if(StringUtils.isEmpty(table)) {
             return;
         }
-        String currentIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis());
-        String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+        String currentIndex = OpensearchUtils.getCurrentIndex(table, System.currentTimeMillis());
+        String nextDayIndex = OpensearchUtils.getCurrentIndex(table, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
         if(index.equals(currentIndex) || index.equals(nextDayIndex)) {
             return;
         }

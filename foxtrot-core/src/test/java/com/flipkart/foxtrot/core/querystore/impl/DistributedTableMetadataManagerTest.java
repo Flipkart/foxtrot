@@ -29,7 +29,7 @@ import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
-import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
+import com.flipkart.foxtrot.core.table.impl.OpensearchTestUtils;
 import com.google.common.collect.Lists;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
@@ -52,10 +52,10 @@ import static org.mockito.Mockito.when;
 public class DistributedTableMetadataManagerTest {
 
     private static HazelcastInstance hazelcastInstance;
-    private static ElasticsearchConnection elasticsearchConnection;
+    private static OpensearchConnection opensearchConnection;
 
     private DataStore dataStore;
-    private ElasticsearchQueryStore queryStore;
+    private OpensearchQueryStore queryStore;
     private DistributedTableMetadataManager distributedTableMetadataManager;
     private IMap<String, Table> tableDataStore;
     private ObjectMapper objectMapper;
@@ -63,14 +63,14 @@ public class DistributedTableMetadataManagerTest {
     @BeforeClass
     public static void setupClass() throws Exception {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
-        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
-        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+        opensearchConnection = OpensearchTestUtils.getConnection();
+        OpensearchUtils.initializeMappings(opensearchConnection.getClient());
     }
 
     @AfterClass
     public static void tearDownClass() throws Exception {
         hazelcastInstance.shutdown();
-        elasticsearchConnection.stop();
+        opensearchConnection.stop();
     }
 
     @Before
@@ -88,7 +88,7 @@ public class DistributedTableMetadataManagerTest {
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
         hazelcastConnection.start();
 
-        this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection,
+        this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, opensearchConnection,
                 objectMapper, new CardinalityConfig()
         );
         distributedTableMetadataManager.start();
@@ -96,14 +96,14 @@ public class DistributedTableMetadataManagerTest {
         tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(objectMapper,
                 TextNodeRemoverConfiguration.builder().build()));
-        this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection, dataStore, mutators, objectMapper,
+        this.queryStore = new OpensearchQueryStore(distributedTableMetadataManager, opensearchConnection, dataStore, mutators, objectMapper,
                 new CardinalityConfig()
         );
     }
 
     @After
     public void tearDown() throws Exception {
-        ElasticsearchTestUtils.cleanupIndices(elasticsearchConnection);
+        OpensearchTestUtils.cleanupIndices(opensearchConnection);
         distributedTableMetadataManager.stop();
     }
 

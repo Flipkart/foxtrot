@@ -16,8 +16,11 @@ package com.flipkart.foxtrot.core.table.impl;
  * limitations under the License.
  */
 
+import static io.appform.testcontainers.commons.ContainerUtils.containerLogsConsumer;
+
 import com.flipkart.foxtrot.core.querystore.impl.OpensearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.OpensearchConnection;
+import java.time.Duration;
 import java.util.Collections;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +57,10 @@ public class OpensearchTestUtils {
         }
     }
 
+    public static String getJavaOpts(int ramMb) {
+        return "-Xms" + ramMb + "m -Xmx" + ramMb + "m";
+    }
+
     /**
      * Class to make sure we run the server only once.
      */
@@ -67,17 +74,27 @@ public class OpensearchTestUtils {
 
         static {
             try {
-                OpensearchContainer opensearchContainer = new OpensearchContainer("opensearchproject/opensearch:2.0.0");
+                OpensearchContainer opensearchContainer = new OpensearchContainer(
+                        "opensearchproject/opensearch:1.3.0").withExposedPorts(9200, 9300)
+                        .withEnv("cluster.name", "opensearch")
+                        .withEnv("discovery.type", "single-node")
+                        .withEnv("ES_JAVA_OPTS", getJavaOpts(256))
+                        .withLogConsumer(containerLogsConsumer(log))
+                        .withStartupTimeout(Duration.ofSeconds(300))
+//                        .waitingFor(getCompositeWaitStrategy(configuration))
+//                        .withStartupCheckStrategy(new IsRunningStartupCheckStrategyWithDelay());
+                        ;
                 opensearchContainer.start();
 
                 Integer mappedPort = opensearchContainer.getMappedPort(9200);
 
                 opensearchConfig = new OpensearchConfig();
-                opensearchConfig.setHosts(Collections.singletonList(opensearchContainer.getHttpHostAddress()));
+                opensearchConfig.setHosts(Collections.singletonList(opensearchContainer.getHost()));
                 opensearchConfig.setPort(mappedPort);
                 opensearchConfig.setConnectionType(OpensearchConfig.ConnectionType.HTTP);
                 opensearchConfig.setCluster("opensearch");
                 opensearchConfig.setTableNamePrefix("foxtrot");
+                containerLoaded = true;
             } catch (Exception e) {
                 log.error("Error in initializing es test container , error :", e);
                 throw e;

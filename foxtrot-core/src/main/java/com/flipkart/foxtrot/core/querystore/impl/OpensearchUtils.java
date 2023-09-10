@@ -20,8 +20,8 @@ import org.joda.time.format.DateTimeFormatter;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.PutIndexTemplateRequest;
+import org.opensearch.common.xcontent.XContentBuilder;
 import org.opensearch.common.xcontent.XContentFactory;
-import org.opensearch.core.xcontent.XContentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -189,8 +189,6 @@ public class OpensearchUtils {
     private static XContentBuilder getDocumentMapping() throws IOException {
         return XContentFactory.jsonBuilder()
                 .startObject()
-                .field(DOCUMENT_TYPE_NAME)
-                .startObject()
                 .field("_source")
                 .startObject()
                 .field("enabled", false)
@@ -288,7 +286,6 @@ public class OpensearchUtils {
                 .field(STORE, true)
                 .field("type", "date")
                 .field("format", "epoch_millis")
-                .endObject()
                 .endObject()
                 .endObject()
                 .endObject()

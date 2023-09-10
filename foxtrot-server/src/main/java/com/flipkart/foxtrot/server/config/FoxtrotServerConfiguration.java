@@ -63,7 +63,7 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     private CardinalityConfig cardinality;
     @Valid
-    private DatabaseIndexOptimizationConfig esIndexOptimizationConfig;
+    private DatabaseIndexOptimizationConfig indexOptimizationConfig;
 
     @Valid
     private SessionCleanupConfig sessionCleanupConfig;
