@@ -87,12 +87,12 @@
         <repository>
             <id>hdp-public</id>
             <name>HDP Public</name>
-            <url>http://repo.hortonworks.com/content/groups/public</url>
+            <url>https://repo.hortonworks.com/content/groups/public</url>
         </repository>
         <repository>
             <id>hdp-releases</id>
             <name>HDP Releases</name>
-            <url>http://repo.hortonworks.com/content/repositories/releases/</url>
+            <url>https://repo.hortonworks.com/content/repositories/releases/</url>
         </repository>
         <repository>
             <snapshots>
